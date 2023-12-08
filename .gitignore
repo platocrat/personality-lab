@@ -2,6 +2,7 @@
 # ---------------------------- Project Specific --------------------------------
 .env
 .turbo
+package-lock.json
 
 # dependencies
 /node_modules
