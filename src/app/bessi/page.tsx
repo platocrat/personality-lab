@@ -2,19 +2,19 @@
 import { Inter } from 'next/font/google'
 // Locals
 // Sections
-import PersonalityAssessments from '@/sections/assessments'
+import Bessi from '@/sections/assessments/bessi'
 // CSS
-import styles from './page.module.css'
+import styles from '@/app/page.module.css'
 
 
 const inter = Inter({ subsets: ['latin'] })
 
 
-export default function Home() {
+export default function _() {
   return (
     <>
       <main className={ `${styles.main} ${inter.className}` }>
-        <PersonalityAssessments />
+        <Bessi />
       </main>
     </>
   )
