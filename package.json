@@ -2,6 +2,11 @@
   "name": "personality-lab",
   "version": "0.1.0",
   "private": true,
+  "author": {
+    "email": "jack.abe.winfield@gmail.com",
+    "name": "Jack Winfield",
+    "url": "https://github.com/platocrat"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -15,10 +20,14 @@
   },
   "devDependencies": {
     "typescript": "^5.3.3",
-    "@types/node": "^20.10.4",
-    "@types/react": "^18.2.42",
-    "@types/react-dom": "^18.2.17",
-    "eslint": "^8.55.0",
+    "@aws-sdk/client-dynamodb": "^3.474.0",
+    "@aws-sdk/client-sts": "3.474.0",
+    "@aws-sdk/lib-dynamodb": "^3.474.0",
+    "@aws-sdk/util-dynamodb": "^3.474.0",
+    "@types/node": "^20.10.5",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
+    "eslint": "^8.56.0",
     "eslint-config-next": "^14.0.4"
   }
 }
