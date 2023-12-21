@@ -5,7 +5,7 @@ import { ddbDocClient } from '..'
 import { BessiUserResults__DynamoDB } from '@/utils/bessi/types'
 
 
-export async function putUserScores(
+export async function putUserResults(
   userResults: BessiUserResults__DynamoDB
 ) {
   const command = new PutCommand({
@@ -15,9 +15,10 @@ export async function putUserScores(
       timestamp: userResults.timestamp,
       facetScores: userResults.facetScores,
       domainScores: userResults.domainScores,
-      demographics: userResults.demographics
+      demographics: userResults.demographics,
     },
-    // ReturnValues: 'ALL_OLD',
+    ReturnValues: 'ALL_NEW',
+    ReturnConsumedCapacity: 'TOTAL',
   })
 
   try {

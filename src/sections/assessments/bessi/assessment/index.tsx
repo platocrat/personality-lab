@@ -14,6 +14,9 @@ import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // Utility functions
 import { calculateBessiScores } from '@/utils'
+import {
+  putUserResults
+} from '@/utils/aws/dynamodb/commands/putUserResults'
 // Types
 import { 
   BessiUserResults__DynamoDB,
@@ -34,7 +37,6 @@ import {
 } from '@/utils/bessi/types/enums'
 // CSS
 import styles from '@/app/page.module.css'
-import { putUserScores } from '@/utils/aws/dynamodb/commands/put-user-responses';
 
 
 
@@ -242,7 +244,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
     /**
      * @todo Store `USER_RESULTS` in DynamoDB
      */
-    await putUserScores(USER_RESULTS)
+    await putUserResults(USER_RESULTS)
   }
 
   async function sendEmail() {}
