@@ -5,6 +5,7 @@ import Link from 'next/link'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+import Card from '@/components/Card'
 
 
 type PersonalityAssessmentType = {
@@ -74,40 +75,6 @@ const pAssessments: PersonalityAssessmentType[] = [
 ]
 
 
-/**
- * @dev Component to enter an application
- */
-const PAssessmentEntrance: FC<PersonalityAssessmentType> = ({
-  title,
-  description,
-  buttonText,
-  href
-}) => {
-  return (
-    <>
-      <div style={ { padding: '18px', borderBottom: '1px' } }>
-        <div style={ { padding: '8px' } }>
-          <h2 style={ { textAlign: 'center' } }>{ title }</h2>
-        </div>
-        <div>
-          <p style={ { textAlign: 'center' } }>{ description }</p>
-        </div>
-        <div 
-          style={ { 
-            ...definitelyCenteredStyle, 
-            margin: '18px 0px 12px 0px',
-          } }
-        >
-          <Link href={ href }>
-            <button className={ styles.button }>{ buttonText }</button>
-          </Link>
-        </div>
-      </div>
-    </>
-  )
-}
-
-
 const PersonalityAssessments = ({ }) => {
   function fragmentKey(pa: PersonalityAssessmentType, i: number): string {
     const fragmentKeyBasePrefix = `personality-assessment-`
@@ -120,7 +87,7 @@ const PersonalityAssessments = ({ }) => {
       <div className={ styles.assessmentWrapper }>
         { pAssessments.map((pa: PersonalityAssessmentType, i: number) => (
           <Fragment key={ fragmentKey(pa, i) }>
-            <PAssessmentEntrance
+            <Card
               href={ pa.href }
               title={ pa.title }
               buttonText={ pa.buttonText }

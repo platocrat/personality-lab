@@ -447,6 +447,35 @@
   filter: drop-shadow(0px 2px 6px rgba(0, 68, 194, 0.05));
 }
 
+.blueHyperlink {
+  font-size: 13px;
+  color: rgb(0, 123, 194);
+  letter-spacing: 0.3px;
+  
+  border-radius: 1.5rem;
+  border-style: inset;
+  border-width: 1px;
+  padding: 0.5px 6px;
+  border: 1px solid rgb(0, 123, 194);
+}
+
+.buttonNoStyle {
+  border: none;
+  outline: none;
+  background: none;
+  cursor: pointer;
+}
+
+.blueHyperlink:hover {
+  color: rgb(68, 108, 202, 0.9);
+  transform: scale(0.98);
+}
+
+.blueHyperlink:active {
+  color: rgb(68, 108, 202);
+  transform: scale(0.97);
+}
+
 .externalLink {
   color: rgb(255, 127, 80);
   margin-left: 3.5px;
