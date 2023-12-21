@@ -1,4 +1,15 @@
-import { Facet, SkillDomain } from './enums'
+import { 
+  Facet, 
+  Gender, 
+  USState, 
+  YesOrNo,
+  SkillDomain, 
+  SocialClass, 
+  RaceOrEthnicity, 
+  CurrentMaritalStatus, 
+  HighestFormalEducation, 
+  CurrentEmploymentStatus, 
+} from './enums'
 
 
 export type SkillDomainFactorType = {
@@ -32,4 +43,28 @@ export type BessiActivityType = {
   facet: Facet
   domain: SkillDomain[]
   weight: number 
+}
+
+export type BessiUserDemographics__DynamoDB = {
+  age: number
+  gender: Gender
+  usState: USState
+  zipCode: string
+  isParent: YesOrNo
+  foreignCountry: string
+  englishFluency: YesOrNo
+  priorCompletion: YesOrNo
+  socialClass: SocialClass
+  raceOrEthnicity: RaceOrEthnicity
+  currentMaritalStatus: CurrentMaritalStatus
+  highestFormalEducation: HighestFormalEducation
+  currentEmploymentStatus: CurrentEmploymentStatus
+}
+
+export type BessiUserResults__DynamoDB = {
+  userId: string
+  timestamp: number
+  facetScores: FacetFactorType,
+  domainScores: SkillDomainFactorType,
+  demographics: BessiUserDemographics__DynamoDB
 }

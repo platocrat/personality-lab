@@ -12,10 +12,11 @@ import BessiDemographicQuestionnaire from '../demographic-questionnaire'
 import { UserScoresContext } from '@/contexts/UserScoresContext'
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
-// Utils
+// Utility functions
 import { calculateBessiScores } from '@/utils'
 // Types
 import { 
+  BessiUserResults__DynamoDB,
   FacetFactorType,
   SkillDomainFactorType,
   UserScoresType
@@ -29,9 +30,11 @@ import {
   CurrentMaritalStatus, 
   HighestFormalEducation, 
   CurrentEmploymentStatus,
+  YesOrNo,
 } from '@/utils/bessi/types/enums'
 // CSS
 import styles from '@/app/page.module.css'
+import { putUserScores } from '@/utils/aws/dynamodb/commands/put-user-responses';
 
 
 
@@ -51,17 +54,16 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
   ] = useState<{ [key: string]: UserScoresType } | null>(null)
   // Numbers
   const [age, setAge] = useState<number>(0)
-  // String
+  // Regular strings
   const [zipCode, setZipCode] = useState<string>('')
   const [foreignCountry, setForeignCountry] = useState<string>('')
-  // Booleans
-  const [
-    hasPreviouslyCompleted,
-    setHasPreviouslyCompleted
-  ] = useState<boolean>(false)
-  const [ isParent, setIsParent ] = useState<boolean>(false)
-  const [ isFluentInEnglish, setIsFluentInEnglish ] = useState<boolean>(false)
   // Enums
+  const [
+    priorCompletion,
+    setPriorCompletion
+  ] = useState<YesOrNo>(YesOrNo.No)
+  const [ isParent, setIsParent ] = useState<YesOrNo>(YesOrNo.No)
+  const [ isFluentInEnglish, setIsFluentInEnglish ] = useState<YesOrNo>(YesOrNo.No)
   const [
     gender,
     setGender
@@ -98,7 +100,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
   function onPriorCompletionChange(e: any) {
     // console.log(`e.target.value: `, e.target.value)
     const value = e.target.value
-    setHasPreviouslyCompleted(value)
+    setPriorCompletion(value)
   } 
 
   function onGenderChange(e: any) {
@@ -189,11 +191,58 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
 
       setBessiSkillScores(finalScores)
 
+      await storeResultsInDynamoDB(finalScores)
+
+      // Navigate to the results page
       const href = '/bessi/assessment/results'
       router.push(href)
       
       await sendEmail()
     }
+  }
+
+  async function storeResultsInDynamoDB(
+    finalScores: {
+      facetScores: FacetFactorType,
+      domainScores: SkillDomainFactorType
+    },
+  ) {
+    const DEMOGRAPHICS = {
+      age: age,
+      gender: gender,
+      usState: usState,
+      zipCode: zipCode,
+      isParent: isParent,
+      foreignCountry: foreignCountry,
+      englishFluency: isFluentInEnglish,
+      priorCompletion: priorCompletion,
+      socialClass: socialClass,
+      raceOrEthnicity: raceOrEthnicity,
+      currentMaritalStatus: currentMaritalStatus,
+      highestFormalEducation: highestFormalEducation,
+      currentEmploymentStatus: currentEmploymentStatus,
+    }
+
+    const CURRENT_TIMESTAMP = new Date().getTime()
+
+    /**
+     * @dev This is the object that we store in DynamoDB using AWS's 
+     * `PutItemCommand` operation.
+     * @todo `userId` must use the user's username, otherwise, the `userId` is
+     * at risk of being spoofed.
+     */
+    const USER_RESULTS: BessiUserResults__DynamoDB = {
+      // userId: '',
+      timestamp: CURRENT_TIMESTAMP,
+      facetScores: finalScores.facetScores,
+      domainScores: finalScores.domainScores,
+      demographics: DEMOGRAPHICS,
+    }
+
+    /**
+     * @todo Store `USER_RESULTS` in DynamoDB
+     */
+    await putUserScores(USER_RESULTS)
   }
 
   async function sendEmail() {}
