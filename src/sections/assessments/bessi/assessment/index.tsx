@@ -234,7 +234,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
      * at risk of being spoofed.
      */
     const USER_RESULTS: BessiUserResults__DynamoDB = {
-      userId: getUserIdFromCookie(),
+      userId: '',
       timestamp: CURRENT_TIMESTAMP,
       facetScores: finalScores.facetScores,
       domainScores: finalScores.domainScores,
