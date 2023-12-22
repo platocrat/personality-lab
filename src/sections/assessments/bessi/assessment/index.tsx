@@ -203,10 +203,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
     }
   }
 
-  /**
-   * @todo Something in `storeResultsInDynamoDB()` creates a failing deployment
-   * on Vercel
-   */
+
   async function storeResultsInDynamoDB(
     finalScores: {
       facetScores: FacetFactorType,
@@ -234,8 +231,6 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
     /**
      * @dev This is the object that we store in DynamoDB using AWS's 
      * `PutItemCommand` operation.
-     * @todo `userId` must use the user's username, otherwise, the `userId` is
-     * at risk of being spoofed.
      */
     const USER_RESULTS: BessiUserResults__DynamoDB = {
       userId: getUserIdFromCookie(),
@@ -246,8 +241,9 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
     }
 
     /**
-     * @todo Store `USER_RESULTS` in DynamoDB
-     */
+      * @todo Something in `storeResultsInDynamoDB()` creates a failing deployment
+      * on Vercel
+      */
     // await putUserResults(USER_RESULTS)
   }
 

@@ -6,6 +6,10 @@ import { ddbDocClient } from '..'
 import { BessiUserResults__DynamoDB } from '@/utils/bessi/types'
 
 
+/**
+ * @todo Calling `putUserResults()` on the client results in a failing 
+ * deployment on Vercel
+ */
 export async function putUserResults(
   userResults: BessiUserResults__DynamoDB
 ) {
