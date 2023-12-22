@@ -203,49 +203,53 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
     }
   }
 
-  // async function storeResultsInDynamoDB(
-  //   finalScores: {
-  //     facetScores: FacetFactorType,
-  //     domainScores: SkillDomainFactorType
-  //   },
-  // ) {
-  //   const DEMOGRAPHICS = {
-  //     age: age,
-  //     gender: gender,
-  //     usState: usState,
-  //     zipCode: zipCode,
-  //     isParent: isParent,
-  //     foreignCountry: foreignCountry,
-  //     englishFluency: isFluentInEnglish,
-  //     priorCompletion: priorCompletion,
-  //     socialClass: socialClass,
-  //     raceOrEthnicity: raceOrEthnicity,
-  //     currentMaritalStatus: currentMaritalStatus,
-  //     highestFormalEducation: highestFormalEducation,
-  //     currentEmploymentStatus: currentEmploymentStatus,
-  //   }
+  /**
+   * @todo Something in `storeResultsInDynamoDB()` creates a failing deployment
+   * on Vercel
+   */
+  async function storeResultsInDynamoDB(
+    finalScores: {
+      facetScores: FacetFactorType,
+      domainScores: SkillDomainFactorType
+    },
+  ) {
+    const DEMOGRAPHICS = {
+      age: age,
+      gender: gender,
+      usState: usState,
+      zipCode: zipCode,
+      isParent: isParent,
+      foreignCountry: foreignCountry,
+      englishFluency: isFluentInEnglish,
+      priorCompletion: priorCompletion,
+      socialClass: socialClass,
+      raceOrEthnicity: raceOrEthnicity,
+      currentMaritalStatus: currentMaritalStatus,
+      highestFormalEducation: highestFormalEducation,
+      currentEmploymentStatus: currentEmploymentStatus,
+    }
 
-  //   const CURRENT_TIMESTAMP = new Date().getTime()
+    const CURRENT_TIMESTAMP = new Date().getTime()
 
-  //   /**
-  //    * @dev This is the object that we store in DynamoDB using AWS's 
-  //    * `PutItemCommand` operation.
-  //    * @todo `userId` must use the user's username, otherwise, the `userId` is
-  //    * at risk of being spoofed.
-  //    */
-  //   const USER_RESULTS: BessiUserResults__DynamoDB = {
-  //     userId: getUserIdFromCookie(),
-  //     timestamp: CURRENT_TIMESTAMP,
-  //     facetScores: finalScores.facetScores,
-  //     domainScores: finalScores.domainScores,
-  //     demographics: DEMOGRAPHICS,
-  //   }
+    /**
+     * @dev This is the object that we store in DynamoDB using AWS's 
+     * `PutItemCommand` operation.
+     * @todo `userId` must use the user's username, otherwise, the `userId` is
+     * at risk of being spoofed.
+     */
+    const USER_RESULTS: BessiUserResults__DynamoDB = {
+      userId: getUserIdFromCookie(),
+      timestamp: CURRENT_TIMESTAMP,
+      facetScores: finalScores.facetScores,
+      domainScores: finalScores.domainScores,
+      demographics: DEMOGRAPHICS,
+    }
 
-  //   /**
-  //    * @todo Store `USER_RESULTS` in DynamoDB
-  //    */
-  //   await putUserResults(USER_RESULTS)
-  // }
+    /**
+     * @todo Store `USER_RESULTS` in DynamoDB
+     */
+    // await putUserResults(USER_RESULTS)
+  }
 
 
   function getUserIdFromCookie(): string {
