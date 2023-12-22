@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { ddbDocClient } from '@/utils/aws/dynamodb'
 
 
-export async function signInOrSignUp(
+export default async function signInOrSignUp(
   req: NextRequest, 
   res: NextResponse,
 ) {

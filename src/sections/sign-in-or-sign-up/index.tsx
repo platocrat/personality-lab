@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 // Externals
 import Link from 'next/link'
@@ -32,15 +32,26 @@ const SignInOrSignUp = () => {
   async function handleSignIn(e: any) {
     e.preventDefault()
 
-    // 1. Take email and password
-    // try {}
+    try {
+      const response = await fetch('/api/route', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      })
 
-    // 2. Check if email-password pair exist in DynamoDB table.
+      const data = await response.json()
 
-    // 3. If email-password pair exists, sign the user in.
-
-    // 4. If the email-password does NOT exist, throw an error with red text 
-    //    saying that the email and password does not match any known users.
+      if (response.ok) {
+        console.log(data.message)
+      } else {
+        throw new Error(data.error)
+      }
+    } catch (error: any) {
+      console.error(error.message)
+      // Handle error UI here
+    }
 
     console.log(`user signed in!`)
   }
@@ -48,24 +59,55 @@ const SignInOrSignUp = () => {
   async function handleSignUp(e: any) {
     e.preventDefault()
 
-    // 1. Take email, username, and password.
+     // Validate email, username, and password
+    if (
+      !isValidEmail(email) || 
+      !isValidUsername(username) || 
+      !isValidPassword(password)
+    ) {
+        // Handle invalid input UI here
+        console.error('Invalid input');
+        return
+    }
 
-    // 2. Check for a valid email, username, and password.
 
-    // 3. If email, username, and password are valid then store email, username,
-    //    and password to DynamoDB table
+    try {
+        const response = await fetch('/api/route', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, username, password }),
+        })
 
-    // 4. If email, username, and password are INVALID, throw an error where 
-    //    appropriate, with the appropriate error message in red text and a red
-    //    border on the appropriate input box
-
-    // 5. Wait for confirmation from DynamoDB that sign-in info was stored 
-    //    successfully
-
-    // 6. Present the user with a confirmation message and email that they are
-    //    now signed up
+        const data = await response.json()
+        if (response.ok) {
+          console.log(data.message)
+        } else {
+          throw new Error(data.error)
+        }
+      } catch (error: any) {
+        console.error(error.message)
+        // Handle error UI here
+      }
 
     console.log(`user signed up!`)
+  }
+
+  function isValidEmail(email: string) {
+    // Implement email validation logic
+    
+    return true
+  }
+
+  function isValidUsername(username: string) {
+    // Implement username validation logic
+    return true
+  }
+
+  function isValidPassword(password: string) {
+    // Implement password validation logic
+    return true
   }
 
   async function handleOnSignUp(e: any) {

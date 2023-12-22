@@ -1,5 +1,8 @@
-import { definitelyCenteredStyle } from '@/theme/styles'
+// Externals
+import sodium from 'libsodium-wrappers'
 import { Dispatch, Fragment, SetStateAction } from 'react'
+// Locals
+import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 type FormProps = {
@@ -26,11 +29,29 @@ const Form = ({
     setEmail(value)
   }
   
-  function onPasswordChange(e: any) {
+  async function onPasswordChange(e: any) {
     e.preventDefault()
     const value = e.target.value
+    const hashedPassword = await hashPassword(value)
     setPassword(value)
   }
+
+  async function hashPassword(password: string) {
+    const sodiumReady = await sodium.ready
+
+    console.log(`await sodium.ready: `, sodiumReady)
+    console.log(`sodium: `, sodium)
+
+    // Hash the salted password
+    const passwordHash = sodium.crypto_pwhash_str(
+      password,
+      sodium.crypto_pwhash_OPSLIMIT_SENSITIVE,
+      sodium.crypto_pwhash_MEMLIMIT_SENSITIVE
+    )
+
+    return passwordHash
+  }
+
 
   
   const formInputs = [
