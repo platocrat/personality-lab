@@ -234,7 +234,8 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
      * at risk of being spoofed.
      */
     const USER_RESULTS: BessiUserResults__DynamoDB = {
-      userId: getUserIdFromCookie(),
+      // userId: getUserIdFromCookie(),
+      userId: 'null',
       timestamp: CURRENT_TIMESTAMP,
       facetScores: finalScores.facetScores,
       domainScores: finalScores.domainScores,
@@ -263,7 +264,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
 
   return (
     <Fragment key={ `bessi-assessment` }>
-      <div className={ styles.assessmentWrapper }>
+      {/* <div className={ styles.assessmentWrapper }>
         <form
           className={ styles.grayColor }
           onSubmit={ (e: any): Promise<void> => handleSubmit(e) }
@@ -307,7 +308,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
             </button>
           </div>
         </form>
-      </div>
+      </div> */}
     </Fragment>
   )
 }
