@@ -8,7 +8,7 @@ import { CSSProperties, FC, useState } from 'react'
 import Card from '@/components/Card'
 // Sections
 import Form from './form'
-import CreateAnAccount from './create-an-account-helper'
+import FormSwitcher from './form-switcher'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -23,10 +23,41 @@ const SignInOrSignUp = () => {
   // Booleans
   const [ isSignUp, setIsSignUp ] = useState<boolean>(false)
 
-  const title = `Sign-in or create an account`
-  const description = `Sign-in to view your scores from previous assessments taken.`
-  const buttonText = `Sign in`
+  const title = isSignUp ? `Create an account` : `Sign in`
+  const description = `Sign ${
+    isSignUp 
+      ? 'up to keep track of' 
+      : 'in to view' 
+  } your scores from previous assessments taken.`
+  const buttonText = `Sign ${isSignUp ? 'up' : 'in' }`
 
+
+  // ---------------------------- Regular functions ----------------------------
+  function isValidEmail(email: string) {
+    // Implement email validation logic
+
+    return true
+  }
+
+  function isValidUsername(username: string) {
+    // Implement username validation logic
+    return true
+  }
+
+  function isValidPassword(password: string) {
+    // Implement password validation logic
+    return true
+  }
+
+  function handleOnSwitchToSignUp(e: any) {
+    setIsSignUp(true)
+  }
+
+  function handleOnSwitchToSignIn(e: any) {
+    setIsSignUp(false)
+  }
+  
+  const onSwitchForm = { handleOnSwitchToSignUp, handleOnSwitchToSignIn }
 
   // ------------------------------ Async functions ----------------------------
   async function handleSignIn(e: any) {
@@ -50,9 +81,12 @@ const SignInOrSignUp = () => {
       }
     } catch (error: any) {
       console.error(error.message)
-      // Handle error UI here
+      /**
+       * @todo Handle error UI here
+       */
     }
   }
+
 
   async function handleSignUp(e: any) {
     e.preventDefault()
@@ -63,11 +97,12 @@ const SignInOrSignUp = () => {
       !isValidUsername(username) || 
       !isValidPassword(password)
     ) {
-        // Handle invalid input UI here
+        /**
+         * @todo Handle invalid input UI here
+         */
         console.error('Invalid input')
         return
     }
-
 
     try {
         const response = await fetch('/api/sign-up', {
@@ -86,29 +121,10 @@ const SignInOrSignUp = () => {
         }
       } catch (error: any) {
         console.error(error.message)
-        // Handle error UI here
+        /**
+         * @todo Handle error UI here
+         */
       }
-  }
-
-  function isValidEmail(email: string) {
-    // Implement email validation logic
-    
-    return true
-  }
-
-  function isValidUsername(username: string) {
-    // Implement username validation logic
-    return true
-  }
-
-  function isValidPassword(password: string) {
-    // Implement password validation logic
-    return true
-  }
-
-  async function handleOnSignUp(e: any) {
-    e.preventDefault()
-    setIsSignUp(true)
   }
 
 
@@ -122,9 +138,11 @@ const SignInOrSignUp = () => {
         cssStyle={{ maxWidth: '450px' }}
         options={{
           hasForm: true,
+          isSignUp: isSignUp,
           hasOnClickHandler: true,
           buttonOnClick: handleSignIn,
           formContent: <Form 
+            isSignUp={ isSignUp }
             setEmail={ setEmail }
             setUsername={ setUsername }
             setPassword={ setPassword }
@@ -136,7 +154,15 @@ const SignInOrSignUp = () => {
             // handleSignIn={}
             // handleSignUp={}
           />,
-          helperContent: <CreateAnAccount onSignUp={ handleOnSignUp } />,
+          helperContent: <FormSwitcher
+            /**
+             * @dev Use the opposite of `isSignUp` for both of these constants 
+             * because the UI displays the opposite of the current form that is
+             * displayed.
+             */
+            isSignUp={ !isSignUp }
+            onSwitchForm={ onSwitchForm } 
+          />,
         }}
       />
     </>

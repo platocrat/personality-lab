@@ -6,6 +6,7 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 type FormProps = {
+  isSignUp: boolean
   setEmail: Dispatch<SetStateAction<string>>
   setPassword: Dispatch<SetStateAction<string>>
   setUsername: Dispatch<SetStateAction<string>>
@@ -13,6 +14,7 @@ type FormProps = {
 
 
 const Form = ({
+  isSignUp,
   setEmail,
   setUsername,
   setPassword,
@@ -21,18 +23,16 @@ const Form = ({
 
   // ------------------------------ Regular functions --------------------------
   const onUsernameChange = (e: any) => {
-    e.preventDefault()
     const value = e.target.value
     setUsername(value)
   }
 
   const debouncedOnUsernameChange = useMemo(
-    (): ((...args: any) => void) => debounce(onPasswordChange, debounceTimeout),
+    (): ((...args: any) => void) => debounce(onUsernameChange, debounceTimeout),
     []
   )
   
   const onEmailChange = (e: any) => {
-    e.preventDefault()
     const value = e.target.value
     setEmail(value)
   }
@@ -44,7 +44,6 @@ const Form = ({
   
   // -------------------------- Async functions --------------------------------
   const onPasswordChange = async (e: any) => {
-    e.preventDefault()
     const value = e.target.value
     const hashedPassword = await hashPassword(value)
     setPassword(value)
@@ -72,12 +71,12 @@ const Form = ({
     }
   }
 
+  /**
+   * @todo Finish form submission
+   */
   async function handleSubmit(e: any) {
     e.preventDefault()
-
-    
   }
-
 
   
   const formInputs = [
@@ -115,27 +114,54 @@ const Form = ({
             flexDirection: 'column'
           } }
         >
-          { formInputs.map((fi, i: number) => (
-            <Fragment key={`form-inputs-${i}`}>
-              <div style={{ margin: '0px 0px 8px 0px' }}>
-                <input
-                  required
-                  type={ 'text' }
-                  id={ fi.inputName }
-                  name={ fi.inputName }
-                  placeholder={ fi.labelName }
-                  maxLength={ 28 }
-                  onChange={ (e: any) => fi.onChange(e) }
-                  style={{
-                    fontSize: '14.5px',
-                    padding: '5px 12px',
-                    borderWidth: '0.5px',
-                    borderRadius: '1.5rem',
-                    width: `310px`,
-                  }}
-                  />
-              </div>
-            </Fragment>
+          { isSignUp 
+            ? (
+              formInputs.map((fi, i: number) => (
+                <Fragment key={ `form-inputs-${i}` }>
+                  <div style={ { margin: '0px 0px 8px 0px' } }>
+                    <input
+                      required
+                      type={ 'text' }
+                      id={ fi.inputName }
+                      name={ fi.inputName }
+                      placeholder={ fi.labelName }
+                      maxLength={ 28 }
+                      onChange={ (e: any) => fi.onChange(e) }
+                      style={ {
+                        fontSize: '14.5px',
+                        padding: '5px 12px',
+                        borderWidth: '0.5px',
+                        borderRadius: '1.5rem',
+                        width: `310px`,
+                      } }
+                    />
+                  </div>
+                </Fragment>
+              ))
+            )
+            : (
+              formInputs.slice(1).map((fi, i: number) => (
+              <Fragment key={`form-inputs-${i}`}>
+                <div style={{ margin: '0px 0px 8px 0px' }}>
+                  <input
+                    required
+                    type={ 'text' }
+                    id={ fi.inputName }
+                    name={ fi.inputName }
+                    placeholder={ fi.labelName }
+                    maxLength={ 28 }
+                    onChange={ (e: any) => fi.onChange(e) }
+                    style={{
+                      fontSize: '14.5px',
+                      padding: '5px 12px',
+                      borderWidth: '0.5px',
+                      borderRadius: '1.5rem',
+                      width: `310px`,
+                    }}
+                    />
+                </div>
+              </Fragment>
+            )
           )) }
         </div>
       </form>

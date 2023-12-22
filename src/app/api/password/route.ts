@@ -25,8 +25,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
         hashedPassword.indexOf('p=1')
       ).split('p=1$')[1]
 
-      console.log(`hashedPassword: `, hashedPassword)
-
       return NextResponse.json(
         { hashedPassword },
         { status: 200 }
