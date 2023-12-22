@@ -193,7 +193,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
 
       setBessiSkillScores(finalScores)
 
-      await storeResultsInDynamoDB(finalScores)
+      // await storeResultsInDynamoDB(finalScores)
 
       // Navigate to the results page
       const href = '/bessi/assessment/results'
@@ -203,71 +203,67 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
     }
   }
 
-  async function storeResultsInDynamoDB(
-    finalScores: {
-      facetScores: FacetFactorType,
-      domainScores: SkillDomainFactorType
-    },
-  ) {
-    const DEMOGRAPHICS = {
-      age: age,
-      gender: gender,
-      usState: usState,
-      zipCode: zipCode,
-      isParent: isParent,
-      foreignCountry: foreignCountry,
-      englishFluency: isFluentInEnglish,
-      priorCompletion: priorCompletion,
-      socialClass: socialClass,
-      raceOrEthnicity: raceOrEthnicity,
-      currentMaritalStatus: currentMaritalStatus,
-      highestFormalEducation: highestFormalEducation,
-      currentEmploymentStatus: currentEmploymentStatus,
-    }
+  // async function storeResultsInDynamoDB(
+  //   finalScores: {
+  //     facetScores: FacetFactorType,
+  //     domainScores: SkillDomainFactorType
+  //   },
+  // ) {
+  //   const DEMOGRAPHICS = {
+  //     age: age,
+  //     gender: gender,
+  //     usState: usState,
+  //     zipCode: zipCode,
+  //     isParent: isParent,
+  //     foreignCountry: foreignCountry,
+  //     englishFluency: isFluentInEnglish,
+  //     priorCompletion: priorCompletion,
+  //     socialClass: socialClass,
+  //     raceOrEthnicity: raceOrEthnicity,
+  //     currentMaritalStatus: currentMaritalStatus,
+  //     highestFormalEducation: highestFormalEducation,
+  //     currentEmploymentStatus: currentEmploymentStatus,
+  //   }
 
-    const CURRENT_TIMESTAMP = new Date().getTime()
+  //   const CURRENT_TIMESTAMP = new Date().getTime()
 
-    /**
-     * @dev This is the object that we store in DynamoDB using AWS's 
-     * `PutItemCommand` operation.
-     * @todo `userId` must use the user's username, otherwise, the `userId` is
-     * at risk of being spoofed.
-     */
-    const USER_RESULTS: BessiUserResults__DynamoDB = {
-      userId: '',
-      timestamp: CURRENT_TIMESTAMP,
-      facetScores: finalScores.facetScores,
-      domainScores: finalScores.domainScores,
-      demographics: DEMOGRAPHICS,
-    }
+  //   /**
+  //    * @dev This is the object that we store in DynamoDB using AWS's 
+  //    * `PutItemCommand` operation.
+  //    * @todo `userId` must use the user's username, otherwise, the `userId` is
+  //    * at risk of being spoofed.
+  //    */
+  //   const USER_RESULTS: BessiUserResults__DynamoDB = {
+  //     userId: getUserIdFromCookie(),
+  //     timestamp: CURRENT_TIMESTAMP,
+  //     facetScores: finalScores.facetScores,
+  //     domainScores: finalScores.domainScores,
+  //     demographics: DEMOGRAPHICS,
+  //   }
 
-    /**
-     * @todo Store `USER_RESULTS` in DynamoDB
-     */
-    await putUserResults(USER_RESULTS)
-  }
-
-
-  // function getUserIdFromCookie() {
-  //   const cookies: any = document.cookie.split(';')
-
-  //   const userIdCookie = cookies.find(
-  //     (c: string): boolean => c.trim().startsWith('userId=')
-  //   )
-    
-  //   return userIdCookie 
-  //     ? `${ decodeURIComponent(userIdCookie.split('=')[1]) }` 
-  //     : 'null'
+  //   /**
+  //    * @todo Store `USER_RESULTS` in DynamoDB
+  //    */
+  //   await putUserResults(USER_RESULTS)
   // }
+
+
+  function getUserIdFromCookie(): string {
+    const cookies = document.cookie.split(';')
+    const userIdCookie = cookies.find(c => c.trim().startsWith('userId='))
+    
+    return userIdCookie 
+      ? decodeURIComponent(userIdCookie.split('=')[1]) 
+      : 'null'
+  }
   
 
   async function sendEmail() {}
 
 
-
   return (
     <Fragment key={ `bessi-assessment` }>
-      {/* <div className={ styles.assessmentWrapper }>
+      <div className={ styles.assessmentWrapper }>
         <form
           className={ styles.grayColor }
           onSubmit={ (e: any): Promise<void> => handleSubmit(e) }
@@ -311,7 +307,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
             </button>
           </div>
         </form>
-      </div> */}
+      </div>
     </Fragment>
   )
 }
