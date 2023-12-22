@@ -263,7 +263,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
 
   return (
     <Fragment key={ `bessi-assessment` }>
-      <div className={ styles.assessmentWrapper }>
+      {/* <div className={ styles.assessmentWrapper }>
         <form
           className={ styles.grayColor }
           onSubmit={ (e: any): Promise<void> => handleSubmit(e) }
@@ -307,7 +307,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
             </button>
           </div>
         </form>
-      </div>
+      </div> */}
     </Fragment>
   )
 }
