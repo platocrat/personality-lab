@@ -248,17 +248,17 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
   }
 
 
-  function getUserIdFromCookie() {
-    const cookies: any = document.cookie.split(';')
+  // function getUserIdFromCookie() {
+  //   const cookies: any = document.cookie.split(';')
 
-    const userIdCookie = cookies.find(
-      (c: string): boolean => c.trim().startsWith('userId=')
-    )
+  //   const userIdCookie = cookies.find(
+  //     (c: string): boolean => c.trim().startsWith('userId=')
+  //   )
     
-    return userIdCookie 
-      ? `${ decodeURIComponent(userIdCookie.split('=')[1]) }` 
-      : 'null'
-  }
+  //   return userIdCookie 
+  //     ? `${ decodeURIComponent(userIdCookie.split('=')[1]) }` 
+  //     : 'null'
+  // }
   
 
   async function sendEmail() {}
