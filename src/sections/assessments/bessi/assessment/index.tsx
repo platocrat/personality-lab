@@ -248,7 +248,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
   }
 
 
-  function getUserIdFromCookie(): string {
+  function getUserIdFromCookie() {
     const cookies: any = document.cookie.split(';')
 
     const userIdCookie = cookies.find(
