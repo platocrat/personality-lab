@@ -22,7 +22,7 @@ const Bessi: FC<BessiProps> = ({ }) => {
   return (
     <>
       <main className={ `${styles.main} ${inter.className}` }>
-        <BessiAssessment />
+        {/* <BessiAssessment /> */}
       </main>
     </>
   )
