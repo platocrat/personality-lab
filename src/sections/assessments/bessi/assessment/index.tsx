@@ -234,8 +234,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
      * at risk of being spoofed.
      */
     const USER_RESULTS: BessiUserResults__DynamoDB = {
-      // userId: getUserIdFromCookie(),
-      userId: 'null',
+      userId: getUserIdFromCookie(),
       timestamp: CURRENT_TIMESTAMP,
       facetScores: finalScores.facetScores,
       domainScores: finalScores.domainScores,
@@ -250,8 +249,11 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
 
 
   function getUserIdFromCookie(): string {
-    const cookies = document.cookie.split(';')
-    const userIdCookie = cookies.find(c => c.trim().startsWith('userId='))
+    const cookies: any = document.cookie.split(';')
+
+    const userIdCookie = cookies.find(
+      (c: string): boolean => c.trim().startsWith('userId=')
+    )
     
     return userIdCookie 
       ? decodeURIComponent(userIdCookie.split('=')[1]) 
