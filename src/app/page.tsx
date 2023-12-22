@@ -1,4 +1,7 @@
+'use client';
+
 // Externals
+import { useState } from 'react'
 import { Inter } from 'next/font/google'
 // Locals
 // Sections
@@ -12,11 +15,15 @@ const inter = Inter({ subsets: ['latin'] })
 
 
 export default function Home() {
+  /**
+   * @todo Set state of `isSignedIn` by using browser cookie
+   */
+  const [ isSignedIn, setIsSignedIn ] = useState<boolean>(false)
+
   return (
     <>
       <main className={ `${styles.main} ${inter.className}` }>
-        <SignInOrSignUp />
-        <PersonalityAssessments />
+        { isSignedIn ? <PersonalityAssessments /> : <SignInOrSignUp /> }
       </main>
     </>
   )

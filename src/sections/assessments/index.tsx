@@ -1,11 +1,11 @@
 // Externals
+import Link from 'next/link'
 import { FC, Fragment, JSX, ReactNode, useState } from 'react'
 // Locals
-import Link from 'next/link'
+import Card from '@/components/Card'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
-import Card from '@/components/Card'
 
 
 type PersonalityAssessmentType = {
@@ -76,6 +76,8 @@ const pAssessments: PersonalityAssessmentType[] = [
 
 
 const PersonalityAssessments = ({ }) => {
+  const title = `Assessments`
+
   function fragmentKey(pa: PersonalityAssessmentType, i: number): string {
     const fragmentKeyBasePrefix = `personality-assessment-`
     const fragmentKeySuffix = `${pa.buttonText}-${pa.href}-${pa.title}-${i}`
@@ -84,6 +86,9 @@ const PersonalityAssessments = ({ }) => {
 
   return (
     <Fragment key={ `personality-assessments` }>
+      <div>
+        <h1>{ title }</h1>
+      </div>
       <div className={ styles.assessmentWrapper }>
         { pAssessments.map((pa: PersonalityAssessmentType, i: number) => (
           <Fragment key={ fragmentKey(pa, i) }>
