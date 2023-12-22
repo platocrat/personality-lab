@@ -256,12 +256,13 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
     )
     
     return userIdCookie 
-      ? decodeURIComponent(userIdCookie.split('=')[1]) 
+      ? `${ decodeURIComponent(userIdCookie.split('=')[1]) }` 
       : 'null'
   }
   
 
   async function sendEmail() {}
+
 
 
   return (
