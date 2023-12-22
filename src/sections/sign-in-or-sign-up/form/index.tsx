@@ -1,7 +1,7 @@
 // Externals
-import sodium from 'libsodium-wrappers-sumo'
-import { Dispatch, Fragment, SetStateAction } from 'react'
+import { Dispatch, Fragment, SetStateAction, useMemo } from 'react'
 // Locals
+import { debounce } from '@/utils'
 import { definitelyCenteredStyle } from '@/theme/styles'
 
 
@@ -17,37 +17,65 @@ const Form = ({
   setUsername,
   setPassword,
 }) => {
-  function onUsernameChange(e: any) {
+  const debounceTimeout = 700
+
+  // ------------------------------ Regular functions --------------------------
+  const onUsernameChange = (e: any) => {
     e.preventDefault()
     const value = e.target.value
     setUsername(value)
   }
+
+  const debouncedOnUsernameChange = useMemo(
+    (): ((...args: any) => void) => debounce(onPasswordChange, debounceTimeout),
+    []
+  )
   
-  function onEmailChange(e: any) {
+  const onEmailChange = (e: any) => {
     e.preventDefault()
     const value = e.target.value
     setEmail(value)
   }
+
+  const debouncedOnEmailChange = useMemo(
+    (): ((...args: any) => void) => debounce(onEmailChange, debounceTimeout),
+    []
+  )
   
   // -------------------------- Async functions --------------------------------
-  async function onPasswordChange(e: any) {
+  const onPasswordChange = async (e: any) => {
     e.preventDefault()
     const value = e.target.value
     const hashedPassword = await hashPassword(value)
     setPassword(value)
   }
 
+  const debouncedOnPasswordChange = useMemo(
+    (): ((...args: any) => void) => debounce(onPasswordChange, debounceTimeout),
+    []
+  )
+
   async function hashPassword(password: string) {
-    await sodium.ready
+    try {
+      const response = await fetch('/api/password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password }),
+      })
 
-    // Hash the salted password
-    const passwordHash = sodium.crypto_pwhash_str(
-      password,
-      sodium.crypto_pwhash_OPSLIMIT_SENSITIVE,
-      sodium.crypto_pwhash_MEMLIMIT_SENSITIVE
-    )
+      const { hashedPassword } = await response.json()
+      return hashedPassword
+    } catch (error: any) {
+      console.error(error)
+    }
+  }
 
-    return passwordHash
+  async function handleSubmit(e: any) {
+    e.preventDefault()
+
+    
   }
 
 
@@ -56,17 +84,17 @@ const Form = ({
     {
       labelName: `Username`,
       inputName: 'username',
-      onChange: onUsernameChange
+      onChange: debouncedOnUsernameChange
     },
     {
       labelName: `Email`,
       inputName: 'email',
-      onChange: onEmailChange
+      onChange: debouncedOnEmailChange
     },
     {
       labelName: `Password`,
       inputName: 'password',
-      onChange: onPasswordChange
+      onChange: debouncedOnPasswordChange
     },
   ]
 
@@ -79,6 +107,7 @@ const Form = ({
           ...definitelyCenteredStyle,
           margin: '0px 0px 18px 0px'
         }}
+        onSubmit={ (e: any) => handleSubmit(e) }
       >
         <div
           style={ {

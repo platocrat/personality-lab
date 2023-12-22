@@ -33,7 +33,7 @@ const SignInOrSignUp = () => {
     e.preventDefault()
 
     try {
-      const response = await fetch('/api/route', {
+      const response = await fetch('/api/sign-in', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -70,7 +70,7 @@ const SignInOrSignUp = () => {
 
 
     try {
-        const response = await fetch('/api/route', {
+        const response = await fetch('/api/sign-up', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -128,6 +128,13 @@ const SignInOrSignUp = () => {
             setEmail={ setEmail }
             setUsername={ setUsername }
             setPassword={ setPassword }
+            // /**
+            //  * @todo Form `onSubmit` property is in the Form component, which
+            //  *       requires the `handleSignIn` and handleSignUp` buttons to 
+            //  *       be passed down.
+            //  */
+            // handleSignIn={}
+            // handleSignUp={}
           />,
           helperContent: <CreateAnAccount onSignUp={ handleOnSignUp } />,
         }}
