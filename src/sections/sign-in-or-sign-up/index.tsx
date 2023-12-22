@@ -52,8 +52,6 @@ const SignInOrSignUp = () => {
       console.error(error.message)
       // Handle error UI here
     }
-
-    console.log(`user signed in!`)
   }
 
   async function handleSignUp(e: any) {
@@ -66,7 +64,7 @@ const SignInOrSignUp = () => {
       !isValidPassword(password)
     ) {
         // Handle invalid input UI here
-        console.error('Invalid input');
+        console.error('Invalid input')
         return
     }
 
@@ -90,8 +88,6 @@ const SignInOrSignUp = () => {
         console.error(error.message)
         // Handle error UI here
       }
-
-    console.log(`user signed up!`)
   }
 
   function isValidEmail(email: string) {
