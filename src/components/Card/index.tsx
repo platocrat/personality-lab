@@ -1,27 +1,27 @@
 'use client';
 
 // Externals
-import { CSSProperties, FC, ReactNode } from 'react'
 import Link from 'next/link'
+import { CSSProperties, FC, ReactNode } from 'react'
 // Locals
 // CSS
-import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/app/page.module.css'
+import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 type CardProps = {
   title: string
-  buttonText: string
   description: string | ReactNode
+  buttonText?: string
   href?: string
   cssStyle?: CSSProperties
   options?: {
     hasForm?: boolean
     isSignUp?: boolean
+    isFirstStep?: boolean
     formContent?: ReactNode
-    helperContent?: ReactNode
-    hasOnClickHandler?: boolean
     buttonOnClick: (e: any) => void
+    handleEmailExists?: (e: any) => void
   }
 }
 
@@ -34,13 +34,24 @@ const Card: FC<CardProps> = ({
   buttonText,
   description,
 }) => {
+  function handleOnClick(e: any) {
+    if (options?.isFirstStep) {
+      return options?.buttonOnClick(e)
+    } else if (options?.handleEmailExists) {
+      return options.handleEmailExists(e)
+    } else {
+      throw new Error(`Error: 'handleEmailExists()' method does not exist!`)
+    }
+  }
+
+
   return (
     <>
       <div 
         style={ {
           ...cssStyle,
           padding: '18px',
-          borderRadius: '1.5rem',
+          borderRadius: '1rem',
           margin: '0rem 0rem 2rem 0rem',
           boxShadow: '0px 2.5px 5px rgba(80, 110, 127, 0.5)',
         } }
@@ -59,28 +70,19 @@ const Card: FC<CardProps> = ({
         >
           <div 
             style={{
-              display: 'flex',
+              width: '100%',
+              display: 'block',
               alignItems: 'center',
               flexDirection: 'column',
             }}
           >
-            { options?.hasOnClickHandler ? (
-              <>
-                { options?.formContent }
-                <button 
-                  className={ styles.button }
-                  onClick={ (e: any) => options?.buttonOnClick(e) }
-                >
-                  { buttonText }
-                </button>
-                { options?.helperContent }
-              </>
-            ) : typeof href === 'string' && (
+            { options?.formContent 
+              ? options?.formContent 
+              : typeof href === 'string' && (
               <>
                 <Link href={ href }>
                   <button className={ styles.button }>{ buttonText }</button>
                 </Link>
-                { options?.helperContent }
               </>
             ) }
           </div>

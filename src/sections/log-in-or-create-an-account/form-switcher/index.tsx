@@ -6,16 +6,13 @@ import styles from '@/app/page.module.css'
 
 type FormSwitcherProps = {
   isSignUp: boolean
-  onSwitchForm: {
-    handleOnSwitchToSignUp: (e: any) => void
-    handleOnSwitchToSignIn: (e: any) => void
-  }
+  handleEmailExists: (e: any) => void
 }
 
 
 const FormSwitcher: FC<FormSwitcherProps> = ({
   isSignUp,
-  onSwitchForm,
+  handleEmailExists,
 }) => {
   const HELPER_TEXT = isSignUp 
     ? `Don't have an account?`
@@ -31,12 +28,8 @@ const FormSwitcher: FC<FormSwitcherProps> = ({
           { HELPER_TEXT }
         </p>
         <button
-          onClick={
-            (e: any) => isSignUp 
-              ? onSwitchForm.handleOnSwitchToSignUp(e)
-              : onSwitchForm.handleOnSwitchToSignIn(e)
-          }
           className={ styles.buttonNoStyle }
+          onClick={ (e: any) => handleEmailExists(e) }
         >
           <p
             style={ { marginTop: '-1.5px' } }

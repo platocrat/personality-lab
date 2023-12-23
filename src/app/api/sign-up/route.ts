@@ -12,7 +12,7 @@ export async function POST(
     const { email, username, password } = await req.json()
 
     const input = {
-      TableName: process.env.NEXT_BESSI_SIGN_IN_TABLE_NAME,
+      TableName: process.env.NEXT_BESSI_ACCOUNTS_TABLE_NAME,
       Item: { email, username, password },
     }
 

@@ -14,22 +14,26 @@ import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
 
 
+const isFirstStep = true
 
-const SignInOrSignUp = () => {
+
+const LogInOrCreateAnAccount = () => {
   // Strings
   const [ email, setEmail ] = useState<string>('')
   const [ username, setUsername ] = useState<string>('')
   const [ password, setPassword ] = useState<string>('')
   // Booleans
   const [ isSignUp, setIsSignUp ] = useState<boolean>(false)
+  const [ emailExists, setEmailExists ] = useState<boolean>(false)
 
-  const title = isSignUp ? `Create an account` : `Sign in`
-  const description = `Sign ${
-    isSignUp 
-      ? 'up to keep track of' 
-      : 'in to view' 
-  } your scores from previous assessments taken.`
-  const buttonText = `Sign ${isSignUp ? 'up' : 'in' }`
+
+  const title = isFirstStep 
+    ? `Log in or create an account`
+    : isSignUp 
+      ? `Create an account` 
+      : `Log in`
+  const description = `to view your scores from previous assessments taken.`
+  const buttonText = isFirstStep ? `Next` : `${isSignUp ? 'Sign up' : 'Log in' }`
 
 
   // ---------------------------- Regular functions ----------------------------
@@ -49,31 +53,23 @@ const SignInOrSignUp = () => {
     return true
   }
 
-  function handleOnSwitchToSignUp(e: any) {
-    setIsSignUp(true)
-  }
-
-  function handleOnSwitchToSignIn(e: any) {
-    setIsSignUp(false)
-  }
   
-  const onSwitchForm = { handleOnSwitchToSignUp, handleOnSwitchToSignIn }
-
+  
   // ------------------------------ Async functions ----------------------------
-  async function handleSignIn(e: any) {
+  async function handleLogIn(e: any) {
     e.preventDefault()
-
+    
     try {
-      const response = await fetch('/api/sign-in', {
+      const response = await fetch('/api/log-in', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password }),
       })
-
+      
       const data = await response.json()
-
+      
       if (response.status === 200) {
         console.log(`data: `, data)
       } else {
@@ -83,29 +79,29 @@ const SignInOrSignUp = () => {
       console.error(error.message)
       /**
        * @todo Handle error UI here
-       */
-      
+      */
+     
     }
   }
-
-
+  
+  
   async function handleSignUp(e: any) {
     e.preventDefault()
-
-     // Validate email, username, and password
+    
+    // Validate email, username, and password
     if (
       !isValidEmail(email) || 
       !isValidUsername(username) || 
       !isValidPassword(password)
-    ) {
+      ) {
         /**
          * @todo Handle invalid input UI here
-         */
-        console.error('Invalid input')
-        return
-    }
-
-    try {
+        */
+       console.error('Invalid input')
+       return
+      }
+      
+      try {
         const response = await fetch('/api/sign-up', {
           method: 'POST',
           headers: {
@@ -113,7 +109,7 @@ const SignInOrSignUp = () => {
           },
           body: JSON.stringify({ email, username, password }),
         })
-
+        
         const data = await response.json()
         if (response.status === 200) {
           console.log(`data: `, data)
@@ -124,9 +120,38 @@ const SignInOrSignUp = () => {
         console.error(error.message)
         /**
          * @todo Handle error UI here
-         */
+        */
       }
-  }
+    }
+    
+    
+    async function handleEmailExists(e: any) {
+      e.preventDefault()
+  
+      try {
+        const response = await fetch('/api/check-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email }),
+        })
+
+        const data = await response.json()
+
+        if (response.status === 200) { // Email exists
+          setIsSignUp(false)
+        } else { // Email does NOT exist
+          setIsSignUp(true)
+        }
+      } catch (error: any) { // Error reading email in DynamoDB
+        console.error(error.message)
+        /**
+         * @todo Handle error UI here
+         */
+
+      }
+    }
 
 
 
@@ -134,40 +159,26 @@ const SignInOrSignUp = () => {
     <>
       <Card
         title={ title }
-        buttonText={ buttonText }
         description={ description }
         cssStyle={{ maxWidth: '450px' }}
         options={{
           hasForm: true,
           isSignUp: isSignUp,
-          hasOnClickHandler: true,
-          buttonOnClick: handleSignIn,
+          isFirstStep: isFirstStep,
+          buttonOnClick: handleLogIn,
+          handleEmailExists: handleEmailExists,
           formContent: <Form 
             isSignUp={ isSignUp }
             setEmail={ setEmail }
+            buttonText={buttonText}
+            isFirstStep={ isFirstStep }
             setUsername={ setUsername }
             setPassword={ setPassword }
-            // /**
-            //  * @todo Form `onSubmit` property is in the Form component, which
-            //  *       requires the `handleSignIn` and handleSignUp` buttons to 
-            //  *       be passed down.
-            //  */
-            // handleSignIn={}
-            // handleSignUp={}
-          />,
-          helperContent: <FormSwitcher
-            /**
-             * @dev Use the opposite of `isSignUp` for both of these constants 
-             * because the UI displays the opposite of the current form that is
-             * displayed.
-             */
-            isSignUp={ !isSignUp }
-            onSwitchForm={ onSwitchForm } 
-          />,
+          />
         }}
       />
     </>
   )
 }
 
-export default SignInOrSignUp
+export default LogInOrCreateAnAccount

@@ -12,7 +12,7 @@ export async function POST(
     const { email, password } = await req.json()
 
     const input = {
-      TableName: process.env.NEXT_BESSI_SIGN_IN_TABLE_NAME,
+      TableName: process.env.NEXT_BESSI_ACCOUNTS_TABLE_NAME,
       Key: { email },
     }
 
@@ -23,7 +23,7 @@ export async function POST(
 
       if (Item && Item.password === password) {
         return NextResponse.json(
-          { message: 'User has successfully signed in!' },
+          { message: 'User has successfully logged in!' },
           { status: 200 },
         )
       } else {

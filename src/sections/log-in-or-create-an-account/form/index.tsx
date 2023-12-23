@@ -2,11 +2,16 @@
 import { Dispatch, Fragment, SetStateAction, useMemo } from 'react'
 // Locals
 import { debounce } from '@/utils'
+// CSS
+import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 type FormProps = {
   isSignUp: boolean
+  buttonText: string
+  emailExists: boolean
+  isFirstStep: boolean
   setEmail: Dispatch<SetStateAction<string>>
   setPassword: Dispatch<SetStateAction<string>>
   setUsername: Dispatch<SetStateAction<string>>
@@ -16,6 +21,8 @@ type FormProps = {
 const Form = ({
   isSignUp,
   setEmail,
+  buttonText,
+  isFirstStep,
   setUsername,
   setPassword,
 }) => {
@@ -79,23 +86,25 @@ const Form = ({
   }
 
   
-  const formInputs = [
+  let formInputs: any = [
     {
-      labelName: `Username`,
-      inputName: 'username',
+      name: 'username',
+      placeholder: `Username`,
       onChange: debouncedOnUsernameChange
     },
     {
-      labelName: `Email`,
-      inputName: 'email',
+      name: 'email',
+      placeholder: `Enter your email`,
       onChange: debouncedOnEmailChange
     },
     {
-      labelName: `Password`,
-      inputName: 'password',
+      name: 'password',
+      placeholder: `Password`,
       onChange: debouncedOnPasswordChange
     },
-  ]
+  ].slice(isSignUp ? 0 : 1)
+
+  formInputs = isFirstStep ? formInputs[1] : formInputs
 
 
 
@@ -108,61 +117,74 @@ const Form = ({
         }}
         onSubmit={ (e: any) => handleSubmit(e) }
       >
-        <div
-          style={ {
-            display: 'flex',
-            flexDirection: 'column'
-          } }
+        <div 
+          style={{
+            ...definitelyCenteredStyle,
+            flexDirection: 'column',
+            gap: '12px'
+          }}
         >
-          { isSignUp 
-            ? (
-              formInputs.map((fi, i: number) => (
-                <Fragment key={ `form-inputs-${i}` }>
+          <div
+            style={ {
+              display: 'flex',
+              flexDirection: 'column'
+            } }
+          >
+            { isFirstStep 
+              ? (
+                <>
                   <div style={ { margin: '0px 0px 8px 0px' } }>
                     <input
                       required
                       type={ 'text' }
-                      id={ fi.inputName }
-                      name={ fi.inputName }
-                      placeholder={ fi.labelName }
+                      id={ formInputs.name }
+                      name={ formInputs.name }
+                      placeholder={ formInputs.placeholder }
                       maxLength={ 28 }
-                      onChange={ (e: any) => fi.onChange(e) }
+                      onChange={ (e: any) => formInputs.onChange(e) }
                       style={ {
                         fontSize: '14.5px',
                         padding: '5px 12px',
                         borderWidth: '0.5px',
-                        borderRadius: '1.5rem',
+                        borderRadius: '1rem',
                         width: `310px`,
                       } }
                     />
                   </div>
-                </Fragment>
-              ))
-            )
-            : (
-              formInputs.slice(1).map((fi, i: number) => (
-              <Fragment key={`form-inputs-${i}`}>
-                <div style={{ margin: '0px 0px 8px 0px' }}>
-                  <input
-                    required
-                    type={ 'text' }
-                    id={ fi.inputName }
-                    name={ fi.inputName }
-                    placeholder={ fi.labelName }
-                    maxLength={ 28 }
-                    onChange={ (e: any) => fi.onChange(e) }
-                    style={{
-                      fontSize: '14.5px',
-                      padding: '5px 12px',
-                      borderWidth: '0.5px',
-                      borderRadius: '1.5rem',
-                      width: `310px`,
-                    }}
-                    />
-                </div>
-              </Fragment>
-            )
-          )) }
+                </>
+              ) : formInputs.map((fi, i: number) => (
+                  <Fragment key={ `form-inputs-${i}` }>
+                    <div style={ { margin: '0px 0px 8px 0px' } }>
+                      <input
+                        required
+                        type={ 'text' }
+                        id={ fi.name }
+                        name={ fi.name }
+                        placeholder={ fi.placeholder }
+                        maxLength={ 28 }
+                        onChange={ (e: any) => fi.onChange(e) }
+                        style={ {
+                          fontSize: '14.5px',
+                          padding: '5px 12px',
+                          borderWidth: '0.5px',
+                          borderRadius: '1rem',
+                          width: `310px`,
+                        } }
+                      />
+                    </div>
+                  </Fragment>
+                )
+              ) 
+            }
+          </div>
+          <div style={{ display: 'block', width: '100%' }}>
+            <button
+              className={ styles.button }
+              onClick={ (e: any) => handleSubmit(e) }
+            >
+              { buttonText }
+            </button>
+          </div>
         </div>
       </form>
     </>
