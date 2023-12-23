@@ -38,6 +38,8 @@ export async function getTemporaryCredentials(
   try {
     const response = await stsClient.send(assumeRoleCommand)
 
+    console.log(`STS client response after requesting to AssumeRole with temporary credentials: `, response)
+
     const temporaryCredentials = {
       accessKeyId: response.Credentials?.AccessKeyId ?? 'null',
       secretAccessKey: response.Credentials?.SecretAccessKey ?? 'null',
