@@ -14,26 +14,23 @@ import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // Utility functions
 import { calculateBessiScores } from '@/utils'
-import {
-  putUserResults
-} from '@/utils/aws/dynamodb/commands/putUserResults'
 // Types
 import { 
-  BessiUserResults__DynamoDB,
+  UserScoresType,
   FacetFactorType,
   SkillDomainFactorType,
-  UserScoresType
+  BessiUserResults__DynamoDB,
 } from '@/utils/bessi/types'
 // Enums
 import { 
   Gender, 
+  YesOrNo,
   USState,
   SocialClass, 
   RaceOrEthnicity, 
   CurrentMaritalStatus, 
   HighestFormalEducation, 
   CurrentEmploymentStatus,
-  YesOrNo,
 } from '@/utils/bessi/types/enums'
 // CSS
 import styles from '@/app/page.module.css'
@@ -232,7 +229,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
      * @dev This is the object that we store in DynamoDB using AWS's 
      * `PutItemCommand` operation.
      */
-    const USER_RESULTS: BessiUserResults__DynamoDB = {
+    const userResults: BessiUserResults__DynamoDB = {
       userId: getUserIdFromCookie(),
       timestamp: CURRENT_TIMESTAMP,
       facetScores: finalScores.facetScores,
@@ -240,11 +237,29 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
       demographics: DEMOGRAPHICS,
     }
 
-    /**
-      * @todo Something in `storeResultsInDynamoDB()` creates a failing deployment
-      * on Vercel
-      */
-    // await putUserResults(USER_RESULTS)
+    try {
+      const response = await fetch('/api/assessment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userResults }),
+      })
+
+      const data = await response.json()
+
+      if (response.status === 200) {
+        console.log(data)
+      } else {
+        console.error(data.error)
+      }
+    } catch (error: any) {
+      console.error(error.message)
+      /**
+       * @todo Handle error UI here
+       */
+
+    }
   }
 
 

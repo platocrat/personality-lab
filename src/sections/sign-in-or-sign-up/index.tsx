@@ -74,10 +74,10 @@ const SignInOrSignUp = () => {
 
       const data = await response.json()
 
-      if (response.ok) {
-        console.log(data.message)
+      if (response.status === 200) {
+        console.log(`data: `, data)
       } else {
-        throw new Error(data.error)
+        console.error(data.error)
       }
     } catch (error: any) {
       console.error(error.message)
@@ -115,10 +115,10 @@ const SignInOrSignUp = () => {
         })
 
         const data = await response.json()
-        if (response.ok) {
-          console.log(data.message)
+        if (response.status === 200) {
+          console.log(`data: `, data)
         } else {
-          throw new Error(data.error)
+          console.error(data.error)
         }
       } catch (error: any) {
         console.error(error.message)
