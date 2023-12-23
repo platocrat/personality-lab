@@ -20,8 +20,6 @@ type CardProps = {
     isSignUp?: boolean
     isFirstStep?: boolean
     formContent?: ReactNode
-    buttonOnClick: (e: any) => void
-    handleEmailExists?: (e: any) => void
   }
 }
 
@@ -34,17 +32,6 @@ const Card: FC<CardProps> = ({
   buttonText,
   description,
 }) => {
-  function handleOnClick(e: any) {
-    if (options?.isFirstStep) {
-      return options?.buttonOnClick(e)
-    } else if (options?.handleEmailExists) {
-      return options.handleEmailExists(e)
-    } else {
-      throw new Error(`Error: 'handleEmailExists()' method does not exist!`)
-    }
-  }
-
-
   return (
     <>
       <div 

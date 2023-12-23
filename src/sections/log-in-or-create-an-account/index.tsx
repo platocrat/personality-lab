@@ -165,15 +165,12 @@ const LogInOrCreateAnAccount = () => {
           hasForm: true,
           isSignUp: isSignUp,
           isFirstStep: isFirstStep,
-          buttonOnClick: handleLogIn,
-          handleEmailExists: handleEmailExists,
           formContent: <Form 
             isSignUp={ isSignUp }
-            setEmail={ setEmail }
             buttonText={buttonText}
             isFirstStep={ isFirstStep }
-            setUsername={ setUsername }
-            setPassword={ setPassword }
+            setter={{ setEmail, setPassword, setUsername }}
+            handler={{ handleLogIn, handleSignUp, handleEmailExists }}
           />
         }}
       />

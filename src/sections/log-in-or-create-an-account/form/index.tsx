@@ -12,26 +12,32 @@ type FormProps = {
   buttonText: string
   emailExists: boolean
   isFirstStep: boolean
-  setEmail: Dispatch<SetStateAction<string>>
-  setPassword: Dispatch<SetStateAction<string>>
-  setUsername: Dispatch<SetStateAction<string>>
+  setter: {
+    setEmail: Dispatch<SetStateAction<string>>
+    setPassword: Dispatch<SetStateAction<string>>
+    setUsername: Dispatch<SetStateAction<string>>
+  }
+  handler: {
+    handleLogIn?: (e: any) => void
+    handleSignUp?: (e: any) => void
+    handleEmailExists?: (e: any) => void
+  }
 }
 
 
 const Form = ({
+  setter,
+  handler,
   isSignUp,
-  setEmail,
   buttonText,
   isFirstStep,
-  setUsername,
-  setPassword,
 }) => {
   const debounceTimeout = 700
 
   // ------------------------------ Regular functions --------------------------
   const onUsernameChange = (e: any) => {
     const value = e.target.value
-    setUsername(value)
+    setter.setUsername(value)
   }
 
   const debouncedOnUsernameChange = useMemo(
@@ -41,7 +47,7 @@ const Form = ({
   
   const onEmailChange = (e: any) => {
     const value = e.target.value
-    setEmail(value)
+    setter.setEmail(value)
   }
 
   const debouncedOnEmailChange = useMemo(
@@ -53,7 +59,7 @@ const Form = ({
   const onPasswordChange = async (e: any) => {
     const value = e.target.value
     const hashedPassword = await hashPassword(value)
-    setPassword(value)
+    setter.setPassword(value)
   }
 
   const debouncedOnPasswordChange = useMemo(
@@ -83,6 +89,14 @@ const Form = ({
    */
   async function handleSubmit(e: any) {
     e.preventDefault()
+
+    if (isFirstStep) {
+      return handler.handleEmailExists(e)
+    } else if (isSignUp) {
+      return handler.handleSignUp(e)
+    } else {
+      return handler.handleLogIn(e)
+    }
   }
 
   
@@ -105,7 +119,6 @@ const Form = ({
   ].slice(isSignUp ? 0 : 1)
 
   formInputs = isFirstStep ? formInputs[1] : formInputs
-
 
 
   return (
