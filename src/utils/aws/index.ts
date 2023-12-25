@@ -7,15 +7,8 @@ type TemporaryCredentials = {
 }
 
 export const REGION = 'us-east-1'
-const CREDENTIALS = {
-  accessKeyId: process.env.NEXT_AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.NEXT_AWS_SECRET_ACCESS_KEY
-}
 
-const stsClient = new STSClient({
-  region: REGION,
-  credentials: CREDENTIALS,
-})
+const stsClient = new STSClient({ region: REGION })
 
 /**
  * @dev Used to request temporary credentials to use to instantiate an AWS 
