@@ -1,0 +1,15 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-personalitylab-dev-163558-authRole",
+      "UnauthRoleArn": "arn:aws:iam::888813996685:role/amplify-personalitylab-dev-163558-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::888813996685:role/amplify-personalitylab-dev-163558-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-personalitylab-dev-163558-deployment",
+      "UnauthRoleName": "amplify-personalitylab-dev-163558-unauthRole",
+      "StackName": "amplify-personalitylab-dev-163558",
+      "StackId": "arn:aws:cloudformation:us-east-1:888813996685:stack/amplify-personalitylab-dev-163558/fa7f4550-a375-11ee-ad45-0e0dcc2c2e55",
+      "AmplifyAppId": "d18ethmh0c248s"
+    }
+  }
+}
