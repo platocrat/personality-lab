@@ -20,12 +20,12 @@ export async function POST(req: NextRequest, res: NextResponse) {
     console.log(`command: `, command)
 
     try {
-      const data = await ddbDocClient.send(command)
+      const { Item } = await ddbDocClient.send(command)
 
-      console.log(`data: `, data)
+      console.log(`Item: `, Item)
 
 
-      if (!!data.Item) {
+      if (!!(Item as any).email) {
         return NextResponse.json(
           { message: 'Email exists!' },
           { status: 200 },
