@@ -9,9 +9,6 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install
 
-# Give directory read and write permissions for everyone 
-RUN chmod -R 777 ./
-
 # Copy the entire project to the working directory
 COPY . .
 
@@ -25,4 +22,4 @@ ENV PORT 80
 EXPOSE 80
 
 # Start the application
-CMD ["npm", "start"] 
+CMD ["npm", "run", "start"]
