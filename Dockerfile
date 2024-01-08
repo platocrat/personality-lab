@@ -9,6 +9,9 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install
 
+# Give directory read and write permissions for everyone 
+RUN sudo chmod -R 777 /path/to/directory
+
 # Copy the entire project to the working directory
 COPY . .
 
