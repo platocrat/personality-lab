@@ -10,7 +10,7 @@ COPY package*.json ./
 RUN npm install
 
 # Give directory read and write permissions for everyone 
-RUN chmod -R 777 /path/to/directory
+RUN chmod -R 777 ./
 
 # Copy the entire project to the working directory
 COPY . .
