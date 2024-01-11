@@ -1,6 +1,6 @@
 # Dockerfile
-# SHA256 hash for `linux/arm64/v6`
-FROM node:current-alpine@sha256:d31cc09e76f49451e35d89343567145a0eadd1812d57c78f2e0da385a67a078b
+# SHA256 hash for `linux/arm64`
+FROM node:current-alpine@sha256:9b54d010b382f0ef176dc93cd829bd4f2a905092b260746b3999aa824c9b7121
 # Set the working directory
 WORKDIR /personality-lab-app
 
