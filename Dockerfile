@@ -13,13 +13,13 @@ RUN npm install
 COPY . .
 
 # Build the Next.js application for production
-RUN npm run build
+RUN npx turbo build
 # Set the environment variable to run the Next.js application in production mode
 ENV NODE_ENV production
-ENV PORT 80
+ENV PORT 3000
 
 # Expose the port that the application will run on
-EXPOSE 80
+EXPOSE 3000
 
 # Start the application
 CMD ["npm", "run", "start"]
