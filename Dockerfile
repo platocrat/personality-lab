@@ -7,7 +7,7 @@ WORKDIR /personality-lab-app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
+RUN npm i
 
 # Copy the entire project to the working directory
 COPY . .
@@ -22,4 +22,4 @@ ENV PORT 3000
 EXPOSE 3000
 
 # Start the application
-CMD ["npm", "run", "start"]
+CMD ["npx", "turbo", "run", "start"]
