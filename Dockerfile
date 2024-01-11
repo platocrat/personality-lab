@@ -1,5 +1,5 @@
 # Dockerfile
-FROM node:current-alpine
+FROM --platform=linux/amd64 node:current-alpine
 # Set the working directory
 WORKDIR /personality-lab-app
 
@@ -22,4 +22,4 @@ ENV PORT 3000
 EXPOSE 3000
 
 # Start the application
-CMD ["npx", "turbo", "run", "start"]
+CMD ["npx", "turbo", "start"]
