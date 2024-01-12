@@ -116,26 +116,26 @@ const Form = ({
       placeholder: `Password`,
       onChange: debouncedOnPasswordChange
     },
-  ].slice(isSignUp ? 0 : 1)
+  ].slice(isFirstStep ? 0 : isSignUp ? 0 : 1)
 
-  formInputs = isFirstStep ? formInputs[1] : formInputs
+  formInputs = isFirstStep ? [formInputs[1]] : formInputs
 
 
   return (
     <>
-      <form 
-        style={{
+      <form
+        style={ {
           ...definitelyCenteredStyle,
           margin: '0px 0px 18px 0px'
-        }}
+        } }
         onSubmit={ (e: any) => handleSubmit(e) }
       >
-        <div 
-          style={{
+        <div
+          style={ {
             ...definitelyCenteredStyle,
             flexDirection: 'column',
             gap: '12px'
-          }}
+          } }
         >
           <div
             style={ {
@@ -143,54 +143,32 @@ const Form = ({
               flexDirection: 'column'
             } }
           >
-            { isFirstStep 
-              ? (
-                <>
-                  <div style={ { margin: '0px 0px 8px 0px' } }>
-                    <input
-                      required
-                      type={ 'text' }
-                      id={ formInputs.name }
-                      name={ formInputs.name }
-                      placeholder={ formInputs.placeholder }
-                      maxLength={ 28 }
-                      onChange={ (e: any) => formInputs.onChange(e) }
-                      style={ {
-                        fontSize: '14.5px',
-                        padding: '5px 12px',
-                        borderWidth: '0.5px',
-                        borderRadius: '1rem',
-                        width: `310px`,
-                      } }
-                    />
-                  </div>
-                </>
-              ) : formInputs.map((fi, i: number) => (
-                  <Fragment key={ `form-inputs-${i}` }>
-                    <div style={ { margin: '0px 0px 8px 0px' } }>
-                      <input
-                        required
-                        type={ 'text' }
-                        id={ fi.name }
-                        name={ fi.name }
-                        placeholder={ fi.placeholder }
-                        maxLength={ 28 }
-                        onChange={ (e: any) => fi.onChange(e) }
-                        style={ {
-                          fontSize: '14.5px',
-                          padding: '5px 12px',
-                          borderWidth: '0.5px',
-                          borderRadius: '1rem',
-                          width: `310px`,
-                        } }
-                      />
-                    </div>
-                  </Fragment>
-                )
-              ) 
+            { formInputs.map((fi, i: number) => (
+              <Fragment key={ `form-inputs-${i}` }>
+                <div style={ { margin: '0px 0px 8px 0px' } }>
+                  <input
+                    required
+                    type={ 'text' }
+                    id={ fi.name }
+                    name={ fi.name }
+                    placeholder={ fi.placeholder }
+                    maxLength={ 28 }
+                    onChange={ (e: any) => fi.onChange(e) }
+                    style={ {
+                      fontSize: '14.5px',
+                      padding: '5px 12px',
+                      borderWidth: '0.5px',
+                      borderRadius: '1rem',
+                      width: `310px`,
+                    } }
+                  />
+                </div>
+              </Fragment>
+            )
+            )
             }
           </div>
-          <div style={{ display: 'block', width: '100%' }}>
+          <div style={ { display: 'block', width: '100%' } }>
             <button
               className={ styles.button }
               onClick={ (e: any) => handleSubmit(e) }
