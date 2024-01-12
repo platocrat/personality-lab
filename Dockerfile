@@ -14,9 +14,6 @@ COPY . .
 
 # Build the Next.js application for production
 RUN npx turbo build
-# Set the environment variable to run the Next.js application in production mode
-ENV NODE_ENV production
-ENV PORT 3000
 
 # Expose the port that the application will run on
 EXPOSE 3000
