@@ -18,4 +18,7 @@ jobs:
       run: docker build -t personality-lab-app .
     - name: Tag newly built image
       run: docker tag personality-lab-app platocrat/personality-lab-app
-    - name: docker push platocrat/personality-lab-app
+    - name: Push Docker image to private repository
+      run: docker push platocrat/personality-lab-app
+
+    
