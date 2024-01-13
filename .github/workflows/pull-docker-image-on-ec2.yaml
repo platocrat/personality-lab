@@ -1,5 +1,11 @@
 name: EC2 Docker Image CI
 
+env:
+  SSH_KEY: ${{ secrets.SSH_KEY }}
+  EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
+  EC2_IP_ADDRESS: ${{ secrets.EC2_IP_ADDRESS }}
+  DOCKER_HUB_REPOSITORY: ${{ secrets.DOCKER_HUB_REPOSITORY }}
+
 on:
   push:
     branches: [ "main", "feat/dynamodb" ]
@@ -11,18 +17,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      env:
-        SSH_KEY: ${{ secrets.SSH_KEY }}
-        EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
-        EC2_IP_ADDRESS: ${{ secrets.EC2_IP_ADDRESS }}
-        DOCKER_HUB_REPOSITORY: ${{ secrets.DOCKER_HUB_REPOSITORY }}
-        
-    - uses: actions/checkout@v3
-    - name: 1. Create SSH private key
-      run: echo "$SSH_KEY" > ssh_key && chmod 600 ssh_key
-    - name: 2. SSH into EC2 instance
-      run: ssh -i ssh_key $EC2_USERNAME@$EC2_IP_ADDRESS.compute-1.amazonaws.com
-    - name: 3. Pull Docker Image
-      run: docker pull $DOCKER_HUB_REPOSITORY
+      - uses: actions/checkout@v3
+      - name: 1. Create SSH private key
+        run: echo "$SSH_KEY" > ssh_key && chmod 600 ssh_key
+      - name: 2. SSH into EC2 instance
+        run: ssh -i ssh_key $EC2_USERNAME@$EC2_IP_ADDRESS.compute-1.amazonaws.com
+      - name: 3. Pull Docker Image
+        run: docker pull $DOCKER_HUB_REPOSITORY
 
-    
+      

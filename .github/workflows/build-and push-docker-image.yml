@@ -1,5 +1,10 @@
 name: Docker Image CI
 
+env:
+  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+  DOCKER_HUB_REPOSITORY: ${{ secrets.DOCKER_HUB_REPOSITORY }}
+
 on:
   push:
     branches: [ "main", "feat/dynamodb" ]
@@ -11,19 +16,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      env:
-        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-        DOCKER_HUB_REPOSITORY: ${{ secrets.DOCKER_HUB_REPOSITORY }}
+      - uses: actions/checkout@v3
+      - name: 1. Login to Docker
+        run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+      - name: 2. Build the Docker image
+        run: docker build -t personality-lab-app .
+      - name: 3. Tag newly built image
+        run: docker tag personality-lab-app $DOCKER_HUB_REPOSITORY
+      - name: 4. Push Docker image to private repository
+        run: docker push $DOCKER_HUB_REPOSITORY
 
-    - uses: actions/checkout@v3
-    - name: 1. Login to Docker
-      run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-    - name: 2. Build the Docker image
-      run: docker build -t personality-lab-app .
-    - name: 3. Tag newly built image
-      run: docker tag personality-lab-app $DOCKER_HUB_REPOSITORY
-    - name: 4. Push Docker image to private repository
-      run: docker push $DOCKER_HUB_REPOSITORY
-
-    
+      
