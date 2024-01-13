@@ -34,7 +34,7 @@ jobs:
         run: echo "$SSH_KEY" > ssh_key && chmod 600 ssh_key
       - name: 6. SSH into EC2 instance, prune Docker system data, pull Docker image, start NextJS app
         run: ssh -o StrictHostKeyChecking=no -i ssh_key $EC2_USERNAME@$EC2_HOSTNAME '
-          docker system prune -a
-          docker pull platocrat/personality-lab-app
+          docker system prune -a &&
+          docker pull platocrat/personality-lab-app &&
           docker run -it -p 3000:3000 platocrat/personality-lab-app
           '
