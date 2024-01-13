@@ -14,13 +14,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Login to Docker
+    - name: 1. Login to Docker
       run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-    - name: Build the Docker image
+    - name: 2. Build the Docker image
       run: docker build -t personality-lab-app .
-    - name: Tag newly built image
+    - name: 3. Tag newly built image
       run: docker tag personality-lab-app platocrat/personality-lab-app
-    - name: Push Docker image to private repository
+    - name: 4. Push Docker image to private repository
       run: docker push platocrat/personality-lab-app
 
     
