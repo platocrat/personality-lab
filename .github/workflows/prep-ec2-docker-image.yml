@@ -31,9 +31,9 @@ jobs:
         run: docker push $DOCKER_HUB_REPOSITORY
       # Phase 2: Pull Docker image on EC2 instance
       - name: 5. Create SSH key
-        run: echo "$SSH_KEY" > ssh_key && chmod 600 ssh_key
+        run: echo "$SSH_KEY" > ssh_key.pem && chmod 400 ssh_key.pem
       - name: 6. SSH into EC2 instance
-        run: ssh -i ssh_key $EC2_USERNAME@$EC2_IP_ADDRESS.compute-1.amazonaws.com
+        run: ssh -i "ssh_key.pem" $EC2_USERNAME@$EC2_IP_ADDRESS.compute-1.amazonaws.com
       - name: 7. Pull Docker Image
         run: docker pull $DOCKER_HUB_REPOSITORY
 
