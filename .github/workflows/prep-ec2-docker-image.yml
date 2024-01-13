@@ -36,4 +36,3 @@ jobs:
         run: ssh -o StrictHostKeyChecking=no -i ssh_key $EC2_USERNAME@$EC2_HOSTNAME '
           docker pull platocrat/personality-lab-app
           '
-      
