@@ -1,6 +1,9 @@
-name: Docker Image CI
+name: Prepare Docker Image for EC2 CI
 
 env:
+  SSH_KEY: ${{ secrets.SSH_KEY }}
+  EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
+  EC2_IP_ADDRESS: ${{ secrets.EC2_IP_ADDRESS }}
   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
   DOCKER_HUB_REPOSITORY: ${{ secrets.DOCKER_HUB_REPOSITORY }}
@@ -16,6 +19,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Phase 1: Build and Push Docker Image to Docker Hub Repository
       - uses: actions/checkout@v3
       - name: 1. Login to Docker
         run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
@@ -25,5 +29,15 @@ jobs:
         run: docker tag personality-lab-app $DOCKER_HUB_REPOSITORY
       - name: 4. Push Docker image to private repository
         run: docker push $DOCKER_HUB_REPOSITORY
+      # Phase 2: Pull Docker image on EC2 instance
+      - name: 5. Create SSH key
+        run: echo "$SSH_KEY" > ssh_key && chmod 600 ssh_key
+      - name: 6. SSH into EC2 instance
+        run: ssh -i ssh_key $EC2_USERNAME@$EC2_IP_ADDRESS.compute-1.amazonaws.com
+      - name: 7. Pull Docker Image
+        run: docker pull $DOCKER_HUB_REPOSITORY
+
+      
+
 
       
