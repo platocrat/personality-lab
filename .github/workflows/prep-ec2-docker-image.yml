@@ -34,6 +34,6 @@ jobs:
         run: echo "$SSH_KEY" > ssh_key && chmod 600 ssh_key
       - name: 6. SSH into EC2 instance, prune Docker system data, and pull Docker image
         run: ssh -o StrictHostKeyChecking=no -i ssh_key $EC2_USERNAME@$EC2_HOSTNAME '
-          docker system prune -a &&
+          docker system prune -a -f &&
           docker pull platocrat/personality-lab-app
           '
