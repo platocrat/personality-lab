@@ -1,0 +1,21 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main", "feat/dynamodb" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build the Docker image
+      run: docker build -t personality-lab-app .
+    - name: Tag newly built image
+      run: docker tag personality-lab-app platocrat/personality-lab-app
+    - name: docker push platocrat/personality-lab-app
