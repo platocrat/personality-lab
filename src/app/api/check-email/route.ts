@@ -15,17 +15,12 @@ export async function POST(req: NextRequest, res: NextResponse) {
       Key: { email },
     }
 
-    console.log(`input: `, input)
-
     const command = new GetCommand(input)
-
-    console.log(`command: `, command)
 
     try {
       const { Item } = await ddbDocClient.send(command)
 
       console.log(`Item: `, Item)
-
 
       if (!!(Item as any).email) {
         return NextResponse.json(
