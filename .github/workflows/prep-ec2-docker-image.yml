@@ -29,10 +29,12 @@ jobs:
         run: docker tag personality-lab-app $DOCKER_HUB_REPOSITORY
       - name: 4. Push Docker image to private repository
         run: docker push $DOCKER_HUB_REPOSITORY
-      # Phase 2: Pull Docker image on EC2 instance
+      # Phase 2: Pull Docker image on EC2 instance and start NextJS app
       - name: 5. Create SSH key
         run: echo "$SSH_KEY" > ssh_key && chmod 600 ssh_key
-      - name: 6. SSH into EC2 instance and pull Docker image
+      - name: 6. SSH into EC2 instance, prune Docker system data, pull Docker image, start NextJS app
         run: ssh -o StrictHostKeyChecking=no -i ssh_key $EC2_USERNAME@$EC2_HOSTNAME '
+          docker system prune -a
           docker pull platocrat/personality-lab-app
+          docker run -it -p 3000:3000 platocrat/personality-lab-app
           '
