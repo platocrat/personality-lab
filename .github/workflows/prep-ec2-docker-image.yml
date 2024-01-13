@@ -32,12 +32,9 @@ jobs:
       # Phase 2: Pull Docker image on EC2 instance
       - name: 5. Create SSH key
         run: echo "$SSH_KEY" > ssh_key && chmod 600 ssh_key
-      - name: 6. SSH into EC2 instance
-        run: ssh -o StrictHostKeyChecking=no -i ssh_key $EC2_USERNAME@$EC2_HOSTNAME
-      - name: 7. Pull Docker Image
-        run: docker pull $DOCKER_HUB_REPOSITORY
-
-      
+      - name: 6. SSH into EC2 instance and pull Docker image
+        run: ssh -o StrictHostKeyChecking=no -i ssh_key $EC2_USERNAME@$EC2_HOSTNAME &&
+        docker pull $DOCKER_HUB_REPOSITORY
 
 
       
