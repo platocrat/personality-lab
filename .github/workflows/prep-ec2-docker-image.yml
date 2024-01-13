@@ -3,7 +3,7 @@ name: Prepare Docker Image for EC2 CI
 env:
   SSH_KEY: ${{ secrets.SSH_KEY }}
   EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
-  EC2_IP_ADDRESS: ${{ secrets.EC2_IP_ADDRESS }}
+  EC2_HOSTNAME: ${{ secrets.EC2_HOSTNAME }}
   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
   DOCKER_HUB_REPOSITORY: ${{ secrets.DOCKER_HUB_REPOSITORY }}
@@ -31,9 +31,9 @@ jobs:
         run: docker push $DOCKER_HUB_REPOSITORY
       # Phase 2: Pull Docker image on EC2 instance
       - name: 5. Create SSH key
-        run: echo "$SSH_KEY" > ssh_key.pem && chmod 400 ssh_key.pem
+        run: echo "$SSH_KEY" > ssh_key && chmod 600 ssh_key
       - name: 6. SSH into EC2 instance
-        run: ssh -i "ssh_key.pem" $EC2_USERNAME@$EC2_IP_ADDRESS.compute-1.amazonaws.com
+        run: ssh -o StrictHostKeyChecking=no -i ssh_key $EC2_USERNAME@$EC2_HOSTNAME
       - name: 7. Pull Docker Image
         run: docker pull $DOCKER_HUB_REPOSITORY
 
