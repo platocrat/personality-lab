@@ -139,9 +139,11 @@ const LogInOrCreateAnAccount = () => {
 
         const data = await response.json()
 
-        if (response.status === 200) { // Email exists
+        // If email exists
+        if (response.status === 200) {
           setIsSignUp(false)
-        } else if (response.status === 400) { // Email does NOT exist
+          // If email does NOT exist
+        } else if (response.status === 400 || response.status === 500) { 
           setIsSignUp(true)
         } else if (response.status === 500) {
           console.error(

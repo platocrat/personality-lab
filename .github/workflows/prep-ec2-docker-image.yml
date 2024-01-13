@@ -35,6 +35,5 @@ jobs:
       - name: 6. SSH into EC2 instance and pull Docker image
         run: ssh -o StrictHostKeyChecking=no -i ssh_key $EC2_USERNAME@$EC2_HOSTNAME '
           docker pull $DOCKER_HUB_REPOSITORY
-
-
+          '
       
