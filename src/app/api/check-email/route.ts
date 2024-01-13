@@ -5,6 +5,8 @@ import { NextRequest, NextResponse } from 'next/server'
 
 
 export async function POST(req: NextRequest, res: NextResponse) {
+  console.log(`API endpoint '/api/check-email' was hit.`)
+
   if (req.method === 'POST') {
     const { email } = await req.json()
 
