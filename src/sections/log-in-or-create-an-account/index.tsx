@@ -141,11 +141,19 @@ const LogInOrCreateAnAccount = () => {
 
         if (response.status === 200) { // Email exists
           setIsSignUp(false)
-        } else { // Email does NOT exist
+        } else if (response.status === 400) { // Email does NOT exist
           setIsSignUp(true)
+        } else if (response.status === 500) {
+          console.error(
+            `Error checking if user's email exists in DynamoDB table: `, 
+            await response.json() /** @todo is this ok? */
+          )
         }
       } catch (error: any) { // Error reading email in DynamoDB
-        console.error(error.message)
+        console.error(
+          `Error sending POST request to '/api/check-email' endpoint: `, 
+          error.message
+        )
         /**
          * @todo Handle error UI here
          */
