@@ -40,6 +40,10 @@ export async function POST(req: NextRequest, res: NextResponse) {
       )
     }
   } else {
+    console.error(
+      `Method Not Allowed: This API endpoint only accepts POST requests`
+    )
+
     return NextResponse.json(
       { error: 'Method Not Allowed' },
       { status: 405 },
