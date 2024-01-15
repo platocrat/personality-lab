@@ -14,8 +14,6 @@ import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
 
 
-const isFirstStep = true
-
 
 const LogInOrCreateAnAccount = () => {
   // Strings
@@ -24,6 +22,7 @@ const LogInOrCreateAnAccount = () => {
   const [ password, setPassword ] = useState<string>('')
   // Booleans
   const [ isSignUp, setIsSignUp ] = useState<boolean>(false)
+  const [ isFirstStep, setIsFirstStep ] = useState<boolean>(true)
   const [ emailExists, setEmailExists ] = useState<boolean>(false)
 
 
@@ -137,13 +136,13 @@ const LogInOrCreateAnAccount = () => {
           body: JSON.stringify({ email }),
         })
 
-        const data = await response.json()
-
-        // If email exists
-        if (response.status === 200) {
+        if (response.status === 200) { // If email exists
+          setIsFirstStep(false)
           setIsSignUp(false)
-          // If email does NOT exist
-        } else if (response.status === 400 || response.status === 500) { 
+
+          const data = await response.json()
+        } else if (response.status === 400 || response.status === 500) {  // If email does NOT exist
+          setIsFirstStep(false)
           setIsSignUp(true)
         } else {
           console.error(

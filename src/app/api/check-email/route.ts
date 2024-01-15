@@ -37,8 +37,10 @@ export async function POST(req: NextRequest, res: NextResponse) {
         )
       }
     } catch (error: any) { // Error sending POST request to DynamoDB table
+      console.error(`Error sending POST request to DynamoDB table`, error)
+
       return NextResponse.json(
-        { error: error.message },
+        { error: error },
         { status: 500 },
       )
     }

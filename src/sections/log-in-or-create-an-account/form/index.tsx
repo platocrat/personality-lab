@@ -116,7 +116,7 @@ const Form = ({
       placeholder: `Password`,
       onChange: debouncedOnPasswordChange
     },
-  ].slice(isFirstStep ? 0 : isSignUp ? 0 : 1)
+  ]
 
   formInputs = isFirstStep ? [formInputs[1]] : formInputs
 
@@ -164,8 +164,7 @@ const Form = ({
                   />
                 </div>
               </Fragment>
-            )
-            )
+            ))
             }
           </div>
           <div style={ { display: 'block', width: '100%' } }>
