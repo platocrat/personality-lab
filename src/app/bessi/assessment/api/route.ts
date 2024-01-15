@@ -3,6 +3,7 @@ import { PutCommand } from '@aws-sdk/lib-dynamodb'
 import { NextRequest, NextResponse } from 'next/server'
 import { ReturnConsumedCapacity, ReturnValue } from '@aws-sdk/client-dynamodb'
 // Locals
+import { BESSI_RESULTS_TABLE_NAME } from '@/utils'
 import { ddbDocClient } from '@/utils/aws/dynamodb'
 import { BessiUserResults__DynamoDB } from '@/utils/bessi/types'
 
@@ -15,7 +16,7 @@ export async function POST(
     const { userResults } = await req.json()
 
     const input = {
-      TableName: process.env.NEXT_TABLE_NAME,
+      TableName: BESSI_RESULTS_TABLE_NAME,
       Item: {
         userId: userResults.userId,
         timestamp: userResults.timestamp,

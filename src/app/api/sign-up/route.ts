@@ -1,7 +1,9 @@
 // Externals
 import { PutCommand } from '@aws-sdk/lib-dynamodb'
-import { ddbDocClient } from '@/utils/aws/dynamodb'
 import { NextRequest, NextResponse } from 'next/server'
+// Locals
+import { ddbDocClient } from '@/utils/aws/dynamodb'
+import { BESSI_ACCOUNTS_TABLE_NAME } from '@/utils'
 
 
 export async function POST(
@@ -12,7 +14,7 @@ export async function POST(
     const { email, username, password } = await req.json()
 
     const input = {
-      TableName: process.env.NEXT_BESSI_ACCOUNTS_TABLE_NAME,
+      TableName: BESSI_ACCOUNTS_TABLE_NAME,
       Item: { email, username, password },
     }
 

@@ -8,7 +8,6 @@ import { CSSProperties, FC, useState } from 'react'
 import Card from '@/components/Card'
 // Sections
 import Form from './form'
-import FormSwitcher from './form-switcher'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
