@@ -44,7 +44,7 @@ const Form = ({
     const value = e.target.value
     setter.setEmail(value)
   }
-  
+
   // -------------------------- Async functions --------------------------------
   const onPasswordChange = async (e: any) => {
     const value = e.target.value

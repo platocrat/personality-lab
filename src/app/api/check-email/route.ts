@@ -9,6 +9,11 @@ export async function POST(req: NextRequest, res: NextResponse) {
     const { email } = await req.json()
     
     const timestamp = new Date().getTime()
+    
+    console.log(
+      `process.env.NEXT_BESSI_ACCOUNTS_TABLE_NAME`,
+      process.env.NEXT_BESSI_ACCOUNTS_TABLE_NAME
+    )
 
     const input = {
       TableName: process.env.NEXT_BESSI_ACCOUNTS_TABLE_NAME,
