@@ -5,8 +5,6 @@ import { NextRequest, NextResponse } from 'next/server'
 
 
 export async function POST(req: NextRequest, res: NextResponse) {
-  console.log(`API endpoint '/api/check-email' was hit.`)
-
   if (req.method === 'POST') {
     const { email } = await req.json()
 
@@ -14,6 +12,11 @@ export async function POST(req: NextRequest, res: NextResponse) {
       TableName: process.env.NEXT_BESSI_ACCOUNTS_TABLE_NAME,
       Key: { email },
     }
+
+    console.log(
+      `ddbDocClient.config: `,
+      ddbDocClient.config
+    )
 
     const command = new GetCommand(input)
 
