@@ -1,7 +1,6 @@
 // Externals
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import { SpeedInsights } from '@vercel/speed-insights/next'
 // Locals
 import './globals.css'
 import { BessiSkillScoresContextComponent } from '@/contexts/BessiSkillScoresContext'
@@ -27,7 +26,6 @@ export default function RootLayout({
         <BessiSkillScoresContextComponent>
           {children}
         </BessiSkillScoresContextComponent>
-        <SpeedInsights />
       </body>
     </html>
   )

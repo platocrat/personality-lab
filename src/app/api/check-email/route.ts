@@ -14,8 +14,8 @@ export async function POST(req: NextRequest, res: NextResponse) {
     }
 
     console.log(
-      `ddbDocClient.config: `,
-      ddbDocClient.config
+      `ddbDocClient.config.credentials():\n`,
+      ddbDocClient.config.credentials()
     )
 
     const command = new GetCommand(input)
