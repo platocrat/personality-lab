@@ -39,21 +39,11 @@ const Form = ({
     const value = e.target.value
     setter.setUsername(value)
   }
-
-  const debouncedOnUsernameChange = useMemo(
-    (): ((...args: any) => void) => debounce(onUsernameChange, debounceTimeout),
-    []
-  )
   
   const onEmailChange = (e: any) => {
     const value = e.target.value
     setter.setEmail(value)
   }
-
-  const debouncedOnEmailChange = useMemo(
-    (): ((...args: any) => void) => debounce(onEmailChange, debounceTimeout),
-    []
-  )
   
   // -------------------------- Async functions --------------------------------
   const onPasswordChange = async (e: any) => {
@@ -104,12 +94,12 @@ const Form = ({
     {
       name: 'username',
       placeholder: `Username`,
-      onChange: debouncedOnUsernameChange
+      onChange: onUsernameChange
     },
     {
       name: 'email',
       placeholder: `Enter your email`,
-      onChange: debouncedOnEmailChange
+      onChange: onEmailChange
     },
     {
       name: 'password',

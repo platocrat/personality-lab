@@ -31,7 +31,7 @@ const LogInOrCreateAnAccount = () => {
     : isSignUp 
       ? `Create an account` 
       : `Log in`
-  const description = `to view your scores from previous assessments taken.`
+  const description = `View your scores from previous assessments taken.`
   const buttonText = isFirstStep ? `Next` : `${isSignUp ? 'Sign up' : 'Log in' }`
 
 
@@ -139,26 +139,32 @@ const LogInOrCreateAnAccount = () => {
         if (response.status === 200) { // If email exists
           setIsFirstStep(false)
           setIsSignUp(false)
-
+          
+          /**
+            * @todo Do something with data
+            */
           const data = await response.json()
-        } else if (response.status === 400 || response.status === 500) {  // If email does NOT exist
+        } else if (response.status === 400) {  // If email does NOT exist
           setIsFirstStep(false)
           setIsSignUp(true)
-        } else {
-          console.error(
-            `Error checking if user's email exists in DynamoDB table. Here is the response: `, 
-            response /** @todo is this ok? */
-          )
+        } else { // If the status code is 500
+          const json = await response.json()
+          const error = json.error
+
+          console.error(`Error sending POST request to DynamoDB table:\n`, error)
+          
+          /**
+            * @todo Handle error UI here
+            */
         }
-      } catch (error: any) { // Error reading email in DynamoDB
+      } catch (error: any) { // If request is not a POST request
         console.error(
-          `Error sending POST request to '/api/check-email' endpoint: `, 
-          error.message
+          `${error}: This API endpoint only accepts POST requests`
         )
+        
         /**
          * @todo Handle error UI here
          */
-
       }
     }
 

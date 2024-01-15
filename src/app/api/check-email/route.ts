@@ -7,25 +7,23 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function POST(req: NextRequest, res: NextResponse) {
   if (req.method === 'POST') {
     const { email } = await req.json()
+    
+    const timestamp = new Date().getTime()
 
     const input = {
       TableName: process.env.NEXT_BESSI_ACCOUNTS_TABLE_NAME,
-      Key: { email },
+      Key: { 
+        email: email,
+        timestamp: timestamp
+      },
     }
-
-    console.log(
-      `ddbDocClient.config.credentials():\n`,
-      await ddbDocClient.config.credentials()
-    )
 
     const command = new GetCommand(input)
 
     try {
-      const { Item } = await ddbDocClient.send(command)
+      const response = await ddbDocClient.send(command)
 
-      console.log(`Item: `, Item)
-
-      if (!!(Item as any).email) {
+      if (response.Item === undefined || response.Item.email === undefined) {
         return NextResponse.json(
           { message: 'Email exists!' },
           { status: 200 },
@@ -37,18 +35,12 @@ export async function POST(req: NextRequest, res: NextResponse) {
         )
       }
     } catch (error: any) { // Error sending POST request to DynamoDB table
-      console.error(`Error sending POST request to DynamoDB table`, error)
-
       return NextResponse.json(
         { error: error },
         { status: 500 },
       )
     }
   } else {
-    console.error(
-      `Method Not Allowed: This API endpoint only accepts POST requests`
-    )
-
     return NextResponse.json(
       { error: 'Method Not Allowed' },
       { status: 405 },
