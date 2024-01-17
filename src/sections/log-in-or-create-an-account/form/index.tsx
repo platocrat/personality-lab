@@ -92,14 +92,14 @@ const Form = ({
   
   let formInputs: any = [
     {
-      name: 'username',
-      placeholder: `Username`,
-      onChange: onUsernameChange
-    },
-    {
       name: 'email',
       placeholder: `Enter your email`,
       onChange: onEmailChange
+    },
+    {
+      name: 'username',
+      placeholder: `Username`,
+      onChange: onUsernameChange
     },
     {
       name: 'password',
@@ -108,7 +108,7 @@ const Form = ({
     },
   ]
 
-  formInputs = isFirstStep ? [formInputs[1]] : formInputs
+  formInputs = isFirstStep ? [formInputs[0]] : formInputs
 
 
   return (
