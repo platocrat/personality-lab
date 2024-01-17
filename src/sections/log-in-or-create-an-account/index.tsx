@@ -37,8 +37,16 @@ const LogInOrCreateAnAccount = () => {
   // ---------------------------- Regular functions ----------------------------
   function isValidEmail(email: string) {
     // Implement email validation logic
+    const conditional = email === '' ||
+      email === undefined ||
+      email === null ||
+      email.indexOf('@') === -1
 
-    return true
+    if (conditional) {
+      return false
+    } else {
+      return true
+    }
   }
 
   function isValidUsername(username: string) {
@@ -125,6 +133,14 @@ const LogInOrCreateAnAccount = () => {
     
     async function handleEmailExists(e: any) {
       e.preventDefault()
+
+      if (!isValidEmail(email)) {
+        /**
+         * @todo Handle invalid input UI here
+        */
+        console.error('Invalid input')
+        return
+      }
   
       try {
         const response = await fetch('/api/check-email', {
