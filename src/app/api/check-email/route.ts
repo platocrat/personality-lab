@@ -25,7 +25,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
     try {
       const response = await ddbDocClient.send(command)
 
-      if (response.Item === undefined || response.Item.email === undefined) {
+      if (response.Item !== undefined) {
         return NextResponse.json(
           { message: 'Email exists!' },
           { status: 200 },
