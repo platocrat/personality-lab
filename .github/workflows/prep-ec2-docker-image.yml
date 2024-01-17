@@ -1,4 +1,4 @@
-name: Prepare Docker Image for EC2 CI
+name: Prepare Docker Image for EC2
 
 env:
   SSH_KEY: ${{ secrets.SSH_KEY }}
