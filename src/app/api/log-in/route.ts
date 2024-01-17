@@ -15,7 +15,9 @@ export async function POST(
 
     const input = {
       TableName: BESSI_ACCOUNTS_TABLE_NAME,
-      Key: { email },
+      Key: { 
+        email: email
+      },
     }
 
     const command = new GetCommand(input)

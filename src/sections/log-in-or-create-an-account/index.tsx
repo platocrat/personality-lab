@@ -23,6 +23,7 @@ const LogInOrCreateAnAccount = () => {
   const [ isSignUp, setIsSignUp ] = useState<boolean>(false)
   const [ isFirstStep, setIsFirstStep ] = useState<boolean>(true)
   const [ emailExists, setEmailExists ] = useState<boolean>(false)
+  const [checkingIfEmailExists, setCheckingIfEmailExists ] = useState(false)
 
 
   const title = isFirstStep 
@@ -57,12 +58,28 @@ const LogInOrCreateAnAccount = () => {
 
   function isValidUsername(username: string) {
     // Implement username validation logic
-    return true
+    const conditional = email === '' ||
+      email === undefined ||
+      email === null
+
+    if (conditional) {
+      return false
+    } else {
+      return true
+    }
   }
 
   function isValidPassword(password: string) {
     // Implement password validation logic
-    return true
+    const conditional = password === '' ||
+      password === undefined ||
+      password === null
+
+    if (conditional) {
+      return false
+    } else {
+      return true
+    }
   }
 
   
@@ -121,15 +138,17 @@ const LogInOrCreateAnAccount = () => {
           },
           body: JSON.stringify({ email, username, password }),
         })
-        
-        const data = await response.json()
+      
         if (response.status === 200) {
-          console.log(`data: `, data)
+          const data = await response.json()
         } else {
-          console.error(data.error)
+          const data = await response.json()
+          console.error(`Error sending POST request to DynamoDB: `, data.error)
         }
       } catch (error: any) {
-        console.error(error.message)
+        console.error(
+          `${error}: This API endpoint only accepts POST requests`
+        )
         /**
          * @todo Handle error UI here
         */
@@ -147,6 +166,8 @@ const LogInOrCreateAnAccount = () => {
         console.error('Invalid input')
         return
       }
+
+      setCheckingIfEmailExists(true)
   
       try {
         const response = await fetch('/api/check-email', {
@@ -158,30 +179,31 @@ const LogInOrCreateAnAccount = () => {
         })
 
         if (response.status === 200) { // If email exists
-          console.log(`Logging back in!`)
-
+          setCheckingIfEmailExists(false)
           setIsFirstStep(false)
           setIsSignUp(false)
           /**
-            * @todo Do something with data
-            */
+           * @todo Do something with data
+           */
           const data = await response.json()
         } else if (response.status === 400) {  // If email does NOT exist
-          console.log(`Signing Up!`)
-
+          setCheckingIfEmailExists(false)
           setIsFirstStep(false)
           setIsSignUp(true)
         } else { // If the status code is 500
+          setCheckingIfEmailExists(false)
+
           const json = await response.json()
           const error = json.error
 
           console.error(`Error sending POST request to DynamoDB table:\n`, error)
-          
           /**
-            * @todo Handle error UI here
-            */
+           * @todo Handle error UI here
+           */
         }
       } catch (error: any) { // If request is not a POST request
+        setCheckingIfEmailExists(false)
+
         console.error(
           `${error}: This API endpoint only accepts POST requests`
         )
@@ -206,8 +228,9 @@ const LogInOrCreateAnAccount = () => {
           isFirstStep: isFirstStep,
           formContent: <Form 
             isSignUp={ isSignUp }
-            buttonText={buttonText}
+            buttonText={ buttonText }
             isFirstStep={ isFirstStep }
+            checkingIfEmailExists={ checkingIfEmailExists }
             setter={{ setEmail, setPassword, setUsername }}
             handler={{ handleLogIn, handleSignUp, handleEmailExists }}
           />

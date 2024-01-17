@@ -1,7 +1,8 @@
 // Externals
-import { Dispatch, Fragment, SetStateAction, useMemo } from 'react'
+import { Dispatch, Fragment, SetStateAction, useMemo, useState } from 'react'
 // Locals
 import { debounce } from '@/utils'
+import Spinner from '@/components/Suspense/Spinner'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -12,6 +13,7 @@ type FormProps = {
   buttonText: string
   emailExists: boolean
   isFirstStep: boolean
+  checkingIfEmailExists: boolean
   setter: {
     setEmail: Dispatch<SetStateAction<string>>
     setPassword: Dispatch<SetStateAction<string>>
@@ -25,14 +27,18 @@ type FormProps = {
 }
 
 
+const debounceTimeout = 600
+
+
 const Form = ({
   setter,
   handler,
   isSignUp,
   buttonText,
   isFirstStep,
+  checkingIfEmailExists,
 }) => {
-  const debounceTimeout = 700
+  const [ isPasswordHashing, setIsPasswordHashing ] = useState<boolean>(false)
 
   // ------------------------------ Regular functions --------------------------
   const onUsernameChange = (e: any) => {
@@ -45,11 +51,18 @@ const Form = ({
     setter.setEmail(value)
   }
 
+  const isButtonDisabled = isPasswordHashing || checkingIfEmailExists 
+    ? true
+    : false
+
   // -------------------------- Async functions --------------------------------
   const onPasswordChange = async (e: any) => {
+    setIsPasswordHashing(true)
+
     const value = e.target.value
     const hashedPassword = await hashPassword(value)
-    setter.setPassword(value)
+    setter.setPassword(hashedPassword)
+    setIsPasswordHashing(false)
   }
 
   const debouncedOnPasswordChange = useMemo(
@@ -70,6 +83,7 @@ const Form = ({
       const { hashedPassword } = await response.json()
       return hashedPassword
     } catch (error: any) {
+      setIsPasswordHashing(false)
       console.error(error)
     }
   }
@@ -104,7 +118,7 @@ const Form = ({
     {
       name: 'password',
       placeholder: `Password`,
-      onChange: debouncedOnPasswordChange
+      onChange: onPasswordChange
     },
   ]
 
@@ -138,18 +152,18 @@ const Form = ({
                 <div style={ { margin: '0px 0px 8px 0px' } }>
                   <input
                     required
-                    type={ 'text' }
                     id={ fi.name }
+                    type={ 'text' }
                     name={ fi.name }
-                    placeholder={ fi.placeholder }
                     maxLength={ 28 }
+                    placeholder={ fi.placeholder }
                     onChange={ (e: any) => fi.onChange(e) }
                     style={ {
+                      width: `310px`,
                       fontSize: '14.5px',
                       padding: '5px 12px',
                       borderWidth: '0.5px',
                       borderRadius: '1rem',
-                      width: `310px`,
                     } }
                   />
                 </div>
@@ -160,9 +174,28 @@ const Form = ({
           <div style={ { display: 'block', width: '100%' } }>
             <button
               className={ styles.button }
+              disabled={ isButtonDisabled ? true : false }
+              style={{
+                cursor: isButtonDisabled ? 'not-allowed' : 'pointer',
+                backgroundColor: isButtonDisabled ? 'gray' : ''
+              }}
               onClick={ (e: any) => handleSubmit(e) }
             >
-              { buttonText }
+              { isButtonDisabled 
+                ? (
+                  <>
+                    <Spinner 
+                      style={{ 
+                        position: 'relative',
+                        top: '1px'
+                      }}
+                      height='24'
+                      width='24' 
+                    /> 
+                  </>
+                )
+                : buttonText 
+              }
             </button>
           </div>
         </div>

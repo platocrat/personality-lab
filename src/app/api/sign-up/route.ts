@@ -13,15 +13,24 @@ export async function POST(
   if (req.method === 'POST') {
     const { email, username, password } = await req.json()
 
+    const timestamp = new Date().getTime()
+
     const input = {
       TableName: BESSI_ACCOUNTS_TABLE_NAME,
-      Item: { email, username, password },
+      Item: { 
+        email: email,
+        username: username, 
+        password: password,
+        timestamp: timestamp
+      },
     }
 
     const command = new PutCommand(input)
 
     try {
-      await ddbDocClient.send(command)
+      const response = await ddbDocClient.send(command)
+
+      console.log(`response: `, response)
 
       return NextResponse.json(
         { message: 'User has successfully signed up!' },
@@ -29,7 +38,7 @@ export async function POST(
       )
     } catch (error: any) {
       return NextResponse.json(
-        { error: error.message },
+        { error: error },
         { status: 500 },
       )
     }
