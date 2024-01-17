@@ -30,8 +30,14 @@ const LogInOrCreateAnAccount = () => {
     : isSignUp 
       ? `Create an account` 
       : `Log in`
-  const description = `View your scores from previous assessments taken.`
-  const buttonText = isFirstStep ? `Next` : `${isSignUp ? 'Sign up' : 'Log in' }`
+  const description = isFirstStep 
+    ?  `View your scores from previous assessments taken.`
+    : isSignUp 
+      ? ''
+      : 'Welcome back!'
+  const buttonText = isFirstStep 
+    ? `Next` 
+    : `${isSignUp ? 'Sign up' : 'Log in' }`
 
 
   // ---------------------------- Regular functions ----------------------------
@@ -152,14 +158,17 @@ const LogInOrCreateAnAccount = () => {
         })
 
         if (response.status === 200) { // If email exists
+          console.log(`Logging back in!`)
+
           setIsFirstStep(false)
           setIsSignUp(false)
-          
           /**
             * @todo Do something with data
             */
           const data = await response.json()
         } else if (response.status === 400) {  // If email does NOT exist
+          console.log(`Signing Up!`)
+
           setIsFirstStep(false)
           setIsSignUp(true)
         } else { // If the status code is 500
