@@ -21,12 +21,12 @@ const LogInOrCreateAnAccount = () => {
   const [ password, setPassword ] = useState<string>('')
   // Booleans
   const [ 
-    isPasswordIncorrect, 
-    setIsPasswordIncorrect 
+    isPasswordInvalid, 
+    setIsPasswordInvalid 
   ] = useState<boolean>(false)
   const [ 
-    isUsernameIncorrect,
-    setIsUsernameIncorrect
+    isUsernameInvalid,
+    setIsUsernameInvalid
   ] = useState<boolean>(false)
   const [ 
     waitingForResponse,
@@ -36,7 +36,7 @@ const LogInOrCreateAnAccount = () => {
   const [ isFirstStep, setIsFirstStep ] = useState<boolean>(true)
   const [ emailExists, setEmailExists ] = useState<boolean>(false)
   const [ isAuthenticated, setIsAuthenticated ] = useState<boolean>(false)
-  const [ isEmailIncorrect, setIsEmailIncorrect ] = useState<boolean>(false)
+  const [ isEmailInvalid, setIsEmailInvalid ] = useState<boolean>(false)
 
 
   const title = isFirstStep 
@@ -54,56 +54,16 @@ const LogInOrCreateAnAccount = () => {
     : `${isSignUp ? 'Sign up' : 'Log in' }`
 
 
-  // ---------------------------- Regular functions ----------------------------
-  function isValidEmail(email: string) {
-    // Implement email validation logic
-    const conditional = email === '' ||
-      email === undefined ||
-      email === null ||
-      email.indexOf('@') === -1
-
-    if (conditional) {
-      return false
-    } else {
-      return true
-    }
-  }
-
-  function isValidUsername(username: string) {
-    // Implement username validation logic
-    const conditional = email === '' ||
-      email === undefined ||
-      email === null
-
-    if (conditional) {
-      return false
-    } else {
-      return true
-    }
-  }
-
-  function isValidPassword(password: string) {
-    // Implement password validation logic
-    const conditional = password === '' ||
-      password === undefined ||
-      password === null
-
-    if (conditional) {
-      return false
-    } else {
-      return true
-    }
-  }
-
+  // ---------------------------- Regular functions ----------------------------  
   
   
   // ------------------------------ Async functions ----------------------------
   async function handleLogIn(e: any) {
     e.preventDefault()
 
-    setIsEmailIncorrect(false)
-    setIsUsernameIncorrect(false)
-    setIsPasswordIncorrect(false)
+    setIsEmailInvalid(false)
+    setIsUsernameInvalid(false)
+    setIsPasswordInvalid(false)
     setWaitingForResponse(true)
     
     try {
@@ -123,53 +83,55 @@ const LogInOrCreateAnAccount = () => {
         switch (message) {
           case 'Verified email, username, and password':
             setWaitingForResponse(false)
-            setIsEmailIncorrect(false)
-            setIsUsernameIncorrect(false)
-            setIsPasswordIncorrect(false)
+            setIsEmailInvalid(false)
+            setIsUsernameInvalid(false)
+            setIsPasswordInvalid(false)
             /**
              * @todo Authenticate the user
              */
 
             break
-          case 'Incorrect password':
+          case 'Invalid password':
             setWaitingForResponse(false)
-            setIsEmailIncorrect(false)
-            setIsUsernameIncorrect(false)
-            setIsPasswordIncorrect(true)
+            setIsEmailInvalid(false)
+            setIsUsernameInvalid(false)
+            setIsPasswordInvalid(true)
             break
           
-          case 'Incorrect username':
+          case 'Invalid username':
             setWaitingForResponse(false)
-            setIsEmailIncorrect(false)
-            setIsUsernameIncorrect(true)
-            setIsPasswordIncorrect(false)
+            setIsEmailInvalid(false)
+            setIsUsernameInvalid(true)
+            setIsPasswordInvalid(false)
             break
           
-          case 'Incorrect username and password':
+          case 'Invalid username and password':
             setWaitingForResponse(false)
-            setIsEmailIncorrect(false)
-            setIsUsernameIncorrect(true)
-            setIsPasswordIncorrect(true)
+            setIsEmailInvalid(false)
+            setIsUsernameInvalid(true)
+            setIsPasswordInvalid(true)
+            break
+          
+          case 'Email not found':
+            setWaitingForResponse(false)
+            setIsEmailInvalid(true)
+            setIsUsernameInvalid(false)
+            setIsPasswordInvalid(false)
             break
         }
-      } else if (response.status === 400) {
-        setWaitingForResponse(false)
-        setIsEmailIncorrect(true)
-        setIsUsernameIncorrect(false)
-        setIsPasswordIncorrect(false)
       } else {
         setWaitingForResponse(false)
-        setIsEmailIncorrect(false)
-        setIsUsernameIncorrect(false)
-        setIsPasswordIncorrect(false)
+        setIsEmailInvalid(false)
+        setIsUsernameInvalid(false)
+        setIsPasswordInvalid(false)
 
         console.error(`Error verifying log in credentials: `, data.error)
       }
     } catch (error: any) {
       setWaitingForResponse(false)
-      setIsEmailIncorrect(false)
-      setIsUsernameIncorrect(false)
-      setIsPasswordIncorrect(false)
+      setIsEmailInvalid(false)
+      setIsUsernameInvalid(false)
+      setIsPasswordInvalid(false)
       
       console.error(error)
       /**
@@ -181,105 +143,84 @@ const LogInOrCreateAnAccount = () => {
   
   async function handleSignUp(e: any) {
     e.preventDefault()
+      
+    try {
+      const response = await fetch('/api/sign-up', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, username, password }),
+      })
     
-    // Validate email, username, and password
-    if (
-      !isValidEmail(email) || 
-      !isValidUsername(username) || 
-      !isValidPassword(password)
-      ) {
-        /**
-         * @todo Handle invalid input UI here
-        */
-       console.error('Invalid input')
-       return
+      if (response.status === 200) {
+        const data = await response.json()
+        console.log(`data.message: `, data.message)
+        setIsAuthenticated(true)
+      } else {
+        const data = await response.json()
+        console.error(`Error sending POST request to DynamoDB: `, data.error)
       }
-      
-      try {
-        const response = await fetch('/api/sign-up', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email, username, password }),
-        })
-      
-        if (response.status === 200) {
-          const data = await response.json()
-          console.log(`data.message: `, data.message)
-          setIsAuthenticated(true)
-        } else {
-          const data = await response.json()
-          console.error(`Error sending POST request to DynamoDB: `, data.error)
-        }
-      } catch (error: any) {
-        console.error(
-          `${error}: This API endpoint only accepts POST requests`
-        )
-        /**
-         * @todo Handle error UI here
-        */
-      }
+    } catch (error: any) {
+      console.error(
+        `${error}: This API endpoint only accepts POST requests`
+      )
+      /**
+       * @todo Handle error UI here
+      */
     }
+  }
     
     
-    async function handleEmailExists(e: any) {
-      e.preventDefault()
+  async function handleEmailExists(e: any) {
+    e.preventDefault()
 
-      if (!isValidEmail(email)) {
+    setWaitingForResponse(true)
+
+    try {
+      const response = await fetch('/api/check-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      })
+
+      if (response.status === 200) { // If email exists
+        setWaitingForResponse(false)
+        setIsFirstStep(false)
+        setIsSignUp(false)
         /**
-         * @todo Handle invalid input UI here
-        */
-        console.error('Invalid input')
-        return
-      }
-
-      setWaitingForResponse(true)
-  
-      try {
-        const response = await fetch('/api/check-email', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email }),
-        })
-
-        if (response.status === 200) { // If email exists
-          setWaitingForResponse(false)
-          setIsFirstStep(false)
-          setIsSignUp(false)
-          /**
-           * @todo Do something with data
-           */
-          const data = await response.json()
-        } else if (response.status === 400) {  // If email does NOT exist
-          setWaitingForResponse(false)
-          setIsFirstStep(false)
-          setIsSignUp(true)
-        } else { // If the status code is 500
-          setWaitingForResponse(false)
-
-          const json = await response.json()
-          const error = json.error
-
-          console.error(`Error sending POST request to DynamoDB table:\n`, error)
-          /**
-           * @todo Handle error UI here
-           */
-        }
-      } catch (error: any) { // If request is not a POST request
+         * @todo Do something with data
+         */
+        const data = await response.json()
+      } else if (response.status === 400) {  // If email does NOT exist
+        setWaitingForResponse(false)
+        setIsFirstStep(false)
+        setIsSignUp(true)
+      } else { // If the status code is 500
         setWaitingForResponse(false)
 
-        console.error(
-          `${error}: This API endpoint only accepts POST requests`
-        )
-        
+        const json = await response.json()
+        const error = json.error
+
+        console.error(`Error sending POST request to DynamoDB table:\n`, error)
         /**
          * @todo Handle error UI here
          */
       }
+    } catch (error: any) { // If request is not a POST request
+      setWaitingForResponse(false)
+
+      console.error(
+        `${error}: This API endpoint only accepts POST requests`
+      )
+      
+      /**
+       * @todo Handle error UI here
+       */
     }
+  }
 
 
 
@@ -296,21 +237,24 @@ const LogInOrCreateAnAccount = () => {
           formContent: <Form 
             buttonText={ buttonText }
             state={{
+              email: email,
+              username: username,
+              password: password,
               isSignUp: isSignUp,
               isFirstStep: isFirstStep,
               emailExists: emailExists,
-              isEmailIncorrect: isEmailIncorrect,
+              isEmailInvalid: isEmailInvalid,
               waitingForResponse: waitingForResponse,
-              isPasswordIncorrect: isPasswordIncorrect,
-              isUsernameIncorrect: isUsernameIncorrect,
+              isPasswordInvalid: isPasswordInvalid,
+              isUsernameInvalid: isUsernameInvalid,
             }}
             set={{ 
               email: setEmail, 
               password: setPassword, 
               username: setUsername,
-              isEmailIncorrect: setIsEmailIncorrect,
-              isPasswordIncorrect: setIsPasswordIncorrect, 
-              isUsernameIncorrect: setIsUsernameIncorrect,
+              isEmailInvalid: setIsEmailInvalid,
+              isPasswordInvalid: setIsPasswordInvalid, 
+              isUsernameInvalid: setIsUsernameInvalid,
             }}
             handler={{ handleLogIn, handleSignUp, handleEmailExists }}
             />
