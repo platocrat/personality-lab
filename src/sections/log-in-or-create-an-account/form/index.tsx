@@ -18,21 +18,24 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 type FormProps = {
   buttonText: string
   state: {
+    email: string
     isSignUp: boolean
+    username: string
+    password: string
     isFirstStep: boolean
     emailExists: boolean
-    isEmailIncorrect: boolean
+    isEmailInvalid: boolean
     waitingForResponse: boolean
-    isUsernameIncorrect: boolean
-    isPasswordIncorrect: boolean
+    isUsernameInvalid: boolean
+    isPasswordInvalid: boolean
   }
   set: {
     email: Dispatch<SetStateAction<string>>
     password: Dispatch<SetStateAction<string>>
     username: Dispatch<SetStateAction<string>>
-    isEmailIncorrect: Dispatch<SetStateAction<boolean>>
-    isPasswordIncorrect: Dispatch<SetStateAction<boolean>>
-    isUsernameIncorrect: Dispatch<SetStateAction<boolean>>
+    isEmailInvalid: Dispatch<SetStateAction<boolean>>
+    isPasswordInvalid: Dispatch<SetStateAction<boolean>>
+    isUsernameInvalid: Dispatch<SetStateAction<boolean>>
   }
   handler: {
     handleLogIn: (e: any) => void
@@ -42,7 +45,7 @@ type FormProps = {
 }
 
 
-const debounceTimeout = 200
+const debounceTimeout = 300
 
 
 
@@ -54,43 +57,131 @@ const Form: FC<FormProps> = ({
 }) => {
   const [ isPasswordHashing, setIsPasswordHashing ] = useState<boolean>(false)
 
-  const isButtonDisabled = isPasswordHashing || state.waitingForResponse 
+  const showSpinner = isPasswordHashing || state.waitingForResponse
     ? true
     : false
 
+  const isButtonDisabled = isPasswordHashing || state.waitingForResponse ||
+    state.email === '' && state.isFirstStep || 
+    state.email === '' && !state.isFirstStep ||
+    state.username === '' && !state.isFirstStep || 
+    state.password === '' && !state.isFirstStep
+      ? true
+      : false
+
   // ------------------------------ Regular functions --------------------------
   const onUsernameChange = (e: any) => {
+    set.isUsernameInvalid(false)
+    
     const value = e.target.value
+    const isValid = isValidUsername(value)
+
+    if (isValid) {
+      set.isUsernameInvalid(false)
+      set.password(value)
+    } else {
+      set.isUsernameInvalid(true)
+    }
+    
     set.username(value)
   }
-  
+
+  const debouncedOnUsernameChange = useMemo(
+    (): ((...args: any) => void) => debounce(onUsernameChange, debounceTimeout),
+    []
+  )
+    
   const onEmailChange = (e: any) => {
+    set.isEmailInvalid(false)
+    
     const value = e.target.value
-    set.email(value)
+    const isValid = isValidEmail(value)
+    
+    if (isValid) {
+      set.isEmailInvalid(false)
+      set.email(value)
+    } else {
+      set.isEmailInvalid(true)
+    }
+  }
+  
+  const debouncedOnEmailChange = useMemo(
+    (): ((...args: any) => void) => debounce(onEmailChange, debounceTimeout),
+    []
+    )
+    
+  function isValidEmail(email: string): boolean {
+    // Implement email validation logic
+    const conditional = email !== '' && (email === undefined ||
+      email === null ||
+      email.indexOf('@') === -1 ||
+      email.slice(email.indexOf('@')).indexOf('.') === -1)
+
+    if (conditional) {
+      return false
+    } else {
+      return true
+    }
+  }
+
+  function isValidUsername(username: string): boolean {
+    // Implement username validation logic
+    const conditional = username !== '' && (
+      username === undefined ||
+      username === null
+    )
+
+    if (conditional) {
+      return false
+    } else {
+      return true
+    }
+  }
+
+  function isValidPassword(password: string): boolean {
+    // Implement password validation logic
+    const conditional = password !== '' && (
+      password === undefined ||
+      password === null
+    )
+
+    if (conditional) {
+      return false
+    } else {
+      return true
+    }
   }
 
   const boxShadow = (formInputs: any[], i: number): '0px 0px 6px 1px red' | '' => {
     const _ = '0px 0px 6px 1px red'
-    if (state.isEmailIncorrect && i === 0) return _
-    if (state.isUsernameIncorrect && i === 1) return _
-    if (state.isPasswordIncorrect && i === 2) return _
+    if (state.isEmailInvalid && i === 0) return _
+    if (state.isUsernameInvalid && i === 1) return _
+    if (state.isPasswordInvalid && i === 2) return _
     return ''
   } 
 
   const borderColor = (formInputs: any[], i: number): 'red' | '' => {
     const _ = 'red'
-    if (state.isEmailIncorrect && i === 0) return _
-    if (state.isUsernameIncorrect && i === 1) return _
-    if (state.isPasswordIncorrect && i === 2) return _
+    if (state.isEmailInvalid && i === 0) return _
+    if (state.isUsernameInvalid && i === 1) return _
+    if (state.isPasswordInvalid && i === 2) return _
     return ''
   }
 
   // -------------------------- Async functions --------------------------------
   const onPasswordChange = async (e: any) => {
     setIsPasswordHashing(true)
-    set.isPasswordIncorrect(false)
+    set.isPasswordInvalid(false)
 
     let _ = e.target.value
+
+    const isValid = isValidPassword(_)
+
+    if (isValid) {
+      set.isPasswordInvalid(false)
+    } else {
+      set.isPasswordInvalid(true)
+    }
     
     if (state.isSignUp) {
       // Store encrypted password in database
@@ -147,7 +238,7 @@ const Form: FC<FormProps> = ({
     {
       name: 'email',
       placeholder: `Enter your email`,
-      onChange: onEmailChange
+      onChange: debouncedOnEmailChange
     },
     {
       name: 'username',
@@ -209,7 +300,7 @@ const Form: FC<FormProps> = ({
                     } }
                   />
                 </div>
-                { state.isEmailIncorrect && i === 0 ? (
+                { state.isEmailInvalid && i === 0 ? (
                   <>
                     <p
                       style={ {
@@ -220,11 +311,11 @@ const Form: FC<FormProps> = ({
                         position: 'relative',
                       } }
                     >
-                      { `Incorrect email` }
+                      { `Invalid email` }
                     </p>
                   </>
                 ) : null }
-                { state.isUsernameIncorrect && i === 1 ? (
+                { state.isUsernameInvalid && i === 1 ? (
                   <>
                     <p
                       style={ {
@@ -235,7 +326,7 @@ const Form: FC<FormProps> = ({
                         position: 'relative',
                       } }
                     >
-                      { `Incorrect username` }
+                      { `Invalid username` }
                     </p>
                   </>
                 ) : null }
@@ -243,7 +334,7 @@ const Form: FC<FormProps> = ({
             ))}
           </div>
 
-          { state.isPasswordIncorrect ? (
+          { state.isPasswordInvalid ? (
             <>
                 <p
                   style={{
@@ -253,7 +344,7 @@ const Form: FC<FormProps> = ({
                     fontSize: '14px'
                   }}
                 >
-                  {`Incorrect password`}
+                  {`Invalid password`}
                 </p>
             </>
           ) : null }
@@ -268,7 +359,7 @@ const Form: FC<FormProps> = ({
               }}
               onClick={ (e: any) => handleSubmit(e) }
             >
-              { isButtonDisabled 
+              { showSpinner 
                 ? (
                   <>
                     <Spinner 
