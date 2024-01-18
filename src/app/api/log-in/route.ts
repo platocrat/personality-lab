@@ -47,7 +47,7 @@ export async function POST(
           
           cookies().set(key, value, { 
             secure: true,
-            maxAge: 60 * 60 * 24 * 30, // 30 days
+            maxAge: 60 * 60 * 24 * 1, // 1 day
           })
 
           const cookieValue = cookies().get(key)
@@ -60,31 +60,38 @@ export async function POST(
           )
         } else if (verifiedUsername && !verifiedPassword) {
           return NextResponse.json(
-            { message: 'Incorrect password' },
+            { message: 'Invalid password' },
             { status: 200 },
           )  
         } else if (!verifiedUsername && verifiedPassword) {
           return NextResponse.json(
-            { message: 'Incorrect username' },
+            { message: 'Invalid username' },
             { status: 200 },
           )  
         } else {
           return NextResponse.json(
-            { message: 'Incorrect username and password' },
+            { message: 'Invalid username and password' },
             { status: 200 },
           )  
         }
       } else {
         return NextResponse.json(
           { error: 'Email not found' },
-          { status: 400 },
+          { status: 200 },
         )
       }
     } catch (error: any) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 500 },
-      )
+      if (error.message === `Cannot read properties of undefined (reading 'password')`) {
+        return NextResponse.json(
+          { message: 'Email not found' },
+          { status: 200 },
+        )
+      } else {
+        return NextResponse.json(
+          { error: error.message },
+          { status: 500 },
+        )
+      }
     }
   } else {
     return NextResponse.json(
