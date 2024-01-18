@@ -6,7 +6,7 @@ import { ddbDocClient } from '@/utils/aws/dynamodb'
 import { BESSI_ACCOUNTS_TABLE_NAME } from '@/utils'
 
 
-type BESSI_accounts = {
+export type BESSI_accounts = {
   password: string
   username: string
   email: string
@@ -31,11 +31,18 @@ export async function POST(req: NextRequest, res: NextResponse) {
     try {
       const response = await ddbDocClient.send(command)
 
-      if (response.Items && (response.Items[0] as BESSI_accounts).email) {
-        return NextResponse.json(
-          { message: 'Email exists!' },
-          { status: 200 },
-        )
+      if (response.Items && response.Items.length > 0) {
+        if ((response.Items[0] as BESSI_accounts).email) {
+          return NextResponse.json(
+            { message: 'Email exists!' },
+            { status: 200 },
+          )
+        } else {
+          return NextResponse.json(
+            { error: 'Email does not exist!' },
+            { status: 400 },
+          )
+        }
       } else {
         return NextResponse.json(
           { error: 'Email does not exist!' },
