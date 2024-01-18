@@ -41,9 +41,6 @@ export async function POST(
         const verifiedUsername = storedUsername === username
         const verifiedPassword = crypto_pwhash_str_verify(hashedPassword, password)
 
-        console.log(`verifiedPassword: `, verifiedPassword)
-        console.log(`verifiedUsername: `, verifiedUsername)
-
         if (verifiedUsername && verifiedPassword) {
           const key = username
           const value = `User '${username}' last autheticated on ${new Date()}`
