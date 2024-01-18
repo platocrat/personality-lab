@@ -29,7 +29,7 @@ const Spinner: FC<SpinnerProps> = ({
     >
       <g fill='none' fillRule='evenodd'>
         <g transform='translate(1 1)' strokeWidth={ strokeWidth ?? '2.25' }>
-          <circle strokeOpacity='.5' cx='18' cy='18' r='18' />
+          <circle strokeOpacity='1' cx='18' cy='18' r='18' />
           <path d='M36 18c0-9.94-8.06-18-18-18'>
             <animateTransform
               attributeName='transform'

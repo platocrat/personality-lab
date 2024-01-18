@@ -2,6 +2,7 @@
 import { 
   ready, 
   crypto_pwhash_str,
+  crypto_pwhash_str_verify,
   crypto_pwhash_MEMLIMIT_INTERACTIVE,
   crypto_pwhash_OPSLIMIT_INTERACTIVE,
 } from 'libsodium-wrappers-sumo'
@@ -20,10 +21,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
         crypto_pwhash_OPSLIMIT_INTERACTIVE,
         crypto_pwhash_MEMLIMIT_INTERACTIVE
       )
-
-      hashedPassword = hashedPassword.slice(
-        hashedPassword.indexOf('p=1')
-      ).split('p=1$')[1]
 
       return NextResponse.json(
         { hashedPassword },

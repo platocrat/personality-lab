@@ -13,6 +13,8 @@ export async function POST(
   if (req.method === 'POST') {
     const { email, username, password } = await req.json()
 
+    console.log(`stored password: `, password)
+
     const timestamp = new Date().getTime()
 
     const input = {

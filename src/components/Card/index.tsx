@@ -37,7 +37,7 @@ const Card: FC<CardProps> = ({
       <div 
         style={ {
           ...cssStyle,
-          padding: '18px',
+          padding: '4px 18px',
           borderRadius: '1rem',
           margin: '0rem 0rem 2rem 0rem',
           boxShadow: '0px 2.5px 5px rgba(80, 110, 127, 0.5)',
@@ -52,7 +52,7 @@ const Card: FC<CardProps> = ({
         <div
           style={ {
             ...definitelyCenteredStyle,
-            margin: '18px 0px 12px 0px',
+            margin: '18px 0px 0px 0px',
           } }
         >
           <div 

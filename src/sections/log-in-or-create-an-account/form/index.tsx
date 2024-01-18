@@ -1,5 +1,12 @@
 // Externals
-import { Dispatch, Fragment, SetStateAction, useMemo, useState } from 'react'
+import { 
+  FC, 
+  useMemo, 
+  useState, 
+  Fragment, 
+  Dispatch,
+  SetStateAction, 
+} from 'react'
 // Locals
 import { debounce } from '@/utils'
 import Spinner from '@/components/Suspense/Spinner'
@@ -9,60 +16,92 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 type FormProps = {
-  isSignUp: boolean
   buttonText: string
-  emailExists: boolean
-  isFirstStep: boolean
-  checkingIfEmailExists: boolean
-  setter: {
-    setEmail: Dispatch<SetStateAction<string>>
-    setPassword: Dispatch<SetStateAction<string>>
-    setUsername: Dispatch<SetStateAction<string>>
+  state: {
+    isSignUp: boolean
+    isFirstStep: boolean
+    emailExists: boolean
+    isEmailIncorrect: boolean
+    waitingForResponse: boolean
+    isUsernameIncorrect: boolean
+    isPasswordIncorrect: boolean
+  }
+  set: {
+    email: Dispatch<SetStateAction<string>>
+    password: Dispatch<SetStateAction<string>>
+    username: Dispatch<SetStateAction<string>>
+    isEmailIncorrect: Dispatch<SetStateAction<boolean>>
+    isPasswordIncorrect: Dispatch<SetStateAction<boolean>>
+    isUsernameIncorrect: Dispatch<SetStateAction<boolean>>
   }
   handler: {
-    handleLogIn?: (e: any) => void
-    handleSignUp?: (e: any) => void
-    handleEmailExists?: (e: any) => void
+    handleLogIn: (e: any) => void
+    handleSignUp: (e: any) => void
+    handleEmailExists: (e: any) => void
   }
 }
 
 
-const debounceTimeout = 600
+const debounceTimeout = 200
 
 
-const Form = ({
-  setter,
+
+const Form: FC<FormProps> = ({
+  set,
+  state,
   handler,
-  isSignUp,
   buttonText,
-  isFirstStep,
-  checkingIfEmailExists,
 }) => {
   const [ isPasswordHashing, setIsPasswordHashing ] = useState<boolean>(false)
+
+  const isButtonDisabled = isPasswordHashing || state.waitingForResponse 
+    ? true
+    : false
 
   // ------------------------------ Regular functions --------------------------
   const onUsernameChange = (e: any) => {
     const value = e.target.value
-    setter.setUsername(value)
+    set.username(value)
   }
   
   const onEmailChange = (e: any) => {
     const value = e.target.value
-    setter.setEmail(value)
+    set.email(value)
   }
 
-  const isButtonDisabled = isPasswordHashing || checkingIfEmailExists 
-    ? true
-    : false
+  const boxShadow = (formInputs: any[], i: number): '0px 0px 6px 1px red' | '' => {
+    const _ = '0px 0px 6px 1px red'
+    if (state.isEmailIncorrect && i === 0) return _
+    if (state.isUsernameIncorrect && i === 1) return _
+    if (state.isPasswordIncorrect && i === 2) return _
+    return ''
+  } 
+
+  const borderColor = (formInputs: any[], i: number): 'red' | '' => {
+    const _ = 'red'
+    if (state.isEmailIncorrect && i === 0) return _
+    if (state.isUsernameIncorrect && i === 1) return _
+    if (state.isPasswordIncorrect && i === 2) return _
+    return ''
+  }
 
   // -------------------------- Async functions --------------------------------
   const onPasswordChange = async (e: any) => {
     setIsPasswordHashing(true)
+    set.isPasswordIncorrect(false)
 
-    const value = e.target.value
-    const hashedPassword = await hashPassword(value)
-    setter.setPassword(hashedPassword)
-    setIsPasswordHashing(false)
+    let _ = e.target.value
+    
+    if (state.isSignUp) {
+      // Store encrypted password in database
+      _ = await hashPassword(_)
+      set.password(_)
+      setIsPasswordHashing(false)
+    } else {
+      // Use raw password to check against hash that is stored in database
+      set.password(_)
+      setIsPasswordHashing(false)
+    }
   }
 
   const debouncedOnPasswordChange = useMemo(
@@ -94,9 +133,9 @@ const Form = ({
   async function handleSubmit(e: any) {
     e.preventDefault()
 
-    if (isFirstStep) {
+    if (state.isFirstStep) {
       return handler.handleEmailExists(e)
-    } else if (isSignUp) {
+    } else if (state.isSignUp) {
       return handler.handleSignUp(e)
     } else {
       return handler.handleLogIn(e)
@@ -104,7 +143,7 @@ const Form = ({
   }
 
   
-  let formInputs: any = [
+  let formInputs: any[] = [
     {
       name: 'email',
       placeholder: `Enter your email`,
@@ -122,7 +161,8 @@ const Form = ({
     },
   ]
 
-  formInputs = isFirstStep ? [formInputs[0]] : formInputs
+  formInputs = state.isFirstStep ? [formInputs[0]] : formInputs
+
 
 
   return (
@@ -138,7 +178,7 @@ const Form = ({
           style={ {
             ...definitelyCenteredStyle,
             flexDirection: 'column',
-            gap: '12px'
+            gap: '4px'
           } }
         >
           <div
@@ -153,7 +193,7 @@ const Form = ({
                   <input
                     required
                     id={ fi.name }
-                    type={ 'text' }
+                    type={ i === 2 ? 'password' : 'text' }
                     name={ fi.name }
                     maxLength={ 28 }
                     placeholder={ fi.placeholder }
@@ -164,20 +204,67 @@ const Form = ({
                       padding: '5px 12px',
                       borderWidth: '0.5px',
                       borderRadius: '1rem',
+                      boxShadow: boxShadow(formInputs, i),
+                      borderColor: borderColor(formInputs, i),
                     } }
                   />
                 </div>
+                { state.isEmailIncorrect && i === 0 ? (
+                  <>
+                    <p
+                      style={ {
+                        bottom: '4px',
+                        color: 'red',
+                        fontSize: '14px',
+                        textAlign: 'center',
+                        position: 'relative',
+                      } }
+                    >
+                      { `Incorrect email` }
+                    </p>
+                  </>
+                ) : null }
+                { state.isUsernameIncorrect && i === 1 ? (
+                  <>
+                    <p
+                      style={ {
+                        bottom: '4px',
+                        color: 'red',
+                        fontSize: '14px',
+                        textAlign: 'center',
+                        position: 'relative',
+                      } }
+                    >
+                      { `Incorrect username` }
+                    </p>
+                  </>
+                ) : null }
               </Fragment>
-            ))
-            }
+            ))}
           </div>
+
+          { state.isPasswordIncorrect ? (
+            <>
+                <p
+                  style={{
+                    position: 'relative',
+                    bottom: '4px',
+                    color: 'red',
+                    fontSize: '14px'
+                  }}
+                >
+                  {`Incorrect password`}
+                </p>
+            </>
+          ) : null }
+
           <div style={ { display: 'block', width: '100%' } }>
             <button
               className={ styles.button }
               disabled={ isButtonDisabled ? true : false }
               style={{
                 cursor: isButtonDisabled ? 'not-allowed' : 'pointer',
-                backgroundColor: isButtonDisabled ? 'gray' : ''
+                backgroundColor: isButtonDisabled ? 'rgba(152, 152, 152, 0.30)' : ''
               }}
               onClick={ (e: any) => handleSubmit(e) }
             >
@@ -185,12 +272,9 @@ const Form = ({
                 ? (
                   <>
                     <Spinner 
-                      style={{ 
-                        position: 'relative',
-                        top: '1px'
-                      }}
                       height='24'
                       width='24' 
+                      style={{ position: 'relative',top: '1px' }}
                     /> 
                   </>
                 )
