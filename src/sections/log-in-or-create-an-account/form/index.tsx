@@ -57,40 +57,30 @@ const Form: FC<FormProps> = ({
 }) => {
   const [ isPasswordHashing, setIsPasswordHashing ] = useState<boolean>(false)
 
-  const showSpinner = isPasswordHashing || state.waitingForResponse
-    ? true
-    : false
 
-  const isButtonDisabled = isPasswordHashing || state.waitingForResponse ||
-    state.email === '' && state.isFirstStep || 
-    state.email === '' && !state.isFirstStep ||
-    state.username === '' && !state.isFirstStep || 
-    state.password === '' && !state.isFirstStep
-      ? true
-      : false
+  const showSpinner = useMemo((): boolean => {
+    return isPasswordHashing || state.waitingForResponse ? true : false
+  }, [isPasswordHashing, state.waitingForResponse])
 
+
+  const isButtonDisabled = useMemo((): boolean => {
+    return isPasswordHashing || state.waitingForResponse ||
+      state.email === '' && state.isFirstStep || 
+      state.email === '' && !state.isFirstStep ||
+      state.username === '' && !state.isFirstStep || 
+      state.password === '' && !state.isFirstStep
+        ? true
+        : false
+  }, [
+    state.email,
+    state.username,
+    state.password,
+    state.isFirstStep,
+    isPasswordHashing,
+    state.waitingForResponse,
+  ])
+  
   // ------------------------------ Regular functions --------------------------
-  const onUsernameChange = (e: any) => {
-    set.isUsernameInvalid(false)
-    
-    const value = e.target.value
-    const isValid = isValidUsername(value)
-
-    if (isValid) {
-      set.isUsernameInvalid(false)
-      set.password(value)
-    } else {
-      set.isUsernameInvalid(true)
-    }
-    
-    set.username(value)
-  }
-
-  const debouncedOnUsernameChange = useMemo(
-    (): ((...args: any) => void) => debounce(onUsernameChange, debounceTimeout),
-    []
-  )
-    
   const onEmailChange = (e: any) => {
     set.isEmailInvalid(false)
     
@@ -104,12 +94,71 @@ const Form: FC<FormProps> = ({
       set.isEmailInvalid(true)
     }
   }
-  
+
+
   const debouncedOnEmailChange = useMemo(
     (): ((...args: any) => void) => debounce(onEmailChange, debounceTimeout),
-    []
-    )
+    [state.email]
+  )
+
+
+  const onUsernameChange = (e: any) => {
+    set.isUsernameInvalid(false)
     
+    const value = e.target.value
+    const isValid = isValidUsername(value)
+
+    if (isValid) {
+      set.isUsernameInvalid(false)
+      set.username(value)
+    } else {
+      set.isUsernameInvalid(true)
+    }
+  }
+
+
+  const debouncedOnUsernameChange = useMemo(
+    (): ((...args: any) => void) => debounce(onUsernameChange, debounceTimeout),
+    []
+  )
+
+
+  const onPasswordChange = (e: any) => {
+    setIsPasswordHashing(true)
+    set.isPasswordInvalid(false)
+
+    let _ = e.target.value
+
+    const isValid = isValidPassword(_)
+
+    if (isValid) {
+      set.isPasswordInvalid(false)
+    } else {
+      setIsPasswordHashing(false)
+      set.isPasswordInvalid(true)
+      return
+    }
+
+    if (state.isSignUp) {
+      // Store encrypted password in database
+      hashPassword(_).then((hashedPassword: string) => {
+        set.password(_)
+        setIsPasswordHashing(false)
+      })
+    } else {
+      // Use raw password to check against hash that is stored in database
+      set.password(_)
+      setIsPasswordHashing(false)
+    }
+  }
+
+
+  const debouncedOnPasswordChange = useMemo(
+    (): ((...args: any) => void) => debounce(onPasswordChange, debounceTimeout),
+    [state.password]
+  )
+
+
   function isValidEmail(email: string): boolean {
     // Implement email validation logic
     const conditional = email !== '' && (email === undefined ||
@@ -123,6 +172,7 @@ const Form: FC<FormProps> = ({
       return true
     }
   }
+
 
   function isValidUsername(username: string): boolean {
     // Implement username validation logic
@@ -138,6 +188,7 @@ const Form: FC<FormProps> = ({
     }
   }
 
+
   function isValidPassword(password: string): boolean {
     // Implement password validation logic
     const conditional = password !== '' && (
@@ -152,6 +203,7 @@ const Form: FC<FormProps> = ({
     }
   }
 
+
   const boxShadow = (formInputs: any[], i: number): '0px 0px 6px 1px red' | '' => {
     const _ = '0px 0px 6px 1px red'
     if (state.isEmailInvalid && i === 0) return _
@@ -159,6 +211,7 @@ const Form: FC<FormProps> = ({
     if (state.isPasswordInvalid && i === 2) return _
     return ''
   } 
+
 
   const borderColor = (formInputs: any[], i: number): 'red' | '' => {
     const _ = 'red'
@@ -168,38 +221,25 @@ const Form: FC<FormProps> = ({
     return ''
   }
 
-  // -------------------------- Async functions --------------------------------
-  const onPasswordChange = async (e: any) => {
-    setIsPasswordHashing(true)
-    set.isPasswordInvalid(false)
 
-    let _ = e.target.value
+  const autoComplete = (i: number): string => {
+    let _ = ''
 
-    const isValid = isValidPassword(_)
-
-    if (isValid) {
-      set.isPasswordInvalid(false)
-    } else {
-      set.isPasswordInvalid(true)
+    if (i === 0) _ = 'email'
+    if (i === 1) _ = 'username'
+    if (i === 2) {
+      if (state.isSignUp) {
+        _ = 'new-password'
+      } else {
+        _ = 'current-password'
+      }
     }
-    
-    if (state.isSignUp) {
-      // Store encrypted password in database
-      _ = await hashPassword(_)
-      set.password(_)
-      setIsPasswordHashing(false)
-    } else {
-      // Use raw password to check against hash that is stored in database
-      set.password(_)
-      setIsPasswordHashing(false)
-    }
+
+    return _
   }
 
-  const debouncedOnPasswordChange = useMemo(
-    (): ((...args: any) => void) => debounce(onPasswordChange, debounceTimeout),
-    []
-  )
 
+  // -------------------------- Async functions --------------------------------
   async function hashPassword(password: string) {
     try {
       const response = await fetch('/api/password', {
@@ -218,6 +258,7 @@ const Form: FC<FormProps> = ({
     }
   }
 
+
   /**
    * @todo Finish form submission
    */
@@ -233,7 +274,7 @@ const Form: FC<FormProps> = ({
     }
   }
 
-  
+
   let formInputs: any[] = [
     {
       name: 'email',
@@ -248,7 +289,7 @@ const Form: FC<FormProps> = ({
     {
       name: 'password',
       placeholder: `Password`,
-      onChange: onPasswordChange
+      onChange: debouncedOnPasswordChange
     },
   ]
 
@@ -284,10 +325,11 @@ const Form: FC<FormProps> = ({
                   <input
                     required
                     id={ fi.name }
-                    type={ i === 2 ? 'password' : 'text' }
                     name={ fi.name }
                     maxLength={ 28 }
                     placeholder={ fi.placeholder }
+                    autoComplete={ autoComplete(i) }
+                    type={ i === 1 ? 'email' : i === 2 ? 'password' : 'text' }
                     onChange={ (e: any) => fi.onChange(e) }
                     style={ {
                       width: `310px`,
