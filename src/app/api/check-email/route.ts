@@ -14,7 +14,10 @@ export type BESSI_accounts = {
 }
 
 
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(
+  req: NextRequest, 
+  res: NextResponse
+): Promise<NextResponse<{ message: string }> | NextResponse<{ error: any }>> {
   if (req.method === 'POST') {
     const { email } = await req.json()
 
@@ -34,19 +37,29 @@ export async function POST(req: NextRequest, res: NextResponse) {
       if (response.Items && response.Items.length > 0) {
         if ((response.Items[0] as BESSI_accounts).email) {
           return NextResponse.json(
-            { message: 'Email exists!' },
+            { message: 'Email exists' },
             { status: 200 },
           )
-        } else {
+        } else { 
+          /**
+           * @dev This if/else statement is necessary so that the type signature 
+           * of this function is:
+           * 
+           * Promise<NextResponse<{ message: string }> | NextResponse<{ error: any }>>
+           * 
+           * and not:
+           * 
+           * Promise<NextResponse<{ message: string }> | NextResponse<{ error: any }> | undefined> 
+           */
           return NextResponse.json(
-            { error: 'Email does not exist!' },
-            { status: 400 },
+            { message: 'Email does not exist' },
+            { status: 200 },
           )
         }
       } else {
         return NextResponse.json(
-          { error: 'Email does not exist!' },
-          { status: 400 },
+          { message: 'Email does not exist' },
+          { status: 200 },
         )
       }
     } catch (error: any) { // Error sending POST request to DynamoDB table
