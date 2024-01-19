@@ -70,7 +70,7 @@ export async function POST(
       const response = await ddbDocClient.send(command)
 
       return NextResponse.json(
-        { message: 'User has successfully signed up!' },
+        { message: 'User has successfully signed up' },
         { status: 200 },
       )
     } catch (error: any) {

@@ -35,8 +35,9 @@ const LogInOrCreateAnAccount = () => {
   const [ isSignUp, setIsSignUp ] = useState<boolean>(false)
   const [ isFirstStep, setIsFirstStep ] = useState<boolean>(true)
   const [ emailExists, setEmailExists ] = useState<boolean>(false)
-  const [ isAuthenticated, setIsAuthenticated ] = useState<boolean>(false)
   const [ isEmailInvalid, setIsEmailInvalid ] = useState<boolean>(false)
+  const [ isUsernameTaken, setIsUsernameTaken ] = useState<boolean>(false)
+  const [ isAuthenticated, setIsAuthenticated ] = useState<boolean>(false)
 
 
   const title = isFirstStep 
@@ -143,7 +144,10 @@ const LogInOrCreateAnAccount = () => {
   
   async function handleSignUp(e: any) {
     e.preventDefault()
-      
+    
+    setIsUsernameTaken(false)
+    setWaitingForResponse(false)
+
     try {
       const response = await fetch('/api/sign-up', {
         method: 'POST',
@@ -152,18 +156,24 @@ const LogInOrCreateAnAccount = () => {
         },
         body: JSON.stringify({ email, username, password }),
       })
-    
+      
+      const data = await response.json()
+
       if (response.status === 200) {
-        const data = await response.json()
+        const message = data.message
         
-        console.log(`data.message: `, data.message)
+        switch (message) {
+          case 'Username exists':
+            setIsUsernameTaken(true)
+            break
 
-        // authenticateUser()
-
-        // setIsAuthenticated(true)
+          case 'User has successfully signed up':
+            // authenticateUser()
+            // setIsAuthenticated(true)
+            break
+        }
       } else {
-        const data = await response.json()
-        console.error(`Error sending POST request to DynamoDB: `, data.error)
+        console.error(`Error signing up: `, data.error)
       }
     } catch (error: any) {
       console.error(error)
@@ -248,15 +258,17 @@ const LogInOrCreateAnAccount = () => {
               isFirstStep: isFirstStep,
               emailExists: emailExists,
               isEmailInvalid: isEmailInvalid,
-              waitingForResponse: waitingForResponse,
+              isUsernameTaken: isUsernameTaken,
               isPasswordInvalid: isPasswordInvalid,
               isUsernameInvalid: isUsernameInvalid,
+              waitingForResponse: waitingForResponse,
             }}
             set={{ 
               email: setEmail, 
               password: setPassword, 
               username: setUsername,
               isEmailInvalid: setIsEmailInvalid,
+              isUsernameTaken: setIsUsernameTaken,
               isPasswordInvalid: setIsPasswordInvalid, 
               isUsernameInvalid: setIsUsernameInvalid,
             }}

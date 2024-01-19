@@ -25,6 +25,7 @@ type FormProps = {
     isFirstStep: boolean
     emailExists: boolean
     isEmailInvalid: boolean
+    isUsernameTaken: boolean
     waitingForResponse: boolean
     isUsernameInvalid: boolean
     isPasswordInvalid: boolean
@@ -34,6 +35,7 @@ type FormProps = {
     password: Dispatch<SetStateAction<string>>
     username: Dispatch<SetStateAction<string>>
     isEmailInvalid: Dispatch<SetStateAction<boolean>>
+    isUsernameTaken: Dispatch<SetStateAction<boolean>> 
     isPasswordInvalid: Dispatch<SetStateAction<boolean>>
     isUsernameInvalid: Dispatch<SetStateAction<boolean>>
   }
@@ -67,8 +69,9 @@ const Form: FC<FormProps> = ({
     return isPasswordHashing || state.waitingForResponse ||
       state.email === '' && state.isFirstStep || 
       state.email === '' && !state.isFirstStep ||
-      state.username === '' && !state.isFirstStep || 
-      state.password === '' && !state.isFirstStep
+      state.username === '' && !state.isFirstStep ||
+      state.password === '' && !state.isFirstStep &&
+      state.isUsernameTaken
         ? true
         : false
   }, [
@@ -77,11 +80,12 @@ const Form: FC<FormProps> = ({
     state.password,
     state.isFirstStep,
     isPasswordHashing,
+    state.isUsernameTaken,
     state.waitingForResponse,
   ])
   
   // ------------------------------ Regular functions --------------------------
-  const onEmailChange = (e: any) => {
+  const onEmailChange = (e: any): void => {
     set.isEmailInvalid(false)
     
     const value = e.target.value
@@ -102,7 +106,8 @@ const Form: FC<FormProps> = ({
   )
 
 
-  const onUsernameChange = (e: any) => {
+  const onUsernameChange = (e: any): void => {
+    set.isUsernameTaken(false)
     set.isUsernameInvalid(false)
     
     const value = e.target.value
@@ -119,11 +124,11 @@ const Form: FC<FormProps> = ({
 
   const debouncedOnUsernameChange = useMemo(
     (): ((...args: any) => void) => debounce(onUsernameChange, debounceTimeout),
-    []
+    [state.username]
   )
 
 
-  const onPasswordChange = (e: any) => {
+  const onPasswordChange = (e: any): void => {
     setIsPasswordHashing(true)
     set.isPasswordInvalid(false)
 
@@ -141,7 +146,7 @@ const Form: FC<FormProps> = ({
 
     if (state.isSignUp) {
       // Store encrypted password in database
-      hashPassword(_).then((hashedPassword: string) => {
+      hashPassword(_).then((hashedPassword: string): void => {
         set.password(_)
         setIsPasswordHashing(false)
       })
@@ -207,6 +212,7 @@ const Form: FC<FormProps> = ({
   const boxShadow = (formInputs: any[], i: number): '0px 0px 6px 1px red' | '' => {
     const _ = '0px 0px 6px 1px red'
     if (state.isEmailInvalid && i === 0) return _
+    if (state.isUsernameTaken && i === 1) return _
     if (state.isUsernameInvalid && i === 1) return _
     if (state.isPasswordInvalid && i === 2) return _
     return ''
@@ -216,6 +222,7 @@ const Form: FC<FormProps> = ({
   const borderColor = (formInputs: any[], i: number): 'red' | '' => {
     const _ = 'red'
     if (state.isEmailInvalid && i === 0) return _
+    if (state.isUsernameTaken && i === 1) return _
     if (state.isUsernameInvalid && i === 1) return _
     if (state.isPasswordInvalid && i === 2) return _
     return ''
@@ -372,24 +379,38 @@ const Form: FC<FormProps> = ({
                     </p>
                   </>
                 ) : null }
+                { state.isUsernameTaken && i === 1 ? (
+                  <>
+                    <p
+                      style={ {
+                        bottom: '4px',
+                        color: 'red',
+                        fontSize: '14px',
+                        textAlign: 'center',
+                        position: 'relative',
+                      } }
+                    >
+                      { `Username is taken` }
+                    </p>
+                  </>
+                ) : null }
+                { state.isPasswordInvalid && i === 2 ? (
+                  <>
+                    <p
+                      style={ {
+                        position: 'relative',
+                        bottom: '4px',
+                        color: 'red',
+                        fontSize: '14px'
+                      } }
+                    >
+                      { `Invalid password` }
+                    </p>
+                  </>
+                ) : null }
               </Fragment>
             ))}
           </div>
-
-          { state.isPasswordInvalid ? (
-            <>
-                <p
-                  style={{
-                    position: 'relative',
-                    bottom: '4px',
-                    color: 'red',
-                    fontSize: '14px'
-                  }}
-                >
-                  {`Invalid password`}
-                </p>
-            </>
-          ) : null }
 
           <div style={ { display: 'block', width: '100%' } }>
             <button
