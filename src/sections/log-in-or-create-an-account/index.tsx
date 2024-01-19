@@ -155,22 +155,24 @@ const LogInOrCreateAnAccount = () => {
     
       if (response.status === 200) {
         const data = await response.json()
+        
         console.log(`data.message: `, data.message)
-        setIsAuthenticated(true)
+
+        // authenticateUser()
+
+        // setIsAuthenticated(true)
       } else {
         const data = await response.json()
         console.error(`Error sending POST request to DynamoDB: `, data.error)
       }
     } catch (error: any) {
-      console.error(
-        `${error}: This API endpoint only accepts POST requests`
-      )
+      console.error(error)
       /**
        * @todo Handle error UI here
       */
     }
   }
-    
+
     
   async function handleEmailExists(e: any) {
     e.preventDefault()
@@ -186,19 +188,25 @@ const LogInOrCreateAnAccount = () => {
         body: JSON.stringify({ email }),
       })
 
+      const data = await response.json()
+
       if (response.status === 200) { // If email exists
-        setWaitingForResponse(false)
-        setIsFirstStep(false)
-        setIsSignUp(false)
-        /**
-         * @todo Do something with data
-         */
-        const data = await response.json()
-      } else if (response.status === 400) {  // If email does NOT exist
-        setWaitingForResponse(false)
-        setIsFirstStep(false)
-        setIsSignUp(true)
-      } else { // If the status code is 500
+        const message = data.message
+
+        switch (message) {
+          case 'Email exists':
+            setWaitingForResponse(false)
+            setIsFirstStep(false)
+            setIsSignUp(false)
+            break
+
+          case 'Email does not exist':
+            setWaitingForResponse(false)
+            setIsFirstStep(false)
+            setIsSignUp(true)    
+            break
+        }
+      } else {
         setWaitingForResponse(false)
 
         const json = await response.json()
@@ -209,13 +217,9 @@ const LogInOrCreateAnAccount = () => {
          * @todo Handle error UI here
          */
       }
-    } catch (error: any) { // If request is not a POST request
+    } catch (error: any) {
       setWaitingForResponse(false)
-
-      console.error(
-        `${error}: This API endpoint only accepts POST requests`
-      )
-      
+      console.error(error)
       /**
        * @todo Handle error UI here
        */
