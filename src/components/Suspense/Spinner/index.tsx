@@ -1,4 +1,8 @@
+'use client';
+
+
 import React, { CSSProperties, FC } from 'react'
+
 
 export type SpinnerProps = {
   width?: string

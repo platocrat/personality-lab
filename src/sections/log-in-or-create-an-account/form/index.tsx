@@ -10,6 +10,7 @@ import {
 // Locals
 import { debounce } from '@/utils'
 import Spinner from '@/components/Suspense/Spinner'
+import PasswordValidation from './passwordValidation'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -66,12 +67,15 @@ const Form: FC<FormProps> = ({
 
 
   const isButtonDisabled = useMemo((): boolean => {
+
+
     return isPasswordHashing || state.waitingForResponse ||
-      state.email === '' && state.isFirstStep || 
-      state.email === '' && !state.isFirstStep ||
-      state.username === '' && !state.isFirstStep ||
-      state.password === '' && !state.isFirstStep &&
-      state.isUsernameTaken
+      state.isFirstStep && state.email === '' || 
+      !state.isFirstStep && state.email === '' ||
+      !state.isFirstStep && state.username === '' ||
+      !state.isFirstStep && state.password === '' ||
+      state.isUsernameTaken ||
+      !state.isFirstStep  && !isValidPassword(state.password)
         ? true
         : false
   }, [
@@ -88,12 +92,12 @@ const Form: FC<FormProps> = ({
   const onEmailChange = (e: any): void => {
     set.isEmailInvalid(false)
     
-    const value = e.target.value
-    const isValid = isValidEmail(value)
+    const _ = e.target.value
+    const isValid = isValidEmail(_)
     
     if (isValid) {
       set.isEmailInvalid(false)
-      set.email(value)
+      set.email(_)
     } else {
       set.isEmailInvalid(true)
     }
@@ -110,12 +114,12 @@ const Form: FC<FormProps> = ({
     set.isUsernameTaken(false)
     set.isUsernameInvalid(false)
     
-    const value = e.target.value
-    const isValid = isValidUsername(value)
+    const _ = e.target.value
+    const isValid = isValidUsername(_)
 
     if (isValid) {
       set.isUsernameInvalid(false)
-      set.username(value)
+      set.username(_)
     } else {
       set.isUsernameInvalid(true)
     }
@@ -129,29 +133,32 @@ const Form: FC<FormProps> = ({
 
 
   const onPasswordChange = (e: any): void => {
-    setIsPasswordHashing(true)
+    setIsPasswordHashing(false)
     set.isPasswordInvalid(false)
 
     let _ = e.target.value
 
-    const isValid = isValidPassword(_)
-
-    if (isValid) {
-      set.isPasswordInvalid(false)
-    } else {
-      setIsPasswordHashing(false)
-      set.isPasswordInvalid(true)
-      return
-    }
-
     if (state.isSignUp) {
-      // Store encrypted password in database
+      // 1. Validate the inputted password
+      const isValid = isValidPassword(_)
+
+      if (isValid) {
+        set.isPasswordInvalid(false)
+      } else {
+        setIsPasswordHashing(false)
+        set.isPasswordInvalid(true)
+        return
+      }
+
+      setIsPasswordHashing(true)
+      // 2. Store encrypted password in database
       hashPassword(_).then((hashedPassword: string): void => {
         set.password(_)
         setIsPasswordHashing(false)
       })
     } else {
-      // Use raw password to check against hash that is stored in database
+      // 3. Use the raw password to check against the hashedPassword that is 
+      // stored in the database
       set.password(_)
       setIsPasswordHashing(false)
     }
@@ -195,18 +202,34 @@ const Form: FC<FormProps> = ({
 
 
   function isValidPassword(password: string): boolean {
-    // Implement password validation logic
-    const conditional = password !== '' && (
-      password === undefined ||
-      password === null
-    )
+    const _document: any = document
 
-    if (conditional) {
-      return false
-    } else {
-      return true
+    const green = 'rgb(52, 173, 52)'
+
+    const updateRuleStatus = (ruleId: string, isValid: boolean): void => {
+      const ruleElement = _document.getElementById(ruleId)
+      const symbolElement = ruleElement.querySelector('.symbol')
+
+      ruleElement.style.color = isValid ? green : 'red'
+      symbolElement.textContent = isValid ? '✔️' : '❌'
     }
+
+    // Check conditions
+    const isLengthValid = password.length >= 13
+    const hasCapitalLetter = /[A-Z]/.test(password)
+    const hasLowercaseLetter = /[a-z]/.test(password)
+    const hasNumber = /[0-9]/.test(password)
+
+    // Update UI based on conditions
+    updateRuleStatus('ruleLength', isLengthValid)
+    updateRuleStatus('ruleCapital', hasCapitalLetter)
+    updateRuleStatus('ruleLowercase', hasLowercaseLetter)
+    updateRuleStatus('ruleNumber', hasNumber)
+
+    // Determine overall validity
+    return isLengthValid && hasCapitalLetter && hasLowercaseLetter && hasNumber
   }
+
 
 
   const boxShadow = (formInputs: any[], i: number): '0px 0px 6px 1px red' | '' => {
@@ -328,6 +351,8 @@ const Form: FC<FormProps> = ({
           >
             { formInputs.map((fi, i: number) => (
               <Fragment key={ `form-inputs-${i}` }>
+                { state.isSignUp && i === 0 && <PasswordValidation /> }
+
                 <div style={ { margin: '0px 0px 8px 0px' } }>
                   <input
                     required
@@ -349,6 +374,7 @@ const Form: FC<FormProps> = ({
                     } }
                   />
                 </div>
+
                 { state.isEmailInvalid && i === 0 ? (
                   <>
                     <p
@@ -394,20 +420,7 @@ const Form: FC<FormProps> = ({
                     </p>
                   </>
                 ) : null }
-                { state.isPasswordInvalid && i === 2 ? (
-                  <>
-                    <p
-                      style={ {
-                        position: 'relative',
-                        bottom: '4px',
-                        color: 'red',
-                        fontSize: '14px'
-                      } }
-                    >
-                      { `Invalid password` }
-                    </p>
-                  </>
-                ) : null }
+
               </Fragment>
             ))}
           </div>
