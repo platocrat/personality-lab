@@ -17,7 +17,7 @@ import { BESSI_accounts } from '../check-email/route'
 export async function POST(
   req: NextRequest,
   res: NextResponse,
-) {
+): Promise<NextResponse<{ message: string }> | NextResponse<{ error: any }>> {
   if (req.method === 'POST') {
     const { email, username, password } = await req.json()     
 
