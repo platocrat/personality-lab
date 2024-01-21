@@ -21,12 +21,12 @@ const LogInOrCreateAnAccount = () => {
   const [ password, setPassword ] = useState<string>('')
   // Booleans
   const [ 
-    isPasswordInvalid, 
-    setIsPasswordInvalid 
+    isPasswordIncorrect, 
+    setIsPasswordIncorrect 
   ] = useState<boolean>(false)
   const [ 
-    isUsernameInvalid,
-    setIsUsernameInvalid
+    isUsernameIncorrect,
+    setIsUsernameIncorrect
   ] = useState<boolean>(false)
   const [ 
     waitingForResponse,
@@ -35,9 +35,9 @@ const LogInOrCreateAnAccount = () => {
   const [ isSignUp, setIsSignUp ] = useState<boolean>(false)
   const [ isFirstStep, setIsFirstStep ] = useState<boolean>(true)
   const [ emailExists, setEmailExists ] = useState<boolean>(false)
-  const [ isEmailInvalid, setIsEmailInvalid ] = useState<boolean>(false)
   const [ isUsernameTaken, setIsUsernameTaken ] = useState<boolean>(false)
   const [ isAuthenticated, setIsAuthenticated ] = useState<boolean>(false)
+  const [ isEmailIncorrect, setIsEmailIncorrect ] = useState<boolean>(false)
 
 
   const title = isFirstStep 
@@ -62,9 +62,9 @@ const LogInOrCreateAnAccount = () => {
   async function handleLogIn(e: any) {
     e.preventDefault()
 
-    setIsEmailInvalid(false)
-    setIsUsernameInvalid(false)
-    setIsPasswordInvalid(false)
+    setIsEmailIncorrect(false)
+    setIsUsernameIncorrect(false)
+    setIsPasswordIncorrect(false)
     setWaitingForResponse(true)
     
     try {
@@ -84,60 +84,62 @@ const LogInOrCreateAnAccount = () => {
         switch (message) {
           case 'Verified email, username, and password':
             setWaitingForResponse(false)
-            setIsEmailInvalid(false)
-            setIsUsernameInvalid(false)
-            setIsPasswordInvalid(false)
+            setIsEmailIncorrect(false)
+            setIsUsernameIncorrect(false)
+            setIsPasswordIncorrect(false)
             /**
              * @todo Authenticate the user
              */
+            // authenticateUser()
+            // setIsAuthenticated(true)
 
             break
-          case 'Invalid password':
+          case 'Incorrect password':
             setWaitingForResponse(false)
-            setIsEmailInvalid(false)
-            setIsUsernameInvalid(false)
-            setIsPasswordInvalid(true)
+            setIsEmailIncorrect(false)
+            setIsUsernameIncorrect(false)
+            setIsPasswordIncorrect(true)
             break
           
-          case 'Invalid username':
+          case 'Incorrect username':
             setWaitingForResponse(false)
-            setIsEmailInvalid(false)
-            setIsUsernameInvalid(true)
-            setIsPasswordInvalid(false)
+            setIsEmailIncorrect(false)
+            setIsUsernameIncorrect(true)
+            setIsPasswordIncorrect(false)
             break
           
-          case 'Invalid username and password':
+          case 'Incorrect username and password':
             setWaitingForResponse(false)
-            setIsEmailInvalid(false)
-            setIsUsernameInvalid(true)
-            setIsPasswordInvalid(true)
+            setIsEmailIncorrect(false)
+            setIsUsernameIncorrect(true)
+            setIsPasswordIncorrect(true)
             break
           
           case 'Email not found':
             setWaitingForResponse(false)
-            setIsEmailInvalid(true)
-            setIsUsernameInvalid(false)
-            setIsPasswordInvalid(false)
+            setIsEmailIncorrect(true)
+            setIsUsernameIncorrect(false)
+            setIsPasswordIncorrect(false)
             break
         }
       } else {
         setWaitingForResponse(false)
-        setIsEmailInvalid(false)
-        setIsUsernameInvalid(false)
-        setIsPasswordInvalid(false)
+        setIsEmailIncorrect(false)
+        setIsUsernameIncorrect(false)
+        setIsPasswordIncorrect(false)
 
         console.error(`Error verifying log in credentials: `, data.error)
       }
     } catch (error: any) {
       setWaitingForResponse(false)
-      setIsEmailInvalid(false)
-      setIsUsernameInvalid(false)
-      setIsPasswordInvalid(false)
-      
-      console.error(error)
+      setIsEmailIncorrect(false)
+      setIsUsernameIncorrect(false)
+      setIsPasswordIncorrect(false)
+
       /**
        * @todo Handle error UI here
       */
+      throw new Error(error)
     }
   }
   
@@ -146,7 +148,7 @@ const LogInOrCreateAnAccount = () => {
     e.preventDefault()
     
     setIsUsernameTaken(false)
-    setWaitingForResponse(false)
+    setWaitingForResponse(true)
 
     try {
       const response = await fetch('/api/sign-up', {
@@ -160,6 +162,7 @@ const LogInOrCreateAnAccount = () => {
       const data = await response.json()
 
       if (response.status === 200) {
+        setWaitingForResponse(false)
         const message = data.message
         
         switch (message) {
@@ -173,13 +176,15 @@ const LogInOrCreateAnAccount = () => {
             break
         }
       } else {
+        setWaitingForResponse(false)
         console.error(`Error signing up: `, data.error)
       }
     } catch (error: any) {
-      console.error(error)
+      setWaitingForResponse(false)
       /**
        * @todo Handle error UI here
       */
+      throw new Error(error)
     }
   }
 
@@ -226,6 +231,7 @@ const LogInOrCreateAnAccount = () => {
         /**
          * @todo Handle error UI here
          */
+        throw new Error(error)
       }
     } catch (error: any) {
       setWaitingForResponse(false)
@@ -233,6 +239,7 @@ const LogInOrCreateAnAccount = () => {
       /**
        * @todo Handle error UI here
        */
+      throw new Error(error)
     }
   }
 
@@ -257,20 +264,20 @@ const LogInOrCreateAnAccount = () => {
               isSignUp: isSignUp,
               isFirstStep: isFirstStep,
               emailExists: emailExists,
-              isEmailInvalid: isEmailInvalid,
               isUsernameTaken: isUsernameTaken,
-              isPasswordInvalid: isPasswordInvalid,
-              isUsernameInvalid: isUsernameInvalid,
+              isEmailIncorrect: isEmailIncorrect,
               waitingForResponse: waitingForResponse,
+              isPasswordIncorrect: isPasswordIncorrect,
+              isUsernameIncorrect: isUsernameIncorrect,
             }}
             set={{ 
               email: setEmail, 
               password: setPassword, 
               username: setUsername,
-              isEmailInvalid: setIsEmailInvalid,
               isUsernameTaken: setIsUsernameTaken,
-              isPasswordInvalid: setIsPasswordInvalid, 
-              isUsernameInvalid: setIsUsernameInvalid,
+              isEmailIncorrect: setIsEmailIncorrect,
+              isPasswordIncorrect: setIsPasswordIncorrect,
+              isUsernameIncorrect: setIsUsernameIncorrect,
             }}
             handler={{ handleLogIn, handleSignUp, handleEmailExists }}
             />

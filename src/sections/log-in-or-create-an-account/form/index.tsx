@@ -25,20 +25,20 @@ type FormProps = {
     password: string
     isFirstStep: boolean
     emailExists: boolean
-    isEmailInvalid: boolean
     isUsernameTaken: boolean
+    isEmailIncorrect: boolean
     waitingForResponse: boolean
-    isUsernameInvalid: boolean
-    isPasswordInvalid: boolean
+    isUsernameIncorrect: boolean
+    isPasswordIncorrect: boolean
   }
   set: {
     email: Dispatch<SetStateAction<string>>
     password: Dispatch<SetStateAction<string>>
     username: Dispatch<SetStateAction<string>>
-    isEmailInvalid: Dispatch<SetStateAction<boolean>>
     isUsernameTaken: Dispatch<SetStateAction<boolean>> 
-    isPasswordInvalid: Dispatch<SetStateAction<boolean>>
-    isUsernameInvalid: Dispatch<SetStateAction<boolean>>
+    isEmailIncorrect: Dispatch<SetStateAction<boolean>>
+    isPasswordIncorrect: Dispatch<SetStateAction<boolean>>
+    isUsernameIncorrect: Dispatch<SetStateAction<boolean>>
   }
   handler: {
     handleLogIn: (e: any) => void
@@ -67,9 +67,8 @@ const Form: FC<FormProps> = ({
 
 
   const isButtonDisabled = useMemo((): boolean => {
-
-
-    return isPasswordHashing || state.isPasswordInvalid ||
+    return isPasswordHashing || 
+      state.isPasswordIncorrect ||
       state.waitingForResponse ||
       state.isFirstStep && state.email === '' || 
       !state.isFirstStep && state.email === '' ||
@@ -86,22 +85,22 @@ const Form: FC<FormProps> = ({
     state.isFirstStep,
     isPasswordHashing,
     state.isUsernameTaken,
-    state.isPasswordInvalid,
     state.waitingForResponse,
+    state.isPasswordIncorrect,
   ])
   
   // ------------------------------ Regular functions --------------------------
   const onEmailChange = (e: any): void => {
-    set.isEmailInvalid(false)
+    set.isEmailIncorrect(false)
     
     const _ = e.target.value
     const isValid = isValidEmail(_)
     
     if (isValid) {
-      set.isEmailInvalid(false)
+      set.isEmailIncorrect(false)
       set.email(_)
     } else {
-      set.isEmailInvalid(true)
+      set.isEmailIncorrect(true)
     }
   }
 
@@ -114,16 +113,16 @@ const Form: FC<FormProps> = ({
 
   const onUsernameChange = (e: any): void => {
     set.isUsernameTaken(false)
-    set.isUsernameInvalid(false)
+    set.isUsernameIncorrect(false)
     
     const _ = e.target.value
     const isValid = isValidUsername(_)
 
     if (isValid) {
-      set.isUsernameInvalid(false)
+      set.isUsernameIncorrect(false)
       set.username(_)
     } else {
-      set.isUsernameInvalid(true)
+      set.isUsernameIncorrect(true)
     }
   }
 
@@ -136,7 +135,7 @@ const Form: FC<FormProps> = ({
 
   const onPasswordChange = (e: any): void => {
     setIsPasswordHashing(false)
-    set.isPasswordInvalid(false)
+    set.isPasswordIncorrect(false)
 
     let _ = e.target.value
 
@@ -145,10 +144,10 @@ const Form: FC<FormProps> = ({
       const isValid = isValidPassword(_)
 
       if (isValid) {
-        set.isPasswordInvalid(false)
+        set.isPasswordIncorrect(false)
       } else {
         setIsPasswordHashing(false)
-        set.isPasswordInvalid(true)
+        set.isPasswordIncorrect(true)
         return
       }
 
@@ -244,20 +243,20 @@ const Form: FC<FormProps> = ({
 
   const boxShadow = (formInputs: any[], i: number): '0px 0px 6px 1px red' | '' => {
     const _ = '0px 0px 6px 1px red'
-    if (state.isEmailInvalid && i === 0) return _
+    if (state.isEmailIncorrect && i === 0) return _
     if (state.isUsernameTaken && i === 1) return _
-    if (state.isUsernameInvalid && i === 1) return _
-    if (state.isPasswordInvalid && i === 2) return _
+    if (state.isUsernameIncorrect && i === 1) return _
+    if (state.isPasswordIncorrect && i === 2) return _
     return ''
   } 
 
 
   const borderColor = (formInputs: any[], i: number): 'red' | '' => {
     const _ = 'red'
-    if (state.isEmailInvalid && i === 0) return _
+    if (state.isEmailIncorrect && i === 0) return _
     if (state.isUsernameTaken && i === 1) return _
-    if (state.isUsernameInvalid && i === 1) return _
-    if (state.isPasswordInvalid && i === 2) return _
+    if (state.isUsernameIncorrect && i === 1) return _
+    if (state.isPasswordIncorrect && i === 2) return _
     return ''
   }
 
@@ -385,7 +384,7 @@ const Form: FC<FormProps> = ({
                   />
                 </div>
 
-                { state.isEmailInvalid && i === 0 ? (
+                { state.isEmailIncorrect && i === 0 ? (
                   <>
                     <p
                       style={ {
@@ -400,7 +399,7 @@ const Form: FC<FormProps> = ({
                     </p>
                   </>
                 ) : null }
-                { state.isUsernameInvalid && i === 1 ? (
+                { state.isUsernameIncorrect && i === 1 ? (
                   <>
                     <p
                       style={ {
