@@ -2,9 +2,9 @@
 
 // Externals
 import Link from 'next/link'
+import { Inter } from 'next/font/google'
 import { FC, Fragment, JSX, ReactNode, useState } from 'react'
 // Locals
-import Card from '@/components/Card'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -18,7 +18,9 @@ type PersonalityAssessmentType = {
 }
 
 
-const topLevelSlug = `assessments`
+const inter = Inter({ subsets: ['latin'] })
+
+
 
 const BessiDescription = () => {
   return (
@@ -28,7 +30,7 @@ const BessiDescription = () => {
       }
       <a
         style={ { color: '#007ac0', textDecoration: 'underline' } }
-        href={`https://psychology.illinois.edu/directory/profile/bwrobrts`}
+        href={ `https://psychology.illinois.edu/directory/profile/bwrobrts` }
         target='_blank'
       >
         { `Brent W. Roberts` }
@@ -39,12 +41,12 @@ const BessiDescription = () => {
       <br />
       <br />
       {
-        `The BESSIE uses a skills inventory format, meaning that each BESSI item describes a specific, skill-relevant behavior, and users rate how well they can perform that behavior.`
+        `The BESSI uses a skills inventory format, meaning that each BESSI item describes a specific, skill-relevant behavior, and users rate how well they can perform that behavior.`
       }
       <br />
       <br />
       { `Click the button below to begin the assessment.` }
-      <br /> 
+      <br />
       { `Please note that we do not store any information from these assessments` }
     </>
   )
@@ -77,9 +79,37 @@ const pAssessments: PersonalityAssessmentType[] = [
 ]
 
 
-const PersonalityAssessments = ({ }) => {
-  const title = `Assessments`
+/**
+ * @dev Component to enter an assessment
+ */
+const PAssessmentEntrance: FC<PersonalityAssessmentType> = ({
+  title,
+  description,
+  buttonText,
+  href
+}) => {
+  return (
+    <>
+      <div style={ { padding: '18px', borderBottom: '1px' } }>
+        <div style={ { padding: '8px' } }>
+          <h2 style={ { textAlign: 'center' } }>{ title }</h2>
+        </div>
+        <div>
+          <p style={ { textAlign: 'center' } }>{ description }</p>
+        </div>
+        
+        <div style={ { margin: '18px 0px 12px 0px' } }>
+          <Link href={ href }>
+            <button className={ styles.button }>{ buttonText }</button>
+          </Link>
+        </div>
+      </div>
+    </>
+  )
+}
 
+
+const PersonalityAssessments = ({ }) => {
   function fragmentKey(pa: PersonalityAssessmentType, i: number): string {
     const fragmentKeyBasePrefix = `personality-assessment-`
     const fragmentKeySuffix = `${pa.buttonText}-${pa.href}-${pa.title}-${i}`
@@ -88,26 +118,25 @@ const PersonalityAssessments = ({ }) => {
 
   return (
     <Fragment key={ `personality-assessments` }>
-      <div>
-        <h1>{ title }</h1>
-      </div>
-      <div className={ styles.assessmentWrapper }>
-        { pAssessments.map((pa: PersonalityAssessmentType, i: number) => (
-          <Fragment key={ fragmentKey(pa, i) }>
-            <Card
-              href={ pa.href }
-              title={ pa.title }
-              buttonText={ pa.buttonText }
-              description={ pa.description }
-            />
-            {
-              i !== pAssessments.length - 1
-                ? <div className={ styles.divider } />
-                : null
-            }
-          </Fragment>
-        )) }
-      </div>
+      <main className={ `${styles.main} ${inter.className}` }>
+        <div className={ styles.assessmentWrapper }>
+          { pAssessments.map((pa: PersonalityAssessmentType, i: number) => (
+            <Fragment key={ fragmentKey(pa, i) }>
+              <PAssessmentEntrance
+                href={ pa.href }
+                title={ pa.title }
+                buttonText={ pa.buttonText }
+                description={ pa.description }
+              />
+              {
+                i !== pAssessments.length - 1
+                  ? <div className={ styles.divider } />
+                  : null
+              }
+            </Fragment>
+          )) }
+        </div>
+      </main>
     </Fragment>
   )
 }

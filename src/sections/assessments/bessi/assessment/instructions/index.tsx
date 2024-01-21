@@ -1,3 +1,5 @@
+'use client';
+
 // Externals
 import { Fragment } from 'react'
 // Locals

@@ -1,7 +1,8 @@
-'use client'
+'use client';
 
 // Externals
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { CSSProperties, FC, useState } from 'react'
 // Locals
 // Components
@@ -15,6 +16,8 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 const LogInOrCreateAnAccount = () => {
+  const router = useRouter()
+
   // Strings
   const [ email, setEmail ] = useState<string>('')
   const [ username, setUsername ] = useState<string>('')
@@ -38,6 +41,7 @@ const LogInOrCreateAnAccount = () => {
   const [ isUsernameTaken, setIsUsernameTaken ] = useState<boolean>(false)
   const [ isAuthenticated, setIsAuthenticated ] = useState<boolean>(false)
   const [ isEmailIncorrect, setIsEmailIncorrect ] = useState<boolean>(false)
+  const [isPasswordHashing, setIsPasswordHashing ] = useState<boolean>(false)
 
 
   const title = isFirstStep 
@@ -87,13 +91,11 @@ const LogInOrCreateAnAccount = () => {
             setIsEmailIncorrect(false)
             setIsUsernameIncorrect(false)
             setIsPasswordIncorrect(false)
-            /**
-             * @todo Authenticate the user
-             */
-            // authenticateUser()
-            // setIsAuthenticated(true)
-
+            
+            // Redirect user to `/dashboard`
+            router.push('/dashboard')
             break
+
           case 'Incorrect password':
             setWaitingForResponse(false)
             setIsEmailIncorrect(false)
@@ -171,13 +173,13 @@ const LogInOrCreateAnAccount = () => {
             break
 
           case 'User has successfully signed up':
-            // authenticateUser()
-            // setIsAuthenticated(true)
+            // Redirect user to `/dashboard`
+            router.push('/dashboard')
             break
         }
       } else {
         setWaitingForResponse(false)
-        console.error(`Error signing up: `, data.error)
+        throw new Error(`Error signing up: `, data.error)
       }
     } catch (error: any) {
       setWaitingForResponse(false)
@@ -243,6 +245,10 @@ const LogInOrCreateAnAccount = () => {
     }
   }
 
+  async function authenticateUser() {
+
+  }
+
 
 
   return (
@@ -266,6 +272,7 @@ const LogInOrCreateAnAccount = () => {
               emailExists: emailExists,
               isUsernameTaken: isUsernameTaken,
               isEmailIncorrect: isEmailIncorrect,
+              isPasswordHashing: isPasswordHashing,
               waitingForResponse: waitingForResponse,
               isPasswordIncorrect: isPasswordIncorrect,
               isUsernameIncorrect: isUsernameIncorrect,
@@ -276,6 +283,7 @@ const LogInOrCreateAnAccount = () => {
               username: setUsername,
               isUsernameTaken: setIsUsernameTaken,
               isEmailIncorrect: setIsEmailIncorrect,
+              isPasswordHashing: setIsPasswordHashing,
               isPasswordIncorrect: setIsPasswordIncorrect,
               isUsernameIncorrect: setIsUsernameIncorrect,
             }}

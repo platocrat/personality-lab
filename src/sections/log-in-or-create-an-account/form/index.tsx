@@ -1,3 +1,6 @@
+'use client';
+
+
 // Externals
 import { 
   FC, 
@@ -27,6 +30,7 @@ type FormProps = {
     emailExists: boolean
     isUsernameTaken: boolean
     isEmailIncorrect: boolean
+    isPasswordHashing: boolean
     waitingForResponse: boolean
     isUsernameIncorrect: boolean
     isPasswordIncorrect: boolean
@@ -37,6 +41,7 @@ type FormProps = {
     username: Dispatch<SetStateAction<string>>
     isUsernameTaken: Dispatch<SetStateAction<boolean>> 
     isEmailIncorrect: Dispatch<SetStateAction<boolean>>
+    isPasswordHashing: Dispatch<SetStateAction<boolean>>
     isPasswordIncorrect: Dispatch<SetStateAction<boolean>>
     isUsernameIncorrect: Dispatch<SetStateAction<boolean>>
   }
@@ -58,16 +63,13 @@ const Form: FC<FormProps> = ({
   handler,
   buttonText,
 }) => {
-  const [ isPasswordHashing, setIsPasswordHashing ] = useState<boolean>(false)
-
-
   const showSpinner = useMemo((): boolean => {
-    return isPasswordHashing || state.waitingForResponse ? true : false
-  }, [isPasswordHashing, state.waitingForResponse])
+    return state.isPasswordHashing || state.waitingForResponse ? true : false
+  }, [state.isPasswordHashing, state.waitingForResponse])
 
 
   const isButtonDisabled = useMemo((): boolean => {
-    return isPasswordHashing || 
+    return state.isPasswordHashing || 
       state.isPasswordIncorrect ||
       state.waitingForResponse ||
       state.isFirstStep && state.email === '' || 
@@ -83,8 +85,8 @@ const Form: FC<FormProps> = ({
     state.username,
     state.password,
     state.isFirstStep,
-    isPasswordHashing,
     state.isUsernameTaken,
+    state.isPasswordHashing,
     state.waitingForResponse,
     state.isPasswordIncorrect,
   ])
@@ -134,7 +136,7 @@ const Form: FC<FormProps> = ({
 
 
   const onPasswordChange = (e: any): void => {
-    setIsPasswordHashing(false)
+    set.isPasswordHashing(false)
     set.isPasswordIncorrect(false)
 
     let _ = e.target.value
@@ -146,22 +148,22 @@ const Form: FC<FormProps> = ({
       if (isValid) {
         set.isPasswordIncorrect(false)
       } else {
-        setIsPasswordHashing(false)
+        set.isPasswordHashing(false)
         set.isPasswordIncorrect(true)
         return
       }
 
-      setIsPasswordHashing(true)
+      set.isPasswordHashing(true)
       // 2. Store encrypted password in database
       hashPassword(_).then((hashedPassword: string): void => {
         set.password(_)
-        setIsPasswordHashing(false)
+        set.isPasswordHashing(false)
       })
     } else {
       // 3. Use the raw password to check against the hashedPassword that is 
       // stored in the database
       set.password(_)
-      setIsPasswordHashing(false)
+      set.isPasswordHashing(false)
     }
   }
 
@@ -292,7 +294,7 @@ const Form: FC<FormProps> = ({
       const { hashedPassword } = await response.json()
       return hashedPassword
     } catch (error: any) {
-      setIsPasswordHashing(false)
+      set.isPasswordHashing(false)
       console.error(error)
     }
   }

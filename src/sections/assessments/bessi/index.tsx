@@ -1,3 +1,5 @@
+'use client';
+
 // Externals
 import Link from 'next/link'
 import { FC, Fragment } from 'react'

@@ -5,13 +5,15 @@ import {
   crypto_pwhash_OPSLIMIT_INTERACTIVE, 
   crypto_pwhash_MEMLIMIT_INTERACTIVE 
 } from 'libsodium-wrappers-sumo'
-import { cookies } from 'next/headers'
+import { serialize } from 'cookie'
+import { sign } from 'jsonwebtoken'
 import { NextRequest, NextResponse } from 'next/server'
 import { QueryCommand, QueryCommandInput } from '@aws-sdk/lib-dynamodb'
 // Locals
 import { ddbDocClient } from '@/utils/aws/dynamodb'
 import { BESSI_ACCOUNTS_TABLE_NAME } from '@/utils'
 import { BESSI_accounts } from '../check-email/route'
+import { COOKIE_NAME, JWT_SECRET, MAX_AGE } from '@/utils/api'
 
 
 export async function POST(
@@ -44,19 +46,31 @@ export async function POST(
         if (verifiedUsername && verifiedPassword) {
           const key = username
           const value = `User '${username}' last autheticated on ${new Date()}`
-          
-          cookies().set(key, value, { 
-            secure: true,
-            maxAge: 60 * 60 * 24 * 1, // 1 day
+
+          /**
+           * @todo Add JWT/cookie logic here
+           */
+          const secret = JWT_SECRET
+
+          const token = sign(
+            { email, username, password },
+            secret,
+            { expiresIn: MAX_AGE }
+          )
+
+          const serializedCookieWithToken = serialize(COOKIE_NAME, token, {
+            httpOnly: true,
+            secure: process.env.NEXT_NODE_ENV ? false : true,
+            sameSite: 'strict',
+            path: '/',
           })
-
-          const cookieValue = cookies().get(key)
-
-          console.log(`cookieValue: `, cookieValue)
 
           return NextResponse.json(
             { message: 'Verified email, username, and password' },
-            { status: 200 },
+            { 
+              status: 200,
+              headers: { 'Set-Cookie': serializedCookieWithToken }
+            },
           )
         } else if (verifiedUsername && !verifiedPassword) {
           return NextResponse.json(

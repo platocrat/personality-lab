@@ -92,6 +92,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
   const [usState, setUSState] = useState<USState>(USState.Alabama)
   
   const title = `BESSI`
+  const buttonText = `Submit`
   const subtitle = `Instructions.`
 
 
@@ -316,11 +317,9 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
             <BessiDemographicQuestionnaire />
           </UserDemographicContext.Provider>
           
-          <div style={ { float: 'right' } }>
-            <button className={ styles.button }>
-              { `Submit` }
-            </button>
-          </div>
+          <button className={ styles.button }>
+            { buttonText }
+          </button>
         </form>
       </div>
     </Fragment>

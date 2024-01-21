@@ -33,8 +33,6 @@ export async function POST(
     try {
       const response = await ddbDocClient.send(command)
 
-      console.log(`response: `, response)
-
       if (response.Items && response.Items.length > 0) {
         // Only return a response if the username exists in the DynamoDB Table
         if ((response.Items[0] as BESSI_accounts).username) {
@@ -68,6 +66,10 @@ export async function POST(
 
     try {
       const response = await ddbDocClient.send(command)
+
+      /**
+       * @dev Authenticate the user with JWT
+       */
 
       return NextResponse.json(
         { message: 'User has successfully signed up' },

@@ -1,3 +1,5 @@
+'use client';
+
 // Externals
 import { FC } from 'react'
 import { Inter } from 'next/font/google'

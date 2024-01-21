@@ -53,13 +53,11 @@ const BessiConsentForm = () => {
         </ul>
       </div>
 
-      <div style={ { float: 'right' } }>
         <Link href={ href }>
           <button className={ styles.button }>
             { `I agree` }
           </button>
         </Link>
-      </div>
     </>
   )
 }

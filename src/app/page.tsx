@@ -16,7 +16,7 @@ const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
   /**
-   * @todo Set state of `isSignedIn` by using browser cookie
+   * @todo Set state of `isSignedIn` by using authentication mechanism
    */
   const [ isSignedIn, setIsSignedIn ] = useState<boolean>(false)
 

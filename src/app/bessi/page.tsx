@@ -1,3 +1,5 @@
+'use client';
+
 // Externals
 import { Inter } from 'next/font/google'
 // Locals
