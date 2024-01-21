@@ -16,6 +16,7 @@ import { BESSI_accounts } from '../check-email/route'
 import { COOKIE_NAME, JWT_SECRET, MAX_AGE } from '@/utils/api'
 
 
+
 export async function POST(
   req: NextRequest,
   res: NextResponse,
@@ -48,7 +49,7 @@ export async function POST(
           const value = `User '${username}' last autheticated on ${new Date()}`
 
           /**
-           * @todo Add JWT/cookie logic here
+           * @todo Fetch the JWT secret from a secure source
            */
           const secret = JWT_SECRET
 

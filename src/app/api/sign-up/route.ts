@@ -5,11 +5,15 @@ import {
   PutCommandInput, 
   QueryCommandInput 
 } from '@aws-sdk/lib-dynamodb'
+import { serialize } from 'cookie'
+import { sign } from 'jsonwebtoken'
 import { NextRequest, NextResponse } from 'next/server'
 // Locals
 import { ddbDocClient } from '@/utils/aws/dynamodb'
 import { BESSI_ACCOUNTS_TABLE_NAME } from '@/utils'
 import { BESSI_accounts } from '../check-email/route'
+import { JWT_SECRET, MAX_AGE, COOKIE_NAME } from '@/utils/api'
+
 
 
 export async function POST(
@@ -68,12 +72,29 @@ export async function POST(
       const response = await ddbDocClient.send(command)
 
       /**
-       * @dev Authenticate the user with JWT
+       * @todo Fetch the JWT secret from a secure source
        */
+      const secret = JWT_SECRET
+
+      const token = sign(
+        { email, username, password },
+        secret,
+        { expiresIn: MAX_AGE }
+      )
+
+      const serializedCookieWithToken = serialize(COOKIE_NAME, token, {
+        httpOnly: true,
+        secure: process.env.NEXT_NODE_ENV ? false : true,
+        sameSite: 'strict',
+        path: '/',
+      })
 
       return NextResponse.json(
         { message: 'User has successfully signed up' },
-        { status: 200 },
+        {
+          status: 200,
+          headers: { 'Set-Cookie': serializedCookieWithToken }
+        },
       )
     } catch (error: any) {
       return NextResponse.json(

@@ -2,7 +2,6 @@
 
 // Externals
 import Link from 'next/link'
-import { Inter } from 'next/font/google'
 import { FC, Fragment, JSX, ReactNode, useState } from 'react'
 // Locals
 // CSS
@@ -16,9 +15,6 @@ type PersonalityAssessmentType = {
   description: string | ReactNode
   href: string
 }
-
-
-const inter = Inter({ subsets: ['latin'] })
 
 
 
@@ -118,25 +114,23 @@ const PersonalityAssessments = ({ }) => {
 
   return (
     <Fragment key={ `personality-assessments` }>
-      <main className={ `${styles.main} ${inter.className}` }>
-        <div className={ styles.assessmentWrapper }>
-          { pAssessments.map((pa: PersonalityAssessmentType, i: number) => (
-            <Fragment key={ fragmentKey(pa, i) }>
-              <PAssessmentEntrance
-                href={ pa.href }
-                title={ pa.title }
-                buttonText={ pa.buttonText }
-                description={ pa.description }
-              />
-              {
-                i !== pAssessments.length - 1
-                  ? <div className={ styles.divider } />
-                  : null
-              }
-            </Fragment>
-          )) }
-        </div>
-      </main>
+      <div className={ styles.assessmentWrapper }>
+        { pAssessments.map((pa: PersonalityAssessmentType, i: number) => (
+          <Fragment key={ fragmentKey(pa, i) }>
+            <PAssessmentEntrance
+              href={ pa.href }
+              title={ pa.title }
+              buttonText={ pa.buttonText }
+              description={ pa.description }
+            />
+            {
+              i !== pAssessments.length - 1
+                ? <div className={ styles.divider } />
+                : null
+            }
+          </Fragment>
+        )) }
+      </div>
     </Fragment>
   )
 }
