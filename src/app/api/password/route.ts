@@ -9,7 +9,10 @@ import {
 import { NextRequest, NextResponse } from 'next/server'
 
 
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(
+  req: NextRequest, 
+  res: NextResponse
+) {
   if (req.method === 'POST') {
     try {
       const { password } = await req.json()

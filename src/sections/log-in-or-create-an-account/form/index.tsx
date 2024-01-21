@@ -69,7 +69,8 @@ const Form: FC<FormProps> = ({
   const isButtonDisabled = useMemo((): boolean => {
 
 
-    return isPasswordHashing || state.waitingForResponse ||
+    return isPasswordHashing || state.isPasswordInvalid ||
+      state.waitingForResponse ||
       state.isFirstStep && state.email === '' || 
       !state.isFirstStep && state.email === '' ||
       !state.isFirstStep && state.username === '' ||
@@ -85,6 +86,7 @@ const Form: FC<FormProps> = ({
     state.isFirstStep,
     isPasswordHashing,
     state.isUsernameTaken,
+    state.isPasswordInvalid,
     state.waitingForResponse,
   ])
   
