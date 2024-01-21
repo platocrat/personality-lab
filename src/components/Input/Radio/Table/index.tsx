@@ -1,5 +1,3 @@
-'use client';
-
 // Externals
 import { FC, Fragment, ReactNode, Dispatch, SetStateAction } from 'react'
 // Locals

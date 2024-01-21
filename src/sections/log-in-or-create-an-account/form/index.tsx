@@ -1,6 +1,3 @@
-'use client';
-
-
 // Externals
 import { 
   FC, 

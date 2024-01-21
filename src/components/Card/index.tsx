@@ -1,5 +1,3 @@
-'use client';
-
 // Externals
 import Link from 'next/link'
 import { CSSProperties, FC, ReactNode } from 'react'

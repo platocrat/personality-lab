@@ -1,9 +1,26 @@
 // Externals
 import type { Metadata } from 'next'
+import { useRouter } from 'next/router'
 import { Inter } from 'next/font/google'
+import { useState, useEffect } from 'react'
 // Locals
+import Spinner from '@/components/Suspense/Spinner'
+// Contexts
+import { 
+  BessiSkillScoresContextComponent 
+} from '@/contexts/BessiSkillScoresContext'
+import { 
+  AuthenticatedUserContextComponent 
+} from '@/contexts/AuthenticatedUserContext'
+// CSS
 import './globals.css'
-import { BessiSkillScoresContextComponent } from '@/contexts/BessiSkillScoresContext'
+import { definitelyCenteredStyle } from '@/theme/styles'
+
+
+type UserResponse = {
+  user: any | null
+  error: Error | null
+}
 
 
 const inter = Inter({ subsets: ['latin'] })
@@ -20,13 +37,76 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  const router = useRouter()
+
+  const [retrievedUser, setRetrievedUser] = useState<boolean>(false)
+
+  // --------------------------- Async functions -------------------------------
+  async function getUser(): Promise<UserResponse> {
+    try {
+      const response = await fetch('/api/get-user')
+      const data = await response.json()
+
+      if (response.status === 401) return { user: null, error: data.message }
+      return { user: data.user, error: null }
+    } catch (error: any) {
+      return { user: null, error: error }
+    }
+  }
+
+  /**
+   * @dev Protects the `/dashboard` page by restricting access to users that
+   * have already authenticated and hold a session cookie.
+   */
+  async function protectPage(): Promise<void> {
+    const { user, error } = await getUser()
+
+    if (error) {
+      router.push('/')
+      return
+    } else {
+      setRetrievedUser(true)
+    }
+  }
+
+
+  // ------------------------------ `useEffect`s -------------------------------
+  useEffect(() => {
+    const requests = [
+      protectPage()
+    ]
+
+    Promise.all(requests).then((response: any): void => { })
+  }, [router])
+
+
   return (
-    <html lang='en'>
-      <body className={inter.className}>
-        <BessiSkillScoresContextComponent>
-          {children}
-        </BessiSkillScoresContextComponent>
-      </body>
-    </html>
+    <>
+      { retrievedUser ? (
+        <>
+          <html lang='en'>
+            <body className={ inter.className }>
+              <AuthenticatedUserContextComponent>
+                <BessiSkillScoresContextComponent>
+                  { children }
+                </BessiSkillScoresContextComponent>
+              </AuthenticatedUserContextComponent>
+            </body>
+          </html>
+        </>
+      ) : (
+        <>
+          <div
+            style={ {
+              ...definitelyCenteredStyle,
+              position: 'relative',
+              top: '80px',
+            } }
+          >
+            <Spinner height='60' width='60' />
+          </div>
+        </>
+      ) }
+    </>
   )
 }
