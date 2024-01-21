@@ -215,19 +215,27 @@ const Form: FC<FormProps> = ({
     }
 
     // Check conditions
-    const isLengthValid = password.length >= 13
+    const hasSymbol = /[^a-zA-Z0-9]/.test(password)
+    const hasNumber = /[0-9]/.test(password)
     const hasCapitalLetter = /[A-Z]/.test(password)
     const hasLowercaseLetter = /[a-z]/.test(password)
-    const hasNumber = /[0-9]/.test(password)
+    const isLengthValid = password.length >= 13
 
     // Update UI based on conditions
-    updateRuleStatus('ruleLength', isLengthValid)
+    updateRuleStatus('ruleSymbol', hasSymbol)
+    updateRuleStatus('ruleNumber', hasNumber)
     updateRuleStatus('ruleCapital', hasCapitalLetter)
     updateRuleStatus('ruleLowercase', hasLowercaseLetter)
-    updateRuleStatus('ruleNumber', hasNumber)
+    updateRuleStatus('ruleLength', isLengthValid)
 
     // Determine overall validity
-    return isLengthValid && hasCapitalLetter && hasLowercaseLetter && hasNumber
+    return (
+      hasNumber && 
+      hasSymbol && 
+      hasCapitalLetter && 
+      hasLowercaseLetter &&
+      isLengthValid
+    )
   }
 
 
