@@ -2,7 +2,7 @@
 
 // Externals
 import { Inter } from 'next/font/google'
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useMemo } from 'react'
 // Locals
 // Sections
 import PersonalityAssessments from '@/sections/assessments'
@@ -19,11 +19,15 @@ const inter = Inter({ subsets: ['latin'] })
 export default function Home() {
   const { isAuthenticated } = useContext(AuthenticatedUserContext)
 
+  const _isAuthenticated = useMemo((): boolean => {
+    return isAuthenticated
+  }, [isAuthenticated])
+
 
   return (
     <>
       <main className={ `${styles.main} ${inter.className}` }>
-        { isAuthenticated ? <PersonalityAssessments /> : <LogInOrCreateAnAccount /> }
+        { _isAuthenticated ? <PersonalityAssessments /> : <LogInOrCreateAnAccount /> }
       </main>
     </>
   )

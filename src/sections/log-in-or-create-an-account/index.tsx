@@ -3,12 +3,14 @@
 // Externals
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { CSSProperties, FC, useState } from 'react'
+import { CSSProperties, FC, useContext, useMemo, useState } from 'react'
 // Locals
 // Components
 import Card from '@/components/Card'
 // Sections
 import Form from './form'
+// Contexts
+import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -17,6 +19,9 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 
 const LogInOrCreateAnAccount = () => {
   const router = useRouter()
+
+  // Contexts
+  const { setIsAuthenticated } = useContext(AuthenticatedUserContext)
 
   // Strings
   const [ email, setEmail ] = useState<string>('')
@@ -39,9 +44,8 @@ const LogInOrCreateAnAccount = () => {
   const [ isFirstStep, setIsFirstStep ] = useState<boolean>(true)
   const [ emailExists, setEmailExists ] = useState<boolean>(false)
   const [ isUsernameTaken, setIsUsernameTaken ] = useState<boolean>(false)
-  const [ isAuthenticated, setIsAuthenticated ] = useState<boolean>(false)
   const [ isEmailIncorrect, setIsEmailIncorrect ] = useState<boolean>(false)
-  const [isPasswordHashing, setIsPasswordHashing ] = useState<boolean>(false)
+  const [ isPasswordHashing, setIsPasswordHashing ] = useState<boolean>(false)
 
 
   const title = isFirstStep 
@@ -92,8 +96,13 @@ const LogInOrCreateAnAccount = () => {
             setIsUsernameIncorrect(false)
             setIsPasswordIncorrect(false)
             
-            // Redirect user to `/dashboard`
-            router.push('/dashboard')
+            // Authenticate user
+            /**
+             * @todo After a user authenticates, the Sign Up/Log In button hangs
+             * with a Spinner
+             */
+            setIsAuthenticated(true)
+            router.refresh()
             break
 
           case 'Incorrect password':
@@ -148,7 +157,7 @@ const LogInOrCreateAnAccount = () => {
   
   async function handleSignUp(e: any) {
     e.preventDefault()
-    
+
     setIsUsernameTaken(false)
     setWaitingForResponse(true)
 
@@ -173,8 +182,13 @@ const LogInOrCreateAnAccount = () => {
             break
 
           case 'User has successfully signed up':
-            // Redirect user to `/dashboard`
-            router.push('/dashboard')
+            // Authenticate user
+            /**
+             * @todo After a user authenticates, the Sign Up/Log In button hangs
+             * with a Spinner
+             */
+            setIsAuthenticated(true)
+            router.refresh()
             break
         }
       } else {
@@ -243,10 +257,6 @@ const LogInOrCreateAnAccount = () => {
        */
       throw new Error(error)
     }
-  }
-
-  async function authenticateUser() {
-
   }
 
 

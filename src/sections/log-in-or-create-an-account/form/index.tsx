@@ -61,8 +61,8 @@ const Form: FC<FormProps> = ({
   buttonText,
 }) => {
   const showSpinner = useMemo((): boolean => {
-    return state.isPasswordHashing || state.waitingForResponse ? true : false
-  }, [state.isPasswordHashing, state.waitingForResponse])
+    return (state.isPasswordHashing || state.waitingForResponse) ? true : false
+  }, [ state.isPasswordHashing, state.waitingForResponse ])
 
 
   const isButtonDisabled = useMemo((): boolean => {
@@ -74,12 +74,13 @@ const Form: FC<FormProps> = ({
       !state.isFirstStep && state.username === '' ||
       !state.isFirstStep && state.password === '' ||
       state.isUsernameTaken ||
-      !state.isFirstStep  && !isValidPassword(state.password)
+      !state.isFirstStep  && state.isSignUp && !isValidPassword(state.password)
         ? true
         : false
   }, [
     state.email,
     state.username,
+    state.isSignUp,
     state.password,
     state.isFirstStep,
     state.isUsernameTaken,
@@ -153,7 +154,7 @@ const Form: FC<FormProps> = ({
       set.isPasswordHashing(true)
       // 2. Store encrypted password in database
       hashPassword(_).then((hashedPassword: string): void => {
-        set.password(_)
+        set.password(hashedPassword)
         set.isPasswordHashing(false)
       })
     } else {
@@ -201,41 +202,47 @@ const Form: FC<FormProps> = ({
   }
 
 
-  function isValidPassword(password: string): boolean {
-    const _document: any = document
+  function isValidPassword(password: string) {
+    /**
+     * @dev Checking `state.isSignUp` is required to silence the error that says
+     * that `ruleElement.querySelector` is undefined.
+     */
+    if (state.isSignUp) {
+      const _document: any = document
 
-    const green = 'rgb(52, 173, 52)'
+      const green = 'rgb(52, 173, 52)'
 
-    const updateRuleStatus = (ruleId: string, isValid: boolean): void => {
-      const ruleElement = _document.getElementById(ruleId)
-      const symbolElement = ruleElement.querySelector('.symbol')
+      const updateRuleStatus = (ruleId: string, isValid: boolean): void => {
+        const ruleElement = _document.getElementById(ruleId)
+        const symbolElement = ruleElement.querySelector('.symbol')
 
-      ruleElement.style.color = isValid ? green : 'red'
-      symbolElement.textContent = isValid ? '✔️' : '❌'
+        ruleElement.style.color = isValid ? green : 'red'
+        symbolElement.textContent = isValid ? '✔️' : '❌'
+      }
+
+      // Check conditions
+      const hasSymbol = /[^a-zA-Z0-9]/.test(password)
+      const hasNumber = /[0-9]/.test(password)
+      const hasCapitalLetter = /[A-Z]/.test(password)
+      const hasLowercaseLetter = /[a-z]/.test(password)
+      const isLengthValid = password.length >= 13
+
+      // Update UI based on conditions
+      updateRuleStatus('ruleSymbol', hasSymbol)
+      updateRuleStatus('ruleNumber', hasNumber)
+      updateRuleStatus('ruleCapital', hasCapitalLetter)
+      updateRuleStatus('ruleLowercase', hasLowercaseLetter)
+      updateRuleStatus('ruleLength', isLengthValid)
+
+      // Determine overall validity
+      return (
+        hasNumber &&
+        hasSymbol &&
+        hasCapitalLetter &&
+        hasLowercaseLetter &&
+        isLengthValid
+      )
     }
-
-    // Check conditions
-    const hasSymbol = /[^a-zA-Z0-9]/.test(password)
-    const hasNumber = /[0-9]/.test(password)
-    const hasCapitalLetter = /[A-Z]/.test(password)
-    const hasLowercaseLetter = /[a-z]/.test(password)
-    const isLengthValid = password.length >= 13
-
-    // Update UI based on conditions
-    updateRuleStatus('ruleSymbol', hasSymbol)
-    updateRuleStatus('ruleNumber', hasNumber)
-    updateRuleStatus('ruleCapital', hasCapitalLetter)
-    updateRuleStatus('ruleLowercase', hasLowercaseLetter)
-    updateRuleStatus('ruleLength', isLengthValid)
-
-    // Determine overall validity
-    return (
-      hasNumber && 
-      hasSymbol && 
-      hasCapitalLetter && 
-      hasLowercaseLetter &&
-      isLengthValid
-    )
   }
 
 
@@ -394,7 +401,7 @@ const Form: FC<FormProps> = ({
                         position: 'relative',
                       } }
                     >
-                      { `Invalid email` }
+                      { `Incorrect email` }
                     </p>
                   </>
                 ) : null }
@@ -409,7 +416,7 @@ const Form: FC<FormProps> = ({
                         position: 'relative',
                       } }
                     >
-                      { `Invalid username` }
+                      { `Incorrect username` }
                     </p>
                   </>
                 ) : null }
@@ -425,6 +432,21 @@ const Form: FC<FormProps> = ({
                       } }
                     >
                       { `Username is taken` }
+                    </p>
+                  </>
+                ) : null }
+                { !state.isSignUp && state.isPasswordIncorrect && i === 2 ? (
+                  <>
+                    <p
+                      style={ {
+                        bottom: '4px',
+                        color: 'red',
+                        fontSize: '14px',
+                        textAlign: 'center',
+                        position: 'relative',
+                      } }
+                    >
+                      { `Incorrect password` }
                     </p>
                   </>
                 ) : null }

@@ -70,14 +70,18 @@ export default function RootLayout({
       // Prompt user to log in 
       const timeout = 100 // 100 ms
 
-      router.push('/')
+      if (typeof window !== undefined) {
+        const pathname = window.location.pathname
 
-      setIsAuthenticated(false)
-
-      // Avoid flashing the blocked page for a split second
-      setTimeout(() => {
-        setIsFetchingUser(false)
-      }, timeout)
+        pathname === '/' ? router.refresh() : router.push('/')
+  
+        setIsAuthenticated(false)
+  
+        // Avoid flashing the blocked page for a split second
+        setTimeout(() => {
+          setIsFetchingUser(false)
+        }, timeout)
+      }
     } else {
       // Show the dashboard
       setIsAuthenticated(true)
@@ -122,6 +126,7 @@ export default function RootLayout({
               <AuthenticatedUserContext.Provider
                 value={ {
                   isAuthenticated: isAuthenticated,
+                    setIsAuthenticated: setIsAuthenticated,
                 } }
               >
                 <BessiSkillScoresContextComponent>

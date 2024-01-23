@@ -46,9 +46,6 @@ export async function POST(
         const verifiedPassword = crypto_pwhash_str_verify(hashedPassword, password)
 
         if (verifiedUsername && verifiedPassword) {
-          const key = username
-          const value = `User '${username}' last autheticated on ${new Date()}`
-
           /**
            * @todo Fetch the JWT secret from a secure source
            */
@@ -85,17 +82,17 @@ export async function POST(
           )
         } else if (verifiedUsername && !verifiedPassword) {
           return NextResponse.json(
-            { message: 'Invalid password' },
+            { message: 'Incorrect password' },
             { status: 200 },
           )  
         } else if (!verifiedUsername && verifiedPassword) {
           return NextResponse.json(
-            { message: 'Invalid username' },
+            { message: 'Incorrect username' },
             { status: 200 },
           )  
         } else {
           return NextResponse.json(
-            { message: 'Invalid username and password' },
+            { message: 'Incorrect username and password' },
             { status: 200 },
           )  
         }
