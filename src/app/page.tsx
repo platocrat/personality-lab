@@ -21,7 +21,7 @@ export default function Home() {
 
   const _isAuthenticated = useMemo((): boolean => {
     return isAuthenticated
-  }, [isAuthenticated])
+  }, [ isAuthenticated ])
 
 
   return (

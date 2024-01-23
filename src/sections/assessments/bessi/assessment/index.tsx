@@ -315,9 +315,11 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
             <BessiDemographicQuestionnaire />
           </UserDemographicContext.Provider>
           
-          <button className={ styles.button }>
-            { buttonText }
-          </button>
+          <div style={{ float: 'right' }}>
+            <button className={ styles.button } style={{ width: '75px' }}>
+              { buttonText }
+            </button>
+          </div>
         </form>
       </div>
     </Fragment>

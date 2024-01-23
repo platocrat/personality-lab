@@ -65,9 +65,22 @@ const Card: FC<CardProps> = ({
               ? options?.formContent 
               : typeof href === 'string' && (
               <>
-                <Link href={ href }>
-                  <button className={ styles.button }>{ buttonText }</button>
-                </Link>
+                <div 
+                  style={{ 
+                    ...definitelyCenteredStyle,
+                    position: 'relative',
+                    marginBottom: '8px'
+                  }}
+                >
+                  <Link href={ href }>
+                    <button 
+                      className={ styles.button }
+                      style={{ width: '70px' }}
+                    >
+                      { buttonText }
+                    </button>
+                  </Link>
+                </div>
               </>
             ) }
           </div>
