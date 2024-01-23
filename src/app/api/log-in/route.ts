@@ -7,6 +7,7 @@ import {
 } from 'libsodium-wrappers-sumo'
 import { serialize } from 'cookie'
 import { sign } from 'jsonwebtoken'
+import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 import { QueryCommand, QueryCommandInput } from '@aws-sdk/lib-dynamodb'
 // Locals
@@ -65,6 +66,15 @@ export async function POST(
             sameSite: 'strict',
             path: '/',
           })
+
+          // Format cookie to proper format for verification (done later)
+          cookies().set(
+            COOKIE_NAME,
+            serializedCookieWithToken.slice(
+              serializedCookieWithToken.indexOf('=') + 1,
+              serializedCookieWithToken.indexOf(';')
+            )
+          )
 
           return NextResponse.json(
             { message: 'Verified email, username, and password' },

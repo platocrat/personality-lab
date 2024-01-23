@@ -1,3 +1,5 @@
+'use client';
+
 // Externals
 import { Inter } from 'next/font/google'
 import { useContext, useEffect, useState } from 'react'
@@ -8,7 +10,7 @@ import LogInOrCreateAnAccount from '@/sections/log-in-or-create-an-account'
 // Contexts
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // CSS
-import styles from './page.module.css'
+import styles from '@/app/page.module.css'
 
 
 const inter = Inter({ subsets: ['latin'] })

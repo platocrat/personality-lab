@@ -1,9 +1,9 @@
 // Externals
+import { verify } from 'jsonwebtoken'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 // Locals
-import { COOKIE_NAME, JWT_SECRET } from '@/utils/api'
-import { verify } from 'jsonwebtoken'
+import { COOKIE_NAME, JWT_SECRET, MAX_AGE } from '@/utils/api'
 
 
 export async function GET(
@@ -30,7 +30,7 @@ export async function GET(
     verify(tokenValue, secret)
 
     return NextResponse.json(
-      { user: 'Top secret user', },
+      { message: 'User authenticated', },
       { status: 200, },
     )
   } catch (error: any) {

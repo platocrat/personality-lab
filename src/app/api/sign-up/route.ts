@@ -7,6 +7,7 @@ import {
 } from '@aws-sdk/lib-dynamodb'
 import { serialize } from 'cookie'
 import { sign } from 'jsonwebtoken'
+import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 // Locals
 import { ddbDocClient } from '@/utils/aws/dynamodb'
@@ -88,6 +89,15 @@ export async function POST(
         sameSite: 'strict',
         path: '/',
       })
+
+      // Format cookie to proper format for verification (done later)
+      cookies().set(
+        COOKIE_NAME, 
+        serializedCookieWithToken.slice(
+          serializedCookieWithToken.indexOf('=') + 1, 
+          serializedCookieWithToken.indexOf(';')
+        )
+      )
 
       return NextResponse.json(
         { message: 'User has successfully signed up' },

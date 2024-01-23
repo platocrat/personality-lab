@@ -11,9 +11,7 @@ import Spinner from '@/components/Suspense/Spinner'
 import { 
   BessiSkillScoresContextComponent 
 } from '@/contexts/BessiSkillScoresContext'
-import { 
-  AuthenticatedUserContextComponent 
-} from '@/contexts/AuthenticatedUserContext'
+import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // CSS
 import './globals.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -42,7 +40,9 @@ export default function RootLayout({
 }) {
   const router = useRouter()
 
-  const [retrievedUser, setRetrievedUser] = useState<boolean>(false)
+  // Booleans
+  const [ isFetchingUser, setIsFetchingUser ] = useState<boolean>(true)
+  const [ isAuthenticated, setIsAuthenticated ] = useState<boolean>(false)
 
   // --------------------------- Async functions -------------------------------
   async function getUser(): Promise<UserResponse> {
@@ -51,6 +51,8 @@ export default function RootLayout({
       const data = await response.json()
 
       if (response.status === 401) return { user: null, error: data.message }
+      if (response.status === 400) return { user: null, error: data.error }
+      // Assumes `response.status === 200 && data.message === 'User authenticated'`
       return { user: data.user, error: null }
     } catch (error: any) {
       return { user: null, error: error }
@@ -58,20 +60,28 @@ export default function RootLayout({
   }
 
   /**
-   * @dev Protects the `/dashboard` page by restricting access to users that
+   * @dev Protects any page by restricting access to users that
    * have already authenticated and hold a session cookie.
    */
-  async function protectPage(): Promise<void> {
+  async function pageProtection(): Promise<void> {
     const { user, error } = await getUser()
 
-    console.log(`user: `, user)
-    console.log(`error: `, error)
-
     if (error) {
+      // Prompt user to log in 
+      const timeout = 100 // 100 ms
+
       router.push('/')
-      return
+
+      setIsAuthenticated(false)
+
+      // Avoid flashing the blocked page for a split second
+      setTimeout(() => {
+        setIsFetchingUser(false)
+      }, timeout)
     } else {
-      setRetrievedUser(true)
+      // Show the dashboard
+      setIsAuthenticated(true)
+      setIsFetchingUser(false)
     }
   }
 
@@ -79,28 +89,17 @@ export default function RootLayout({
   // ------------------------------ `useEffect`s -------------------------------
   useEffect(() => {
     const requests = [
-      protectPage()
+      pageProtection()
     ]
 
     Promise.all(requests).then((response: any): void => { })
   }, [router])
 
 
+
   return (
     <>
-      { retrievedUser ? (
-        <>
-          <html lang='en'>
-            <body className={ inter.className }>
-              <AuthenticatedUserContextComponent>
-                <BessiSkillScoresContextComponent>
-                  { children }
-                </BessiSkillScoresContextComponent>
-              </AuthenticatedUserContextComponent>
-            </body>
-          </html>
-        </>
-      ) : (
+      { isFetchingUser ? (
         <>
           <html lang='en'>
             <body className={ inter.className }>
@@ -111,8 +110,24 @@ export default function RootLayout({
                   top: '80px',
                 } }
               >
-                <Spinner height='60' width='60' />
+                <Spinner height='40' width='40' />
               </div>
+            </body>
+          </html>
+        </>
+      ) : (
+        <>
+          <html lang='en'>
+            <body className={ inter.className }>
+              <AuthenticatedUserContext.Provider
+                value={ {
+                  isAuthenticated: isAuthenticated,
+                } }
+              >
+                <BessiSkillScoresContextComponent>
+                  { children }
+                </BessiSkillScoresContextComponent>
+              </AuthenticatedUserContext.Provider>
             </body>
           </html>
         </>
