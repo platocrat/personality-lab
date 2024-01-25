@@ -20,10 +20,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      # Prep: Use Node.js version that is specified in `package.json`
       - uses: actions/setup-node@v4
         with:
-          node-version-file: 'package.json'
+          node-version: 'lts'
       # Phase 1: Build and Push Docker Image to Docker Hub Repository
       - name: 1. Login to Docker
         run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
