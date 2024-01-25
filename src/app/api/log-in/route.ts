@@ -1,5 +1,9 @@
 // Externals
 import { 
+  GetParameterCommand,
+  GetParameterCommandInput, 
+} from '@aws-sdk/client-ssm'
+import { 
   crypto_pwhash_str, 
   crypto_pwhash_str_verify,
   crypto_pwhash_OPSLIMIT_INTERACTIVE, 
@@ -11,10 +15,11 @@ import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 import { QueryCommand, QueryCommandInput } from '@aws-sdk/lib-dynamodb'
 // Locals
+import { COOKIE_NAME, MAX_AGE } from '@/utils/api'
 import { ddbDocClient } from '@/utils/aws/dynamodb'
-import { BESSI_ACCOUNTS_TABLE_NAME } from '@/utils'
 import { BESSI_accounts } from '../check-email/route'
-import { COOKIE_NAME, JWT_SECRET, MAX_AGE } from '@/utils/api'
+import { ssmClient } from '@/utils/aws/systems-manager'
+import { AWS_PARAMETER_NAMES, BESSI_ACCOUNTS_TABLE_NAME } from '@/utils'
 
 
 
@@ -35,6 +40,9 @@ export async function POST(
 
     const command = new QueryCommand(input)
 
+    /**
+     * @dev 1. Verify username and password
+     */
     try {
       const response = await ddbDocClient.send(command)
 
@@ -47,9 +55,35 @@ export async function POST(
 
         if (verifiedUsername && verifiedPassword) {
           /**
-           * @todo Fetch the JWT secret from a secure source
+           * @dev 2. Fetch the JWT secret from AWS Parameter Store
            */
-          const secret = JWT_SECRET
+          let secret = 'null'
+          
+          const input: GetParameterCommandInput = {
+            Name: AWS_PARAMETER_NAMES.JWT_SECRET,
+            WithDecryption: true,
+          }
+
+          const command = new GetParameterCommand(input)
+
+          try {
+            const response = await ssmClient.send(command)
+
+            if (response.Parameter?.Value) {
+              secret = response.Parameter?.Value
+            } else {
+              return NextResponse.json(
+                { error: `${ AWS_PARAMETER_NAMES.JWT_SECRET } parameter does not exist` },
+                { status: 400 }
+              )
+            }
+          } catch (error: any) {
+            // Something went wrong
+            return NextResponse.json(
+              { error: `Error! Something went wrong fetching ${ AWS_PARAMETER_NAMES.JWT_SECRET }: ${ error }`, },
+              { status: 400, },
+            )
+          }
 
           const token = sign(
             { email, username, password },
@@ -65,14 +99,19 @@ export async function POST(
           })
 
           // Format cookie to proper format for verification (done later)
-          cookies().set(
-            COOKIE_NAME,
-            serializedCookieWithToken.slice(
-              serializedCookieWithToken.indexOf('=') + 1,
-              serializedCookieWithToken.indexOf(';')
-            )
+          const _cookie = serializedCookieWithToken.slice(
+            serializedCookieWithToken.indexOf('=') + 1,
+            serializedCookieWithToken.indexOf(';')
           )
 
+          /**
+           * @dev 3. Store the cookie
+           */
+          cookies().set(COOKIE_NAME, _cookie)
+
+          /**
+           * @dev 4. Return response
+           */
           return NextResponse.json(
             { message: 'Verified email, username, and password' },
             { 

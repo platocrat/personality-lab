@@ -10,10 +10,12 @@ import { sign } from 'jsonwebtoken'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 // Locals
+import { MAX_AGE, COOKIE_NAME } from '@/utils/api'
 import { ddbDocClient } from '@/utils/aws/dynamodb'
-import { BESSI_ACCOUNTS_TABLE_NAME } from '@/utils'
+import { AWS_PARAMETER_NAMES, BESSI_ACCOUNTS_TABLE_NAME } from '@/utils'
 import { BESSI_accounts } from '../check-email/route'
-import { JWT_SECRET, MAX_AGE, COOKIE_NAME } from '@/utils/api'
+import { ssmClient } from '@/utils/aws/systems-manager'
+import { GetParameterCommandInput, GetParameterCommand } from '@aws-sdk/client-ssm'
 
 
 
@@ -24,7 +26,7 @@ export async function POST(
   if (req.method === 'POST') {
     const { email, username, password } = await req.json()
 
-    let input: QueryCommandInput | PutCommandInput = {
+    let input: QueryCommandInput | PutCommandInput | GetParameterCommandInput = {
       TableName: BESSI_ACCOUNTS_TABLE_NAME,
       IndexName: 'UsernameIndex',
       KeyConditionExpression: 'username = :usernameValue',
@@ -33,8 +35,11 @@ export async function POST(
       }
     }
 
-    let command: QueryCommand | PutCommand = new QueryCommand(input)
+    let command: QueryCommand | PutCommand | GetParameterCommand = new QueryCommand(input)
 
+    /**
+     * @dev 1. Check if the username is already in the database
+     */
     try {
       const response = await ddbDocClient.send(command)
 
@@ -54,6 +59,9 @@ export async function POST(
       )
     }
     
+    /**
+     * @dev 2. Store the new user's sign-up data
+     */
     // Get timestamp after the username is validated.
     const timestamp = new Date().getTime()
 
@@ -73,9 +81,38 @@ export async function POST(
       const response = await ddbDocClient.send(command)
 
       /**
-       * @todo Fetch the JWT secret from a secure source
+       * @dev 3. Fetch the JWT secret from AWS Parameter Store
        */
-      const secret = JWT_SECRET
+      let secret = 'null'
+
+      input = {
+        Name: AWS_PARAMETER_NAMES.JWT_SECRET,
+        WithDecryption: true,
+      }
+
+      command = new GetParameterCommand(input)
+
+      try {
+        const response = await ssmClient.send(command)
+
+        if (response.Parameter?.Value) {
+          /**
+           * @dev 4. Set secret, to be used when creating the signed JWT
+           */
+          secret = response.Parameter?.Value
+        } else {
+          return NextResponse.json(
+            { error: `${ AWS_PARAMETER_NAMES.JWT_SECRET } parameter does not exist` },
+            { status: 400 }
+          )
+        }
+      } catch (error: any) {
+        // Something went wrong
+        return NextResponse.json(
+          { error: `Error! Something went wrong fetching ${ AWS_PARAMETER_NAMES.JWT_SECRET }: ${ error }`, },
+          { status: 400, },
+        )
+      }
 
       const token = sign(
         { email, username, password },
@@ -91,13 +128,15 @@ export async function POST(
       })
 
       // Format cookie to proper format for verification (done later)
-      cookies().set(
-        COOKIE_NAME, 
-        serializedCookieWithToken.slice(
-          serializedCookieWithToken.indexOf('=') + 1, 
-          serializedCookieWithToken.indexOf(';')
-        )
+      const _cookie = serializedCookieWithToken.slice(
+        serializedCookieWithToken.indexOf('=') + 1,
+        serializedCookieWithToken.indexOf(';')
       )
+
+      /**
+       * @dev 5. Store the cookie
+       */
+      cookies().set(COOKIE_NAME, _cookie)
 
       return NextResponse.json(
         { message: 'User has successfully signed up' },
