@@ -15,7 +15,6 @@ import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // CSS
 import './globals.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
-import router from 'next/router'
 
 
 type UserResponse = {
