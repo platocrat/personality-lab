@@ -19,10 +19,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 'lts'
+          node-version: '20.11.0'
       # Phase 1: Build and Push Docker Image to Docker Hub Repository
       - name: 1. Login to Docker
         run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
