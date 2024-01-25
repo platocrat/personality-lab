@@ -86,7 +86,7 @@ const PersonalityAssessments = ({ }) => {
 
   return (
     <Fragment key={ `personality-assessments` }>
-      <div>
+      <div style={{ marginBottom: '8px' }}>
         <h1>{ title }</h1>
       </div>
       <div className={ styles.assessmentWrapper }>

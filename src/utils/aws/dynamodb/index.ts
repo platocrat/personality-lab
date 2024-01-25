@@ -7,3 +7,5 @@ import { REGION } from '..'
 const HOURS = 2
 
 const ddbClient = new DynamoDBClient({ region: REGION })
+
+export const ddbDocClient = DynamoDBDocumentClient.from(ddbClient)
