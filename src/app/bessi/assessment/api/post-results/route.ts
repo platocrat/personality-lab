@@ -16,7 +16,7 @@ export async function POST(
     const input: PutCommandInput = {
       TableName: BESSI_RESULTS_TABLE_NAME,
       Item: {
-        userId: userResults.userId,
+        email: userResults.email,
         timestamp: userResults.timestamp,
         facetScores: userResults.facetScores,
         domainScores: userResults.domainScores,
@@ -28,8 +28,6 @@ export async function POST(
 
     try {
       const response = await ddbDocClient.send(command)
-      
-      console.log(`response: `, response)
 
       const message = `User results have been added to ${BESSI_RESULTS_TABLE_NAME} table`
 
@@ -38,8 +36,6 @@ export async function POST(
         { status: 200 }
       )
     } catch (error: any) {
-      console.log(`error: `, error)
-
       // Something went wrong
       return NextResponse.json(
         { error: error },

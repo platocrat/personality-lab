@@ -188,12 +188,12 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
 
       setBessiSkillScores(finalScores)
 
+      // Send results to user before storing results in DynamoDB
       await storeResultsInDynamoDB(finalScores)
-
+      
       // Navigate to the results page
       const href = '/bessi/assessment/results'
       router.push(href)
-      
       await sendEmail()
     }
   }
@@ -316,7 +316,41 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
   
 
   async function sendEmail() {
+    const email = await getUserEmailFromCookie()
 
+    if (email === undefined) {
+      /**
+       * @todo Replace the line below by handling the error UI here
+       */
+      throw new Error(`Error getting email from cookie!`)
+    } else {
+      // Send email
+      try {
+        const response = await fetch('/bessi/assessment/api/send-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email }),
+        })
+
+        const data = await response.json()
+
+        if (response.status === 200) {
+          console.log(`data: `, data)
+        } else {
+          throw new Error(`Error getting JWT secret: ${data.error}`,)
+          /**
+           * @todo Handle error UI here
+           */
+        }
+      } catch (error: any) {
+        throw new Error(`Error! ${error}`)
+        /**
+         * @todo Handle error UI here
+         */
+      }
+    }
   }
 
 
