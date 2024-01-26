@@ -1,6 +1,6 @@
 // Externals
 import Link from 'next/link'
-import { verify } from 'jsonwebtoken'
+import { decode } from 'jsonwebtoken'
 import { useRouter } from 'next/navigation'
 import { FC, Fragment, useContext, useEffect, useState } from 'react'
 // Locals
@@ -188,7 +188,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
 
       setBessiSkillScores(finalScores)
 
-      // await storeResultsInDynamoDB(finalScores)
+      await storeResultsInDynamoDB(finalScores)
 
       // Navigate to the results page
       const href = '/bessi/assessment/results'
@@ -223,42 +223,57 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
 
     const CURRENT_TIMESTAMP = new Date().getTime()
     
-    const email = getUserEmailFromCookie()
+    const email = await getUserEmailFromCookie()
 
-    /**
-     * @dev This is the object that we store in DynamoDB using AWS's 
-     * `PutItemCommand` operation.
-     */
-    const userResults: BessiUserResults__DynamoDB = {
-      email: email,
-      timestamp: CURRENT_TIMESTAMP,
-      facetScores: finalScores.facetScores,
-      domainScores: finalScores.domainScores,
-      demographics: DEMOGRAPHICS,
-    }
-
-    try {
-      const response = await fetch('/api/post-results', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ userResults }),
-      })
-
-      const data = await response.json()
-
-      if (response.status === 200) {
-        console.log(data)
-      } else {
-        console.error(data.error)
-      }
-    } catch (error: any) {
-      console.error(error.message)
+    if (email === undefined) {
       /**
-       * @todo Handle error UI here
+       * @todo Replace the line below by handling the error UI here
        */
+      throw new Error(`Error getting email from cookie!`)
+    } else {
+      /**
+       * @dev This is the object that we store in DynamoDB using AWS's 
+       * `PutItemCommand` operation.
+       */
+      const userResults: BessiUserResults__DynamoDB = {
+        email: email,
+        timestamp: CURRENT_TIMESTAMP,
+        facetScores: finalScores.facetScores,
+        domainScores: finalScores.domainScores,
+        demographics: DEMOGRAPHICS,
+      }
 
+      try {
+        const response = await fetch('/bessi/assessment/api/post-results', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userResults }),
+        })
+
+        const data = await response.json()
+
+        if (response.status === 200) {
+          const message = data.message
+          console.log(`message: `, message)
+        } else {
+          /**
+           * @todo Handle error UI here
+           */
+          throw new Error(
+            `Error posting BESSI results to DynamoDB: `, 
+            data.error
+          )
+
+        }
+      } catch (error: any) {
+        /**
+         * @todo Handle error UI here
+         */
+        throw new Error(`Error! `, error)
+
+      }
     }
   }
 
@@ -270,7 +285,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
     type CookieType = { email: string,  username: string, password: string }
     
     try {
-      const response = await fetch('/api/assessments/get-jwt-secret', {
+      const response = await fetch('/bessi/assessment/api/get-jwt-secret', {
         method: 'GET'
       })
 
@@ -278,26 +293,31 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
 
       if (response.status === 200) {
         const JWT_SECRET: string = data.secret
-        
-        const cookies = document.cookie
-        const token = cookies[0].split('=')[0]
-
-        const decoded = verify(token, JWT_SECRET)
+        const cookies = document.cookie        
+        const token = cookies.split('=')[0]
+        // Cannot use `verify()` because it is only used server-side
+        const decoded = decode(token)
         const email = (decoded as CookieType).email
 
-        return email        
+        return email
       } else {
-        console.error(`Error getting JWT secret: `, data.error)
+        throw new Error(`Error getting JWT secret: ${ data.error }`,)
+        /**
+         * @todo Handle error UI here
+         */
       }
     } catch (error: any) {
-      console.error(`Error! `, error)
+      throw new Error(`Error! ${ error }`)
+      /**
+       * @todo Handle error UI here
+       */
     }
   }
-
-  console.log(`getUserEmailFromCookie(): `, getUserEmailFromCookie())
   
 
-  async function sendEmail() {}
+  async function sendEmail() {
+
+  }
 
 
   return (

@@ -88,13 +88,18 @@ export async function POST(
            * @dev Make sure the password that is stored in the cookie is hashed!
            */
           const token = sign(
-            { email, username, hashedPassword },
+            { email, username, password: hashedPassword },
             secret,
             { expiresIn: MAX_AGE }
           )
 
           /**
-           * @dev 3. Store the cookie
+           * @dev 3. Delete previous cookie
+           */
+          cookies().delete(COOKIE_NAME)
+
+          /**
+           * @dev 4. Store the cookie
            */
           cookies().set(COOKIE_NAME, token, {
             httpOnly: true,
@@ -106,7 +111,7 @@ export async function POST(
           const cookieValue: string = cookies().get(COOKIE_NAME)?.value ?? 'null'
 
           /**
-           * @dev 4. Return response
+           * @dev 5. Return response
            */
           return NextResponse.json(
             { message: 'Verified email, username, and password' },

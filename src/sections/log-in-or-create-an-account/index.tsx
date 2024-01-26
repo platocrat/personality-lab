@@ -11,6 +11,8 @@ import Card from '@/components/Card'
 import Form from './form'
 // Contexts
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
+// Utils
+import { deleteAllCookies } from '@/utils/misc'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -74,6 +76,10 @@ const LogInOrCreateAnAccount = () => {
     setIsUsernameIncorrect(false)
     setIsPasswordIncorrect(false)
     setWaitingForResponse(true)
+
+    // Delete all cookies so that we replace the cookie store with a fresh 
+    // cookie
+    deleteAllCookies()
     
     try {
       const response = await fetch('/api/log-in', {
@@ -160,6 +166,10 @@ const LogInOrCreateAnAccount = () => {
 
     setIsUsernameTaken(false)
     setWaitingForResponse(true)
+
+    // Delete all cookies so that we replace the cookie store with a fresh 
+    // cookie
+    deleteAllCookies()
 
     try {
       const response = await fetch('/api/sign-up', {

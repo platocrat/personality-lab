@@ -4,7 +4,6 @@ import { PutCommand, PutCommandInput } from '@aws-sdk/lib-dynamodb'
 // Locals
 import { BESSI_RESULTS_TABLE_NAME } from '@/utils'
 import { ddbDocClient } from '@/utils/aws/dynamodb'
-import { BessiUserResults__DynamoDB } from '@/utils/bessi/types'
 
 
 export async function POST(
@@ -32,13 +31,18 @@ export async function POST(
       
       console.log(`response: `, response)
 
+      const message = `User results have been added to ${BESSI_RESULTS_TABLE_NAME} table`
+
       return NextResponse.json(
-        { message: 'User results have been added to `BESSI-results` table' },
+        { message: message },
         { status: 200 }
       )
     } catch (error: any) {
+      console.log(`error: `, error)
+
+      // Something went wrong
       return NextResponse.json(
-        { error: error.message },
+        { error: error },
         { status: 500 },
       )
     }

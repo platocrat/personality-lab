@@ -3,8 +3,8 @@
 // Externals
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
 // Locals
 import Spinner from '@/components/Suspense/Spinner'
 // Contexts
@@ -38,6 +38,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   const router = useRouter()
+  const pathname = usePathname()
 
   // Booleans
   const [ isFetchingUser, setIsFetchingUser ] = useState<boolean>(true)
@@ -69,9 +70,7 @@ export default function RootLayout({
       // Prompt user to log in 
       const timeout = 200 // 100 ms
 
-      if (typeof window !== undefined) {
-        const pathname = window.location.pathname
-
+      if (pathname !== undefined) {
         pathname === '/' ? router.refresh() : router.push('/')
   
         setIsAuthenticated(false)
@@ -96,7 +95,7 @@ export default function RootLayout({
     ]
 
     Promise.all(requests).then((response: any): void => { })
-  }, [router])
+  }, [router, pathname])
 
 
 
