@@ -9,7 +9,6 @@ import {
   crypto_pwhash_OPSLIMIT_INTERACTIVE, 
   crypto_pwhash_MEMLIMIT_INTERACTIVE 
 } from 'libsodium-wrappers-sumo'
-import { serialize } from 'cookie'
 import { sign } from 'jsonwebtoken'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
@@ -91,23 +90,17 @@ export async function POST(
             { expiresIn: MAX_AGE }
           )
 
-          const serializedCookieWithToken = serialize(COOKIE_NAME, token, {
+          /**
+           * @dev 3. Store the cookie
+           */
+          cookies().set(COOKIE_NAME, token, {
             httpOnly: true,
             secure: process.env.NEXT_NODE_ENV ? false : true,
             sameSite: 'strict',
             path: '/',
           })
 
-          // Format cookie to proper format for verification (done later)
-          const _cookie = serializedCookieWithToken.slice(
-            serializedCookieWithToken.indexOf('=') + 1,
-            serializedCookieWithToken.indexOf(';')
-          )
-
-          /**
-           * @dev 3. Store the cookie
-           */
-          cookies().set(COOKIE_NAME, _cookie)
+          const cookieValue: string = cookies().get(COOKIE_NAME)?.value ?? 'null'
 
           /**
            * @dev 4. Return response
@@ -116,7 +109,7 @@ export async function POST(
             { message: 'Verified email, username, and password' },
             { 
               status: 200,
-              headers: { 'Set-Cookie': serializedCookieWithToken }
+              headers: { 'Set-Cookie': cookieValue }
             },
           )
         } else if (verifiedUsername && !verifiedPassword) {

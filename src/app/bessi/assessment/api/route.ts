@@ -1,7 +1,6 @@
 // Externals
-import { PutCommand } from '@aws-sdk/lib-dynamodb'
 import { NextRequest, NextResponse } from 'next/server'
-import { ReturnConsumedCapacity, ReturnValue } from '@aws-sdk/client-dynamodb'
+import { PutCommand, PutCommandInput } from '@aws-sdk/lib-dynamodb'
 // Locals
 import { BESSI_RESULTS_TABLE_NAME } from '@/utils'
 import { ddbDocClient } from '@/utils/aws/dynamodb'
@@ -15,7 +14,7 @@ export async function POST(
   if (req.method === 'POST') {
     const { userResults } = await req.json()
 
-    const input = {
+    const input: PutCommandInput = {
       TableName: BESSI_RESULTS_TABLE_NAME,
       Item: {
         userId: userResults.userId,
@@ -24,8 +23,6 @@ export async function POST(
         domainScores: userResults.domainScores,
         demographics: userResults.demographics,
       },
-      ReturnValues: 'ALL_NEW' as ReturnValue,
-      ReturnConsumedCapacity: 'TOTAL' as ReturnConsumedCapacity,
     }
 
     const command = new PutCommand(input)
@@ -33,7 +30,7 @@ export async function POST(
     try {
       const response = await ddbDocClient.send(command)
       
-      console.log(response)
+      console.log(`response: `, response)
 
       return NextResponse.json(
         { message: 'User results have been added to `BESSI-results` table' },

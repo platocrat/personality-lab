@@ -50,21 +50,15 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
     setUserScores
   ] = useState<{ [key: string]: UserScoresType } | null>(null)
   // Numbers
-  const [age, setAge] = useState<number>(0)
+  const [ age, setAge ] = useState<number>(0)
   // Regular strings
-  const [zipCode, setZipCode] = useState<string>('')
-  const [foreignCountry, setForeignCountry] = useState<string>('')
+  const [ zipCode, setZipCode ] = useState<string>('')
+  const [ foreignCountry, setForeignCountry ] = useState<string>('')
   // Enums
   const [
-    priorCompletion,
-    setPriorCompletion
+    isFluentInEnglish,
+    setIsFluentInEnglish
   ] = useState<YesOrNo>(YesOrNo.No)
-  const [ isParent, setIsParent ] = useState<YesOrNo>(YesOrNo.No)
-  const [ isFluentInEnglish, setIsFluentInEnglish ] = useState<YesOrNo>(YesOrNo.No)
-  const [
-    gender,
-    setGender
-  ] = useState<Gender>(Gender.Male)
   const [
     highestFormalEducation,
     setHighestFormalEducation
@@ -87,8 +81,12 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
     currentEmploymentStatus,
     setCurrentEmploymentStatus
   ] = useState<CurrentEmploymentStatus>(CurrentEmploymentStatus.Student)
-  const [usState, setUSState] = useState<USState>(USState.Alabama)
-  
+  const [ gender, setGender ] = useState<Gender>(Gender.Male)
+  const [ isParent, setIsParent ] = useState<YesOrNo>(YesOrNo.No)
+  const [ usState, setUSState ] = useState<USState>(USState.Alabama)
+  const [ priorCompletion, setPriorCompletion ] = useState<YesOrNo>(YesOrNo.No)
+    
+
   const title = `BESSI`
   const buttonText = `Submit`
   const subtitle = `Instructions.`
@@ -282,7 +280,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
           className={ styles.grayColor }
           onSubmit={ (e: any): Promise<void> => handleSubmit(e) }
         >
-          <h2 className={ styles.assessmentTitle }>{ title.toUpperCase() }</h2>
+          <h2 className={ styles.assessmentTitle }>{ title }</h2>
           
           <BessiAssessmentInstructions />
 

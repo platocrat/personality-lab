@@ -1,21 +1,23 @@
 // Externals
 import { 
+  GetParameterCommand, 
+  GetParameterCommandInput, 
+} from '@aws-sdk/client-ssm'
+import { 
   PutCommand, 
   QueryCommand, 
   PutCommandInput, 
   QueryCommandInput 
 } from '@aws-sdk/lib-dynamodb'
-import { serialize } from 'cookie'
 import { sign } from 'jsonwebtoken'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 // Locals
 import { MAX_AGE, COOKIE_NAME } from '@/utils/api'
 import { ddbDocClient } from '@/utils/aws/dynamodb'
-import { AWS_PARAMETER_NAMES, BESSI_ACCOUNTS_TABLE_NAME } from '@/utils'
 import { BESSI_accounts } from '../check-email/route'
 import { ssmClient } from '@/utils/aws/systems-manager'
-import { GetParameterCommandInput, GetParameterCommand } from '@aws-sdk/client-ssm'
+import { AWS_PARAMETER_NAMES, BESSI_ACCOUNTS_TABLE_NAME } from '@/utils'
 
 
 
@@ -120,29 +122,23 @@ export async function POST(
         { expiresIn: MAX_AGE }
       )
 
-      const serializedCookieWithToken = serialize(COOKIE_NAME, token, {
+      /**
+       * @dev 5. Store the cookie
+      */
+      cookies().set(COOKIE_NAME, token, {
         httpOnly: true,
         secure: process.env.NEXT_NODE_ENV ? false : true,
         sameSite: 'strict',
         path: '/',
       })
 
-      // Format cookie to proper format for verification (done later)
-      const _cookie = serializedCookieWithToken.slice(
-        serializedCookieWithToken.indexOf('=') + 1,
-        serializedCookieWithToken.indexOf(';')
-      )
-
-      /**
-       * @dev 5. Store the cookie
-       */
-      cookies().set(COOKIE_NAME, _cookie)
+      const cookieValue: string = cookies().get(COOKIE_NAME)?.value ?? 'null'
 
       return NextResponse.json(
         { message: 'User has successfully signed up' },
         {
           status: 200,
-          headers: { 'Set-Cookie': serializedCookieWithToken }
+          headers: { 'Set-Cookie': cookieValue }
         },
       )
     } catch (error: any) {
