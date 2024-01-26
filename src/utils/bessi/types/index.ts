@@ -62,7 +62,7 @@ export type BessiUserDemographics__DynamoDB = {
 }
 
 export type BessiUserResults__DynamoDB = {
-  userId: string
+  email: string
   timestamp: number
   facetScores: FacetFactorType,
   domainScores: SkillDomainFactorType,

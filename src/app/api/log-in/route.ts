@@ -84,8 +84,11 @@ export async function POST(
             )
           }
 
+          /**
+           * @dev Make sure the password that is stored in the cookie is hashed!
+           */
           const token = sign(
-            { email, username, password },
+            { email, username, hashedPassword },
             secret,
             { expiresIn: MAX_AGE }
           )

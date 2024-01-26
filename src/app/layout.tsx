@@ -46,7 +46,7 @@ export default function RootLayout({
   // --------------------------- Async functions -------------------------------
   async function getUser(): Promise<UserResponse> {
     try {
-      const response = await fetch('/api/get-user')
+      const response = await fetch('/api/get-user', { method: 'GET' })
       const data = await response.json()
 
       if (response.status === 401) return { user: null, error: data.message }
@@ -67,7 +67,7 @@ export default function RootLayout({
 
     if (error) {
       // Prompt user to log in 
-      const timeout = 100 // 100 ms
+      const timeout = 200 // 100 ms
 
       if (typeof window !== undefined) {
         const pathname = window.location.pathname

@@ -1,5 +1,6 @@
 // Externals
 import Link from 'next/link'
+import { verify } from 'jsonwebtoken'
 import { useRouter } from 'next/navigation'
 import { FC, Fragment, useContext, useEffect, useState } from 'react'
 // Locals
@@ -221,13 +222,15 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
     }
 
     const CURRENT_TIMESTAMP = new Date().getTime()
+    
+    const email = getUserEmailFromCookie()
 
     /**
      * @dev This is the object that we store in DynamoDB using AWS's 
      * `PutItemCommand` operation.
      */
     const userResults: BessiUserResults__DynamoDB = {
-      userId: getUserIdFromCookie(),
+      email: email,
       timestamp: CURRENT_TIMESTAMP,
       facetScores: finalScores.facetScores,
       domainScores: finalScores.domainScores,
@@ -235,7 +238,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
     }
 
     try {
-      const response = await fetch('/api/assessment', {
+      const response = await fetch('/api/post-results', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -260,14 +263,38 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
   }
 
 
-  function getUserIdFromCookie(): string {
-    const cookies = document.cookie.split(';')
-    const userIdCookie = cookies.find(c => c.trim().startsWith('userId='))
+  async function getUserEmailFromCookie() {
+    /**
+     * @dev Note that the password that is returned is a hashed password
+     */
+    type CookieType = { email: string,  username: string, password: string }
     
-    return userIdCookie 
-      ? decodeURIComponent(userIdCookie.split('=')[1]) 
-      : 'null'
+    try {
+      const response = await fetch('/api/assessments/get-jwt-secret', {
+        method: 'GET'
+      })
+
+      const data = await response.json()
+
+      if (response.status === 200) {
+        const JWT_SECRET: string = data.secret
+        
+        const cookies = document.cookie
+        const token = cookies[0].split('=')[0]
+
+        const decoded = verify(token, JWT_SECRET)
+        const email = (decoded as CookieType).email
+
+        return email        
+      } else {
+        console.error(`Error getting JWT secret: `, data.error)
+      }
+    } catch (error: any) {
+      console.error(`Error! `, error)
+    }
   }
+
+  console.log(`getUserEmailFromCookie(): `, getUserEmailFromCookie())
   
 
   async function sendEmail() {}
