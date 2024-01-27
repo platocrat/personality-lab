@@ -13,7 +13,8 @@ import {
 
 
 /**
- * @dev # Usage
+ * @dev Class to use symmetric encryption, which encrypts and decrypts data using the same secret key
+ * # Usage
  * ## Generating secret key
  * ```ts
  * const key = await generateKey()
