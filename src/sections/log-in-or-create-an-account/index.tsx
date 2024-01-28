@@ -249,19 +249,15 @@ const LogInOrCreateAnAccount = () => {
         }
       } else {
         setWaitingForResponse(false)
-
-        const json = await response.json()
-        const error = json.error
-
-        console.error(`Error sending POST request to DynamoDB table:\n`, error)
+        const error = data.error
+        console.error(`Error sending POST request to DynamoDB table: `, error)
         /**
          * @todo Handle error UI here
          */
-        throw new Error(error)
+        throw new Error(`Error sending POST request to DynamoDB table!`)
       }
     } catch (error: any) {
       setWaitingForResponse(false)
-      console.error(error)
       /**
        * @todo Handle error UI here
        */

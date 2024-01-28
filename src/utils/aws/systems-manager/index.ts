@@ -16,6 +16,7 @@ export const ssmClient = new SSMClient({ region: REGION })
 
 /**
  * @dev Fetches the requested parameter from AWS Parameter Store.
+ * @notice Assumes that the parameter is encrypted.
  */
 export async function fetchAwsParameter(
   parameterName: string

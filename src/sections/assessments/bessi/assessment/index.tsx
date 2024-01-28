@@ -12,7 +12,7 @@ import { UserScoresContext } from '@/contexts/UserScoresContext'
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // Utility functions
-import { calculateBessiScores } from '@/utils'
+import { AWS_PARAMETER_NAMES, calculateBessiScores } from '@/utils'
 // Types
 import { 
   UserScoresType,
@@ -33,6 +33,7 @@ import {
 } from '@/utils/bessi/types/enums'
 // CSS
 import styles from '@/app/page.module.css'
+import LibsodiumUtils from '@/utils/libsodium'
 
 
 
@@ -285,8 +286,14 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
     type CookieType = { email: string,  username: string, password: string }
     
     try {
-      const response = await fetch('/bessi/assessment/api/get-jwt-secret', {
-        method: 'GET'
+      const response = await fetch('/bessi/assessment/api/get-aws-parameter', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          parameterName: AWS_PARAMETER_NAMES.JWT_SECRET
+         }),
       })
 
       const data = await response.json()
@@ -295,19 +302,63 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
         const JWT_SECRET: string = data.secret
         const cookies = document.cookie        
         const token = cookies.split('=')[0]
+        
         // Cannot use `verify()` because it is only used server-side
         const decoded = decode(token)
-        const email = (decoded as CookieType).email
+        const encryptedEmail = (decoded as CookieType).email
+
+        const SECRET_KEY = await getCookieSecretKey(encryptedEmail)
+        const email = await LibsodiumUtils.decryptData(encryptedEmail, SECRET_KEY)
 
         return email
       } else {
-        throw new Error(`Error getting JWT secret: ${ data.error }`,)
+        throw new Error(
+          `Error getting ${AWS_PARAMETER_NAMES.JWT_SECRET }: ${ data.error }`
+        )
         /**
          * @todo Handle error UI here
          */
       }
     } catch (error: any) {
-      throw new Error(`Error! ${ error }`)
+      throw new Error(
+        `Error fetching ${ AWS_PARAMETER_NAMES.JWT_SECRET } from API route! ${ error }`
+      )
+      /**
+       * @todo Handle error UI here
+       */
+    }
+  }
+
+
+  async function getCookieSecretKey(encryptedEmail: string) {
+    try {
+      const response = await fetch('/bessi/assessment/api/get-aws-parameter', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          parameterName: AWS_PARAMETER_NAMES.COOKIE_ENCRYPTION_SECRET_KEY
+        }),
+      })
+
+      const data = await response.json()
+
+      if (response.status === 200) {
+        const SECRET_KEY: string = data.secret
+        return LibsodiumUtils.base64ToUint8Array(SECRET_KEY)
+      } else {
+        throw new Error(
+          `Error getting ${AWS_PARAMETER_NAMES.COOKIE_ENCRYPTION_SECRET_KEY}: ${data.error}`
+        )
+        /**
+         * @todo Handle error UI here
+         */
+      }
+    } catch (error: any) {
+      throw new Error(
+        `Error fetching ${AWS_PARAMETER_NAMES.COOKIE_ENCRYPTION_SECRET_KEY} from API route! ${error}`
+      )
       /**
        * @todo Handle error UI here
        */
@@ -352,6 +403,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
       }
     }
   }
+
 
 
   return (

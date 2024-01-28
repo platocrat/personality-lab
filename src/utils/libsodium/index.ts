@@ -38,23 +38,28 @@ export class LibsodiumUtils {
   }
 
 
-  static async encryptData(message: string, key: Uint8Array): Promise<Uint8Array> {
+  static async encryptData(message: string, key: Uint8Array): Promise<string> {
     await ready
     const nonce = randombytes_buf(crypto_secretbox_NONCEBYTES)
-    const encryptedMessage = crypto_secretbox_easy(new TextEncoder().encode(message), nonce, key)
+    const encryptedMessage = crypto_secretbox_easy(
+      new TextEncoder().encode(message), 
+      nonce, 
+      key
+    )
 
     const combined = new Uint8Array(nonce.length + encryptedMessage.length)
     combined.set(nonce)
     combined.set(encryptedMessage, nonce.length)
 
-    return combined
+    return this.base64FromUint8Array(combined)
   }
 
 
-  static async decryptData(combined: Uint8Array, key: Uint8Array): Promise<string> {
+  static async decryptData(combined: string, key: Uint8Array): Promise<string> {
     await ready
-    const nonce = combined.slice(0, crypto_secretbox_NONCEBYTES)
-    const encryptedData = combined.slice(crypto_secretbox_NONCEBYTES)
+    const _combined = this.base64ToUint8Array(combined)
+    const nonce = _combined.slice(0, crypto_secretbox_NONCEBYTES)
+    const encryptedData = _combined.slice(crypto_secretbox_NONCEBYTES)
 
     try {
       const decryptedData = crypto_secretbox_open_easy(encryptedData, nonce, key)
