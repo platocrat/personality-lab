@@ -14,11 +14,12 @@ import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 import { QueryCommand, QueryCommandInput } from '@aws-sdk/lib-dynamodb'
 // Locals
+import LibsodiumUtils from '@/utils/libsodium'
 import { COOKIE_NAME, MAX_AGE } from '@/utils/api'
 import { ddbDocClient } from '@/utils/aws/dynamodb'
 import { BESSI_accounts } from '../check-email/route'
-import { ssmClient } from '@/utils/aws/systems-manager'
 import { AWS_PARAMETER_NAMES, BESSI_ACCOUNTS_TABLE_NAME } from '@/utils'
+import { fetchAwsParameter, ssmClient } from '@/utils/aws/systems-manager'
 
 
 
@@ -52,89 +53,106 @@ export async function POST(
         const verifiedUsername = storedUsername === username
         const verifiedPassword = crypto_pwhash_str_verify(hashedPassword, password)
 
-        if (verifiedUsername && verifiedPassword) {
-          /**
-           * @dev 2. Fetch the JWT secret from AWS Parameter Store
-           */
-          let secret = 'null'
-          
-          const input: GetParameterCommandInput = {
-            Name: AWS_PARAMETER_NAMES.JWT_SECRET,
-            WithDecryption: true,
-          }
+        const condition = `${ verifiedUsername }-${ verifiedPassword }`
 
-          const command = new GetParameterCommand(input)
-
-          try {
-            const response = await ssmClient.send(command)
-
-            if (response.Parameter?.Value) {
-              secret = response.Parameter?.Value
-            } else {
-              return NextResponse.json(
-                { error: `${ AWS_PARAMETER_NAMES.JWT_SECRET } parameter does not exist` },
-                { status: 400 }
-              )
-            }
-          } catch (error: any) {
-            // Something went wrong
-            return NextResponse.json(
-              { error: `Error! Something went wrong fetching ${ AWS_PARAMETER_NAMES.JWT_SECRET }: ${ error }`, },
-              { status: 400, },
+        switch (condition) {
+          case 'true-true':
+            // Code for when both username and password are verified
+            const JWT_SECRET = await fetchAwsParameter(
+              AWS_PARAMETER_NAMES.JWT_SECRET
             )
-          }
 
-          /**
-           * @dev Make sure the password that is stored in the cookie is hashed!
-           */
-          const token = sign(
-            { email, username, password: hashedPassword },
-            secret,
-            { expiresIn: MAX_AGE }
-          )
+            if (typeof JWT_SECRET === 'string') {
+              const SECRET_KEY = await fetchAwsParameter(
+                AWS_PARAMETER_NAMES.COOKIE_ENCRYPTION_SECRET_KEY
+              )
 
-          /**
-           * @dev 3. Delete previous cookie
-           */
-          cookies().delete(COOKIE_NAME)
+              if (typeof SECRET_KEY === 'string') {
+                const secretKeyUint8Array = LibsodiumUtils.base64ToUint8Array(
+                  SECRET_KEY
+                )
 
-          /**
-           * @dev 4. Store the cookie
-           */
-          cookies().set(COOKIE_NAME, token, {
-            httpOnly: true,
-            secure: process.env.NEXT_NODE_ENV ? false : true,
-            sameSite: 'strict',
-            path: '/',
-          })
+                const encryptedEmail = await LibsodiumUtils.encryptData(
+                  email,
+                  secretKeyUint8Array
+                )
+                const encryptedUsername = await LibsodiumUtils.encryptData(
+                  username,
+                  secretKeyUint8Array
+                )
 
-          const cookieValue: string = cookies().get(COOKIE_NAME)?.value ?? 'null'
+                /**
+                 * @dev Make sure the password that is stored in the cookie is hashed!
+                 */
+                const token = sign(
+                  {
+                    email: encryptedEmail,
+                    username: encryptedUsername,
+                    password: hashedPassword
+                  },
+                  JWT_SECRET as string,
+                  { expiresIn: MAX_AGE }
+                )
 
-          /**
-           * @dev 5. Return response
-           */
-          return NextResponse.json(
-            { message: 'Verified email, username, and password' },
-            { 
-              status: 200,
-              headers: { 'Set-Cookie': cookieValue }
-            },
-          )
-        } else if (verifiedUsername && !verifiedPassword) {
-          return NextResponse.json(
-            { message: 'Incorrect password' },
-            { status: 200 },
-          )  
-        } else if (!verifiedUsername && verifiedPassword) {
-          return NextResponse.json(
-            { message: 'Incorrect username' },
-            { status: 200 },
-          )  
-        } else {
-          return NextResponse.json(
-            { message: 'Incorrect username and password' },
-            { status: 200 },
-          )  
+                /**
+                 * @dev 3. Delete previous cookie
+                 */
+                cookies().delete(COOKIE_NAME)
+
+                /**
+                 * @dev 4. Store the cookie
+                 */
+                cookies().set(COOKIE_NAME, token, {
+                  httpOnly: true,
+                  secure: process.env.NEXT_NODE_ENV ? false : true,
+                  sameSite: 'strict',
+                  path: '/',
+                })
+
+                const cookieValue: string = cookies().get(COOKIE_NAME)?.value ?? 'null'
+
+                /**
+                 * @dev 5. Return response
+                 */
+                return NextResponse.json(
+                  { message: 'Verified email, username, and password' },
+                  {
+                    status: 200,
+                    headers: { 'Set-Cookie': cookieValue }
+                  },
+                )
+              } else {
+                return SECRET_KEY as NextResponse<{ error: string }>
+              }
+            } else {
+              return JWT_SECRET as NextResponse<{ error: string }>
+            }
+
+            break
+
+          case 'true-false':
+            // Code for when only username is verified
+            return NextResponse.json(
+              { message: 'Incorrect password' },
+              { status: 200 },
+            )
+            break
+
+          case 'false-true':
+            // Code for when only password is verified
+            return NextResponse.json(
+              { message: 'Incorrect username' },
+              { status: 200 },
+            )
+            break
+
+          default:
+            // Code for when neither is verified
+            return NextResponse.json(
+              { message: 'Incorrect username and password' },
+              { status: 200 },
+            )
+            break
         }
       } else {
         return NextResponse.json(

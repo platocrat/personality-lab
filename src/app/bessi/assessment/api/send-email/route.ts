@@ -1,10 +1,11 @@
 // Externals
 import { ServerClient } from 'postmark'
 import { NextRequest, NextResponse } from 'next/server'
-import { AWS_PARAMETER_NAMES } from '@/utils'
-import { ssmClient } from '@/utils/aws/systems-manager'
 import { GetParameterCommandInput, GetParameterCommand } from '@aws-sdk/client-ssm'
 // Locals
+import { AWS_PARAMETER_NAMES } from '@/utils'
+import { fetchAwsParameter, ssmClient } from '@/utils/aws/systems-manager'
+
 
 
 export async function POST(
@@ -14,66 +15,42 @@ export async function POST(
   if (req.method === 'POST') {
     const { email } = await req.json()
 
-    /**
-     * @dev 1. Fetch the API key from AWS Parameter Store
-     */
-    let serverToken = 'null'
+    const SERVER_TOKEN = await fetchAwsParameter(
+      AWS_PARAMETER_NAMES.POSTMARK_API_KEY
+    )
 
-    const input: GetParameterCommandInput = {
-      Name: AWS_PARAMETER_NAMES.POSTMARK_API_KEY,
-      WithDecryption: true,
-    }
+    if (typeof SERVER_TOKEN === 'string') {
+      /**
+       * @dev 2. Send email using Postmark
+       */
+      const client = new ServerClient(SERVER_TOKEN)
+      const postmarkEmail = {
+        From: "jlmaldo2@illinois.edu",
+        To: "jlmaldo2@illinois.edu",
+        Subject: "Hello from Postmark",
+        HtmlBody: "<strong>Hello</strong> dear Postmark user.",
+        TextBody: "Hello from Postmark!",
+        MessageStream: "outbound"
+      }
 
-    const command = new GetParameterCommand(input)
+      try {
+        /**
+         * @todo Need a proper `From` email address
+         */
+        const response = await client.sendEmail(postmarkEmail)
 
-    try {
-      const response = await ssmClient.send(command)
+        console.log(`response: `, response)
 
-      if (response.Parameter?.Value) {
-        serverToken = response.Parameter?.Value
-      } else {
+      } catch (error: any) {
+        // Something went wrong
         return NextResponse.json(
-          { error: `${AWS_PARAMETER_NAMES.POSTMARK_API_KEY} parameter does not exist` },
-          { status: 400 }
+          { error: error },
+          { status: 500 }
         )
       }
-    } catch (error: any) {
-      // Something went wrong
-      return NextResponse.json(
-        { error: `Error! Something went wrong fetching ${AWS_PARAMETER_NAMES.POSTMARK_API_KEY}: ${error}`, },
-        { status: 400, },
-      )
-    }
-
-    /**
-     * @dev 2. Send email using Postmark
-     */
-    const client = new ServerClient(serverToken)
-    const postmarkEmail = {
-      From: "jlmaldo2@illinois.edu",
-      To: "jlmaldo2@illinois.edu",
-      Subject: "Hello from Postmark",
-      HtmlBody: "<strong>Hello</strong> dear Postmark user.",
-      TextBody: "Hello from Postmark!",
-      MessageStream: "outbound"
-    }
-
-    try {
-      /**
-       * @todo Need a proper `From` email address
-       */
-      const response = await client.sendEmail(postmarkEmail)
-
-      console.log(`response: `, response)
-
-    } catch (error: any) {
-      // Something went wrong
-      return NextResponse.json(
-        { error: error },
-        { status: 500 }
-      )
-    }
-    
+    } else {
+      return SERVER_TOKEN as NextResponse<{ error: string }>
+    }    
   } else {
     return NextResponse.json(
       { error: 'Method Not Allowed' },

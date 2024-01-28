@@ -16,8 +16,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { MAX_AGE, COOKIE_NAME } from '@/utils/api'
 import { ddbDocClient } from '@/utils/aws/dynamodb'
 import { BESSI_accounts } from '../check-email/route'
-import { ssmClient } from '@/utils/aws/systems-manager'
 import { AWS_PARAMETER_NAMES, BESSI_ACCOUNTS_TABLE_NAME } from '@/utils'
+import { fetchAwsParameter, ssmClient } from '@/utils/aws/systems-manager'
+import LibsodiumUtils from '@/utils/libsodium'
 
 
 
@@ -82,68 +83,65 @@ export async function POST(
     try {
       const response = await ddbDocClient.send(command)
 
-      /**
-       * @dev 3. Fetch the JWT secret from AWS Parameter Store
-       */
-      let secret = 'null'
+      const JWT_SECRET = await fetchAwsParameter(AWS_PARAMETER_NAMES.JWT_SECRET)
 
-      input = {
-        Name: AWS_PARAMETER_NAMES.JWT_SECRET,
-        WithDecryption: true,
-      }
-
-      command = new GetParameterCommand(input)
-
-      try {
-        const response = await ssmClient.send(command)
-
-        if (response.Parameter?.Value) {
-          /**
-           * @dev 4. Set secret, to be used when creating the signed JWT
-           */
-          secret = response.Parameter?.Value
-        } else {
-          return NextResponse.json(
-            { error: `${ AWS_PARAMETER_NAMES.JWT_SECRET } parameter does not exist` },
-            { status: 400 }
-          )
-        }
-      } catch (error: any) {
-        // Something went wrong
-        return NextResponse.json(
-          { error: `Error! Something went wrong fetching ${ AWS_PARAMETER_NAMES.JWT_SECRET }: ${ error }`, },
-          { status: 400, },
+      if (typeof JWT_SECRET === 'string') {
+        const SECRET_KEY = await fetchAwsParameter(
+          AWS_PARAMETER_NAMES.COOKIE_ENCRYPTION_SECRET_KEY
         )
+
+        if (typeof SECRET_KEY === 'string') {
+          const secretKeyUint8Array = LibsodiumUtils.base64ToUint8Array(
+            SECRET_KEY
+          )
+
+          const encryptedEmail = await LibsodiumUtils.encryptData(
+            email,
+            secretKeyUint8Array
+          )
+          const encryptedUsername = await LibsodiumUtils.encryptData(
+            username,
+            secretKeyUint8Array
+          )
+
+          /**
+           * @dev Make sure the password that is stored in the cookie is hashed!
+           */
+          const token = sign(
+            {
+              email: encryptedEmail,
+              username: encryptedUsername,
+              password,
+            },
+            JWT_SECRET as string,
+            { expiresIn: MAX_AGE }
+          )
+
+          /**
+           * @dev 5. Store the cookie
+          */
+          cookies().set(COOKIE_NAME, token, {
+            httpOnly: true,
+            secure: process.env.NEXT_NODE_ENV ? false : true,
+            sameSite: 'strict',
+            path: '/',
+          })
+
+          const cookieValue: string = cookies().get(COOKIE_NAME)?.value ?? 'null'
+
+          return NextResponse.json(
+            { message: 'User has successfully signed up' },
+            {
+              status: 200,
+              headers: { 'Set-Cookie': cookieValue }
+            },
+          )
+        } else {
+          return SECRET_KEY as NextResponse<{ error: string }>
+        }
+      } else { // Return the error in the json of the `NextResponse`
+        return JWT_SECRET as NextResponse<{ error: string }>
       }
-
-      /**
-       * @dev Make sure the password that is stored in the cookie is hashed!
-       */
-      const token = sign(
-        { email, username, password },
-        secret,
-        { expiresIn: MAX_AGE }
-      )
-
-      /**
-       * @dev 5. Store the cookie
-      */
-      cookies().set(COOKIE_NAME, token, {
-        httpOnly: true,
-        secure: process.env.NEXT_NODE_ENV ? false : true,
-        sameSite: 'strict',
-        path: '/',
-      })
-
-      const cookieValue: string = cookies().get(COOKIE_NAME)?.value ?? 'null'
-
-      return NextResponse.json(
-        { message: 'User has successfully signed up' },
-        {
-          status: 200,
-          headers: { 'Set-Cookie': cookieValue }
-        },
-      )
     } catch (error: any) {
       return NextResponse.json(
         { error: error },

@@ -13,7 +13,8 @@ import {
 
 
 /**
- * @dev Class to use symmetric encryption, which encrypts and decrypts data using the same secret key
+ * @dev Class to use symmetric encryption, which encrypts and decrypts data 
+ * using the same secret key.
  * # Usage
  * ## Generating secret key
  * ```ts
@@ -30,11 +31,12 @@ import {
  * console.log('Decrypted Username:', decryptedUsername)
  * ```
  */
-class LibsodiumUtils {
+export class LibsodiumUtils {
   static async generateKey(): Promise<Uint8Array> {
     await ready
     return crypto_secretbox_keygen()
   }
+
 
   static async encryptData(message: string, key: Uint8Array): Promise<Uint8Array> {
     await ready
@@ -47,6 +49,7 @@ class LibsodiumUtils {
 
     return combined
   }
+
 
   static async decryptData(combined: Uint8Array, key: Uint8Array): Promise<string> {
     await ready
@@ -61,13 +64,26 @@ class LibsodiumUtils {
     }
   }
 
+
+  /**
+   * @dev Takes a `base64String` encoded `string` and returns a `Uint8Array`.
+   * @param base64String 
+   * @returns Uint8Array
+   */
   static base64ToUint8Array(base64String: string): Uint8Array {
     return from_base64(base64String, base64_variants.ORIGINAL)
   }
 
+
+  /**
+   * @dev Takes a `base64` encoded `Uint8Array` and returns a string.
+   * @param base64 
+   * @returns string
+   */
   static base64FromUint8Array(base64: Uint8Array): string {
     return to_base64(base64, base64_variants.ORIGINAL)
   }
 }
+
 
 export default LibsodiumUtils
