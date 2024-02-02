@@ -17,7 +17,7 @@ import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
 
 
-type FormProps = {
+export type FormProps = {
   buttonText: string
   state: {
     email: string
@@ -357,25 +357,17 @@ const Form: FC<FormProps> = ({
   return (
     <>
       <form
-        style={ {
-          ...definitelyCenteredStyle,
-          margin: '0px 0px 18px 0px'
-        } }
         onSubmit={ (e: any): Promise<void> => handleSubmit(e) }
+        style={ { ...definitelyCenteredStyle, margin: '0px 0px 18px 0px' } }
       >
         <div
           style={ {
             ...definitelyCenteredStyle,
             flexDirection: 'column',
-            gap: '4px'
+            gap: '4px',
           } }
         >
-          <div
-            style={ {
-              display: 'flex',
-              flexDirection: 'column'
-            } }
-          >
+          <div style={ { display: 'flex', flexDirection: 'column' } }>
             { formInputs.map((fi, i: number) => (
               <Fragment key={ `form-inputs-${i}` }>
                 { state.isSignUp && i === 0 && <PasswordValidation /> }

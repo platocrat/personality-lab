@@ -266,6 +266,34 @@ const LogInOrCreateAnAccount = () => {
   }
 
 
+  // Props to pass to `FormContent`
+  const state = {
+    email: email,
+    username: username,
+    password: password,
+    isSignUp: isSignUp,
+    isFirstStep: isFirstStep,
+    emailExists: emailExists,
+    isUsernameTaken: isUsernameTaken,
+    isEmailIncorrect: isEmailIncorrect,
+    isPasswordHashing: isPasswordHashing,
+    waitingForResponse: waitingForResponse,
+    isPasswordIncorrect: isPasswordIncorrect,
+    isUsernameIncorrect: isUsernameIncorrect,
+  }
+  const set = {
+    email: setEmail,
+    password: setPassword,
+    username: setUsername,
+    isUsernameTaken: setIsUsernameTaken,
+    isEmailIncorrect: setIsEmailIncorrect,
+    isPasswordHashing: setIsPasswordHashing,
+    isPasswordIncorrect: setIsPasswordIncorrect,
+    isUsernameIncorrect: setIsUsernameIncorrect,
+  }
+  const handler = { handleLogIn, handleSignUp, handleEmailExists }
+
+
 
   return (
     <>
@@ -277,34 +305,12 @@ const LogInOrCreateAnAccount = () => {
           hasForm: true,
           isSignUp: isSignUp,
           isFirstStep: isFirstStep,
-          formContent: <Form 
-            buttonText={ buttonText }
-            state={{
-              email: email,
-              username: username,
-              password: password,
-              isSignUp: isSignUp,
-              isFirstStep: isFirstStep,
-              emailExists: emailExists,
-              isUsernameTaken: isUsernameTaken,
-              isEmailIncorrect: isEmailIncorrect,
-              isPasswordHashing: isPasswordHashing,
-              waitingForResponse: waitingForResponse,
-              isPasswordIncorrect: isPasswordIncorrect,
-              isUsernameIncorrect: isUsernameIncorrect,
-            }}
-            set={{ 
-              email: setEmail, 
-              password: setPassword, 
-              username: setUsername,
-              isUsernameTaken: setIsUsernameTaken,
-              isEmailIncorrect: setIsEmailIncorrect,
-              isPasswordHashing: setIsPasswordHashing,
-              isPasswordIncorrect: setIsPasswordIncorrect,
-              isUsernameIncorrect: setIsUsernameIncorrect,
-            }}
-            handler={{ handleLogIn, handleSignUp, handleEmailExists }}
-            />
+          formContent: <Form
+            set={ set } 
+            state={ state } 
+            handler={ handler }
+            buttonText={ buttonText } 
+          />
         }}
       />
     </>

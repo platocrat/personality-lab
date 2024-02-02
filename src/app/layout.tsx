@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 // Locals
 import Spinner from '@/components/Suspense/Spinner'
+import HCaptchaScript from '@/components/hCaptcha/Script'
 // Contexts
 import { 
   BessiSkillScoresContextComponent 
@@ -124,7 +125,7 @@ export default function RootLayout({
               <AuthenticatedUserContext.Provider
                 value={ {
                   isAuthenticated: isAuthenticated,
-                    setIsAuthenticated: setIsAuthenticated,
+                  setIsAuthenticated: setIsAuthenticated,
                 } }
               >
                 <BessiSkillScoresContextComponent>
