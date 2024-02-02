@@ -9,8 +9,9 @@ import {
 } from 'react'
 // Locals
 import { debounce } from '@/utils'
+import IncorrectInput from './incorrect-input'
 import Spinner from '@/components/Suspense/Spinner'
-import PasswordValidation from './passwordValidation'
+import PasswordValidation from './password-validation'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -54,12 +55,15 @@ const debounceTimeout = 300
 
 
 
+
 const Form: FC<FormProps> = ({
   set,
   state,
   handler,
   buttonText,
 }) => {
+
+  // --------------------------- Memoized functions ----------------------------
   const showSpinner = useMemo((): boolean => {
     return (state.isPasswordHashing || state.waitingForResponse) ? true : false
   }, [ state.isPasswordHashing, state.waitingForResponse ])
@@ -88,8 +92,54 @@ const Form: FC<FormProps> = ({
     state.waitingForResponse,
     state.isPasswordIncorrect,
   ])
+
+  const formInputType = (i: number): 'email' | 'password' | 'text' => {
+    return i === 1 // this line is equivalent to `if (i === i) {`
+      ? 'email'
+      : i === 2 // this line is equivalent to `if (i === 2) {`
+        ? 'password' 
+        : 'text'
+  }
   
   // ------------------------------ Regular functions --------------------------
+  const boxShadow = (formInputs: any[], i: number): '0px 0px 6px 1px red' | '' => {
+    const _ = '0px 0px 6px 1px red'
+    if (state.isEmailIncorrect && i === 0) return _
+    if (state.isUsernameTaken && i === 1) return _
+    if (state.isUsernameIncorrect && i === 1) return _
+    if (state.isPasswordIncorrect && i === 2) return _
+    return ''
+  }
+
+
+  const borderColor = (formInputs: any[], i: number): 'red' | '' => {
+    const _ = 'red'
+    if (state.isEmailIncorrect && i === 0) return _
+    if (state.isUsernameTaken && i === 1) return _
+    if (state.isUsernameIncorrect && i === 1) return _
+    if (state.isPasswordIncorrect && i === 2) return _
+    return ''
+  }
+
+
+  const autoComplete = (i: number): string => {
+    let _ = ''
+
+    if (i === 0) _ = 'email'
+    if (i === 1) _ = 'username'
+    if (i === 2) {
+      if (state.isSignUp) {
+        _ = 'new-password'
+      } else {
+        _ = 'current-password'
+      }
+    }
+
+    return _
+  }
+
+
+  // ------------------------- Form handler functions --------------------------
   const onEmailChange = (e: any): void => {
     set.isEmailIncorrect(false)
     
@@ -246,44 +296,6 @@ const Form: FC<FormProps> = ({
   }
 
 
-
-  const boxShadow = (formInputs: any[], i: number): '0px 0px 6px 1px red' | '' => {
-    const _ = '0px 0px 6px 1px red'
-    if (state.isEmailIncorrect && i === 0) return _
-    if (state.isUsernameTaken && i === 1) return _
-    if (state.isUsernameIncorrect && i === 1) return _
-    if (state.isPasswordIncorrect && i === 2) return _
-    return ''
-  } 
-
-
-  const borderColor = (formInputs: any[], i: number): 'red' | '' => {
-    const _ = 'red'
-    if (state.isEmailIncorrect && i === 0) return _
-    if (state.isUsernameTaken && i === 1) return _
-    if (state.isUsernameIncorrect && i === 1) return _
-    if (state.isPasswordIncorrect && i === 2) return _
-    return ''
-  }
-
-
-  const autoComplete = (i: number): string => {
-    let _ = ''
-
-    if (i === 0) _ = 'email'
-    if (i === 1) _ = 'username'
-    if (i === 2) {
-      if (state.isSignUp) {
-        _ = 'new-password'
-      } else {
-        _ = 'current-password'
-      }
-    }
-
-    return _
-  }
-
-
   // -------------------------- Async functions --------------------------------
   async function hashPassword(password: string) {
     try {
@@ -349,7 +361,7 @@ const Form: FC<FormProps> = ({
           ...definitelyCenteredStyle,
           margin: '0px 0px 18px 0px'
         } }
-        onSubmit={ (e: any) => handleSubmit(e) }
+        onSubmit={ (e: any): Promise<void> => handleSubmit(e) }
       >
         <div
           style={ {
@@ -376,7 +388,7 @@ const Form: FC<FormProps> = ({
                     maxLength={ 28 }
                     placeholder={ fi.placeholder }
                     autoComplete={ autoComplete(i) }
-                    type={ i === 1 ? 'email' : i === 2 ? 'password' : 'text' }
+                    type={ formInputType(i) }
                     onChange={ (e: any) => fi.onChange(e) }
                     style={ {
                       width: `310px`,
@@ -390,66 +402,7 @@ const Form: FC<FormProps> = ({
                   />
                 </div>
 
-                { state.isEmailIncorrect && i === 0 ? (
-                  <>
-                    <p
-                      style={ {
-                        bottom: '4px',
-                        color: 'red',
-                        fontSize: '14px',
-                        textAlign: 'center',
-                        position: 'relative',
-                      } }
-                    >
-                      { `Incorrect email` }
-                    </p>
-                  </>
-                ) : null }
-                { state.isUsernameIncorrect && i === 1 ? (
-                  <>
-                    <p
-                      style={ {
-                        bottom: '4px',
-                        color: 'red',
-                        fontSize: '14px',
-                        textAlign: 'center',
-                        position: 'relative',
-                      } }
-                    >
-                      { `Incorrect username` }
-                    </p>
-                  </>
-                ) : null }
-                { state.isUsernameTaken && i === 1 ? (
-                  <>
-                    <p
-                      style={ {
-                        bottom: '4px',
-                        color: 'red',
-                        fontSize: '14px',
-                        textAlign: 'center',
-                        position: 'relative',
-                      } }
-                    >
-                      { `Username is taken` }
-                    </p>
-                  </>
-                ) : null }
-                { !state.isSignUp && state.isPasswordIncorrect && i === 2 ? (
-                  <>
-                    <p
-                      style={ {
-                        bottom: '4px',
-                        color: 'red',
-                        fontSize: '14px',
-                        textAlign: 'center',
-                        position: 'relative',
-                      } }
-                    >
-                      { `Incorrect password` }
-                    </p>
-                  </>
-                ) : null }
+                <IncorrectInput i={ i } state={ state } />
 
               </Fragment>
             ))}
