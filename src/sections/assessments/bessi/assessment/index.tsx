@@ -287,7 +287,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
     
     try {
       const response = await fetch('/bessi/assessment/api/get-aws-parameter', {
-        method: 'GET',
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -333,7 +333,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
   async function getCookieSecretKey(encryptedEmail: string) {
     try {
       const response = await fetch('/bessi/assessment/api/get-aws-parameter', {
-        method: 'GET',
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },

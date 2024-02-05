@@ -12,11 +12,11 @@ import { COOKIE_NAME, MAX_AGE } from '@/utils/api'
 import { fetchAwsParameter, ssmClient } from '@/utils/aws/systems-manager'
 
 
-export async function GET(
+export async function POST(
   req: NextRequest,
   res: NextResponse,
 ) {
-  if (req.method === 'GET') {
+  if (req.method === 'POST') {
     const { parameterName } = await req.json()
 
     const parameter = await fetchAwsParameter(parameterName)
