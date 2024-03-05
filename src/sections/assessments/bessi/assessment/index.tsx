@@ -195,7 +195,12 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
       // Navigate to the results page
       const href = '/bessi/assessment/results'
       router.push(href)
-      await sendEmail()
+      /**
+       * @dev Refactor `sendEmail()` function to use SendGrid instead of 
+       * Postmark. Reach out to Dr. Roberts to get the API key necessary for 
+       * this.
+       */
+      // await sendEmail()
     }
   }
 
