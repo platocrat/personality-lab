@@ -122,23 +122,6 @@ const Form: FC<FormProps> = ({
   }
 
 
-  const autoComplete = (i: number): string => {
-    let _ = ''
-
-    if (i === 0) _ = 'email'
-    if (i === 1) _ = 'username'
-    if (i === 2) {
-      if (state.isSignUp) {
-        _ = 'new-password'
-      } else {
-        _ = 'current-password'
-      }
-    }
-
-    return _
-  }
-
-
   // ------------------------- Form handler functions --------------------------
   const onEmailChange = (e: any): void => {
     set.isEmailIncorrect(false)
@@ -379,7 +362,6 @@ const Form: FC<FormProps> = ({
                     name={ fi.name }
                     maxLength={ 28 }
                     placeholder={ fi.placeholder }
-                    autoComplete={ autoComplete(i) }
                     type={ formInputType(i) }
                     onChange={ (e: any) => fi.onChange(e) }
                     style={ {
