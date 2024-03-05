@@ -56,8 +56,8 @@ export async function POST(
         const condition = `${ verifiedUsername }-${ verifiedPassword }`
 
         switch (condition) {
+          // Code for when both username and password are verified
           case 'true-true':
-            // Code for when both username and password are verified
             const JWT_SECRET = await fetchAwsParameter(
               AWS_PARAMETER_NAMES.JWT_SECRET
             )
@@ -130,24 +130,24 @@ export async function POST(
 
             break
 
+          // Code for when only username is verified
           case 'true-false':
-            // Code for when only username is verified
             return NextResponse.json(
               { message: 'Incorrect password' },
               { status: 200 },
             )
             break
 
+          // Code for when only password is verified
           case 'false-true':
-            // Code for when only password is verified
             return NextResponse.json(
               { message: 'Incorrect username' },
               { status: 200 },
             )
             break
 
+          // Code for when neither is verified
           default:
-            // Code for when neither is verified
             return NextResponse.json(
               { message: 'Incorrect username and password' },
               { status: 200 },
