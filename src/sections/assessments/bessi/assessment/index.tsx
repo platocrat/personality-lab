@@ -34,6 +34,8 @@ import {
 // CSS
 import styles from '@/app/page.module.css'
 import LibsodiumUtils from '@/utils/libsodium'
+import Spinner from '@/components/Suspense/Spinner'
+import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
@@ -56,6 +58,8 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
   // Regular strings
   const [ zipCode, setZipCode ] = useState<string>('')
   const [ foreignCountry, setForeignCountry ] = useState<string>('')
+  // Booleans
+  const [ isLoadingResults, setIsLoadingResults ] = useState<boolean>(false)
   // Enums
   const [
     isFluentInEnglish,
@@ -177,6 +181,9 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
   async function handleSubmit(e: any): Promise<void> {
     if (userScores) {
       e.preventDefault()
+
+      // Trigger suspense logic
+      setIsLoadingResults(true)
       
       console.log(`userScores: `, userScores)
 
@@ -189,15 +196,19 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
 
       setBessiSkillScores(finalScores)
 
-      // Send results to user before storing results in DynamoDB
-      await storeResultsInDynamoDB(finalScores)
-      
+      // // Send results to user before storing results in DynamoDB
+      // await storeResultsInDynamoDB(finalScores)
+
       // Navigate to the results page
       const href = '/bessi/assessment/results'
+
+      // End suspense logic
+      setIsLoadingResults(false)
+
       router.push(href)
       /**
-       * @dev Refactor `sendEmail()` function to use SendGrid instead of 
-       * Postmark. Reach out to Dr. Roberts to get the API key necessary for 
+       * @dev Refactor `sendEmail()` function to use SendGrid instead of
+       * Postmark. Reach out to Dr. Roberts to get the API key necessary for
        * this.
        */
       // await sendEmail()
@@ -451,11 +462,30 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
             <BessiDemographicQuestionnaire />
           </UserDemographicContext.Provider>
           
-          <div style={{ float: 'right' }}>
-            <button className={ styles.button } style={{ width: '75px' }}>
-              { buttonText }
-            </button>
-          </div>
+          { isLoadingResults ? (
+            <>
+              <div
+                style={ {
+                  ...definitelyCenteredStyle,
+                  position: 'relative',
+                  flexDirection: 'column',
+                } }
+              >
+                <div style={{ marginBottom: '24px' }}>
+                  <p>{ `Loading results...` }</p>
+                </div>
+                <Spinner height='40' width='40' />
+              </div>
+            </>
+          ) : (
+            <>
+            <div style={{ float: 'right' }}>
+              <button className={ styles.button } style={{ width: '75px' }}>
+                { buttonText }
+              </button>
+            </div>
+            </>
+          ) }
         </form>
       </div>
     </Fragment>
