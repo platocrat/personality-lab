@@ -247,100 +247,6 @@
   transition: 0.1s ease-in-out;
 }
 
-.dropdownItem {
-  color: black;
-  padding: 12px 16px;
-  text-decoration: none;
-  display: block;
-  cursor: pointer;
-
-  border-radius: 2rem;
-}
-
-.dropdownItem:hover {
-  background-color: #12121220;
-  transition: 0.2s background-color;
-}
-
-.dropdownToggle {
-  cursor: pointer;
-}
-
-.dropdownMenu {
-  position: absolute;
-
-  min-width: 160px;
-
-  z-index: 1;
-
-  padding: 12px 16px;
-
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-  background-color: #f1f1f1;
-
-  border-radius: 2rem;
-}
-
-.navButton {
-  outline: none;
-  background: none;
-  border-style: none;
-
-  position: relative;
-  display: inline-block;
-
-  border-radius: 3rem;
-  padding: 12px;
-}
-
-.navButton:hover {
-  opacity: 0.85;
-  cursor: pointer;
-  transform: scale(0.98);
-}
-
-.navButton:active {
-  opacity: 0.95;
-  cursor: pointer;
-  transform: scale(0.95);
-}
-
-.navMenu {
-  display: flex;
-  justify-content: right;
-  align-items: right;
-}
-
-.navTitle {
-  display: flex;
-  justify-content: left;
-  align-items: left;
-}
-
-.navImage {
-  opacity: 1;
-  transition: 0.35s ease-in-out;
-}
-
-.navImageSection {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.nav {
-  display: grid;
-  justify-content: space-between;
-  flex-direction: row;
-  align-items: center;
-
-  backdrop-filter: blur(12px);
-
-  padding: 0.75rem 0.75rem 0.5rem 0.75rem;
-
-  grid-template-columns: 1fr 1fr 1fr;
-}
-
 .header {
   position: sticky;
   position: -webkit-sticky;
@@ -348,13 +254,13 @@
   top: 0;
   z-index: 4;
 
-  background-color: rgba(227, 226, 226, 0.66);
+  background-color: transparent;
 
   font-size: 14px;
 
   padding: 0px 1px 1px 1px;
 
-  box-shadow: 0px 1.5px 8px rgba(159, 159, 159, 0.331);
+  box-shadow: 0px 1.5px 8px rgba(159, 159, 159, 0.5);
 }
 
 .main {
@@ -362,7 +268,7 @@
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  padding: 2rem 6rem 6rem 6rem;
+  padding: 1rem 6rem 6rem 6rem;
 }
 
 @media only screen and (max-width: 650px) {

@@ -6,6 +6,7 @@ import { Inter } from 'next/font/google'
 import { useState, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 // Locals
+import Header from '@/components/Header'
 import Spinner from '@/components/Suspense/Spinner'
 import HCaptchaScript from '@/components/hCaptcha/Script'
 // Contexts
@@ -129,6 +130,7 @@ export default function RootLayout({
                 } }
               >
                 <BessiSkillScoresContextComponent>
+                  <Header/>
                   { children }
                 </BessiSkillScoresContextComponent>
               </AuthenticatedUserContext.Provider>

@@ -1,0 +1,40 @@
+.navTitle {
+  display: flex;
+  justify-content: left;
+  align-items: left;
+  transition: 0.11s;
+}
+
+.navTitle:hover {
+  transform: scale(0.925);
+  transition: 0.11s;
+}
+
+.navTitle:active {
+  transform: scale(0.85);
+  transition: 0.11s;
+}
+
+.navImage {
+  opacity: 1;
+  transition: 0.35s ease-in-out;
+}
+
+.navImageSection {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  align-items: center;
+
+  backdrop-filter: blur(12px);
+
+  padding: 0.5rem 0.5rem 0.25rem 0.5rem;
+
+  grid-template-columns: 1fr 1fr 1fr;
+}

@@ -1,13 +1,16 @@
 // Externals
-import { FC } from 'react'
+import { FC, useState } from 'react'
 // Locals
-import NavMenu from './NavMenu'
 import NavTitle from './NavTitle'
+import DropdownMenu from './DropdownMenu'
 // CSS
-import styles from '@/app/page.module.css'
+import styles from '@/components/Nav/Nav.module.css'
+
 
 
 type NavProps = { }
+
+
 
 
 const Nav: FC<NavProps> = ({ }) => {
@@ -15,7 +18,8 @@ const Nav: FC<NavProps> = ({ }) => {
     <>
       <nav className={ styles.nav }>
         <NavTitle />
-        <NavMenu />
+        {/* <Logout /> */}
+        <DropdownMenu />
       </nav>
     </>
   )
