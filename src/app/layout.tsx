@@ -19,7 +19,7 @@ import './globals.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
 
 
-type UserResponse = {
+export type UserResponse = {
   user: any | null
   error: Error | null
 }
@@ -130,7 +130,7 @@ export default function RootLayout({
                 } }
               >
                 <BessiSkillScoresContextComponent>
-                  <Header/>
+                  { isAuthenticated && <Header/> }
                   { children }
                 </BessiSkillScoresContextComponent>
               </AuthenticatedUserContext.Provider>

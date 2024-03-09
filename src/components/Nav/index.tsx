@@ -18,7 +18,6 @@ const Nav: FC<NavProps> = ({ }) => {
     <>
       <nav className={ styles.nav }>
         <NavTitle />
-        {/* <Logout /> */}
         <DropdownMenu />
       </nav>
     </>

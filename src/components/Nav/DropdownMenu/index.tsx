@@ -1,9 +1,11 @@
 // Externals
 import Link from 'next/link'
 import Image from 'next/image'
-import { FC, useState } from 'react'
-import router, { useRouter } from 'next/navigation'
+import { FC, Fragment, useContext, useState } from 'react'
+import router, { usePathname, useRouter } from 'next/navigation'
 // Locals
+import { UserResponse } from '@/app/layout'
+import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/components/Nav/DropdownMenu/Dropdown.module.css'
@@ -21,8 +23,12 @@ type NavLink = {
 
 
 const DropdownMenu: FC<DropdownMenuProps> = ({}) => {
+  // Contexts
+  const { setIsAuthenticated } = useContext(AuthenticatedUserContext)
+  // Hooks
   const router = useRouter()
-
+  const pathname = usePathname()
+  // Booleans
   const [isVisible, setIsVisible] = useState<boolean>(false)
 
   const toggleDropdown = () => setIsVisible(!isVisible)
@@ -33,14 +39,17 @@ const DropdownMenu: FC<DropdownMenuProps> = ({}) => {
   ]
 
 
+  // ----------------------------- Async functions -----------------------------
   // Handle logout logic
   async function handleLogout() {
     try {
-      const response = await fetch('/api/logout', { method: 'POST' })
+      const logoutResponse = await fetch('/api/logout', { method: 'POST' })
       
-      if (response.ok) {
-        // Assuming the API route redirects or you manually handle redirection
-        router.push('/')
+      if (logoutResponse.status === 200) {
+        // Remove authentication from user
+        setIsAuthenticated(false)
+        // Refresh page to show log-in view
+        pathname === '/' ? router.refresh() : router.push('/')
       } else {
         // Handle failed logout attempt (e.g., display a message)
         console.error('Logout failed')
@@ -68,27 +77,32 @@ const DropdownMenu: FC<DropdownMenuProps> = ({}) => {
           />
         </div>
         { isVisible && (
-          <>
+          <Fragment key={ `dropdown-menu` }>
             <div className={ styles.dropdownContent }>
               { links.map((link: NavLink, i: number) => (
-                <>
+                <Fragment
+                  key={ i }
+                >
                   <Link
-                    key={ i }
                     href={ link.href }
                     className={ styles.dropdownLink }
+                    style={{
+                      borderRadius: i === 0 ? '1rem 1rem 0rem 0rem' : ''
+                    }}
                   >
                     { link.label }
                   </Link>
-                </>
+                </Fragment>
               )) }
               <a 
                 onClick={ handleLogout } 
                 className={ styles.dropdownLink }
+                style={{ borderRadius: '0rem 0rem 1rem 1rem' }}
               >
                 { `Logout` }
               </a>
             </div>
-          </>
+          </Fragment>
         ) }
       </div>
     </>
