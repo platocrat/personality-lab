@@ -1,24 +1,32 @@
 // Externals
-import { FC, useState } from 'react'
+import Link from 'next/link'
+import { FC, ReactNode } from 'react'
 // Locals
-import NavTitle from './NavTitle'
-import DropdownMenu from './DropdownMenu'
 // CSS
 import styles from '@/components/Nav/Nav.module.css'
 
 
 
-type NavProps = { }
+type NavProps = {
+  title: string
+  children: ReactNode
+}
 
 
 
-
-const Nav: FC<NavProps> = ({ }) => {
+const Nav: FC<NavProps> = ({ 
+  title,
+  children
+}) => {
   return (
     <>
       <nav className={ styles.nav }>
-        <NavTitle />
-        <DropdownMenu />
+        <div className={ styles.navTitle }>
+          <Link href='/'>
+            <h1>{ title }</h1>
+          </Link>
+        </div>
+        { children }
       </nav>
     </>
   )
