@@ -1,5 +1,5 @@
 // Externals
-import { ServerClient } from 'postmark'
+import sgMail from '@sendgrid/mail'
 import { NextRequest, NextResponse } from 'next/server'
 import { GetParameterCommandInput, GetParameterCommand } from '@aws-sdk/client-ssm'
 // Locals
@@ -15,32 +15,45 @@ export async function POST(
   if (req.method === 'POST') {
     const { email } = await req.json()
 
-    const SERVER_TOKEN = await fetchAwsParameter(
-      AWS_PARAMETER_NAMES.POSTMARK_API_KEY
+    const API_KEY = await fetchAwsParameter(
+      AWS_PARAMETER_NAMES.SENDGRID_API_KEY
     )
 
-    if (typeof SERVER_TOKEN === 'string') {
+    if (typeof API_KEY === 'string') {
+      sgMail.setApiKey(API_KEY)
+
       /**
-       * @dev 2. Send email using Postmark
+       * @todo Need to finalize:
+       * 1. `From` email address
+       * 2. Subject
+       * 3. Text
+       * 4. HTML
        */
-      const client = new ServerClient(SERVER_TOKEN)
-      const postmarkEmail = {
-        From: "jlmaldo2@illinois.edu",
-        To: "jlmaldo2@illinois.edu",
-        Subject: "Hello from Postmark",
-        HtmlBody: "<strong>Hello</strong> dear Postmark user.",
-        TextBody: "Hello from Postmark!",
-        MessageStream: "outbound"
+      const msg = {
+        to: email,
+        from: 'bwroberts@illinois.edu', // Use the email address or domain you verified above
+        subject: 'Sending with Twilio SendGrid is Fun',
+        text: 'and easy to do anywhere, even with Node.js',
+        html: '<strong>and easy to do anywhere, even with Node.js</strong>',
       }
 
       try {
-        /**
-         * @todo Need a proper `From` email address
-         */
-        const response = await client.sendEmail(postmarkEmail)
+        const response = await sgMail.send(msg)
 
         console.log(`response: `, response)
 
+        if (response[0].statusCode === 200) {
+          return NextResponse.json(
+            { message: `Email has been send to ${ email }` },
+            { status: 200 }
+          )
+        } else {
+          // Something went wrong sending the email with SendGrid.
+          return NextResponse.json(
+            { error: `There was an error after sending the email.` },
+            { status: 500 }
+          )
+        }
       } catch (error: any) {
         // Something went wrong
         return NextResponse.json(
@@ -49,7 +62,7 @@ export async function POST(
         )
       }
     } else {
-      return SERVER_TOKEN as NextResponse<{ error: string }>
+      return API_KEY as NextResponse<{ error: string }>
     }    
   } else {
     return NextResponse.json(
