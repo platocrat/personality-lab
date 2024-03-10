@@ -7,7 +7,7 @@ import DropdownMenu, { NavLink } from '../Nav/DropdownMenu'
 // Contexts
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // CSS
-import styles from '@/app/page.module.css'
+import styles from '@/components/Header/Header.module.css'
 
 
 type HeaderProps = { }

@@ -1,7 +1,7 @@
 // Externals
 import Link from 'next/link'
 import Image from 'next/image'
-import { FC, Fragment, ReactNode, useState } from 'react'
+import { FC, Fragment, ReactNode, useEffect, useRef, useState } from 'react'
 // Locals
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -25,22 +25,41 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
   links,
   children
 }) => {
+  const dropdownRef = useRef<any>(null)
   const [isVisible, setIsVisible] = useState<boolean>(false)
 
   const toggleDropdown = () => setIsVisible(!isVisible)
 
+  const handleClickOutside = (e: any) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+      setIsVisible(false)
+    }
+  }
+
+  useEffect(() => {
+    // Only add the event listener when the dropdown is visible
+    if (isVisible) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    // Cleanup the event listener
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isVisible]) // Depend on isVisible so the effect runs when it changes
+
 
   return (
     <>
-      <div className={ styles.dropdown }>
+      <div className={ styles.dropdown } ref={ dropdownRef }>
         <div>
           <Image
             width={ 48 }
             height={ 48 }
-            alt='Round menu icon'
+            alt='Round menu icon to open the navbar menu'
             className={ styles.img }
             onClick={ toggleDropdown }
-            src={ '/ic_round-menu.png' }
+            src={ isVisible ? '/ph_x-bold.png' : '/ic_round-menu.png' }
           />
         </div>
         { isVisible && (
@@ -61,6 +80,7 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
                   </Link>
                 </Fragment>
               )) }
+              { children }
             </div>
           </Fragment>
         ) }
