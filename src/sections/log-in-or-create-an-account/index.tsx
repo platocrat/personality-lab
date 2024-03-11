@@ -39,8 +39,8 @@ const LogInOrCreateAnAccount = () => {
     setIsUsernameIncorrect
   ] = useState<boolean>(false)
   const [ 
-    waitingForResponse,
-    setWaitingForResponse
+    isWaitingForResponse,
+    setIsWaitingForResponse
   ] = useState<boolean>(false)
   const [ isSignUp, setIsSignUp ] = useState<boolean>(false)
   const [ isFirstStep, setIsFirstStep ] = useState<boolean>(true)
@@ -75,7 +75,7 @@ const LogInOrCreateAnAccount = () => {
     setIsEmailIncorrect(false)
     setIsUsernameIncorrect(false)
     setIsPasswordIncorrect(false)
-    setWaitingForResponse(true)
+    setIsWaitingForResponse(true)
 
     // Delete all cookies so that we replace the cookie store with a fresh 
     // cookie
@@ -97,7 +97,7 @@ const LogInOrCreateAnAccount = () => {
 
         switch (message) {
           case 'Verified email, username, and password':
-            setWaitingForResponse(false)
+            setIsWaitingForResponse(false)
             setIsEmailIncorrect(false)
             setIsUsernameIncorrect(false)
             setIsPasswordIncorrect(false)
@@ -112,35 +112,35 @@ const LogInOrCreateAnAccount = () => {
             break
 
           case 'Incorrect password':
-            setWaitingForResponse(false)
+            setIsWaitingForResponse(false)
             setIsEmailIncorrect(false)
             setIsUsernameIncorrect(false)
             setIsPasswordIncorrect(true)
             break
           
           case 'Incorrect username':
-            setWaitingForResponse(false)
+            setIsWaitingForResponse(false)
             setIsEmailIncorrect(false)
             setIsUsernameIncorrect(true)
             setIsPasswordIncorrect(false)
             break
           
           case 'Incorrect username and password':
-            setWaitingForResponse(false)
+            setIsWaitingForResponse(false)
             setIsEmailIncorrect(false)
             setIsUsernameIncorrect(true)
             setIsPasswordIncorrect(true)
             break
           
           case 'Email not found':
-            setWaitingForResponse(false)
+            setIsWaitingForResponse(false)
             setIsEmailIncorrect(true)
             setIsUsernameIncorrect(false)
             setIsPasswordIncorrect(false)
             break
         }
       } else {
-        setWaitingForResponse(false)
+        setIsWaitingForResponse(false)
         setIsEmailIncorrect(false)
         setIsUsernameIncorrect(false)
         setIsPasswordIncorrect(false)
@@ -148,7 +148,7 @@ const LogInOrCreateAnAccount = () => {
         console.error(`Error verifying log in credentials: `, data.error)
       }
     } catch (error: any) {
-      setWaitingForResponse(false)
+      setIsWaitingForResponse(false)
       setIsEmailIncorrect(false)
       setIsUsernameIncorrect(false)
       setIsPasswordIncorrect(false)
@@ -165,7 +165,7 @@ const LogInOrCreateAnAccount = () => {
     e.preventDefault()
 
     setIsUsernameTaken(false)
-    setWaitingForResponse(true)
+    setIsWaitingForResponse(true)
 
     // Delete all cookies so that we replace the cookie store with a fresh 
     // cookie
@@ -183,7 +183,7 @@ const LogInOrCreateAnAccount = () => {
       const data = await response.json()
 
       if (response.status === 200) {
-        setWaitingForResponse(false)
+        setIsWaitingForResponse(false)
         const message = data.message
         
         switch (message) {
@@ -202,11 +202,11 @@ const LogInOrCreateAnAccount = () => {
             break
         }
       } else {
-        setWaitingForResponse(false)
+        setIsWaitingForResponse(false)
         throw new Error(`Error signing up: `, data.error)
       }
     } catch (error: any) {
-      setWaitingForResponse(false)
+      setIsWaitingForResponse(false)
       /**
        * @todo Handle error UI here
       */
@@ -218,7 +218,7 @@ const LogInOrCreateAnAccount = () => {
   async function handleEmailExists(e: any) {
     e.preventDefault()
 
-    setWaitingForResponse(true)
+    setIsWaitingForResponse(true)
 
     try {
       const response = await fetch('/api/check-email', {
@@ -236,19 +236,19 @@ const LogInOrCreateAnAccount = () => {
 
         switch (message) {
           case 'Email exists':
-            setWaitingForResponse(false)
+            setIsWaitingForResponse(false)
             setIsFirstStep(false)
             setIsSignUp(false)
             break
 
           case 'Email does not exist':
-            setWaitingForResponse(false)
+            setIsWaitingForResponse(false)
             setIsFirstStep(false)
             setIsSignUp(true)    
             break
         }
       } else {
-        setWaitingForResponse(false)
+        setIsWaitingForResponse(false)
         const error = data.error
         console.error(`Error sending POST request to DynamoDB table: `, error)
         /**
@@ -257,7 +257,7 @@ const LogInOrCreateAnAccount = () => {
         throw new Error(`Error sending POST request to DynamoDB table!`)
       }
     } catch (error: any) {
-      setWaitingForResponse(false)
+      setIsWaitingForResponse(false)
       /**
        * @todo Handle error UI here
        */
@@ -277,9 +277,9 @@ const LogInOrCreateAnAccount = () => {
     isUsernameTaken: isUsernameTaken,
     isEmailIncorrect: isEmailIncorrect,
     isPasswordHashing: isPasswordHashing,
-    waitingForResponse: waitingForResponse,
     isPasswordIncorrect: isPasswordIncorrect,
     isUsernameIncorrect: isUsernameIncorrect,
+    isWaitingForResponse: isWaitingForResponse,
   }
   const set = {
     email: setEmail,
@@ -290,6 +290,7 @@ const LogInOrCreateAnAccount = () => {
     isPasswordHashing: setIsPasswordHashing,
     isPasswordIncorrect: setIsPasswordIncorrect,
     isUsernameIncorrect: setIsUsernameIncorrect,
+    isWaitingForResponse: setIsWaitingForResponse,
   }
   const handler = { handleLogIn, handleSignUp, handleEmailExists }
 

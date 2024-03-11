@@ -16,7 +16,7 @@ type IncorrectInputProps = {
     isUsernameTaken: boolean
     isEmailIncorrect: boolean
     isPasswordHashing: boolean
-    waitingForResponse: boolean
+    isWaitingForResponse: boolean
     isUsernameIncorrect: boolean
     isPasswordIncorrect: boolean
   }

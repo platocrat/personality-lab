@@ -30,7 +30,7 @@ export type FormProps = {
     isUsernameTaken: boolean
     isEmailIncorrect: boolean
     isPasswordHashing: boolean
-    waitingForResponse: boolean
+    isWaitingForResponse: boolean
     isUsernameIncorrect: boolean
     isPasswordIncorrect: boolean
   }
@@ -43,6 +43,7 @@ export type FormProps = {
     isPasswordHashing: Dispatch<SetStateAction<boolean>>
     isPasswordIncorrect: Dispatch<SetStateAction<boolean>>
     isUsernameIncorrect: Dispatch<SetStateAction<boolean>>
+    isWaitingForResponse: Dispatch<SetStateAction<boolean>>
   }
   handler: {
     handleLogIn: (e: any) => void
@@ -62,22 +63,28 @@ const Form: FC<FormProps> = ({
   handler,
   buttonText,
 }) => {
+  const [
+    isHCaptchaVerificationSuccessful, 
+    setIsHCaptchaVerificationSuccessful
+  ] = useState<boolean>(false)
+
 
   // --------------------------- Memoized functions ----------------------------
   const showSpinner = useMemo((): boolean => {
-    return (state.isPasswordHashing || state.waitingForResponse) ? true : false
-  }, [ state.isPasswordHashing, state.waitingForResponse ])
+    return (state.isPasswordHashing || state.isWaitingForResponse) ? true : false
+  }, [ state.isPasswordHashing, state.isWaitingForResponse ])
 
 
   const isButtonDisabled = useMemo((): boolean => {
     return state.isPasswordHashing || 
       state.isPasswordIncorrect ||
-      state.waitingForResponse ||
+      state.isWaitingForResponse ||
       state.isFirstStep && state.email === '' || 
       !state.isFirstStep && state.email === '' ||
       !state.isFirstStep && state.username === '' ||
       !state.isFirstStep && state.password === '' ||
       state.isUsernameTaken ||
+      !state.isFirstStep && !isHCaptchaVerificationSuccessful ||
       !state.isFirstStep  && state.isSignUp && !isValidPassword(state.password)
         ? true
         : false
@@ -89,8 +96,9 @@ const Form: FC<FormProps> = ({
     state.isFirstStep,
     state.isUsernameTaken,
     state.isPasswordHashing,
-    state.waitingForResponse,
+    state.isWaitingForResponse,
     state.isPasswordIncorrect,
+    isHCaptchaVerificationSuccessful,
   ])
 
   const formInputType = (i: number): 'email' | 'password' | 'text' => {
@@ -299,9 +307,6 @@ const Form: FC<FormProps> = ({
   }
 
 
-  /**
-   * @todo Finish form submission
-   */
   async function handleSubmit(e: any) {
     e.preventDefault()
 
@@ -314,10 +319,29 @@ const Form: FC<FormProps> = ({
     }
   }
 
-  async function handleVerificationSuccess(token, e: any) {
-    console.log(
-      `hCaptcha verification success response: (token: ${ token }, e: ${ e }) `
-    )
+
+  async function handleVerificationSuccess(token: string, eKey: string) {
+    set.isWaitingForResponse(true)
+
+    const METHOD = 'POST'
+
+    const response = await fetch('/api/hCaptcha-verification', {
+      method: METHOD,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: JSON.stringify({ token })
+    })
+
+    const json = await response.json()
+
+    set.isWaitingForResponse(false)
+
+    if (typeof json.success === 'boolean') {
+      setIsHCaptchaVerificationSuccessful(json.success)
+    } else {
+      throw new Error(`${ json.error }`)
+    }
   }
 
 
@@ -386,15 +410,13 @@ const Form: FC<FormProps> = ({
             ))}
           </div>
 
-          { state.isFirstStep 
-            ? null 
-            : (
-              <>
-                <HCaptcha
-                  sitekey={ H_CAPTCHA_SITE_KEY }
-                  onVerify={ handleVerificationSuccess }
+          { !state.isFirstStep && (
+            <>
+              <HCaptcha
+                sitekey={ H_CAPTCHA_SITE_KEY }
+                onVerify={ handleVerificationSuccess }
                 />
-              </>
+            </>
           )}
 
           <div style={ { display: 'block', width: '100%' } }>
@@ -413,7 +435,7 @@ const Form: FC<FormProps> = ({
                     <Spinner 
                       height='24'
                       width='24' 
-                      style={{ position: 'relative',top: '1px' }}
+                      style={{ position: 'relative',top: '1.75px' }}
                     /> 
                   </>
                 )
