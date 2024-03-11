@@ -8,7 +8,6 @@ import { usePathname, useRouter } from 'next/navigation'
 // Locals
 import Header from '@/components/Header'
 import Spinner from '@/components/Suspense/Spinner'
-import HCaptchaScript from '@/components/hCaptcha/Script'
 // Contexts
 import { 
   BessiSkillScoresContextComponent 
@@ -122,7 +121,6 @@ export default function RootLayout({
       ) : (
         <>
           <html lang='en'>
-            <HCaptchaScript />
             <body className={ inter.className }>
               <AuthenticatedUserContext.Provider
                 value={ {
