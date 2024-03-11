@@ -122,6 +122,7 @@ export default function RootLayout({
       ) : (
         <>
           <html lang='en'>
+            <HCaptchaScript />
             <body className={ inter.className }>
               <AuthenticatedUserContext.Provider
                 value={ {

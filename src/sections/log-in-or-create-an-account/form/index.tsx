@@ -11,6 +11,7 @@ import {
 import { debounce } from '@/utils'
 import IncorrectInput from './incorrect-input'
 import Spinner from '@/components/Suspense/Spinner'
+import HCaptcha from '@/components/hCaptcha/hCaptcha'
 import PasswordValidation from './password-validation'
 // CSS
 import styles from '@/app/page.module.css'
@@ -52,7 +53,6 @@ export type FormProps = {
 
 
 const debounceTimeout = 300
-
 
 
 
@@ -381,6 +381,8 @@ const Form: FC<FormProps> = ({
               </Fragment>
             ))}
           </div>
+                  
+          <HCaptcha />
 
           <div style={ { display: 'block', width: '100%' } }>
             <button
