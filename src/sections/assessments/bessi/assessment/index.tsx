@@ -182,7 +182,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
     if (userScores) {
       e.preventDefault()
 
-      // Trigger suspense logic
+      // Trigger suspense
       setIsLoadingResults(true)
       
       console.log(`userScores: `, userScores)
@@ -202,7 +202,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
       // Navigate to the results page
       const href = '/bessi/assessment/results'
 
-      // End suspense logic
+      // End suspense
       setIsLoadingResults(false)
 
       router.push(href)
@@ -272,8 +272,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
         const data = await response.json()
 
         if (response.status === 200) {
-          const message = data.message
-          console.log(`message: `, message)
+          return
         } else {
           /**
            * @todo Handle error UI here
@@ -295,10 +294,10 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
   }
 
 
+  /**
+   * @dev Note that the password that is returned is a hashed password
+   */
   async function getUserEmailFromCookie() {
-    /**
-     * @dev Note that the password that is returned is a hashed password
-     */
     type CookieType = { email: string,  username: string, password: string }
     
     try {

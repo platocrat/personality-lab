@@ -98,8 +98,8 @@ export enum Gender {
 export enum RaceOrEthnicity {
   WhiteCaucasian = `White/Caucasian`,
   HispanicLatinAmerican = `Hispanic/Latin American`,
-  BlackAfricanAmerican = `Black/African-American`,
-  AsianAsianAmerican = `Asian/Asian-American`,
+  BlackAfricanAmerican = `Black/African American`,
+  AsianAsianAmerican = `Asian/Asian American`,
   AmericanIndianNativeAmerican = `American Indian/Native American`,
   NativeHawaiianPacificIslander = `Native Hawaiian/Pacific Islander`,
   Other = `Other`

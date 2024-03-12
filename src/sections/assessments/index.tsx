@@ -75,6 +75,7 @@ const pAssessments: PersonalityAssessmentType[] = [
 ]
 
 
+
 const PersonalityAssessments = ({ }) => {
   const title = `Assessments`
 

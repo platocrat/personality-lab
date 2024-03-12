@@ -13,11 +13,11 @@ import {
 
 
 export type SkillDomainFactorType = {
-  [key in SkillDomain]?: number
+  [key in SkillDomain]?: number // Number between 0 and 100
 } 
 
 export type FacetFactorType = { 
-  [key in Facet]?: number 
+  [key in Facet]?: number // Number between 0 and 100
 }
 
 /**
