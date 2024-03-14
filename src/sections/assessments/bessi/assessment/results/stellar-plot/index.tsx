@@ -3,13 +3,14 @@
 // Externals
 import { Dispatch, SetStateAction, useContext } from 'react'
 // Locals
-import StellarPlot from '@/components/StellarPlot'
+import StellarPlot from '@/components/DataViz/StellarPlot'
 // Contexts
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // Enums
 import { SkillDomain } from '@/utils/bessi/types/enums'
 // Types
 import { BessiSkillScores, SkillDomainFactorType } from '@/utils/bessi/types'
+// CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 
 
