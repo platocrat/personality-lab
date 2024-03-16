@@ -3,7 +3,7 @@ import * as d3 from 'd3'
 import React, { useEffect, useRef } from 'react'
 // Locals
 import { definitelyCenteredStyle } from '@/theme/styles'
-import { facetToDomainMapping } from '@/utils/bessi/constants'
+import { domainToFacetMapping } from '@/utils/bessi/constants'
 
 
 
@@ -18,16 +18,16 @@ const Treemap = ({ data }) => {
 
   const transformData = (originalData) => {
     const children = Object.entries(
-      facetToDomainMapping
-    ).map(([facet, domains]) => {
-      const domainChildren = domains.map((domain: string) => {
-        const domainName = domain
-        const domainScore = originalData.domainScores[domain] || 0
-        return { name: domainName, value: domainScore }
+      domainToFacetMapping
+    ).map(([domain, facets]) => {
+      const facetChildren = facets.map((facet: string) => {
+        const facetName = facet
+        const facetScore = originalData.facetScores[facet] || 0
+        return { name: facetName, value: facetScore }
       }
-      ).filter(domain => domain.value > 0) // Filter out domains with no score
-      const facetScore = originalData.facetScores[facet] || 0
-      return { name: facet, children: domainChildren, value: facetScore }
+      ).filter(facet => facet.value > 0) // Filter out facets with no score
+      const domainScore = originalData.domainScores[domain] || 0
+      return { name: domain, children: facetChildren, value: domainScore }
     })
 
     return { name: 'root', children }
@@ -46,14 +46,14 @@ const Treemap = ({ data }) => {
       .attr('transform', `translate(50, ${height + 20})`)
 
     Object.entries(
-      facetToDomainMapping
-    ).forEach(([facet, _], index) => {
+      domainToFacetMapping
+    ).forEach(([domain, _], index) => {
       const color: any = d3.scaleOrdinal().domain(
-        Object.keys(facetToDomainMapping)
-      ).range(d3.schemeCategory10)(facet)
+        Object.keys(domainToFacetMapping)
+      ).range(d3.schemeCategory10)(domain)
       // Example to get score
-      const score = originalData.facetScores[facet]
-      const text = `${facet} (${score})`
+      const score = originalData.domainScores[domain]
+      const text = `${domain} (${score})`
 
       // Check if the current position plus estimated text width will exceed the SVG width
       const textWidthEstimate = text.length * 6 // Rough estimate, consider a more accurate measurement
