@@ -14,8 +14,19 @@ const PersonalityVisualization = ({ data, averages }) => {
   // Calculating averages is not depicted in this snippet
   const averageScore = averages[activeDomain]
   
-  const calculateMidAngle = (index: number, total: number): number => {
+
+  function calculateMidAngle(index: number, total: number): number {
     return ((index + 0.5) * 2 * Math.PI) / total - Math.PI / 2
+  }
+
+  // Function to determine color based on score
+  const getColorBasedOnScore = (score: number): string => {
+    if (score >= 0 && score < 20) return '#e9967a' // Soft Red
+    else if (score >= 20 && score < 40) return '#f9cb9c' // Soft Orange
+    else if (score >= 40 && score < 60) return '#ffe599' // Soft Yellow
+    else if (score >= 60 && score < 80) return '#b6d7a8' // Soft Lime Green
+    else if (score >= 80 && score <= 100) return '#98fb98' // Soft Green
+    else return '' // Default white color for unexpected cases
   }
 
 
@@ -39,6 +50,33 @@ const PersonalityVisualization = ({ data, averages }) => {
       .append('g')
       .attr('transform', `translate(${width / 2}, ${height / 2})`)
 
+    // Define the drop-shadow filter
+    const defs = svg.append('defs')
+
+    const dropShadowFilter = defs.append('filter')
+      .attr('id', 'drop-shadow')
+      .attr('height', '130%') // To ensure the shadow is not clipped
+
+    // Standard Gaussian blur
+    dropShadowFilter.append('feGaussianBlur')
+      .attr('in', 'SourceAlpha')
+      .attr('stdDeviation', 1) // This value is the blur amount
+      .attr('result', 'blur')
+
+    // Offset the blur and the color
+    dropShadowFilter.append('feOffset')
+      .attr('in', 'blur')
+      .attr('dx', 0) // Horizontal offset
+      .attr('dy', 1) // Vertical offset
+      .attr('result', 'offsetBlur')
+
+    // Create the color and opacity for the shadow
+    const feMerge = dropShadowFilter.append('feMerge')
+    feMerge.append('feMergeNode')
+      .attr('in', 'offsetBlur')
+    feMerge.append('feMergeNode')
+      .attr('in', 'SourceGraphic') // This ensures the shape’s fill is maintained
+
     // Create the outer circle for facet scores
     const outerCircle: any = d3.arc()
       .innerRadius(outerRadius + 30)
@@ -52,20 +90,30 @@ const PersonalityVisualization = ({ data, averages }) => {
       .append('path')
       .attr('class', 'outer-path')
       .attr('d', outerCircle)
-      .attr('fill', (d) => d === activeDomain ? '#ccc' : '#ccc')
-      .attr('stroke', 'white')
-      // Make the active facet slightly opaque
-      .attr('opacity', (d) => d === activeDomain ? 0.5 : 1)
+      // Apply color based on score
+      .attr(
+        'fill', 
+        (d: any) => getColorBasedOnScore(data.domainScores[d])
+      )
+      // Soft blue for active, white for others
+      .attr(
+        'stroke', 
+        (d) => d === activeDomain ? '#ADD8E6' : 'white'
+      )
+      // Emphasize active domain
+      .attr('stroke-width', (d) => d === activeDomain ? 3 : 1)
       .style('cursor', 'pointer') // Change cursor to pointer on hover
       .on('click', (e, d) => setActiveDomain(d)) // corrected line
       .on('mouseover', function (event, d) {
         // Increase opacity on hover, but keep active facet distinct if it is 
         // the one being hovered
-        d3.select(this).attr('opacity', d === activeDomain ? 0.4 : 0.7)
+        d3.select(this).attr('opacity', d === activeDomain ? 0.8 : 0.7)
+        d3.select(this).attr('transform', 'scale(0.9925)')
       })
       .on('mouseout', function (event, d) {
         // Reset opacity, maintaining active facet distinction
-        d3.select(this).attr('opacity', d === activeDomain ? 0.5 : 1)
+        d3.select(this).attr('opacity', d === activeDomain ? 0.9 : 1)
+        d3.select(this).attr('transform', 'scale(1.0)')
       })
 
     // Add text to outer circle
@@ -89,6 +137,10 @@ const PersonalityVisualization = ({ data, averages }) => {
       .attr('text-anchor', 'middle')
       .text((d) => data.domainScores[d])
 
+    // Apply the drop-shadow filter to the outer paths
+    svg.selectAll('.outer-path')
+      .attr('filter', 'url(#drop-shadow)')
+
     // Create the inner circle for domain scores
     const innerCircle: any = d3.arc()
       .innerRadius(innerRadius + 30)
@@ -104,22 +156,29 @@ const PersonalityVisualization = ({ data, averages }) => {
       .append('path')
       .attr('class', 'inner-path')
       .attr('d', innerCircle)
-      .attr('fill', '#aaa')
+      // Apply color based on score
+      .attr(
+        'fill', 
+        (d: any) => getColorBasedOnScore(data.facetScores[d])
+      )
       .attr('stroke', 'white')
-      .on('mouseover', (e, d: any) => {
+      .on('mouseover', function (e, d: any) {
         tooltip.html(`
         <h3><strong>${d}</strong></h3>
-        <div style="margin: 10px 0px 0px 0px;"/>
+        <div style="margin: 10px 0px 0px 0px"/>
         Score: ${data.facetScores[d]}
-        <div style="margin: 10px 0px 0px 0px;"/>
+        <div style="margin: 10px 0px 0px 0px"/>
         ${skillsMapping.domains[activeDomain].facets[d]}
       `)
           .style('opacity', 1)
           .style('left', `${e.pageX + 10}px`)
           .style('top', `${e.pageY - 28}px`)
+
+        d3.select(this).attr('transform', 'scale(0.9925)')
       })
-      .on('mouseout', () => {
+      .on('mouseout', function () {
         tooltip.style('opacity', 0)
+        d3.select(this).attr('transform', 'scale(1.0)')
       })
 
     // Add text to inner circle
@@ -142,6 +201,10 @@ const PersonalityVisualization = ({ data, averages }) => {
       )
       .attr('text-anchor', 'middle')
       .text((d: any) => data.facetScores[d])
+
+    // Apply the same drop-shadow filter to the inner paths (when you create them)
+    svg.selectAll('.inner-path')
+      .attr('filter', 'url(#drop-shadow)')
 
     // Text for the center
     svg.append('text')
@@ -186,7 +249,7 @@ const PersonalityVisualization = ({ data, averages }) => {
           wordWrap: 'break-word',
           border: '1px solid #ddd',
           transition: 'opacity 0.2s',
-          background: 'rgba(255, 255, 255, 0.9)',
+          background: 'rgba(255, 255, 255, 0.95)',
         }}
       />
       <svg ref={ svgRef }></svg>
