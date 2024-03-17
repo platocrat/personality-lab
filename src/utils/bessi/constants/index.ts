@@ -97,12 +97,46 @@ export const facetMapping: { [key: number]: Facet } = {
   127: Facet.CapacityForIndependence, 159: Facet.CapacityForIndependence, 191: Facet.CapacityForIndependence
 }
 
-export const facetToDomainMapping = {
-  "Self-Management Skills": ["Time Management", "Organizational Skill", "Capacity for Consistency", "Task Management", "Detail Management", "Rule-Following Skill", "Responsibility Management", "Goal Regulation", "Decision-Making Skill", "Energy Regulation", "Ethical Competence", "Impulse Regulation", "Information Processing Skill"],
-  "Social Engagement Skills": ["Leadership Skill", "Persuasive Skill", "Expressive Skill", "Conversational Skill", "Energy Regulation"],
-  "Cooperation Skills": ["Perspective-Taking Skill", "Capacity for Trust", "Capacity for Social Warmth", "Teamwork Skill", "Ethical Competence"],
-  "Emotional Resilience Skills": ["Stress Regulation", "Capacity for Optimism", "Anger Management", "Confidence Regulation", "Impulse Regulation"],
-  "Innovation Skills": ["Abstract Thinking Skill", "Creative Skill", "Artistic Skill", "Cultural Competence", "Information Processing Skill"],
+export const domainToFacetMapping = {
+  "Self-Management Skills": [
+    'Task Management',
+    'Time Management',
+    'Detail Management',
+    'Organizational Skill',
+    'Responsibility Management',
+    'Capacity for Consistency',
+    'Goal Regulation',
+    'Rule-Following Skill',
+    'Decision-Making Skill',
+  ],
+  "Social Engagement Skills": [
+    'Leadership Skill',
+    'Persuasive Skill',
+    'Conversational Skill',
+    'Expressive Skill',
+    'Energy Regulation',
+  ],
+  "Cooperation Skills": [
+    'Teamwork Skill',
+    'Capacity for Trust',
+    'Perspective-Taking Skill',
+    'Capacity for Social Warmth',
+    'Ethical Competence',
+  ],
+  "Emotional Resilience Skills": [
+    'Stress Regulation',
+    'Capacity for Optimism',
+    'Anger Management',
+    'Confidence Regulation',
+    'Impulse Regulation',
+  ],
+  "Innovation Skills": [
+    'Abstract Thinking Skill',
+    'Creative Skill',
+    'Artistic Skill',
+    'Cultural Competence',
+    'Information Processing Skill',
+  ],
 }
 
 export const skillDomainMapping: { [key: string]: { domain: SkillDomain[], weight: number } } = {
@@ -142,6 +176,7 @@ export const skillDomainMapping: { [key: string]: { domain: SkillDomain[], weigh
   [Facet.ArtisticSkill]: { domain: [SkillDomain.Innovation], weight: 1 },
   [Facet.CulturalCompetence]: { domain: [SkillDomain.Innovation], weight: 1 }
 }
+
 
 
 export const skillsMapping = {
