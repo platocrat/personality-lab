@@ -39,10 +39,10 @@ const PersonalityVisualization = ({ data, averages }) => {
     const domainNames = Object.keys(data.domainScores)
     const facetNames = domainToFacetMapping[activeDomain]
 
-    const width = 400
+    const width = 430
     const height = 450
-    const outerRadius = 150
-    const innerRadius = 100
+    const outerRadius = 170
+    const innerRadius = 120
 
     const svg = d3.select(svgRef.current)
       .attr('width', width)
@@ -108,7 +108,7 @@ const PersonalityVisualization = ({ data, averages }) => {
         // Increase opacity on hover, but keep active facet distinct if it is 
         // the one being hovered
         d3.select(this).attr('opacity', d === activeDomain ? 0.8 : 0.7)
-        d3.select(this).attr('transform', 'scale(0.9925)')
+        d3.select(this).attr('transform', 'scale(0.9895)')
       })
       .on('mouseout', function (event, d) {
         // Reset opacity, maintaining active facet distinction
@@ -221,13 +221,14 @@ const PersonalityVisualization = ({ data, averages }) => {
       .attr('font-size', '18px')
       .text(`AVG: ${averageScore}`)
 
-    // Active facet name
+    // Active facet name in the center of the inner circle
     svg.append('text')
       .attr('class', 'facet-name')
       .attr('text-anchor', 'middle')
-      .attr('y', height / 2 - 20)
-      .attr('font-size', '20px')
+      .attr('font-size', '14px') // Reduced font size to fit the smaller area
+      .attr('y', -50) // Centered vertically inside the inner circle
       .text(activeDomain)
+
   }, [activeDomain, data, averageScore])
 
 
