@@ -1,7 +1,14 @@
 'use client'
 
 // Externals
-import { Dispatch, SetStateAction, useContext } from 'react'
+import { 
+  Dispatch, 
+  useState,
+  useContext, 
+  SetStateAction, 
+  useLayoutEffect,
+  useMemo,
+} from 'react'
 // Locals
 import StellarPlot from '@/components/DataViz/StellarPlot'
 // Contexts
@@ -12,30 +19,36 @@ import { SkillDomain } from '@/utils/bessi/types/enums'
 import { BessiSkillScores, SkillDomainFactorType } from '@/utils/bessi/types'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
+import { title } from 'process'
 
 
 
 type BessiSkillScoresContextType = {
-  bessiSkillScores: BessiSkillScores | null,
-  setBessiSkillScores: Dispatch<SetStateAction<BessiSkillScores | null>>
+  bessiSkillScores: BessiSkillScoresContextType | null,
+  setBessiSkillScores: Dispatch<SetStateAction<BessiSkillScoresContextType | null>>
 }
 
 
 
 const BessiResultsStellarPlot = () => {
   // Contexts
-  const { bessiSkillScores } = useContext<BessiSkillScoresContextType>(
-    BessiSkillScoresContext
-  )
+  const { bessiSkillScores } = useContext(BessiSkillScoresContext)
 
   const title = `Stellar Plot`
 
-  const data = Object.entries(
-    bessiSkillScores?.domainScores as SkillDomainFactorType
-  ).map(([key, value]) => ({
-    axis: key,
-    value: value / 100
-  }))
+  console.log(`bessiSkillScores: `, bessiSkillScores)
+
+  
+  const data = useMemo(() => {
+    return Object.entries(
+      bessiSkillScores?.domainScores as SkillDomainFactorType
+    ).map(([key, value]) => ({
+      axis: key,
+      value: value / 100
+    }))
+  }, [ bessiSkillScores ])
+
+
 
   return (
     <>

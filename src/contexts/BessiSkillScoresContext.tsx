@@ -23,7 +23,7 @@ export const BessiSkillScoresContextComponent = ({ children }) => {
             setBessiSkillScores,
           } }
       >
-        {children}
+        { children }
       </BessiSkillScoresContext.Provider>
     </>
   )
