@@ -65,6 +65,8 @@ export default function RootLayout({
    * have already authenticated and hold a session cookie.
    */
   async function pageProtection(): Promise<void> {
+    setIsFetchingUser(true)
+
     const { user, error } = await getUser()
 
     if (error) {
