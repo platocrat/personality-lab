@@ -9,13 +9,12 @@ import { usePathname, useRouter } from 'next/navigation'
 import Header from '@/components/Header'
 import Spinner from '@/components/Suspense/Spinner'
 // Contexts
-import { 
-  BessiSkillScoresContextComponent 
-} from '@/contexts/BessiSkillScoresContext'
+import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // CSS
 import './globals.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+import { BessiSkillScores } from '@/utils/bessi/types'
 
 
 export type UserResponse = {
@@ -41,6 +40,11 @@ export default function RootLayout({
   const router = useRouter()
   const pathname = usePathname()
 
+  // Customs
+  const [ 
+    bessiSkillScores, 
+    setBessiSkillScores 
+  ] = useState<BessiSkillScores | null>(null)
   // Booleans
   const [ isFetchingUser, setIsFetchingUser ] = useState<boolean>(true)
   const [ isAuthenticated, setIsAuthenticated ] = useState<boolean>(false)
@@ -126,14 +130,19 @@ export default function RootLayout({
             <body className={ inter.className }>
               <AuthenticatedUserContext.Provider
                 value={ {
-                  isAuthenticated: isAuthenticated,
-                  setIsAuthenticated: setIsAuthenticated,
+                  isAuthenticated,
+                  setIsAuthenticated,
                 } }
               >
-                <BessiSkillScoresContextComponent>
+                <BessiSkillScoresContext.Provider
+                  value={ {
+                    bessiSkillScores,
+                    setBessiSkillScores,
+                  } }
+                >
                   { isAuthenticated && <Header/> }
                   { children }
-                </BessiSkillScoresContextComponent>
+                </BessiSkillScoresContext.Provider>
               </AuthenticatedUserContext.Provider>
             </body>
           </html>

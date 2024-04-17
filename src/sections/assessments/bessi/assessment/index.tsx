@@ -7,11 +7,14 @@ import { FC, Fragment, useContext, useEffect, useState } from 'react'
 import BessiQuestionnaire from './questionnaire'
 import BessiAssessmentInstructions from './instructions'
 import BessiDemographicQuestionnaire from '../demographic-questionnaire'
+// Components
+import Spinner from '@/components/Suspense/Spinner'
 // Contexts
 import { UserScoresContext } from '@/contexts/UserScoresContext'
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // Utility functions
+import LibsodiumUtils from '@/utils/libsodium'
 import { AWS_PARAMETER_NAMES, calculateBessiScores } from '@/utils'
 // Types
 import { 
@@ -33,8 +36,6 @@ import {
 } from '@/utils/bessi/types/enums'
 // CSS
 import styles from '@/app/page.module.css'
-import LibsodiumUtils from '@/utils/libsodium'
-import Spinner from '@/components/Suspense/Spinner'
 import { definitelyCenteredStyle } from '@/theme/styles'
 
 
@@ -61,6 +62,10 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
   // Booleans
   const [ isLoadingResults, setIsLoadingResults ] = useState<boolean>(false)
   // Enums
+  const [gender, setGender] = useState<Gender>(Gender.Male)
+  const [isParent, setIsParent] = useState<YesOrNo>(YesOrNo.No)
+  const [usState, setUSState] = useState<USState>(USState.Alabama)
+  const [priorCompletion, setPriorCompletion] = useState<YesOrNo>(YesOrNo.No)
   const [
     isFluentInEnglish,
     setIsFluentInEnglish
@@ -87,10 +92,6 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
     currentEmploymentStatus,
     setCurrentEmploymentStatus
   ] = useState<CurrentEmploymentStatus>(CurrentEmploymentStatus.Student)
-  const [ gender, setGender ] = useState<Gender>(Gender.Male)
-  const [ isParent, setIsParent ] = useState<YesOrNo>(YesOrNo.No)
-  const [ usState, setUSState ] = useState<USState>(USState.Alabama)
-  const [ priorCompletion, setPriorCompletion ] = useState<YesOrNo>(YesOrNo.No)
     
 
   const title = `BESSI`
@@ -193,18 +194,18 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
       } = calculateBessiScores(Object.values(userScores))
 
       console.log(`finalScores: `, finalScores)
-
+      
       setBessiSkillScores(finalScores)
 
       // // Send results to user before storing results in DynamoDB
       // await storeResultsInDynamoDB(finalScores)
-
+      
       // Navigate to the results page
       const href = '/bessi/assessment/results'
-
+      
       // End suspense
       setIsLoadingResults(false)
-
+      
       router.push(href)
       /**
        * @dev Refactor `sendEmail()` function to use SendGrid instead of
