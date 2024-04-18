@@ -38,6 +38,9 @@ const StellarPlot = ({ data }) => {
     const levels = 10
     const maxValue = 100 // Assuming the outermost value is 100
 
+    // Define a color scale
+    const colorScale = d3.scaleOrdinal(d3.schemeCategory10) // You can choose any other scheme or custom colors
+
     // Draw the background circles
     for (let i = 0; i <= levels; i++) {
       svg.append('circle')
@@ -128,7 +131,7 @@ const StellarPlot = ({ data }) => {
         .attr('y1', 0)
         .attr('x2', rScale(d.value) * Math.cos(angleSlice * i - Math.PI / 2)) // Extend to the data point
         .attr('y2', rScale(d.value) * Math.sin(angleSlice * i - Math.PI / 2))
-        .attr('stroke', 'steelblue')
+        .attr('stroke', colorScale(`${ d.value }`))
         .attr('stroke-width', 15)
         .attr('stroke-opacity', 0.5)
 
@@ -143,7 +146,7 @@ const StellarPlot = ({ data }) => {
         .attr('y1', rScale(d.value) * Math.sin(angleSlice * i - Math.PI / 2))
         .attr('x2', midX) // End partway back to the center
         .attr('y2', midY)
-        .attr('stroke', 'steelblue')
+        .attr('stroke', colorScale(`${ d.value }`))
         .attr('stroke-width', 1) // Make this line thinner to enhance the tapered effect
         .attr('stroke-opacity', 0.7) // Optional: adjust opacity for stylistic effect
 
@@ -157,7 +160,7 @@ const StellarPlot = ({ data }) => {
         .attr('y', yPosition)
         .attr('width', 10) // Size of the legend symbol
         .attr('height', 10)
-        .style('fill', 'steelblue') // Or dynamically set based on data
+        .style('fill', colorScale(`${ d.value }`)) // Or dynamically set based on data
 
       // Add legend text
       legend.append('text')
