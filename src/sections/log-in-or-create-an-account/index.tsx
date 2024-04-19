@@ -7,15 +7,23 @@ import { CSSProperties, FC, useContext, useMemo, useState } from 'react'
 // Locals
 // Components
 import Card from '@/components/Card'
+// import Treemap from '@/components/DataViz/Treemap'
+// import BarChart from '@/components/DataViz/BarChart'
+import StellarPlot from '@/components/DataViz/StellarPlot'
+// import UVIndexChart from '@/components/DataViz/UVIndexChart'
+// import PersonalityVisualization from '@/components/DataViz/PersonalityVisualization'
 // Sections
 import Form from './form'
 // Contexts
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // Utils
 import { deleteAllCookies } from '@/utils/misc'
+import { dummyVariables } from '@/utils/bessi/constants'
+// Types
+import { SkillDomainFactorType } from '@/utils/bessi/types'
 // CSS
-import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+
 
 
 
@@ -314,6 +322,25 @@ const LogInOrCreateAnAccount = () => {
           />
         }}
       />
+
+      {/* <Treemap data={ data }/> */}
+      {/* <UVIndexChart /> */}
+      
+      {/* <StellarPlot 
+        data={  
+          Object.entries(
+            dummyVariables.pv.data?.domainScores as SkillDomainFactorType
+          ).map(([key, value]) => ({
+            axis: key,
+            value: value / 100
+          })) 
+        }
+      /> */}
+
+      {/* <PersonalityVisualization 
+        data={ dummyVariables.pv.data } 
+        averages={ dummyVariables.pv.averages } 
+      /> */}
     </>
   )
 }

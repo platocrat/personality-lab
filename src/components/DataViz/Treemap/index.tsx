@@ -11,7 +11,7 @@ import { domainToFacetMapping } from '@/utils/bessi/constants'
  * @dev Reference for this treemap component can be found at:
  * https://oec.world/en/profile/world/wld
  */
-const Treemap = ({ data }) => {
+const TreeMap = ({ data }) => {
   const d3Container = useRef(null)
 
 
@@ -239,4 +239,4 @@ const Treemap = ({ data }) => {
   )
 }
 
-export default Treemap
+export default TreeMap

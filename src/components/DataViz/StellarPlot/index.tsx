@@ -10,8 +10,8 @@ const StellarPlot = ({ data }) => {
   const ref = useRef<any>(null)
 
   useEffect(() => {
-    const width = 450, 
-      height = 450,
+    const width = 460,
+      height = 460,
       margin = { top: 90, right: 90, bottom: 90, left: 90 },
       radius = (Math.min(width, height) / 2) - Math.max(
         ...Object.values(margin)
@@ -37,6 +37,9 @@ const StellarPlot = ({ data }) => {
 
     const levels = 10
     const maxValue = 100 // Assuming the outermost value is 100
+
+    // Define a color scale
+    const colorScale = d3.scaleOrdinal(d3.schemeCategory10) // You can choose any other scheme or custom colors
 
     // Draw the background circles
     for (let i = 0; i <= levels; i++) {
@@ -84,13 +87,13 @@ const StellarPlot = ({ data }) => {
       .attr('x1', 0)
       .attr('y1', 0)
       .attr(
-        'x2', 
+        'x2',
         (d, i: number): number => rScale(1) * Math.cos(
           angleSlice * i - Math.PI / 2
         )
       )
       .attr(
-        'y2', 
+        'y2',
         (d, i: number): number => rScale(1) * Math.sin(
           angleSlice * i - Math.PI / 2
         )
@@ -106,7 +109,7 @@ const StellarPlot = ({ data }) => {
       .attr('x', (d, i) => rScale(1.1) * Math.cos(angleSlice * i - Math.PI / 2))
       .attr('y', (d, i) => rScale(1.1) * Math.sin(angleSlice * i - Math.PI / 2))
       .attr('text-anchor', 'middle')
-      .style('font-size', '14px') 
+      .style('font-size', '14px')
       .text((d: any) => d.axis)
 
     const columnWidth = 230 // Width of each column, adjust as needed
@@ -114,7 +117,7 @@ const StellarPlot = ({ data }) => {
     const legend = svg.append('g')
       .attr('class', 'legend')
       .attr(
-        'transform', 
+        'transform',
         // Adjust as needed
         `translate(-${width / 2}, ${height / 2 - margin.bottom + 20})`
       )
@@ -128,7 +131,7 @@ const StellarPlot = ({ data }) => {
         .attr('y1', 0)
         .attr('x2', rScale(d.value) * Math.cos(angleSlice * i - Math.PI / 2)) // Extend to the data point
         .attr('y2', rScale(d.value) * Math.sin(angleSlice * i - Math.PI / 2))
-        .attr('stroke', 'steelblue')
+        .attr('stroke', colorScale(`${d.value}`))
         .attr('stroke-width', 15)
         .attr('stroke-opacity', 0.5)
 
@@ -143,7 +146,7 @@ const StellarPlot = ({ data }) => {
         .attr('y1', rScale(d.value) * Math.sin(angleSlice * i - Math.PI / 2))
         .attr('x2', midX) // End partway back to the center
         .attr('y2', midY)
-        .attr('stroke', 'steelblue')
+        .attr('stroke', colorScale(`${d.value}`))
         .attr('stroke-width', 1) // Make this line thinner to enhance the tapered effect
         .attr('stroke-opacity', 0.7) // Optional: adjust opacity for stylistic effect
 
@@ -157,13 +160,13 @@ const StellarPlot = ({ data }) => {
         .attr('y', yPosition)
         .attr('width', 10) // Size of the legend symbol
         .attr('height', 10)
-        .style('fill', 'steelblue') // Or dynamically set based on data
+        .style('fill', colorScale(`${d.value}`)) // Or dynamically set based on data
 
       // Add legend text
       legend.append('text')
         .attr('x', xPosition + 20) // Position text next to the symbol; adjust as needed
         .attr('y', yPosition + 9) // Align text with the symbol; adjust as needed
-        .text(`${d.axis}: ${d.value * 100}`) // Display the label and its value
+        .text(`${d.axis}: ${Math.floor(d.value * 100)}`) // Display the label and its value
         .style('font-size', '14px') // Adjust font size as needed
         .attr('alignment-baseline', 'middle')
     })

@@ -1,7 +1,7 @@
 // Locals
 import BessiResultsExplanation from './explanation'
-import BessiResultsStellarPlot from './stellar-plot'
 import BessiWantToLearnMore from './want-to-learn-more'
+import BessiResultsVisualization from './bessi-results-visualization'
 import BessiResultsSkillsScoresAndDefinitions from './skills-scores-and-definitions'
 
 
@@ -11,7 +11,7 @@ const BessiAssessmentResultsSection = () => {
     <>
       <div style={ { maxWidth: '800px' } }>
         <BessiResultsExplanation />
-        <BessiResultsStellarPlot />
+        <BessiResultsVisualization />
         <BessiResultsSkillsScoresAndDefinitions />
         <BessiWantToLearnMore />
       </div>

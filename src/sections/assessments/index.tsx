@@ -2,7 +2,15 @@
 import Link from 'next/link'
 import { FC, Fragment, JSX, ReactNode, useState } from 'react'
 // Locals
+// Components
 import Card from '@/components/Card'
+import StellarPlot from '@/components/DataViz/StellarPlot'
+// Sections
+import BessiResultsVisualization from './bessi/assessment/results/bessi-results-visualization'
+// Constants
+import { dummyVariables } from '@/utils/bessi/constants'
+// Types
+import { SkillDomainFactorType } from '@/utils/bessi/types'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -17,6 +25,7 @@ type PersonalityAssessmentType = {
 
 
 const topLevelSlug = `assessments`
+
 
 const BessiDescription = () => {
   return (
@@ -39,6 +48,9 @@ const BessiDescription = () => {
       {
         `The BESSIE uses a skills inventory format, meaning that each BESSI item describes a specific, skill-relevant behavior, and users rate how well they can perform that behavior.`
       }
+
+      <BessiResultsVisualization />
+
       <br />
       <br />
       { `Click the button below to begin the assessment.` }

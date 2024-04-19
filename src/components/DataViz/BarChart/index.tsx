@@ -6,6 +6,9 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
+/**
+ * @todo Fix `data` to match format similar to `StellarPlot` component
+ */
 const BarChart = ({ data }) => {
   const d3Container = useRef(null)
 
@@ -29,7 +32,7 @@ const BarChart = ({ data }) => {
       // X axis
       const x = d3.scaleBand()
         .range([0, width])
-        .domain(data.map(d => d.metric))
+        .domain(data.map(d => d.metrics))
         .padding(0.2)
 
       svg.append('g')

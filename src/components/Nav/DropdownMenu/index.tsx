@@ -59,7 +59,9 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
             alt='Round menu icon to open the navbar menu'
             className={ styles.img }
             onClick={ toggleDropdown }
-            src={ isVisible ? '/ph_x-bold.png' : '/ic_round-menu.png' }
+            src={ 
+              isVisible ? '/icons/ph_x-bold.png' : '/icons/ic_round-menu.png' 
+            }
           />
         </div>
         { isVisible && (

@@ -3,6 +3,8 @@ import * as d3 from 'd3'
 import React, { useState, useEffect, useRef } from 'react'
 // Locals
 import { domainToFacetMapping, skillsMapping } from '@/utils/bessi/constants'
+// CSS
+import styles from '@/components/DataViz/PersonalityVisualization/PersonalityVisualization.module.css'
 
 
 
@@ -237,21 +239,7 @@ const PersonalityVisualization = ({ data, averages }) => {
     <div>
       <div 
         id='tooltip' 
-        style={{
-          opacity: 0,
-          zIndex: 10,
-          width: '300px',
-          height: 'auto',
-          padding: '10px',
-          borderRadius: '4px',
-          textAlign: 'left',
-          position: 'absolute',
-          pointerEvents: 'none',
-          wordWrap: 'break-word',
-          border: '1px solid #ddd',
-          transition: 'opacity 0.2s',
-          background: 'rgba(255, 255, 255, 0.95)',
-        }}
+        className={ styles.tooltip }
       />
       <svg ref={ svgRef }></svg>
     </div>

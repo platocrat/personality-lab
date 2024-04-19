@@ -1,0 +1,15 @@
+.tooltip {
+  opacity: 0;
+  z-index: 10;
+  width: 300px;
+  height: auto;
+  padding: 10px;
+  border-radius: 4px;
+  text-align: left;
+  position: absolute;
+  pointer-events: none;
+  word-wrap: break-word;
+  border: 1px solid #ddd;
+  transition: opacity 0.2s;
+  background: rgba(255, 255, 255, 0.95);
+}

@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 // Externals
 import { FC } from 'react'
