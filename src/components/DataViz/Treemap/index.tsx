@@ -91,7 +91,7 @@ const TreeMap = ({ data }) => {
     svg.attr('height', height + 40 + totalLegendHeight)
   }
 
-  const drawTreemap = (originalData) => {
+  const drawTreeMap = (originalData) => {
     // Adjust bottom margin to accommodate legend
     const margin = { top: 10, right: 10, bottom: 100, left: 10 }
     const width = 800 - margin.left - margin.right
@@ -213,7 +213,7 @@ const TreeMap = ({ data }) => {
 
   useEffect(() => {
     if (data && d3Container.current) {
-      drawTreemap(data)
+      drawTreeMap(data)
     }
   }, [data])
 
