@@ -49,6 +49,17 @@ const BessiDescription = () => {
         `The BESSIE uses a skills inventory format, meaning that each BESSI item describes a specific, skill-relevant behavior, and users rate how well they can perform that behavior.`
       }
 
+      <div>
+        <h3 
+          style={{ 
+            fontSize: '22px',
+            marginTop: '28px',
+          }}
+        >
+          { `Example Visualizations` }
+        </h3>
+      </div>
+
       <BessiResultsVisualization />
 
       <br />
