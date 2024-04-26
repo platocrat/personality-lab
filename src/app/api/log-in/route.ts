@@ -14,12 +14,17 @@ import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 import { QueryCommand, QueryCommandInput } from '@aws-sdk/lib-dynamodb'
 // Locals
-import LibsodiumUtils from '@/utils/libsodium'
-import { COOKIE_NAME, MAX_AGE } from '@/utils/api'
-import { ddbDocClient } from '@/utils/aws/dynamodb'
-import { BESSI_accounts } from '../check-email/route'
-import { AWS_PARAMETER_NAMES, BESSI_ACCOUNTS_TABLE_NAME } from '@/utils'
-import { fetchAwsParameter, ssmClient } from '@/utils/aws/systems-manager'
+import { 
+  MAX_AGE,
+  ssmClient,
+  COOKIE_NAME, 
+  ddbDocClient,
+  LibsodiumUtils,
+  fetchAwsParameter, 
+  AWS_PARAMETER_NAMES,
+  DYNAMODB_TABLE_NAMES,
+ } from '@/utils'
+import { BESSI_accounts } from '../email/route'
 
 
 
@@ -31,7 +36,7 @@ export async function POST(
     const { email, username, password } = await req.json()     
 
     const input: QueryCommandInput = {
-      TableName: BESSI_ACCOUNTS_TABLE_NAME,
+      TableName: DYNAMODB_TABLE_NAMES.BESSI_ACCOUNTS,
       KeyConditionExpression: 'email = :emailValue',
       ExpressionAttributeValues: {
         ':emailValue': email,
@@ -91,7 +96,7 @@ export async function POST(
                     password: hashedPassword
                   },
                   JWT_SECRET as string,
-                  { expiresIn: MAX_AGE }
+                  { expiresIn: MAX_AGE.SESSION }
                 )
 
                 /**
@@ -111,11 +116,13 @@ export async function POST(
 
                 const cookieValue: string = cookies().get(COOKIE_NAME)?.value ?? 'null'
 
+                const message = 'Verified email, username, and password'
+
                 /**
                  * @dev 5. Return response
                  */
                 return NextResponse.json(
-                  { message: 'Verified email, username, and password' },
+                  { message: message },
                   {
                     status: 200,
                     headers: { 'Set-Cookie': cookieValue }

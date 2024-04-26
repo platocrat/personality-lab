@@ -13,12 +13,17 @@ import { sign } from 'jsonwebtoken'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 // Locals
-import { MAX_AGE, COOKIE_NAME } from '@/utils/api'
-import { ddbDocClient } from '@/utils/aws/dynamodb'
-import { BESSI_accounts } from '../check-email/route'
-import { AWS_PARAMETER_NAMES, BESSI_ACCOUNTS_TABLE_NAME } from '@/utils'
-import { fetchAwsParameter, ssmClient } from '@/utils/aws/systems-manager'
-import LibsodiumUtils from '@/utils/libsodium'
+import { 
+  MAX_AGE, 
+  ssmClient,
+  COOKIE_NAME,
+  ddbDocClient,
+  LibsodiumUtils,
+  fetchAwsParameter, 
+  AWS_PARAMETER_NAMES, 
+  DYNAMODB_TABLE_NAMES,
+} from '@/utils'
+import { BESSI_accounts } from '../email/route'
 
 
 
@@ -30,7 +35,7 @@ export async function POST(
     const { email, username, password } = await req.json()
 
     let input: QueryCommandInput | PutCommandInput | GetParameterCommandInput = {
-      TableName: BESSI_ACCOUNTS_TABLE_NAME,
+      TableName: DYNAMODB_TABLE_NAMES.BESSI_ACCOUNTS,
       IndexName: 'UsernameIndex',
       KeyConditionExpression: 'username = :usernameValue',
       ExpressionAttributeValues: {
@@ -69,7 +74,7 @@ export async function POST(
     const timestamp = new Date().getTime()
 
     input = {
-      TableName: BESSI_ACCOUNTS_TABLE_NAME,
+      TableName: DYNAMODB_TABLE_NAMES.BESSI_ACCOUNTS,
       Item: { 
         email: email,
         username: username, 
@@ -114,7 +119,7 @@ export async function POST(
               password,
             },
             JWT_SECRET as string,
-            { expiresIn: MAX_AGE }
+            { expiresIn: MAX_AGE.SESSION }
           )
 
           /**

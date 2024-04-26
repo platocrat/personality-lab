@@ -11,10 +11,11 @@ import Spinner from '@/components/Suspense/Spinner'
 // Contexts
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
+// Types
+import { BessiSkillScores } from '@/utils/bessi/types'
 // CSS
 import './globals.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
-import { BessiSkillScores } from '@/utils/bessi/types'
 
 
 export type UserResponse = {
@@ -52,7 +53,7 @@ export default function RootLayout({
   // --------------------------- Async functions -------------------------------
   async function getUser(): Promise<UserResponse> {
     try {
-      const response = await fetch('/api/get-user', { method: 'GET' })
+      const response = await fetch('/api/user', { method: 'GET' })
       const data = await response.json()
 
       if (response.status === 401) return { user: null, error: data.message }

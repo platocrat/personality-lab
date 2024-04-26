@@ -1,10 +1,15 @@
 // Externals
 import { NextRequest, NextResponse } from 'next/server'
 // Locals
-import { AWS_PARAMETER_NAMES } from '@/utils'
-import { fetchAwsParameter } from '@/utils/aws/systems-manager'
+import { AWS_PARAMETER_NAMES, fetchAwsParameter } from '@/utils'
 
 
+/**
+ * @dev hCaptcha verification
+ * @param req 
+ * @param res 
+ * @returns 
+ */
 export async function POST(
   req: NextRequest,
   res: NextResponse,

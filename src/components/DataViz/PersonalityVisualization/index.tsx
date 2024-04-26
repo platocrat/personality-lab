@@ -10,7 +10,7 @@ import styles from '@/components/DataViz/PersonalityVisualization/PersonalityVis
 
 const PersonalityVisualization = ({ data, averages }) => {
   const svgRef = useRef<any>(null)
-  const [activeDomain, setActiveDomain] = useState('Self-Management Skills')
+  const [ activeDomain, setActiveDomain ] = useState('Self-Management Skills')
 
 
   // Calculating averages is not depicted in this snippet

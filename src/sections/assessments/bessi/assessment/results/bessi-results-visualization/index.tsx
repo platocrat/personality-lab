@@ -57,15 +57,43 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({ data }) 
     { id: 3, name: 'Personality Visualization' },
   ]
 
+  /**
+   * @dev 1. Use access token to create a share button
+   *      2. Share button exposes a hidden custom URL with the user's access 
+   *         token of the user's results. 
+   *      3. User can click second button to copy the URL with user's exposed
+   *         access token in that URL which can shared with others.
+   *      4. URL with access token of user's results is used to privately view 
+   *         the user's results by any user. 
+   *      5. Access token of user's results is only active for 2 hours until it
+   *         is refreshed.
+   */
+
+
+  
   const title = visualizations[currentVisualization].name
   const liStyle = { padding: '8px 20px', cursor: 'pointer' }
 
-  const data_ = Object.entries(
-    dummyVariables.pv.data?.domainScores as SkillDomainFactorType
-  ).map(([key, value]) => ({
-    axis: key,
-    value: value / 100
-  }))
+  const data_ = (i: number) => {
+    let _ = i === 0 // if i === 0
+      ? Object.entries(
+        bessiSkillScores?.domainScores as SkillDomainFactorType
+        ?? dummyVariables.pv.data?.domainScores as SkillDomainFactorType
+      ).map(([key, value]) => ({
+        axis: key,
+        value: value / 100
+      }))
+      // if i !== 0 && domainScores !== undefined
+      : bessiSkillScores?.domainScores
+        ? {
+            facetScores: bessiSkillScores?.facetScores,
+            domainScores: bessiSkillScores?.domainScores,
+            averages: dummyVariables.pv.averages,
+          }
+        : dummyVariables.pv.data
+
+      return _
+  }
 
   // ------------------------- Regular functions -------------------------------
   // Placeholder for rendering the selected visualization
@@ -79,13 +107,13 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({ data }) 
          * components in this switch -- change `d.metrics` to something like
          * `d.axis` and `d.values`
          */
-        return <BarChart data={ dummyVariables.pv.data } />
+        return <BarChart data={ data_ } />
       case 2:
-        return <TreeMap data={ dummyVariables.pv.data } />
+        return <TreeMap data={ data_ } />
       case 3:
         return <PersonalityVisualization
-          data={ dummyVariables.pv.data }
-          averages={ dummyVariables.pv.averages }
+          data={ data_ }
+          averages={ null }
         />
       default:
         return null

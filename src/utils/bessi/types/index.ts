@@ -35,6 +35,7 @@ export type UserScoresType = {
 export type BessiSkillScores = {
   facetScores: FacetFactorType,
   domainScores: SkillDomainFactorType
+  accessToken: string
 }
 
 export type BessiActivityType = {

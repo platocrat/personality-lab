@@ -3,8 +3,11 @@ import sgMail from '@sendgrid/mail'
 import { NextRequest, NextResponse } from 'next/server'
 import { GetParameterCommandInput, GetParameterCommand } from '@aws-sdk/client-ssm'
 // Locals
-import { AWS_PARAMETER_NAMES } from '@/utils'
-import { fetchAwsParameter, ssmClient } from '@/utils/aws/systems-manager'
+import { 
+  ssmClient,
+  fetchAwsParameter, 
+  AWS_PARAMETER_NAMES,
+} from '@/utils'
 
 
 

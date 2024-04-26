@@ -325,7 +325,7 @@ const Form: FC<FormProps> = ({
 
     const METHOD = 'POST'
 
-    const response = await fetch('/api/hCaptcha-verification', {
+    const response = await fetch('/api/hCaptcha', {
       method: METHOD,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',

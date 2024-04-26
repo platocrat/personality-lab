@@ -2,7 +2,7 @@
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 // Locals
-import { COOKIE_NAME } from '@/utils/api'
+import { COOKIE_NAME } from '@/utils'
 
 
 

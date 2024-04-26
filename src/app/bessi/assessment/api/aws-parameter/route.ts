@@ -7,9 +7,13 @@ import { verify } from 'jsonwebtoken'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 // Locals
-import { AWS_PARAMETER_NAMES } from '@/utils'
-import { COOKIE_NAME, MAX_AGE } from '@/utils/api'
-import { fetchAwsParameter, ssmClient } from '@/utils/aws/systems-manager'
+import { 
+  ssmClient,
+  COOKIE_NAME, 
+  fetchAwsParameter, 
+  AWS_PARAMETER_NAMES,
+} from '@/utils'
+
 
 
 export async function POST(

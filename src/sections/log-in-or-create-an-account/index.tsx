@@ -229,7 +229,7 @@ const LogInOrCreateAnAccount = () => {
     setIsWaitingForResponse(true)
 
     try {
-      const response = await fetch('/api/check-email', {
+      const response = await fetch('/api/email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

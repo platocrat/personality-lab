@@ -22,6 +22,7 @@ import {
   FacetFactorType,
   SkillDomainFactorType,
   BessiUserResults__DynamoDB,
+  BessiUserDemographics__DynamoDB,
 } from '@/utils/bessi/types'
 // Enums
 import { 
@@ -183,35 +184,46 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
     if (userScores) {
       e.preventDefault()
 
-      // Trigger suspense
+      // 1. Trigger suspense
       setIsLoadingResults(true)
       
       console.log(`userScores: `, userScores)
 
-      const finalScores: {
+      // 2. Calculate domain and facet scores
+      let finalScores: {
         facetScores: FacetFactorType,
-        domainScores: SkillDomainFactorType
+        domainScores: SkillDomainFactorType,
+        accessToken?: string,
       } = calculateBessiScores(Object.values(userScores))
 
-      console.log(`finalScores: `, finalScores)
-      
-      setBessiSkillScores(finalScores)
+      // 3. Store `userResults` in DynamoDB and generate its respective ID
+      const userResultsId = await storeResultsInDynamoDB(finalScores)
+      // 4. Use ID of `userResults` to generate access token
+      const accessToken = await getAccessToken(userResultsId)
 
-      // // Send results to user before storing results in DynamoDB
-      // await storeResultsInDynamoDB(finalScores)
+      // 4. Create new object with final scores and access token to cache on 
+      //    the client so that we can use the access token to share the user's
+      //    results to others.
+      finalScores = { ...finalScores, accessToken: accessToken }
+
+      // 5. Store final scores in React state
+      setBessiSkillScores(finalScores)
       
-      // Navigate to the results page
+      // 6.  Navigate to the results page
       const href = '/bessi/assessment/results'
       
-      // End suspense
+      // 7. End suspense
       setIsLoadingResults(false)
       
+      // 8. Use router to route the user the results page
       router.push(href)
+      
       /**
        * @dev Refactor `sendEmail()` function to use SendGrid instead of
        * Postmark. Reach out to Dr. Roberts to get the API key necessary for
        * this.
        */
+      // // 9. Send the users results to their account email address
       // await sendEmail()
     }
   }
@@ -223,7 +235,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
       domainScores: SkillDomainFactorType
     },
   ) {
-    const DEMOGRAPHICS = {
+    const DEMOGRAPHICS: BessiUserDemographics__DynamoDB = {
       age: age,
       gender: gender,
       usState: usState,
@@ -245,7 +257,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
 
     if (email === undefined) {
       /**
-       * @todo Replace the line below by handling the error UI here
+       * @todo Replace the line below by handling the error on the UI here
        */
       throw new Error(`Error getting email from cookie!`)
     } else {
@@ -262,7 +274,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
       }
 
       try {
-        const response = await fetch('/bessi/assessment/api/post-results', {
+        const response = await fetch('/bessi/assessment/api/results', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -270,19 +282,60 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
           body: JSON.stringify({ userResults }),
         })
 
-        const data = await response.json()
+        const json = await response.json()
 
-        if (response.status === 200) {
-          return
+        if (response.status === 200 ) {
+          const accessToken = json.data
+          return accessToken
         } else {
+          const error = `Error posting BESSI results to DynamoDB: `
           /**
            * @todo Handle error UI here
            */
-          throw new Error(
-            `Error posting BESSI results to DynamoDB: `, 
-            data.error
-          )
+          throw new Error(error, json.error)
+        }
+      } catch (error: any) {
+        /**
+         * @todo Handle error UI here
+         */
+        throw new Error(`Error! `, error)
 
+      }
+    }
+  }
+
+
+  async function getAccessToken(userResultsId: string) {
+    if (!userResultsId) {
+      /**
+       * @todo Replace the line below by handling the error on the UI here
+       */
+      throw new Error(
+        `Error: 'userResultsId' is invalid, see 'userResultsId': ${ 
+          userResultsId 
+        }!`
+      )
+    } else {
+      try {
+        const response = await fetch('/bessi/assessment/api/access-token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ id: userResultsId }),
+        })
+
+        const json = await response.json()
+
+        if (response.status === 200) {
+          const accessToken = json.data
+          return accessToken
+        } else {
+          const error = `Error posting BESSI results to DynamoDB: `
+          /**
+           * @todo Handle error UI here
+           */
+          throw new Error(error, json.error)
         }
       } catch (error: any) {
         /**
@@ -302,7 +355,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
     type CookieType = { email: string,  username: string, password: string }
     
     try {
-      const response = await fetch('/bessi/assessment/api/get-aws-parameter', {
+      const response = await fetch('/bessi/assessment/api/aws-parameter', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -348,7 +401,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
 
   async function getCookieSecretKey(encryptedEmail: string) {
     try {
-      const response = await fetch('/bessi/assessment/api/get-aws-parameter', {
+      const response = await fetch('/bessi/assessment/api/aws-parameter', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -393,7 +446,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
     } else {
       // Send email
       try {
-        const response = await fetch('/bessi/assessment/api/send-email', {
+        const response = await fetch('/bessi/assessment/api/email', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

@@ -1,13 +1,22 @@
 import { 
   ready,
+  to_hex,
   to_base64,
   from_base64,
   randombytes_buf,
   base64_variants,
+  crypto_pwhash_str,
+  crypto_generichash,
   crypto_secretbox_easy,
   crypto_secretbox_keygen,
   crypto_secretbox_open_easy,
   crypto_secretbox_NONCEBYTES,
+  crypto_pwhash_OPSLIMIT_MODERATE,
+  crypto_pwhash_MEMLIMIT_MODERATE,
+  crypto_pwhash_OPSLIMIT_SENSITIVE,
+  crypto_pwhash_MEMLIMIT_SENSITIVE,
+  crypto_pwhash_OPSLIMIT_INTERACTIVE,
+  crypto_pwhash_MEMLIMIT_INTERACTIVE,
 } from 'libsodium-wrappers-sumo'
 
 
@@ -32,11 +41,74 @@ import {
  * ```
  */
 export class LibsodiumUtils {
+  static async hashPassword(
+    password: string,
+    encryptionStrength: 'low' | 'medium' | 'high',
+    toHex?: boolean
+  ) {
+    await ready
+    
+    let memLimit = crypto_pwhash_MEMLIMIT_INTERACTIVE, 
+      opsLimit = crypto_pwhash_OPSLIMIT_INTERACTIVE
+
+    switch (encryptionStrength) {
+      case 'high': 
+        memLimit = crypto_pwhash_MEMLIMIT_SENSITIVE
+        opsLimit = crypto_pwhash_OPSLIMIT_SENSITIVE
+        break
+      case 'medium': 
+        memLimit = crypto_pwhash_MEMLIMIT_MODERATE
+        opsLimit = crypto_pwhash_OPSLIMIT_MODERATE
+        break
+      default: 
+        break
+    }
+        
+    const hashedPassword = crypto_pwhash_str(password, opsLimit, memLimit)
+
+    return toHex 
+      ? await this.toHex(hashedPassword) 
+      : hashedPassword
+  }
+
+  /**
+   * Desired example usage
+   * ```ts
+   * const verifiedPassword = crypto_pwhash_str_verify(hashedPassword, password)
+   * ```
+   * where the `hashedPassword` is the taken from what is returned from 
+   * `hashPassword`.
+   */
+  static async verifyPassword() {
+    // INCOMPLETE
+  }
+
+  static async toHex(string: string): Promise<string> {
+    await ready
+    return to_hex(string)
+  } 
+
   static async generateKey(): Promise<Uint8Array> {
     await ready
     return crypto_secretbox_keygen()
   }
+  
+  static async genericHash(
+    hashLength: number,
+    message: string, 
+    toHex?: true,
+  ): Promise<Uint8Array | string> {
+    await ready
 
+    if (toHex) {
+      const hash = crypto_generichash(hashLength, message)
+      const hashString = this.base64FromUint8Array(hash)
+      const hashInHex = this.toHex(hashString)
+      return hashInHex
+    } else {
+      return crypto_generichash(hashLength, message)
+    }
+  }
 
   static async encryptData(message: string, key: Uint8Array): Promise<string> {
     await ready

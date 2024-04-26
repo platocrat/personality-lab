@@ -7,10 +7,13 @@ import { verify } from 'jsonwebtoken'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 // Locals
-import { AWS_PARAMETER_NAMES } from '@/utils'
-import { COOKIE_NAME, MAX_AGE } from '@/utils/api'
-import { LibsodiumUtils } from '@/utils/libsodium'
-import { fetchAwsParameter, ssmClient } from '@/utils/aws/systems-manager'
+import { 
+  ssmClient,
+  COOKIE_NAME,
+  LibsodiumUtils,
+  fetchAwsParameter, 
+  AWS_PARAMETER_NAMES,
+ } from '@/utils'
 
 
 
@@ -44,8 +47,10 @@ export async function GET(
       try {
         verify(tokenValue, JWT_SECRET)
 
+        const message = 'User authenticated'
+
         return NextResponse.json(
-          { message: 'User authenticated', },
+          { message: message, },
           { status: 200, },
         )
       } catch (error: any) {
