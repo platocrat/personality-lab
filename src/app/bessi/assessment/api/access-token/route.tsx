@@ -28,6 +28,10 @@ export async function POST(
 
     const JWT_SECRET = await fetchAwsParameter(AWS_PARAMETER_NAMES.JWT_SECRET)
 
+    /**
+     * @todo 1. Encrypt the access token before it is stored to DynamoDB
+     *       2. Make sure to decrypt the access token whenever it is retrieved.
+     */
     if (typeof JWT_SECRET === 'string') {
       // Generate access token with a 30 minute expiry
       const accessToken = sign(
@@ -96,79 +100,84 @@ export async function POST(
 
 
 
-// /**
-//  * @dev GET `accessToken`
-//  * @param req 
-//  * @param res 
-//  * @returns 
-//  */
-// export async function GET(
-//   req: NextRequest,
-//   res: NextResponse,
-// ) {
-//   if (req.method === 'GET') {
-//     const { id } = await req.json()
+/**
+ * @dev GET `accessToken`
+ * @param req 
+ * @param res 
+ * @returns 
+ */
+export async function GET(
+  req: NextRequest,
+  res: NextResponse,
+) {
+  if (req.method === 'GET') {
+    const { id } = await req.json()
 
-//     const input: GetCommandInput = {
-//       TableName: DYNAMODB_TABLE_NAMES.BESSI_USER_RESULT_ACCESS_TOKENS,
-//       Key: { id: id },
-//     }
+    const input: GetCommandInput = {
+      TableName: DYNAMODB_TABLE_NAMES.BESSI_USER_RESULT_ACCESS_TOKENS,
+      Key: { id: id },
+    }
 
-//     const command = new GetCommand(input)
+    const command = new GetCommand(input)
 
-//     try {
-//       const response = await ddbDocClient.send(command)
+    try {
+      const response = await ddbDocClient.send(command)
 
-//       if (!response.Item) {
-//         const message = `No access token found in ${
-//           DYNAMODB_TABLE_NAMES.BESSI_USER_RESULT_ACCESS_TOKENS
-//         } table`
+      if (!response.Item) {
+        const message = `No access token found in ${
+          DYNAMODB_TABLE_NAMES.BESSI_USER_RESULT_ACCESS_TOKENS
+        } table`
 
-//         return NextResponse.json(
-//           { message: message },
-//           {
-//             status: 404,
-//             headers: {
-//               'Content-Type': 'application/json'
-//             }
-//           },
-//         )
-//       } else {
-//         const accessToken = response.Item.accessToken
+        return NextResponse.json(
+          { message: message },
+          {
+            status: 404,
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          },
+        )
+      } else {
+        /**
+         * @todo 1. Ensure that the access token is encrypted when it is 
+         *          retrieved.
+         *       2. Decrypt the access token.
+         */
+        const accessToken = response.Item.accessToken
 
-//         return NextResponse.json(
-//           { data: accessToken },
-//           {
-//             status: 200,
-//             headers: {
-//               'Content-Type': 'application/json'
-//             }
-//           }
-//         )
-//       }
-//     } catch (error: any) {
-//       // Something went wrong
-//       return NextResponse.json(
-//         { error: error },
-//         {
-//           status: 500,
-//           headers: {
-//             'Content-Type': 'application/json'
-//           }
-//         },
-//       )
-//     }
-//   } else {
-//     const error = 'Method Not Allowed'
+        return NextResponse.json(
+          { data: accessToken },
+          {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          }
+        )
+      }
+    } catch (error: any) {
+      // Something went wrong
+      return NextResponse.json(
+        { error: error },
+        {
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        },
+      )
+    }
+  } else {
+    const error = 'Method Not Allowed'
 
-//     return NextResponse.json(
-//       { error: error },
-//       {
-//         status: 405,
-//         headers: {
-//           'Content-Type': 'application/json'
-//         }
-//       },
-//     )
-//   }
-// }
+    return NextResponse.json(
+      { error: error },
+      {
+        status: 405,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      },
+    )
+  }
+}
