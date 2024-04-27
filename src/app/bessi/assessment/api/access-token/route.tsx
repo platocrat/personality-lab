@@ -36,7 +36,7 @@ export async function POST(
         { expiresIn: MAX_AGE.ACCESS_TOKEN }
       )
 
-      // Update the access token in DynamoDB
+      // Write to table of `id` and `accessToken` in DynamoDB
       const putCommandInput: PutCommandInput = {
         TableName: DYNAMODB_TABLE_NAMES.BESSI_USER_RESULT_ACCESS_TOKENS,
         Item: {
@@ -96,77 +96,79 @@ export async function POST(
 
 
 
-/**
- * @dev GET `accessToken`
- * @param req 
- * @param res 
- * @returns 
- */
-export async function GET(
-  req: NextRequest,
-  res: NextResponse,
-) {
-  if (req.method === 'GET') {
-    const { id } = await req.json()
+// /**
+//  * @dev GET `accessToken`
+//  * @param req 
+//  * @param res 
+//  * @returns 
+//  */
+// export async function GET(
+//   req: NextRequest,
+//   res: NextResponse,
+// ) {
+//   if (req.method === 'GET') {
+//     const { id } = await req.json()
 
-    const input: GetCommandInput = {
-      TableName: DYNAMODB_TABLE_NAMES.BESSI_USER_RESULT_ACCESS_TOKENS,
-      Key: { id: id },
-    }
+//     const input: GetCommandInput = {
+//       TableName: DYNAMODB_TABLE_NAMES.BESSI_USER_RESULT_ACCESS_TOKENS,
+//       Key: { id: id },
+//     }
 
-    const command = new GetCommand(input)
+//     const command = new GetCommand(input)
 
-    try {
-      const response = await ddbDocClient.send(command)
+//     try {
+//       const response = await ddbDocClient.send(command)
 
-      if (!response.Item) {
-        const message = `No access token found in ${
-          DYNAMODB_TABLE_NAMES.BESSI_USER_RESULT_ACCESS_TOKENS
-        } table`
+//       if (!response.Item) {
+//         const message = `No access token found in ${
+//           DYNAMODB_TABLE_NAMES.BESSI_USER_RESULT_ACCESS_TOKENS
+//         } table`
 
-        return NextResponse.json(
-          { message: message },
-          {
-            status: 404,
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          },
-        )
-      } else {
-        return NextResponse.json(
-          { data: response.Item },
-          {
-            status: 200,
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          }
-        )
-      }
-    } catch (error: any) {
-      // Something went wrong
-      return NextResponse.json(
-        { error: error },
-        {
-          status: 500,
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        },
-      )
-    }
-  } else {
-    const error = 'Method Not Allowed'
+//         return NextResponse.json(
+//           { message: message },
+//           {
+//             status: 404,
+//             headers: {
+//               'Content-Type': 'application/json'
+//             }
+//           },
+//         )
+//       } else {
+//         const accessToken = response.Item.accessToken
 
-    return NextResponse.json(
-      { error: error },
-      {
-        status: 405,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      },
-    )
-  }
-}
+//         return NextResponse.json(
+//           { data: accessToken },
+//           {
+//             status: 200,
+//             headers: {
+//               'Content-Type': 'application/json'
+//             }
+//           }
+//         )
+//       }
+//     } catch (error: any) {
+//       // Something went wrong
+//       return NextResponse.json(
+//         { error: error },
+//         {
+//           status: 500,
+//           headers: {
+//             'Content-Type': 'application/json'
+//           }
+//         },
+//       )
+//     }
+//   } else {
+//     const error = 'Method Not Allowed'
+
+//     return NextResponse.json(
+//       { error: error },
+//       {
+//         status: 405,
+//         headers: {
+//           'Content-Type': 'application/json'
+//         }
+//       },
+//     )
+//   }
+// }

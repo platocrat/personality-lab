@@ -20,7 +20,6 @@ import {
   DYNAMODB_TABLE_NAMES,
   SkillDomainFactorType,
   BessiUserDemographics__DynamoDB,
-  verfiyAccessTokenAndFetchUserResults,
 } from '@/utils'
 
 

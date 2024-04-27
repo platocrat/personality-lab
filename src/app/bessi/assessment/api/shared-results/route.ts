@@ -20,7 +20,7 @@ export async function POST(
   res: NextResponse,
 ) {
   if (req.method === 'POST') {
-    const { accessToken } = await req.json()
+    const { id, accessToken } = await req.json()
 
     // 1. Fetch JWT secret to verify if the user is authorized to access the 
     //    `userResults` mapped to the provided `id`.
@@ -28,7 +28,7 @@ export async function POST(
 
     if (typeof JWT_SECRET === 'string') {
       // 2. Verify `accessToken` using the JWT secret
-      return await verfiyAccessTokenAndFetchUserResults(accessToken, JWT_SECRET)
+      return await verfiyAccessTokenAndFetchUserResults(id, accessToken, JWT_SECRET)
     } else { // Return the error in the json of the `NextResponse`
       return JWT_SECRET as NextResponse<{ error: string }>
     }

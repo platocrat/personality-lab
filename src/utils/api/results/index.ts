@@ -1,7 +1,12 @@
 // Externals
 import { verify } from 'jsonwebtoken'
 import { NextResponse } from 'next/server'
-import { GetCommandInput, GetCommand } from '@aws-sdk/lib-dynamodb'
+import { 
+  GetCommand,
+  QueryCommand,
+  GetCommandInput, 
+  QueryCommandInput,
+} from '@aws-sdk/lib-dynamodb'
 // Locals
 import { 
   ddbDocClient,
@@ -12,7 +17,9 @@ import {
   DYNAMODB_TABLE_NAMES,
   SkillDomainFactorType, 
   BessiUserDemographics__DynamoDB,
+  BessiUserResults__DynamoDB,
 } from '@/utils'
+import { BESSI_accounts } from '@/app/api/email/route'
 
 
 
@@ -35,7 +42,7 @@ export async function getUserResultsId(userResults: {
 }) {
   try {
     /**
-     * @todo Change `COOKIE_ENCRYPTION_SECRET_KEY` to use `JWT_SECRET`
+     * @todo Change `COOKIE_ENCRYPTION_SECRET_KEY` to use a new secret
      */
     const SECRET_KEY = await fetchAwsParameter(
       AWS_PARAMETER_NAMES.COOKIE_ENCRYPTION_SECRET_KEY
@@ -112,33 +119,39 @@ export async function getUserResultsId(userResults: {
  * @returns 
  */
 export async function verfiyAccessTokenAndFetchUserResults(
+  id: string,
   accessToken: string,
   JWT_SECRET: string,
 ) {
   try {
-    verify(accessToken, JWT_SECRET)
-
     // 3. If verification of `accessToken` using JWT secret is successful,
     //    create DynamoDB `GetCommand` to fetch `id` from the 
     //    `BESSI_USER_RESULT_ACCESS_TOKENS` which will be used later to fetch 
     //    the `userResults` from the `BESSI-results` table. 
+    verify(accessToken, JWT_SECRET)
+
     const input: GetCommandInput = {
       TableName: DYNAMODB_TABLE_NAMES.BESSI_USER_RESULT_ACCESS_TOKENS,
       Key: { 
+        id: id,
         accessToken: accessToken
       },
     }
 
     const command = new GetCommand(input)
+
+    // console.log(`GetCommand to fetch the userResultsId that is mapped to the accessToken: `, command)
     
     // 4. Try to fetch `userResults` from DynamoDB table
     return await fetchUserResultsIdAndUserResults(command)
   } catch (error: any) {
-    console.error(`Failed verifying 'accessToken' and 'JWT_SECRET'`)
+    const errorMessage = `Failed verifying 'accessToken' and 'JWT_SECRET'`
+
+    console.error(`${errorMessage}: `, error)
 
     // Something went wrong
     return NextResponse.json(
-      { error: error, },
+      { error: `${errorMessage}: ${error}`, },
       { status: 400, },
     )
   }
@@ -153,8 +166,6 @@ export async function verfiyAccessTokenAndFetchUserResults(
 export async function fetchUserResultsIdAndUserResults(command: GetCommand) {
   try {
     const response = await ddbDocClient.send(command)
-
-    console.log(`response fetching 'id' using 'accessToken': `, response)
     
     // 5. Throw an error if the results are not in the table
     if (!response.Item) {
@@ -181,14 +192,13 @@ export async function fetchUserResultsIdAndUserResults(command: GetCommand) {
       return fetchUserResults(userResultsId)
     }
   } catch (error: any) {
-    /**
-     * @todo ---------------------------- HERE ---------------------------------
-     */
-    console.error(`Failed fetching 'id' using 'accessToken'`)
+    const errorMessage = `Failed fetching 'id' using 'accessToken'`
+
+    console.error(`${errorMessage}: `, error)
 
     // Something went wrong
     return NextResponse.json(
-      { error: error },
+      { error: `${errorMessage}: ${error}` },
       {
         status: 500,
         headers: {
@@ -209,54 +219,71 @@ export async function fetchUserResultsIdAndUserResults(command: GetCommand) {
 export async function fetchUserResults(
   userResultsId: string
 ) {
-  // 8. Build `GetCommand` to fetch the `userResults` from the `BESSI-results` 
+  // 8. Build `QueryCommand` to fetch the `userResults` from the `BESSI-results` 
   //    table
-  const input: GetCommandInput = {
+  const input: QueryCommandInput = {
     TableName: DYNAMODB_TABLE_NAMES.BESSI_RESULTS,
-    Key: {
-      id: userResultsId
-    },
+    KeyConditionExpression: 'id = :idValue',
+    ExpressionAttributeValues: {
+      ':idVlaue': userResultsId,
+    }
   }
 
-  const command = new GetCommand(input)
+  const command = new QueryCommand(input)
 
   try {
     const response = await ddbDocClient.send(command)
 
-    console.log(`response fetching 'userResults' from ID: `, response)
-
-    if (!response.Item) {
-      const message = `No user results found in ${
-        DYNAMODB_TABLE_NAMES.BESSI_RESULTS
-      } table`
-
+    if (response.Items && response.Items.length > 0) {
+      if ((response.Items[0] as BessiUserResults__DynamoDB).id) {
+        return NextResponse.json(
+          { message: 'id exists' },
+          { 
+            status: 200,
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          },
+        )
+      } else {
+        /**
+         * @dev This if/else statement is necessary so that the type signature 
+         * of this function is:
+         * 
+         * Promise<NextResponse<{ message: string }> | NextResponse<{ error: any }>>
+         * 
+         * and not:
+         * 
+         * Promise<NextResponse<{ message: string }> | NextResponse<{ error: any }> | undefined> 
+         */
+        return NextResponse.json(
+          { message: 'User results `id` does not exist' },
+          { 
+            status: 200,
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          },
+        )
+      }
+    } else {
       return NextResponse.json(
-        { message: message },
-        {
-          status: 404,
+        { message: 'User results `id` does not exist' },
+        { 
+          status: 200,
           headers: {
             'Content-Type': 'application/json'
           }
         },
       )
-    } else {
-      // 9. Return the `userResults` if the results exist.
-      return NextResponse.json(
-        { data: response.Item },
-        {
-          status: 200,
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      )
     }
   } catch (error: any) {
-    console.error(`Failed fetching 'userResults' from 'ID'`)
+    const errorMessage = `Failed fetching 'userResults' from 'ID'`
+    console.error(`${errorMessage}: `, error)
 
     // Something went wrong
     return NextResponse.json(
-      { error: error },
+      { error: `${errorMessage}: ${error}` },
       {
         status: 500,
         headers: {

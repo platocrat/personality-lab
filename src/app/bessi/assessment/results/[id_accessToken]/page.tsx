@@ -29,7 +29,7 @@ const inter = Inter({ subsets: ['latin'] })
 
 type BessiUserSharedResultsType = {
   params: {
-    accessToken: string
+    id_accessToken: string
   }
 }
 
@@ -41,6 +41,19 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
   const { setBessiSkillScores } = useContext<BessiSkillScoresContextType>(
     BessiSkillScoresContext
   )
+  // Param
+  const { id_accessToken } = params
+
+  // Extract id and access token from the concatenated string
+  const targetIndex = id_accessToken.indexOf('-')
+  const id = id_accessToken.slice(0, targetIndex)
+  const accessToken = id_accessToken.slice(
+    targetIndex + 1, 
+    id_accessToken.length
+  )
+
+  console.log(`Params from dynamic route: \nid:${id}\n\n${accessToken}`)
+
   
   const errorMessage = `Access token was not found!`
 
@@ -52,7 +65,10 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ accessToken: params.accessToken })
+        body: JSON.stringify({ 
+          id: id,
+          accessToken: accessToken,
+        })
       })
 
       const json = await response.json()
@@ -61,9 +77,10 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
         const userResults = json.data
 
         const bessiSkillScores_: BessiSkillScores = {
+          id: id,
+          accessToken: accessToken,
           facetScores: userResults.facetScores,
           domainScores: userResults.domainScores,
-          accessToken: params.accessToken
         }
 
         setBessiSkillScores(bessiSkillScores_)
@@ -85,14 +102,14 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
 
 
   useLayoutEffect(() => {
-    if (!params.accessToken) {
+    if (!id || !accessToken) {
       /**
        * @todo Replace the line below by handling the error on the UI here
        */
       throw new Error(
-        `Error: 'accessToken' is invalid, see 'accessToken': ${
-          params.accessToken
-        }!`
+        `Error: 'accessToken' or 'id' is invalid , see 'accessToken': ${
+          accessToken
+        } and ${ id }!`
       )
     } else {
       const requests = [
@@ -101,13 +118,13 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
 
       Promise.all(requests)
     }
-  }, [params.accessToken])
+  }, [id, accessToken])
 
 
 
   return (
     <>
-      { !params.accessToken ? (
+      { !accessToken ? (
         <>
           <div style={ { maxWidth: '800px' } }>
             <div>{ errorMessage }</div>

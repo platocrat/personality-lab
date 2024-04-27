@@ -100,7 +100,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({ data }) 
       case 3:
         return <PersonalityVisualization
           data={ data_(i) }
-          averages={ null }
+          averages={ dummyVariables.pv.averages }
         />
       default:
         return null

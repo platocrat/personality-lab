@@ -22,6 +22,9 @@ const BessiShareResults = ({ }) => {
   const [ buttonText, setButtonText ] = useState('Share Results')
 
   
+  const id = useMemo(() => {
+    return bessiSkillScores?.id
+  }, [bessiSkillScores])
   const accessToken = useMemo(() => {
     return bessiSkillScores?.accessToken
   }, [bessiSkillScores])
@@ -34,8 +37,9 @@ const BessiShareResults = ({ }) => {
   async function handleShareResults() {
     const origin = window.location.origin
 
-    const baseUrl = `${ origin }/bessi/assessment/results`
-    const fullUrl = `${baseUrl}/${accessToken}` // Using path segment instead of query
+    const baseUrl = `${ origin }/bessi/assessment`
+    // Using path segment instead of query
+    const fullUrl = `${baseUrl}/results/${id}-${accessToken}`
 
     const timeout = 2_000
     try {

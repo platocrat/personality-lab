@@ -191,9 +191,10 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
 
       // 2. Calculate domain and facet scores
       let finalScores: {
-        facetScores: FacetFactorType,
-        domainScores: SkillDomainFactorType,
-        accessToken?: string | undefined,
+        id?: string,
+        accessToken?: string
+        facetScores: FacetFactorType
+        domainScores: SkillDomainFactorType
       } = calculateBessiScores(Object.values(userScores))
 
       console.log('finalScores: ', finalScores)
@@ -206,7 +207,11 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
       // 4. Create new object with final scores and access token to cache on 
       //    the client so that we can use the access token to share the user's
       //    results to others.
-      finalScores = { ...finalScores, accessToken: accessToken }
+      finalScores = { 
+        ...finalScores, 
+        id: userResultsId,
+        accessToken: accessToken
+      }
 
       // 5. Store final scores in React state
       setBessiSkillScores(finalScores)
@@ -267,7 +272,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
        * @dev This is the object that we store in DynamoDB using AWS's 
        * `PutItemCommand` operation.
        */
-      const userResults: BessiUserResults__DynamoDB = {
+      const userResults: Omit<BessiUserResults__DynamoDB, "id">  = {
         email: email,
         timestamp: CURRENT_TIMESTAMP,
         facetScores: finalScores.facetScores,
