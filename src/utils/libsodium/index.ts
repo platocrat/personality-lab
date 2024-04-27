@@ -1,6 +1,7 @@
 import { 
   ready,
   to_hex,
+  from_hex,
   to_base64,
   from_base64,
   randombytes_buf,
@@ -47,7 +48,7 @@ export class LibsodiumUtils {
     toHex?: boolean
   ) {
     await ready
-    
+
     let memLimit = crypto_pwhash_MEMLIMIT_INTERACTIVE, 
       opsLimit = crypto_pwhash_OPSLIMIT_INTERACTIVE
 
@@ -86,6 +87,11 @@ export class LibsodiumUtils {
   static async toHex(string: string): Promise<string> {
     await ready
     return to_hex(string)
+  } 
+  
+  static async fromHex(string: string): Promise<string> {
+    await ready
+    return this.base64FromUint8Array(from_hex(string))
   } 
 
   static async generateKey(): Promise<Uint8Array> {
