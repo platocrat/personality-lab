@@ -23,7 +23,7 @@ npm outdated --json | awk -F'[:,]' '
 done
 
 # Optionally, handle version control
-git add package.json
+git add ../package.json
 git commit -m "update: node package dependencies"
 
 # Run the git command below to safely `--force`` because it ensures that you do
