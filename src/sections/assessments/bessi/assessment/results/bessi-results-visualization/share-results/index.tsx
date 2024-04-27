@@ -22,6 +22,9 @@ const BessiShareResults = ({ }) => {
   const [ buttonText, setButtonText ] = useState('Share Results')
 
   
+  /**
+   * @todo Encrypt the ID and access token
+   */
   const id = useMemo(() => {
     return bessiSkillScores?.id
   }, [bessiSkillScores])

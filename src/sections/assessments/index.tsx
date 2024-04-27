@@ -60,7 +60,7 @@ const BessiDescription = () => {
         </h3>
       </div>
 
-      <BessiResultsVisualization />
+      <BessiResultsVisualization isExample={ true } />
 
       <br />
       <br />

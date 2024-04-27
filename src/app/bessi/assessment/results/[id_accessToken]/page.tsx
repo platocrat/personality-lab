@@ -51,11 +51,8 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
     targetIndex + 1, 
     id_accessToken.length
   )
-
-  console.log(`Params from dynamic route: \nid:${id}\n\n${accessToken}`)
-
   
-  const errorMessage = `Access token was not found!`
+  const errorMessage = `ID and access token were not found!`
 
 
   async function getUserResults() {

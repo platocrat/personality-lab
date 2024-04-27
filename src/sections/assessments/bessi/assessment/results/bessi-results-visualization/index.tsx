@@ -3,15 +3,17 @@
 // Externals
 import { 
   FC, 
+  useMemo,
   Fragment, 
   Dispatch, 
   useState,
   useContext, 
-  SetStateAction, 
+  SetStateAction,
 } from 'react'
 import Image from 'next/image'
 // Locals
 import TreeMap from '@/components/DataViz/TreeMap'
+import Spinner from '@/components/Suspense/Spinner'
 import BarChart from '@/components/DataViz/BarChart'
 import StellarPlot from '@/components/DataViz/StellarPlot'
 import PersonalityVisualization from '@/components/DataViz/PersonalityVisualization'
@@ -30,7 +32,7 @@ import styles from '@/sections/assessments/bessi/assessment/results/bessi-result
 
 
 type BessiResultsVisualizationType = {
-  data?: BessiSkillScores
+  isExample?: boolean
 }
 
 
@@ -41,12 +43,14 @@ export type BessiSkillScoresContextType = {
 
 
 
-const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({ data }) => {
+const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
+  isExample
+}) => {
   // Contexts
   const { bessiSkillScores } = useContext<BessiSkillScoresContextType>(
     BessiSkillScoresContext
   )
-  // Current visualization state
+  // States
   const [ isOpen, setIsOpen ] = useState(false)
   const [ currentVisualization, setCurrentVisualization ] = useState(0)
   
@@ -59,6 +63,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({ data }) 
   
   const title = visualizations[currentVisualization].name
   const liStyle = { padding: '8px 20px', cursor: 'pointer' }
+
 
   const data_ = (i: number) => {
     let _ = i === 0 // if i === 0
@@ -79,8 +84,8 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({ data }) 
         : dummyVariables.pv.data
 
     return _
-
   }
+
 
   // ------------------------- Regular functions -------------------------------
   // Placeholder for rendering the selected visualization
@@ -177,7 +182,28 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({ data }) 
 
         </div>
 
-        { renderVisualization(currentVisualization) }
+        { isExample
+          ? renderVisualization(currentVisualization)
+          : (
+            <>
+              { bessiSkillScores?.domainScores
+                ? renderVisualization(currentVisualization)
+                : (
+                  <>
+                    <div
+                      style={ {
+                        ...definitelyCenteredStyle,
+                        margin: '24px'
+                      } }
+                    >
+                      <Spinner height='72' width='72' />
+                    </div>
+                  </>
+                )
+              }
+            </>
+          )
+        }
 
       </div>
     </>
