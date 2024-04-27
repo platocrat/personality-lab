@@ -34,7 +34,7 @@ type BessiResultsVisualizationType = {
 }
 
 
-type BessiSkillScoresContextType = {
+export type BessiSkillScoresContextType = {
   bessiSkillScores: BessiSkillScores | null,
   setBessiSkillScores: Dispatch<SetStateAction<BessiSkillScores | null>>
 }
@@ -56,20 +56,6 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({ data }) 
     { id: 2, name: 'Tree Map' },
     { id: 3, name: 'Personality Visualization' },
   ]
-
-  /**
-   * @dev 1. Use access token to create a share button
-   *      2. Share button exposes a hidden custom URL with the user's access 
-   *         token of the user's results. 
-   *      3. User can click second button to copy the URL with user's exposed
-   *         access token in that URL which can shared with others.
-   *      4. URL with access token of user's results is used to privately view 
-   *         the user's results by any user. 
-   *      5. Access token of user's results is only active for 2 hours until it
-   *         is refreshed.
-   */
-
-
   
   const title = visualizations[currentVisualization].name
   const liStyle = { padding: '8px 20px', cursor: 'pointer' }
@@ -86,13 +72,14 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({ data }) 
       // if i !== 0 && domainScores !== undefined
       : bessiSkillScores?.domainScores
         ? {
-            facetScores: bessiSkillScores?.facetScores,
-            domainScores: bessiSkillScores?.domainScores,
-            averages: dummyVariables.pv.averages,
-          }
+          facetScores: bessiSkillScores?.facetScores,
+          domainScores: bessiSkillScores?.domainScores,
+          averages: dummyVariables.pv.averages,
+        }
         : dummyVariables.pv.data
 
-      return _
+    return _
+
   }
 
   // ------------------------- Regular functions -------------------------------
@@ -100,19 +87,19 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({ data }) 
   const renderVisualization = (i: number) => {
     switch (i) {
       case 0:
-        return <StellarPlot data={ data_ } />
+        return <StellarPlot data={ data_(i) } />
       case 1:
         /**
          * @todo Fix `data` property so that we have consistency across all
          * components in this switch -- change `d.metrics` to something like
          * `d.axis` and `d.values`
          */
-        return <BarChart data={ data_ } />
+        return <BarChart data={ data_(i) } />
       case 2:
-        return <TreeMap data={ data_ } />
+        return <TreeMap data={ data_(i) } />
       case 3:
         return <PersonalityVisualization
-          data={ data_ }
+          data={ data_(i) }
           averages={ null }
         />
       default:

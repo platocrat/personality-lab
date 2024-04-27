@@ -20,64 +20,64 @@ import {
 
 
 export async function POST(
-  next: Function,
   req: NextRequest, 
   res: NextResponse, 
 ) {
   if (req.method === 'POST') {
-    const { id } = await req.json()
+    const { userResultsId } = await req.json()
 
     const JWT_SECRET = await fetchAwsParameter(AWS_PARAMETER_NAMES.JWT_SECRET)
 
-    // Generate access token with a 30 minute expiry
-    const accessToken = sign(
-      { id: id },
-      JWT_SECRET as string,
-      { expiresIn: MAX_AGE.ACCESS_TOKEN }
-    )
+    if (typeof JWT_SECRET === 'string') {
+      // Generate access token with a 30 minute expiry
+      const accessToken = sign(
+        { id: userResultsId },
+        JWT_SECRET as string,
+        { expiresIn: MAX_AGE.ACCESS_TOKEN }
+      )
 
-    // Update the access token in DynamoDB
-    const putCommandInput: PutCommandInput = {
-      TableName: DYNAMODB_TABLE_NAMES.BESSI_USER_RESULT_ACCESS_TOKENS,
-      Item: { 
-        id: id,
-        accessToken: accessToken,
+      // Update the access token in DynamoDB
+      const putCommandInput: PutCommandInput = {
+        TableName: DYNAMODB_TABLE_NAMES.BESSI_USER_RESULT_ACCESS_TOKENS,
+        Item: {
+          id: userResultsId,
+          accessToken: accessToken,
+        }
       }
-    }
-    
-    const command = new PutCommand(putCommandInput)
-    
 
-    try {
-      const response = await ddbDocClient.send(command)
+      const command = new PutCommand(putCommandInput)
 
-      const message = `Access token has been added to ${
-        DYNAMODB_TABLE_NAMES.BESSI_USER_RESULT_ACCESS_TOKENS
-      } table`
+      try {
+        const response = await ddbDocClient.send(command)
 
-      return NextResponse.json(
-        { 
-          message: message,
-          data: accessToken
-        },
-        { 
-          status: 200,
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        },
-      )
-    } catch (error: any) {
-      // Something went wrong
-      return NextResponse.json(
-        { error: error },
-        { 
-          status: 500,
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        },
-      )
+        const message = `Access token has been added to ${
+          DYNAMODB_TABLE_NAMES.BESSI_USER_RESULT_ACCESS_TOKENS
+        } table`
+
+        return NextResponse.json(
+          {
+            message: message,
+            data: accessToken
+          },
+          {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          },
+        )
+      } catch (error: any) {
+        // Something went wrong
+        return NextResponse.json(
+          { error: error },
+          {
+            status: 500,
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          },
+        )
+      }
     }
   } else {
     const error = 'Method Not Allowed'

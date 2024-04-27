@@ -3,6 +3,7 @@ import BessiResultsExplanation from './explanation'
 import BessiWantToLearnMore from './want-to-learn-more'
 import BessiResultsVisualization from './bessi-results-visualization'
 import BessiResultsSkillsScoresAndDefinitions from './skills-scores-and-definitions'
+import BessiShareResults from './bessi-results-visualization/share-results'
 
 
 
@@ -11,6 +12,7 @@ const BessiAssessmentResultsSection = () => {
     <>
       <div style={ { maxWidth: '800px' } }>
         <BessiResultsExplanation />
+        <BessiShareResults  />
         <BessiResultsVisualization />
         <BessiResultsSkillsScoresAndDefinitions />
         <BessiWantToLearnMore />

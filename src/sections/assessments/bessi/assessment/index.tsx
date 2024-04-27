@@ -193,8 +193,10 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
       let finalScores: {
         facetScores: FacetFactorType,
         domainScores: SkillDomainFactorType,
-        accessToken?: string,
+        accessToken?: string | undefined,
       } = calculateBessiScores(Object.values(userScores))
+
+      console.log('finalScores: ', finalScores)
 
       // 3. Store `userResults` in DynamoDB and generate its respective ID
       const userResultsId = await storeResultsInDynamoDB(finalScores)
@@ -285,8 +287,8 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
         const json = await response.json()
 
         if (response.status === 200 ) {
-          const accessToken = json.data
-          return accessToken
+          const userResultsId = json.data
+          return userResultsId
         } else {
           const error = `Error posting BESSI results to DynamoDB: `
           /**
@@ -322,7 +324,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ id: userResultsId }),
+          body: JSON.stringify({ userResultsId: userResultsId }),
         })
 
         const json = await response.json()
