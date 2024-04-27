@@ -111,10 +111,6 @@ const LogInOrCreateAnAccount = () => {
             setIsPasswordIncorrect(false)
             
             // Authenticate user
-            /**
-             * @todo After a user authenticates, the Sign Up/Log In button hangs
-             * with a Spinner
-             */
             setIsAuthenticated(true)
             router.refresh()
             break
@@ -201,10 +197,6 @@ const LogInOrCreateAnAccount = () => {
 
           case 'User has successfully signed up':
             // Authenticate user
-            /**
-             * @todo After a user authenticates, the Sign Up/Log In button hangs
-             * with a Spinner
-             */
             setIsAuthenticated(true)
             router.refresh()
             break

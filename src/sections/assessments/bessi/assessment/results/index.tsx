@@ -12,8 +12,8 @@ const BessiAssessmentResultsSection = () => {
     <>
       <div style={ { maxWidth: '800px' } }>
         <BessiResultsExplanation />
-        <BessiShareResults  />
         <BessiResultsVisualization />
+        <BessiShareResults  />
         <BessiResultsSkillsScoresAndDefinitions />
         <BessiWantToLearnMore />
       </div>
