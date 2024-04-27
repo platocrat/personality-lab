@@ -86,6 +86,14 @@ export async function POST(
                   secretKeyUint8Array
                 )
 
+                // Get timestamp after the username is validated.
+                const timestamp = new Date().getTime().toString()
+
+                const encryptedTimestamp = await LibsodiumUtils.encryptData(
+                  timestamp,
+                  secretKeyUint8Array
+                )
+
                 /**
                  * @dev Make sure the password that is stored in the cookie is hashed!
                  */
@@ -93,7 +101,8 @@ export async function POST(
                   {
                     email: encryptedEmail,
                     username: encryptedUsername,
-                    password: hashedPassword
+                    password: hashedPassword,
+                    timestamp: encryptedTimestamp
                   },
                   JWT_SECRET as string,
                   { expiresIn: MAX_AGE.SESSION }

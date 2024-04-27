@@ -16,7 +16,12 @@ import {
  } from '@/utils'
 
 
-
+/**
+ * Checks whether a cookie exists for the given user
+ * @param req 
+ * @param res 
+ * @returns 
+ */
 export async function GET(
   req: NextRequest,
   res: NextResponse,
