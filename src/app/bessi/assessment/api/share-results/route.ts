@@ -28,7 +28,11 @@ export async function POST(
 
     if (typeof JWT_SECRET === 'string') {
       // 2. Verify `accessToken` using the JWT secret
-      return await verfiyAccessTokenAndFetchUserResults(id, accessToken, JWT_SECRET)
+      return await verfiyAccessTokenAndFetchUserResults(
+        id, 
+        accessToken, 
+        JWT_SECRET
+      )
     } else { // Return the error in the json of the `NextResponse`
       return JWT_SECRET as NextResponse<{ error: string }>
     }

@@ -2,8 +2,10 @@
 
 // Externals
 import { Inter } from 'next/font/google'
-import { FC, useContext, useEffect, useLayoutEffect, useState } from 'react'
+import { FC, useContext, useEffect, useLayoutEffect, useMemo, useState } from 'react'
 // Locals
+import Spinner from '@/components/Suspense/Spinner'
+// Sections
 import BessiResultsVisualization, { 
   BessiSkillScoresContextType
 } from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization'
@@ -12,15 +14,18 @@ import BessiWantToLearnMore from '@/sections/assessments/bessi/assessment/result
 import BessiResultsSkillsScoresAndDefinitions from '@/sections/assessments/bessi/assessment/results/skills-scores-and-definitions'
 // Contexts
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
+// Utils
+import { jwtErrorMessages } from '@/utils'
 // Types
 import { 
   FacetFactorType, 
-  BessiSkillScores, 
+  BessiSkillScoresType,
   SkillDomainFactorType,
-  BessiUserDemographics__DynamoDB, 
+  BessiUserDemographics__DynamoDB,
 } from '@/utils/bessi/types'
 // CSS
 import styles from '@/app/page.module.css'
+import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 const inter = Inter({ subsets: ['latin'] })
@@ -34,15 +39,27 @@ type BessiUserSharedResultsType = {
 }
 
 
+const rateUserResults = true
+
+
+
+
 const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({ 
   params 
 }) => {
-  // State
-  const { setBessiSkillScores } = useContext<BessiSkillScoresContextType>(
-    BessiSkillScoresContext
-  )
   // Param
   const { id_accessToken } = params
+  // Contexts
+  const { 
+    bessiSkillScores,
+    setBessiSkillScores,
+  } = useContext<BessiSkillScoresContextType>(
+    BessiSkillScoresContext
+  )
+  // State
+  const [ isDataLoading, setIsDataLoading ] = useState(false)
+  const [ isAccessTokenExpired, setIsAccessTokenExpired ] = useState(false)
+  
 
   // Extract id and access token from the concatenated string
   const targetIndex = id_accessToken.indexOf('-')
@@ -52,12 +69,20 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
     id_accessToken.length
   )
   
-  const errorMessage = `ID and access token were not found!`
+  const errorMessage =  isAccessTokenExpired 
+    ? `Access token expired!`
+    : `ID and access token were not found!`
+  
+  // Memoized constants
+  const errorStatus = useMemo((): boolean => {
+    setIsDataLoading(false)
+    return isAccessTokenExpired || !accessToken
+  }, [ isAccessTokenExpired, accessToken ])
 
 
   async function getUserResults() {
     try {
-      const response = await fetch('/bessi/assessment/api/shared-results', {
+      const response = await fetch('/bessi/assessment/api/share-results', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -73,7 +98,7 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
       if (response.status === 200) {
         const userResults = json.data
 
-        const bessiSkillScores_: BessiSkillScores = {
+        const bessiSkillScores_: BessiSkillScoresType = {
           id: id,
           accessToken: accessToken,
           facetScores: userResults.facetScores,
@@ -81,12 +106,14 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
         }
 
         setBessiSkillScores(bessiSkillScores_)
+      } else if (json.error === 'Access token expired') {
+        setIsAccessTokenExpired(true)
       } else {
         const error = `Error posting BESSI results to DynamoDB: `
         /**
          * @todo Handle error UI here
-         */
-        throw new Error(error, json.error)
+        */
+       throw new Error(error, json.error)
       }
     } catch (error: any) {
       /**
@@ -100,6 +127,8 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
 
   useLayoutEffect(() => {
     if (!id || !accessToken) {
+      setIsDataLoading(true)
+
       /**
        * @todo Replace the line below by handling the error on the UI here
        */
@@ -121,21 +150,42 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
 
   return (
     <>
-      { !accessToken ? (
+      { isDataLoading ? (
         <>
-          <div style={ { maxWidth: '800px' } }>
-            <div>{ errorMessage }</div>
-          </div>
+          <div
+            style={ {
+              ...definitelyCenteredStyle,
+              position: 'relative',
+              top: '80px',
+            } }
+          >
+            <Spinner height='40' width='40' />
+          </div>  
         </>
-        ) : (
-          <main className={ `${styles.main} ${inter.className}` }>
-            <div style={ { maxWidth: '800px' } }>
-              <BessiResultsExplanation />
-              <BessiResultsVisualization />
-              <BessiResultsSkillsScoresAndDefinitions />
-              <BessiWantToLearnMore />
-            </div>
-          </main>
+      ) : (
+        <>
+            { errorStatus ? (
+              <>
+                <div
+                  style={ {
+                    ...definitelyCenteredStyle,
+                    marginTop: '100px'
+                  } }
+                >
+                  <h2>{ errorMessage }</h2>
+                </div>
+              </>
+            ) : (
+              <main className={ `${styles.main} ${inter.className}` }>
+                <div style={ { maxWidth: '800px' } }>
+                  <BessiResultsExplanation />
+                  <BessiResultsVisualization rateUserResults={ rateUserResults } />
+                  <BessiResultsSkillsScoresAndDefinitions />
+                  <BessiWantToLearnMore />
+                </div>
+              </main>
+            ) }
+        </>
       ) }
     </>
   )

@@ -6,7 +6,7 @@ import { useContext, useMemo, useState } from 'react'
 // Contexts
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // Types
-import { BessiSkillScoresContextType } from '..'
+import { BessiSkillScoresContextType } from '../../../../sections/assessments/bessi/assessment/results/bessi-results-visualization'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -14,7 +14,7 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
-const BessiShareResults = ({ }) => {
+const BessiShareResultsButton = ({ }) => {
   // Contexts
   const { bessiSkillScores } = useContext<BessiSkillScoresContextType>(
     BessiSkillScoresContext
@@ -87,4 +87,4 @@ const BessiShareResults = ({ }) => {
   )
 }
 
-export default BessiShareResults
+export default BessiShareResultsButton

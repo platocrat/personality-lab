@@ -4,12 +4,22 @@ import {
   from_hex,
   to_base64,
   from_base64,
+  from_string,
+  crypto_box_easy,
   randombytes_buf,
   base64_variants,
+  crypto_sign_init,
   crypto_pwhash_str,
   crypto_generichash,
+  crypto_box_keypair,
+  crypto_sign_update,
+  crypto_sign_keypair,
+  crypto_box_open_easy,
   crypto_secretbox_easy,
+  crypto_box_NONCEBYTES,
   crypto_secretbox_keygen,
+  crypto_sign_final_create,
+  crypto_sign_final_verify,
   crypto_secretbox_open_easy,
   crypto_secretbox_NONCEBYTES,
   crypto_pwhash_OPSLIMIT_MODERATE,
@@ -167,6 +177,76 @@ export class LibsodiumUtils {
     return to_base64(base64, base64_variants.ORIGINAL)
   }
 }
+
+
+/**
+ * @dev Subclass of examples of how to use functions
+ */
+class LibsodiumUtilsExamples extends LibsodiumUtils {
+  /**
+   * @dev Authenticated encryption using public-key cryptography
+   */
+  static async encryptDecrypt() {
+    await ready
+    const keyPairSender = crypto_box_keypair() // Alice
+    const keyPairReceiver = crypto_box_keypair() // Bob
+
+    const message = 'Hello, secure world!'
+    const nonce = randombytes_buf(crypto_box_NONCEBYTES)
+
+    const encryptedMessage = crypto_box_easy(
+      message, 
+      nonce, 
+      keyPairReceiver.publicKey, 
+      keyPairSender.privateKey, 
+      'text'
+    )
+
+    const decryptedMessage = crypto_box_open_easy(
+      encryptedMessage, 
+      nonce, 
+      keyPairSender.publicKey, 
+      keyPairReceiver.privateKey, 
+      'text'
+    )
+    
+    console.log('Decrypted message:', decryptedMessage)
+  }
+
+  /**
+   * @dev Signing with public-key and verifying signature
+   */
+  static async signAndVerify() {
+    await ready
+
+    // Generate key pair
+    const keyPair = crypto_sign_keypair()
+
+    // Iniitliaze states to:
+    let state = crypto_sign_init(), // 1. Sign a message
+      verifyState = crypto_sign_init() // 2. Verify the signature
+    
+    const messagePart1 = 'Hello, '
+    const messagePart2 = 'world!'
+    
+    crypto_sign_update(state, from_string(messagePart1))
+    crypto_sign_update(state, from_string(messagePart2))
+
+    const signature = crypto_sign_final_create(state, keyPair.privateKey)
+
+    crypto_sign_update(verifyState, from_string(messagePart1))
+    crypto_sign_update(verifyState, from_string(messagePart2))
+    
+    const isValid = crypto_sign_final_verify(
+      verifyState, 
+      signature, 
+      keyPair.publicKey
+    )
+
+    console.log('Is the signature valid?', isValid)
+  }
+}
+
 
 
 export default LibsodiumUtils

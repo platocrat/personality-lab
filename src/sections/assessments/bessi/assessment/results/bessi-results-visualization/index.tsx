@@ -24,27 +24,83 @@ import { dummyVariables } from '@/utils/bessi/constants'
 // Enums
 import { SkillDomain } from '@/utils/bessi/types/enums'
 // Types
-import { BessiSkillScores, SkillDomainFactorType } from '@/utils/bessi/types'
+import { 
+  BessiSkillScoresType, 
+  SkillDomainFactorType 
+} from '@/utils/bessi/types'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization/bess-results-visualization.module.css'
+import BessiRateUserResults from '@/components/Forms/BESSI/RateUserResults'
 
 
 
 type BessiResultsVisualizationType = {
   isExample?: boolean
+  rateUserResults?: boolean
 }
 
 
 export type BessiSkillScoresContextType = {
-  bessiSkillScores: BessiSkillScores | null,
-  setBessiSkillScores: Dispatch<SetStateAction<BessiSkillScores | null>>
+  bessiSkillScores: BessiSkillScoresType | null,
+  setBessiSkillScores: Dispatch<SetStateAction<BessiSkillScoresType | null>>
+}
+
+
+type UserVisualizationType = {
+  rateUserResults: boolean
+  currentVisualization: number
+  bessiSkillScores: BessiSkillScoresType | null
+  renderVisualization: (i: number) => JSX.Element | null
 }
 
 
 
+
+const UserVisualization: FC<UserVisualizationType> = ({
+  rateUserResults,
+  bessiSkillScores,
+  renderVisualization,
+  currentVisualization,
+}) => {
+
+
+  return (
+    <>
+      { bessiSkillScores?.domainScores
+        ? (
+          <>
+            { renderVisualization(currentVisualization) }
+            { rateUserResults && (
+              <>
+                <BessiRateUserResults bessiSkillScores={ bessiSkillScores } />
+              </>
+            ) }
+          </>
+        ) : (
+          <>
+            <div
+              style={ {
+                ...definitelyCenteredStyle,
+                margin: '24px'
+              } }
+            >
+              <Spinner height='72' width='72' />
+            </div>
+          </>
+        )
+      }
+    </>
+  )
+}
+
+
+
+
+
 const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
-  isExample
+  isExample,
+  rateUserResults
 }) => {
   // Contexts
   const { bessiSkillScores } = useContext<BessiSkillScoresContextType>(
@@ -185,23 +241,12 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         { isExample
           ? renderVisualization(currentVisualization)
           : (
-            <>
-              { bessiSkillScores?.domainScores
-                ? renderVisualization(currentVisualization)
-                : (
-                  <>
-                    <div
-                      style={ {
-                        ...definitelyCenteredStyle,
-                        margin: '24px'
-                      } }
-                    >
-                      <Spinner height='72' width='72' />
-                    </div>
-                  </>
-                )
-              }
-            </>
+            <UserVisualization
+              bessiSkillScores={ bessiSkillScores }
+              renderVisualization={ renderVisualization }
+              currentVisualization={ currentVisualization }
+              rateUserResults={ rateUserResults as boolean }
+            />
           )
         }
 

@@ -32,7 +32,7 @@ export type UserScoresType = {
   response: number // between 1 and 5
 }
 
-export type BessiSkillScores = {
+export type BessiSkillScoresType = {
   id: string
   accessToken: string
   facetScores: FacetFactorType,

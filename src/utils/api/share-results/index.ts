@@ -12,6 +12,7 @@ import {
   ddbDocClient,
   DYNAMODB_TABLE_NAMES,
   BessiUserResults__DynamoDB,
+  jwtErrorMessages,
 } from '@/utils'
 
 
@@ -19,9 +20,9 @@ import {
 /**
  * @dev Verifies the user's `accessToken` and tries to fetch the `userResults`
  *      that is mapped to the given `id`.
+ * @param userResultsId
  * @param accessToken 
  * @param JWT_SECRET 
- * @param id 
  * @returns 
  */
 export async function verfiyAccessTokenAndFetchUserResults(
@@ -51,15 +52,35 @@ export async function verfiyAccessTokenAndFetchUserResults(
     // 4. Try to fetch `userResults` from DynamoDB table
     return await fetchUserResultsIdAndUserResults(command)
   } catch (error: any) {
-    const errorMessage = `Failed verifying 'accessToken' and 'JWT_SECRET'`
+    if (error.message === jwtErrorMessages.expiredJWT) {
+      /**
+       * @dev Access token expired and needs to be refreshed
+       */
+      return NextResponse.json(
+        { error: `Access token expired` },
+        { 
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        },
+      )
+    } else {
+      const errorMessage = `Failed verifying 'accessToken' and 'JWT_SECRET'`
 
-    console.error(`${errorMessage}: `, error)
+      console.error(`${errorMessage}: `, error)
 
-    // Something went wrong
-    return NextResponse.json(
-      { error: `${errorMessage}: ${error}`, },
-      { status: 400, },
-    )
+      // Something went wrong
+      return NextResponse.json(
+        { error: `${errorMessage}: ${error}` },
+        { 
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        },
+      )
+    }
   }
 }
 
@@ -116,7 +137,7 @@ export async function fetchUserResultsIdAndUserResults(command: GetCommand) {
 /**
  * @dev Returns `userResults` if they are in the DynamoDB table for the given 
  *      `id`.
- * @param id 
+ * @param userResultsId
  * @returns 
  */
 export async function fetchUserResults(

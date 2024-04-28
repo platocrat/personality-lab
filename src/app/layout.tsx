@@ -12,7 +12,7 @@ import Spinner from '@/components/Suspense/Spinner'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // Types
-import { BessiSkillScores } from '@/utils/bessi/types'
+import { BessiSkillScoresType } from '@/utils/bessi/types'
 // CSS
 import './globals.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -45,7 +45,7 @@ export default function RootLayout({
   const [ 
     bessiSkillScores, 
     setBessiSkillScores 
-  ] = useState<BessiSkillScores | null>(null)
+  ] = useState<BessiSkillScoresType | null>(null)
   // Booleans
   const [ isFetchingUser, setIsFetchingUser ] = useState<boolean>(true)
   const [ isAuthenticated, setIsAuthenticated ] = useState<boolean>(false)

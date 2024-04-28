@@ -24,7 +24,10 @@ type PersonalityAssessmentType = {
 }
 
 
+const isExample = true
 const topLevelSlug = `assessments`
+
+
 
 
 const BessiDescription = () => {
@@ -60,7 +63,7 @@ const BessiDescription = () => {
         </h3>
       </div>
 
-      <BessiResultsVisualization isExample={ true } />
+      <BessiResultsVisualization isExample={ isExample } />
 
       <br />
       <br />
