@@ -63,8 +63,6 @@ const UserVisualization: FC<UserVisualizationType> = ({
   renderVisualization,
   currentVisualization,
 }) => {
-
-
   return (
     <>
       { bessiSkillScores?.domainScores
