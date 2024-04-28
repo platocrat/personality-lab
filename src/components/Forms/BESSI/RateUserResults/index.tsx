@@ -66,7 +66,9 @@ const BessiRateUserResults: FC<BessiRateUserResultsType> = ({
         }}
         onSubmit={ (e: any): Promise<void> => handleSubmit(e) }
       >
-        <label htmlFor='rating'>Rate the Scores:</label>
+        <label htmlFor='rating'>
+          {`Rate scores?:`}
+        </label>
 
         <select
           id='rating'
