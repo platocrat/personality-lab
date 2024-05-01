@@ -3,18 +3,18 @@
 // Externals
 import { 
   FC, 
+  useRef,
   useMemo,
   Fragment, 
   Dispatch, 
   useState,
   useContext, 
   SetStateAction,
-  useRef,
+  MutableRefObject,
 } from 'react'
 import Image from 'next/image'
 import html2canvas from 'html2canvas'
 // Locals
-import Screenshot from '@/components/Screenshot'
 import TreeMap from '@/components/DataViz/TreeMap'
 import Spinner from '@/components/Suspense/Spinner'
 import BarChart from '@/components/DataViz/BarChart'
@@ -54,14 +54,21 @@ export type BessiSkillScoresContextType = {
 type UserVisualizationType = {
   rateUserResults: boolean
   currentVisualization: number
+  screenshotRef: MutableRefObject<any>
   bessiSkillScores: BessiSkillScoresType | null
   renderVisualization: (i: number) => JSX.Element | null
 }
 
 
 
+const imgPath = `/icons/png/`
+
+
+
+
 
 const UserVisualization: FC<UserVisualizationType> = ({
+  screenshotRef,
   rateUserResults,
   bessiSkillScores,
   renderVisualization,
@@ -72,7 +79,9 @@ const UserVisualization: FC<UserVisualizationType> = ({
       { bessiSkillScores?.domainScores
         ? (
           <>
-            { renderVisualization(currentVisualization) }
+            <div ref={ screenshotRef }>
+              { renderVisualization(currentVisualization) }
+            </div>
           </>
         ) : (
           <>
@@ -105,16 +114,17 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   const [ currentVisualization, setCurrentVisualization ] = useState(0)
   
   const visualizations = [
-    { id: 0, name: 'Stellar Plot' },
-    { id: 1, name: 'Bar Graph' },
-    { id: 2, name: 'Tree Map' },
-    { id: 3, name: 'Personality Visualization' },
+    { id: 0, name: 'Stellar Plot', imgName: 'stellar-plot' },
+    { id: 1, name: 'Bar Graph', imgName: 'bar-graph '},
+    { id: 2, name: 'Tree Map', imgName: 'tree-map' },
+    { id: 3, name: 'Personality Visualization', imgName: 'personality-visualization' },
   ]
   
   const title = visualizations[currentVisualization].name
   const liStyle = { padding: '8px 20px', cursor: 'pointer' }
 
 
+  // ------------------------- Regular functions -------------------------------
   const data_ = (i: number) => {
     let _ = i === 0 // if i === 0
       ? Object.entries(
@@ -136,8 +146,6 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
     return _
   }
 
-
-  // ------------------------- Regular functions -------------------------------
   // Placeholder for rendering the selected visualization
   const renderVisualization = (i: number) => {
     switch (i) {
@@ -167,13 +175,15 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
     if (screenshotRef.current) {
 
       html2canvas(screenshotRef.current).then((canvas: any) => {
+        
+
         canvas.toBlob((blob: any) => {
           if (blob) {
             const url = URL.createObjectURL(blob)
             const link = document.createElement('a')
 
             link.href = url
-            link.download = 'screenshot.png'
+            link.download = `${ visualizations[currentVisualization].imgName }.png`
             link.click()
 
             // Cleanup: revoke the object URL after download
@@ -233,7 +243,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
                 height={ 12 }
                 alt='Dropdown-arrow-icon'
                 className={ `${styles.dropdownIcon} ${isOpen ? styles.rotated : ''}` }
-                src={ '/icons/down-arrow-icon.png' }
+                src={ `${ imgPath }down-arrow-icon.png` }
               />
             </h3>
           </button>
@@ -268,20 +278,18 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         </button>
 
         
-        <div ref={ screenshotRef }>
-          { isExample
-            ? renderVisualization(currentVisualization)
-            : (
-              <UserVisualization
-                bessiSkillScores={ bessiSkillScores }
-                renderVisualization={ renderVisualization }
-                currentVisualization={ currentVisualization }
-                rateUserResults={ rateUserResults as boolean }
-              />
-            )
-          }
-        </div>
-
+        { isExample
+          ? renderVisualization(currentVisualization)
+          : (
+            <UserVisualization
+              screenshotRef={ screenshotRef }
+              bessiSkillScores={ bessiSkillScores }
+              renderVisualization={ renderVisualization }
+              currentVisualization={ currentVisualization }
+              rateUserResults={ rateUserResults as boolean }
+            />
+          )
+        }
 
         { rateUserResults && (
           <>

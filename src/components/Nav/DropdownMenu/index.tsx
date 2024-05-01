@@ -21,12 +21,18 @@ export type NavLink = {
 
 
 
+const imgPath = `/icons/png/`
+
+
+
+
 const DropdownMenu: FC<DropdownMenuProps> = ({
   links,
   children
 }) => {
   const dropdownRef = useRef<any>(null)
   const [isVisible, setIsVisible] = useState<boolean>(false)
+
 
   const toggleDropdown = () => setIsVisible(!isVisible)
 
@@ -60,7 +66,7 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
             className={ styles.img }
             onClick={ toggleDropdown }
             src={ 
-              isVisible ? '/icons/ph_x-bold.png' : '/icons/ic_round-menu.png' 
+              isVisible ? `${ imgPath }ph_x-bold.png` : `${ imgPath }ic_round-menu.png`
             }
           />
         </div>
