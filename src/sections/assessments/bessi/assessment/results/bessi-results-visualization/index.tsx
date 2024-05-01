@@ -9,13 +9,17 @@ import {
   useState,
   useContext, 
   SetStateAction,
+  useRef,
 } from 'react'
 import Image from 'next/image'
+import html2canvas from 'html2canvas'
 // Locals
+import Screenshot from '@/components/Screenshot'
 import TreeMap from '@/components/DataViz/TreeMap'
 import Spinner from '@/components/Suspense/Spinner'
 import BarChart from '@/components/DataViz/BarChart'
 import StellarPlot from '@/components/DataViz/StellarPlot'
+import BessiRateUserResults from '@/components/Forms/BESSI/RateUserResults'
 import PersonalityVisualization from '@/components/DataViz/PersonalityVisualization'
 // Contexts
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
@@ -29,9 +33,9 @@ import {
   SkillDomainFactorType 
 } from '@/utils/bessi/types'
 // CSS
+import appStyles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization/bess-results-visualization.module.css'
-import BessiRateUserResults from '@/components/Forms/BESSI/RateUserResults'
 
 
 
@@ -69,20 +73,10 @@ const UserVisualization: FC<UserVisualizationType> = ({
         ? (
           <>
             { renderVisualization(currentVisualization) }
-            { rateUserResults && (
-              <>
-                <BessiRateUserResults bessiSkillScores={ bessiSkillScores } />
-              </>
-            ) }
           </>
         ) : (
           <>
-            <div
-              style={ {
-                ...definitelyCenteredStyle,
-                margin: '24px'
-              } }
-            >
+            <div style={ { ...definitelyCenteredStyle,margin: '24px' } }>
               <Spinner height='72' width='72' />
             </div>
           </>
@@ -104,7 +98,9 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   const { bessiSkillScores } = useContext<BessiSkillScoresContextType>(
     BessiSkillScoresContext
   )
+
   // States
+  const screenshotRef = useRef<any>(null)
   const [ isOpen, setIsOpen ] = useState(false)
   const [ currentVisualization, setCurrentVisualization ] = useState(0)
   
@@ -166,6 +162,28 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
     }
   }
 
+
+  const handleTakeScreenshot = () => {
+    if (screenshotRef.current) {
+
+      html2canvas(screenshotRef.current).then((canvas: any) => {
+        canvas.toBlob((blob: any) => {
+          if (blob) {
+            const url = URL.createObjectURL(blob)
+            const link = document.createElement('a')
+
+            link.href = url
+            link.download = 'screenshot.png'
+            link.click()
+
+            // Cleanup: revoke the object URL after download
+            URL.revokeObjectURL(url)
+          }
+        }, 'image/png')
+      })
+    }
+  }
+
   // ------------------------- Async functions ---------------------------------
   async function handleSelection (vizId: number) {
     setCurrentVisualization(vizId)
@@ -199,7 +217,9 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
             style={{
               border: 'none',
               outline: 'none',
+              display: 'flex',
               cursor: 'pointer',
+              flexDirection: 'row',
               background: 'transparent',
             }}
           >
@@ -217,7 +237,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
               />
             </h3>
           </button>
-          
+
           { isOpen && (
             <ul className={ styles.dropdown }>
               { visualizations.map((viz, i) => (
@@ -233,20 +253,41 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
               )) }
             </ul>
           ) }
-
         </div>
 
-        { isExample
-          ? renderVisualization(currentVisualization)
-          : (
-            <UserVisualization
-              bessiSkillScores={ bessiSkillScores }
-              renderVisualization={ renderVisualization }
-              currentVisualization={ currentVisualization }
-              rateUserResults={ rateUserResults as boolean }
-            />
-          )
-        }
+        <button
+          style={ {
+            fontSize: '12.5px',
+            margin: '12px 0px 12px 0px',
+            width: '125px',
+          } }
+          className={ appStyles.button } 
+          onClick={ handleTakeScreenshot }
+        >
+          { `Download as PNG` }
+        </button>
+
+        
+        <div ref={ screenshotRef }>
+          { isExample
+            ? renderVisualization(currentVisualization)
+            : (
+              <UserVisualization
+                bessiSkillScores={ bessiSkillScores }
+                renderVisualization={ renderVisualization }
+                currentVisualization={ currentVisualization }
+                rateUserResults={ rateUserResults as boolean }
+              />
+            )
+          }
+        </div>
+
+
+        { rateUserResults && (
+          <>
+            <BessiRateUserResults bessiSkillScores={ bessiSkillScores } />
+          </>
+        ) }
 
       </div>
     </>
