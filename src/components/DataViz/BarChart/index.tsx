@@ -1,29 +1,39 @@
 // Externals
 import * as d3 from 'd3'
 import { useEffect, useRef } from 'react'
+// Locals
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 
-
-
 /**
- * @todo Fix `data` to match format similar to `StellarPlot` component
+ * Directly uses the domainScores from the data object according to the provided type definition.
  */
-const BarChart = ({ data }) => {
+const BarChart = ({ isExample, data }) => {
   const d3Container = useRef(null)
+    
+  const title = 'BESSI Bar Chart'
 
-  const title = `BESSI Bar Chart`
 
-  
   
   useEffect(() => {
-    if (data && d3Container.current) {
-      const margin = { top: 20, right: 30, bottom: 40, left: 90 },
-        width = 500 - margin.left - margin.right,
-        height = 300 - margin.top - margin.bottom
+    if (data?.domainScores && d3Container.current) {
+      const entries = Object.entries(
+        data.domainScores
+      ).map(([key, value]) => ({
+        domain: key,
+        score: value
+      }))
+
+
+      // console.log(`entries: `, entries)
+
+
+      const margin = { top: 20, right: 30, bottom: 40, left: 90 }
+      const width = 500 - margin.left - margin.right
+      const height = 300 - margin.top - margin.bottom
 
       // Clear the container
-      d3.select(d3Container.current).selectAll("*").remove()
+      d3.select(d3Container.current).selectAll('*').remove()
 
       const svg = d3.select(d3Container.current)
         .append('svg')
@@ -35,7 +45,7 @@ const BarChart = ({ data }) => {
       // X axis
       const x = d3.scaleBand()
         .range([0, width])
-        .domain(data.map(d => d.metrics))
+        .domain(entries.map(d => d.domain))
         .padding(0.2)
 
       svg.append('g')
@@ -48,54 +58,51 @@ const BarChart = ({ data }) => {
 
       // Add Y axis
       const y = d3.scaleLinear()
-        .domain([0, 100])
+        .domain(
+          [0, d3.max(
+            entries, 
+            (d: any) => d.score)
+          ]
+        )
         .range([height, 0])
 
       svg.append('g')
-        .call(d3.axisLeft(y).tickValues([0, 100])) // Specify tick values here
+        .call(d3.axisLeft(y))
         .attr('font-size', '12px')
 
       // Bars
       svg.selectAll('.bar')
-        .data(data)
+        .data(entries)
         .join('rect')
         .attr('class', 'bar')
-        .attr('x', (d: any) => x(d.metric as string) as number)
-        .attr('y', (d: any) => y(d.value as number))
+        .attr('x', (d: any) => x(d.domain) as number)
+        .attr('y', (d: any) => y(d.score))
         .attr('width', x.bandwidth())
-        .attr('height', (d: any) => height - y(d.value))
+        .attr('height', (d: any) => height - y(d.score) as number)
         .attr('fill', '#ACD8FF')
-        .attr('opacity', 1) // Make bars slightly opaque
-        .attr('stroke', 'steelblue')
-        .attr('stroke-width', 2)
-        .attr('stroke-opacity', 1)
 
       // Labels
       svg.selectAll('.label')
-        .data(data)
+        .data(entries)
         .join('text')
         .attr('class', 'label')
-        .attr(
-          'x', 
-          (d: any) => (
-            x(d.metric as string) as number
-          ) + x.bandwidth() / 2
-        )
-        .attr('y', (d: any) => y(d.value) + 20) // Adjust label position
+        .attr('x', (d: any) => x(d.domain) as number + x.bandwidth() / 2)
+        .attr('y', (d: any) => y(d.score) - 5)
         .attr('text-anchor', 'middle')
-        .text((d: any) => d.value)
+        .text((d: any) => d.score)
         .attr('font-size', '13px')
-        .attr('opacity', 0.5)
     }
   }, [data])
 
 
+
   return (
     <>
-      <h3 style={ definitelyCenteredStyle }>{ title }</h3>
+      { !isExample && <h3 style={ definitelyCenteredStyle }>{ title }</h3> }
       <div ref={ d3Container } style={ definitelyCenteredStyle } />
     </>
   )
 }
+
 
 export default BarChart

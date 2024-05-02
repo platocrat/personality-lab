@@ -11,10 +11,15 @@ import {
   useContext, 
   SetStateAction,
   MutableRefObject,
+  useEffect,
 } from 'react'
 import Image from 'next/image'
 import html2canvas from 'html2canvas'
 // Locals
+import Modal from './modal'
+import TitleDropdown from './title-dropdown'
+import UserVisualization from './user-visualization'
+// Components
 import TreeMap from '@/components/DataViz/TreeMap'
 import Spinner from '@/components/Suspense/Spinner'
 import BarChart from '@/components/DataViz/BarChart'
@@ -31,6 +36,7 @@ import { SkillDomain } from '@/utils/bessi/types/enums'
 // Types
 import { 
   BessiSkillScoresType, 
+  FacetFactorType, 
   SkillDomainFactorType 
 } from '@/utils/bessi/types'
 // CSS
@@ -52,52 +58,6 @@ export type BessiSkillScoresContextType = {
 }
 
 
-type UserVisualizationType = {
-  rateUserResults: boolean
-  currentVisualization: number
-  screenshotRef: MutableRefObject<any>
-  bessiSkillScores: BessiSkillScoresType | null
-  renderVisualization: (i: number) => JSX.Element | null
-}
-
-
-
-const imgPath = `/icons/png/`
-
-
-
-
-
-const UserVisualization: FC<UserVisualizationType> = ({
-  screenshotRef,
-  rateUserResults,
-  bessiSkillScores,
-  renderVisualization,
-  currentVisualization,
-}) => {
-  return (
-    <>
-      { bessiSkillScores?.domainScores
-        ? (
-          <>
-            <div ref={ screenshotRef }>
-              { renderVisualization(currentVisualization) }
-            </div>
-          </>
-        ) : (
-          <>
-            <div style={ { ...definitelyCenteredStyle,margin: '24px' } }>
-              <Spinner height='72' width='72' />
-            </div>
-          </>
-        )
-      }
-    </>
-  )
-}
-
-
-
 
 
 const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
@@ -108,25 +68,38 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   const { bessiSkillScores } = useContext<BessiSkillScoresContextType>(
     BessiSkillScoresContext
   )
+  
+  // Refs
+  const modalRef = useRef<any>(null)
+  const screenshot1Ref = useRef<any>(null)
+  const screenshot2Ref = useRef<any>(null)
 
   // States
-  const screenshotRef = useRef<any>(null)
+  // Booleans
   const [ isOpen, setIsOpen ] = useState(false)
-  const [isCopied, setIsCopied] = useState(false)
+  const [ isCopied, setIsCopied ] = useState(false)
+  const [ isModalVisible, setIsModalVisible ] = useState(false)
+  // Strings
+  const [ screenshotUrl, setScreenshotUrl ] = useState('')
+  // Numbers
   const [ currentVisualization, setCurrentVisualization ] = useState(0)
+
   
   const visualizations = [
     { id: 0, name: 'Stellar Plot', imgName: 'stellar-plot' },
-    { id: 1, name: 'Bar Graph', imgName: 'bar-graph '},
+    { id: 1, name: 'Bar Graph', imgName: 'bar-graph ' },
     { id: 2, name: 'Tree Map', imgName: 'tree-map' },
     { id: 3, name: 'Personality Visualization', imgName: 'personality-visualization' },
   ]
   
-  const title = visualizations[currentVisualization].name
-  const liStyle = { padding: '8px 20px', cursor: 'pointer' }
-
-
+  
   // ------------------------- Regular functions -------------------------------
+  const handleClickOutside = (e: any) => {
+    if (modalRef.current && !modalRef.current.contains(e.target)) {
+      setIsModalVisible(false)
+    }
+  }
+
   const data_ = (i: number) => {
     let _ = i === 0 // if i === 0
       ? Object.entries(
@@ -149,24 +122,30 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   }
 
   // Placeholder for rendering the selected visualization
-  const renderVisualization = (i: number) => {
+  const renderVisualization = (
+    isExample: boolean, 
+    i: number
+  ) => {
     switch (i) {
       case 0:
-        return <StellarPlot data={ data_(i) } />
+        return <StellarPlot isExample={ isExample } data={ data_(i) } />
       case 1:
         /**
          * @todo Fix `data` property so that we have consistency across all
          * components in this switch -- change `d.metrics` to something like
          * `d.axis` and `d.values`
          */
-        return <BarChart data={ data_(i) } />
+        return <BarChart isExample={ isExample } data={ data_(i) } />
       case 2:
-        return <TreeMap data={ data_(i) } />
+        return <TreeMap isExample={ isExample } data={ data_(i) } />
       case 3:
-        return <PersonalityVisualization
-          data={ data_(i) }
-          averages={ dummyVariables.pv.averages }
-        />
+        return (
+          <PersonalityVisualization
+            isExample={ isExample }
+            data={ data_(i) }
+            averages={ dummyVariables.pv.averages }
+          />
+        )
       default:
         return null
     }
@@ -174,16 +153,9 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
 
 
   const handleTakeScreenshot = () => {
-    const timeout = 2_000 // 2 seconds
-    const viz = visualizations[currentVisualization]
-
-    // Ask the user if they want to download the screenshot
-    const alertMessage = `Download PNG of the ${ viz.name }?`
-    const userConfirmation = window.confirm(alertMessage)
-
-    if (userConfirmation && screenshotRef.current) {
+    if (screenshot1Ref.current) {
       html2canvas(
-        screenshotRef.current,
+        screenshot1Ref.current,
         { 
           logging: true, 
           useCORS: true,
@@ -192,39 +164,27 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         canvas.toBlob((blob: any) => {
           if (blob) {
             const url = URL.createObjectURL(blob)
-            const link = document.createElement('a')
-
-            setIsCopied(true)
-
-            link.href = url
-            link.download = `${ viz.imgName }.png`
-            
-            document.body.appendChild(link)
-
-            link.click()
-            
-            // Cleanup: remove the link and revoke the object URL after download
-            document.body.removeChild(link)
-            URL.revokeObjectURL(url)
-
-            setTimeout(() => {
-              setIsCopied(false)
-            }, timeout)
+            setScreenshotUrl(url)
+            setIsModalVisible(true) // Show modal after taking screenshot
           }
         }, 'image/png')
       })
     }
   }
 
-  // ------------------------- Async functions ---------------------------------
-  async function handleSelection (vizId: number) {
-    setCurrentVisualization(vizId)
-    setIsOpen(false)  // close the dropdown after selection
-  }
+  
+  useEffect(() => {
+    // Only add the event listener when the dropdown is visible
+    if (isModalVisible) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
 
-  async function toggleDropdown () {
-    setIsOpen(!isOpen)
-  }
+    // Cleanup the event listener
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isModalVisible])
+
 
 
 
@@ -237,59 +197,15 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
           flexDirection: 'column',
         } }
       >
-        <div 
-          style={ { 
-            ...definitelyCenteredStyle,
-            position: 'relative', 
-            textAlign: 'center' 
-          } }
-        >
-          <button
-            onClick={ toggleDropdown }
-            style={{
-              border: 'none',
-              outline: 'none',
-              display: 'flex',
-              cursor: 'pointer',
-              flexDirection: 'row',
-              background: 'transparent',
-            }}
-          >
-            <h3
-              style={ { fontSize: '18px', }}
-              className={ styles.dropdownTitle }
-            >
-              { title }
-              <Image
-                width={ 12 }
-                height={ 12 }
-                alt='Dropdown-arrow-icon'
-                className={ `${styles.dropdownIcon} ${isOpen ? styles.rotated : ''}` }
-                src={ `${ imgPath }down-arrow-icon.png` }
-              />
-            </h3>
-          </button>
-
-          { isOpen && (
-            <ul className={ styles.dropdown }>
-              { visualizations.map((viz, i) => (
-                <Fragment key={ `viz-option-${i}` }>
-                  <li 
-                    style={ liStyle } 
-                    className={ styles.dropdownItem }
-                    onClick={ () => handleSelection(viz.id) }
-                  >
-                    { viz.name }
-                  </li>
-                </Fragment>
-              )) }
-            </ul>
-          ) }
-        </div>
-
+        <TitleDropdown
+          visualizations={ visualizations }
+          currentVisualization={ currentVisualization }
+          setCurrentVisualization={ setCurrentVisualization }
+        />
         
+
         { isExample
-          ? renderVisualization(currentVisualization)
+          ? renderVisualization(isExample, currentVisualization)
           : (
             <>
               <div
@@ -324,8 +240,10 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
                   />
                 </button>
               </div>
+
               <UserVisualization
-                screenshotRef={ screenshotRef }
+                screenshot1Ref={ screenshot1Ref }
+                isExample={ isExample as boolean }
                 bessiSkillScores={ bessiSkillScores }
                 renderVisualization={ renderVisualization }
                 currentVisualization={ currentVisualization }
@@ -334,6 +252,19 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
             </>
           )
         }
+
+        
+        <Modal
+          modalRef={ modalRef }
+          isCopied={ isCopied }
+          setIsCopied={ setIsCopied }
+          screenshotUrl={ screenshotUrl }
+          isModalVisible={ isModalVisible }
+          screenshot2Ref={ screenshot2Ref }
+          visualizations={ visualizations }
+          currentVisualization={ currentVisualization }
+        />
+
 
         { rateUserResults && (
           <>

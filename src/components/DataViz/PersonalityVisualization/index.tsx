@@ -9,7 +9,11 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
-const PersonalityVisualization = ({ data, averages }) => {
+const PersonalityVisualization = ({
+  isExample,
+  data,
+  averages,
+}) => {
   const svgRef = useRef<any>(null)
   const [ activeDomain, setActiveDomain ] = useState('Self-Management Skills')
 
@@ -241,7 +245,7 @@ const PersonalityVisualization = ({ data, averages }) => {
 
   return (
     <>
-      <h3 style={ definitelyCenteredStyle }>{ title }</h3>
+      { !isExample && <h3 style={ definitelyCenteredStyle }>{ title }</h3> }
       <div>
         <div 
           id='tooltip' 

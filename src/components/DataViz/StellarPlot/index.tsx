@@ -6,7 +6,10 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
-const StellarPlot = ({ data }) => {
+const StellarPlot = ({ 
+  isExample,
+  data
+}) => {
   const ref = useRef<any>(null)
 
   const title = `BESSI Stellar Plot`
@@ -179,7 +182,7 @@ const StellarPlot = ({ data }) => {
 
   return (
     <>
-      <h3 style={definitelyCenteredStyle}>{ title }</h3>
+      { !isExample && <h3 style={ definitelyCenteredStyle }>{ title }</h3> }
       <div ref={ ref } style={ definitelyCenteredStyle }></div>
     </>
   )

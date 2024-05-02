@@ -11,7 +11,10 @@ import { domainToFacetMapping } from '@/utils/bessi/constants'
  * @dev Reference for this treemap component can be found at:
  * https://oec.world/en/profile/world/wld
  */
-const TreeMap = ({ data }) => {
+const TreeMap = ({
+  isExample,
+  data,
+}) => {
   const d3Container = useRef(null)
 
   const title = `BESSI Tree Map`
@@ -222,7 +225,7 @@ const TreeMap = ({ data }) => {
 
   return (
     <>
-      <h3 style={ definitelyCenteredStyle }>{ title }</h3>
+      { !isExample && <h3 style={ definitelyCenteredStyle }>{ title }</h3> }
       <div ref={ d3Container } style={definitelyCenteredStyle} />
       <div 
         id='tooltip' 
