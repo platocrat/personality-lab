@@ -30,6 +30,15 @@ export const wellnessRatingDescriptions = [
 ]
 
 
+export const imgPaths = () => {
+  const basePath = `/icons/`
+  return {
+    svg: `${basePath}svg/`,
+    png: `${basePath}png/`,
+  }
+}
+
+
 /**
  * # Dummy variables
  * @dev Personality Visualization (`pv`)

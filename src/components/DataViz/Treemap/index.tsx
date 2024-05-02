@@ -14,6 +14,8 @@ import { domainToFacetMapping } from '@/utils/bessi/constants'
 const TreeMap = ({ data }) => {
   const d3Container = useRef(null)
 
+  const title = `BESSI Tree Map`
+
 
 
   const transformData = (originalData) => {
@@ -220,6 +222,7 @@ const TreeMap = ({ data }) => {
 
   return (
     <>
+      <h3 style={ definitelyCenteredStyle }>{ title }</h3>
       <div ref={ d3Container } style={definitelyCenteredStyle} />
       <div 
         id='tooltip' 

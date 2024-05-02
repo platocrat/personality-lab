@@ -5,12 +5,16 @@ import React, { useState, useEffect, useRef } from 'react'
 import { domainToFacetMapping, skillsMapping } from '@/utils/bessi/constants'
 // CSS
 import styles from '@/components/DataViz/PersonalityVisualization/PersonalityVisualization.module.css'
+import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
 const PersonalityVisualization = ({ data, averages }) => {
   const svgRef = useRef<any>(null)
   const [ activeDomain, setActiveDomain ] = useState('Self-Management Skills')
+
+  const title = `BESSI Personality Visualization`
+
 
 
   // Calculating averages is not depicted in this snippet
@@ -236,13 +240,16 @@ const PersonalityVisualization = ({ data, averages }) => {
 
 
   return (
-    <div>
-      <div 
-        id='tooltip' 
-        className={ styles.tooltip }
-      />
-      <svg ref={ svgRef }></svg>
-    </div>
+    <>
+      <h3 style={ definitelyCenteredStyle }>{ title }</h3>
+      <div>
+        <div 
+          id='tooltip' 
+          className={ styles.tooltip }
+          />
+        <svg ref={ svgRef }></svg>
+      </div>
+    </>
   )
 }
 

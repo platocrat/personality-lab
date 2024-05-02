@@ -12,6 +12,9 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 const BarChart = ({ data }) => {
   const d3Container = useRef(null)
 
+  const title = `BESSI Bar Chart`
+
+  
   
   useEffect(() => {
     if (data && d3Container.current) {
@@ -89,6 +92,7 @@ const BarChart = ({ data }) => {
 
   return (
     <>
+      <h3 style={ definitelyCenteredStyle }>{ title }</h3>
       <div ref={ d3Container } style={ definitelyCenteredStyle } />
     </>
   )

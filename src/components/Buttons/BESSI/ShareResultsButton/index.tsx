@@ -1,12 +1,16 @@
 'use client'
 
 // Externals
+import Image from 'next/image'
 import { useContext, useMemo, useState } from 'react'
 // Locals
+import { imgPaths } from '@/utils'
 // Contexts
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // Types
-import { BessiSkillScoresContextType } from '../../../../sections/assessments/bessi/assessment/results/bessi-results-visualization'
+import { 
+  BessiSkillScoresContextType 
+} from '../../../../sections/assessments/bessi/assessment/results/bessi-results-visualization'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -19,7 +23,8 @@ const BessiShareResultsButton = ({ }) => {
   const { bessiSkillScores } = useContext<BessiSkillScoresContextType>(
     BessiSkillScoresContext
   )
-  const [ buttonText, setButtonText ] = useState('Share Results')
+  // States
+  const [isCopied, setIsCopied ] = useState(false)
 
   
   /**
@@ -48,19 +53,19 @@ const BessiShareResultsButton = ({ }) => {
     try {
       await navigator.clipboard.writeText(fullUrl)
 
-      setButtonText('Copied URL!')
+      setIsCopied(true)
 
       // Optionally reset the button text after a delay
       setTimeout(() => {
-        setButtonText('Share Results')
+        setIsCopied(false)
       }, timeout)
-    } catch (error) {
+    } catch (error: any) {
       // Handle potential errors, e.g., Clipboard API not available
-      console.error('Failed to copy URL:', error)
-      setButtonText('Failed to copy, try again')
+      throw new Error('Failed to copy URL:', error)
+      setIsCopied(false)
       
       setTimeout(() => {
-        setButtonText('Share Results')
+        setIsCopied(false)
       }, timeout)
     }
   }
@@ -69,18 +74,27 @@ const BessiShareResultsButton = ({ }) => {
   
   return (
     <>
-      <div 
-        style={ { 
-          ...definitelyCenteredStyle,
-          marginTop: '24px'
-        } }
-      >
-        <button
-          style={{ width: '100px' }}
+      <div>
+        <button 
           className={ styles.button }
           onClick={ handleShareResults }
+          style={{ 
+            padding: '8px 12px',
+            backgroundColor: isCopied ? 'rgb(18, 215, 67)' : ''
+          }}
         >
-          { buttonText }
+          <Image
+            width={ 18 }
+            height={ 18 }
+            alt='Share icon to share data visualization'
+            className={ styles.img }
+            onClick={ handleShareResults }
+            src={ 
+              isCopied 
+                ? `${ imgPaths().svg }white-checkmark.svg` 
+                : `${ imgPaths().svg }white-share-icon.svg`
+            }
+          />
         </button>
       </div>
     </>

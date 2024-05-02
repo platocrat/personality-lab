@@ -20,11 +20,12 @@ import Spinner from '@/components/Suspense/Spinner'
 import BarChart from '@/components/DataViz/BarChart'
 import StellarPlot from '@/components/DataViz/StellarPlot'
 import BessiRateUserResults from '@/components/Forms/BESSI/RateUserResults'
+import BessiShareResultsButton from '@/components/Buttons/BESSI/ShareResultsButton'
 import PersonalityVisualization from '@/components/DataViz/PersonalityVisualization'
 // Contexts
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // Constants
-import { dummyVariables } from '@/utils/bessi/constants'
+import { dummyVariables, imgPaths } from '@/utils/bessi/constants'
 // Enums
 import { SkillDomain } from '@/utils/bessi/types/enums'
 // Types
@@ -111,6 +112,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   // States
   const screenshotRef = useRef<any>(null)
   const [ isOpen, setIsOpen ] = useState(false)
+  const [isCopied, setIsCopied] = useState(false)
   const [ currentVisualization, setCurrentVisualization ] = useState(0)
   
   const visualizations = [
@@ -172,22 +174,60 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
 
 
   const handleTakeScreenshot = () => {
-    if (screenshotRef.current) {
+    const timeout = 2_000 // 2 seconds
+    const viz = visualizations[currentVisualization]
 
-      html2canvas(screenshotRef.current).then((canvas: any) => {
-        
+    // Ask the user if they want to download the screenshot
+    const alertMessage = `Download PNG of the ${ viz.name }?`
+    const userConfirmation = window.confirm(alertMessage)
 
+    if (userConfirmation && screenshotRef.current) {
+      // Create a temporary title element
+      const titleElement = document.createElement('h3')
+
+      titleElement.textContent = viz.name
+      titleElement.style.position = 'absolute'
+      titleElement.style.top = '10px'
+      titleElement.style.left = '50%'
+      titleElement.style.transform = 'translateX(-50%)'
+      titleElement.style.color = 'black' // Set color if needed
+      titleElement.style.backgroundColor = 'white' // Ensure visibility on any background
+      titleElement.style.zIndex = '1000'
+
+      // Append to the div being captured
+      screenshotRef.current.prepend(titleElement)
+
+      html2canvas(
+        screenshotRef.current,
+        { 
+          logging: true, 
+          useCORS: true,
+        }
+      ).then((canvas: any) => {
         canvas.toBlob((blob: any) => {
+          // Remove the temporary title element after capture
+          screenshotRef.current.removeChild(titleElement)
+
           if (blob) {
             const url = URL.createObjectURL(blob)
             const link = document.createElement('a')
 
-            link.href = url
-            link.download = `${ visualizations[currentVisualization].imgName }.png`
-            link.click()
+            setIsCopied(true)
 
-            // Cleanup: revoke the object URL after download
+            link.href = url
+            link.download = `${ viz.imgName }.png`
+            
+            document.body.appendChild(link)
+
+            link.click()
+            
+            // Cleanup: remove the link and revoke the object URL after download
+            document.body.removeChild(link)
             URL.revokeObjectURL(url)
+
+            setTimeout(() => {
+              setIsCopied(false)
+            }, timeout)
           }
         }, 'image/png')
       })
@@ -265,29 +305,51 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
           ) }
         </div>
 
-        <button
-          style={ {
-            fontSize: '12.5px',
-            margin: '12px 0px 12px 0px',
-            width: '125px',
-          } }
-          className={ appStyles.button } 
-          onClick={ handleTakeScreenshot }
-        >
-          { `Download as PNG` }
-        </button>
-
         
         { isExample
           ? renderVisualization(currentVisualization)
           : (
-            <UserVisualization
-              screenshotRef={ screenshotRef }
-              bessiSkillScores={ bessiSkillScores }
-              renderVisualization={ renderVisualization }
-              currentVisualization={ currentVisualization }
-              rateUserResults={ rateUserResults as boolean }
-            />
+            <>
+              <div
+                style={{
+                  ...definitelyCenteredStyle,
+                  gap: '12px',
+                  marginBottom: '8px',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <button
+                  style={ {
+                    width: '50px',
+                    fontSize: '12.5px',
+                    padding: '8px 12px',
+                    margin: '12px 0px 12px 0px',
+                    backgroundColor: isCopied ? 'rgb(18, 215, 67)' : ''
+                  } }
+                  className={ appStyles.button }
+                  onClick={ handleTakeScreenshot }
+                >
+                  <Image
+                    width={ 18 }
+                    height={ 18 }
+                    alt='Share icon to share data visualization'
+                    className={ styles.img }
+                    src={
+                      isCopied 
+                        ? `${ imgPaths().svg }white-checkmark.svg` 
+                        : `${ imgPaths().svg }white-share-icon.svg`
+                    }
+                  />
+                </button>
+              </div>
+              <UserVisualization
+                screenshotRef={ screenshotRef }
+                bessiSkillScores={ bessiSkillScores }
+                renderVisualization={ renderVisualization }
+                currentVisualization={ currentVisualization }
+                rateUserResults={ rateUserResults as boolean }
+              />
+            </>
           )
         }
 

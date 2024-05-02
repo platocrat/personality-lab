@@ -3,6 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { FC, Fragment, ReactNode, useEffect, useRef, useState } from 'react'
 // Locals
+import { imgPaths } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/components/Nav/DropdownMenu/Dropdown.module.css'
@@ -18,10 +19,6 @@ export type NavLink = {
   label: string
   href: string
 }
-
-
-
-const imgPath = `/icons/png/`
 
 
 
@@ -66,7 +63,9 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
             className={ styles.img }
             onClick={ toggleDropdown }
             src={ 
-              isVisible ? `${ imgPath }ph_x-bold.png` : `${ imgPath }ic_round-menu.png`
+              isVisible 
+                ? `${ imgPaths().png }ph_x-bold.png` 
+                : `${ imgPaths().png }ic_round-menu.png`
             }
           />
         </div>
