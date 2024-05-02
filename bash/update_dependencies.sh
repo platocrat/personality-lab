@@ -16,6 +16,13 @@ update_packages () {
     do
         # Extract the package name
         package_name=$(echo $line | cut -d '"' -f 2)
+        
+        # Skip updating eslint package
+        if [ "$package_name" == "eslint" ]; then
+            echo "Skipping update for $package_name..."
+            continue
+        fi
+        
         echo "Updating $package_name to the latest version..."
         npm install "$package_name"@latest
     done
@@ -30,21 +37,21 @@ update_packages "devDependencies"
 
 echo "All packages have been updated."
 
-# # Optionally, handle version control
-# git add package.json
-# git commit -m "update: node package dependencies"
+# Optionally, handle version control
+git add package.json
+git commit -m "update: node package dependencies"
 
-# # Run the git command below to safely `--force`` because it ensures that you do
-# # not overwrite any work on the remote branch that you haven't yet integrated 
-# # into your local branch. It checks if the remote branch has updated since your 
-# # last fetch, and if it has, the force push will be aborted.
-# # ```zsh
-# # git push origin <branch-name> --force-with-lease
-# # ```
+# Run the git command below to safely `--force`` because it ensures that you do
+# not overwrite any work on the remote branch that you haven't yet integrated 
+# into your local branch. It checks if the remote branch has updated since your 
+# last fetch, and if it has, the force push will be aborted.
+# ```zsh
+# git push origin <branch-name> --force-with-lease
+# ```
 
-# # Check if a git command argument is provided
-# if [ "$1" ]; then
-#     eval "$1"
-# else
-#     git push
-# fi
+# Check if a git command argument is provided
+if [ "$1" ]; then
+    eval "$1"
+else
+    git push
+fi
