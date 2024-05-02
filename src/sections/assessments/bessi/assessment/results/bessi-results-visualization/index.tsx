@@ -182,21 +182,6 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
     const userConfirmation = window.confirm(alertMessage)
 
     if (userConfirmation && screenshotRef.current) {
-      // Create a temporary title element
-      const titleElement = document.createElement('h3')
-
-      titleElement.textContent = viz.name
-      titleElement.style.position = 'absolute'
-      titleElement.style.top = '10px'
-      titleElement.style.left = '50%'
-      titleElement.style.transform = 'translateX(-50%)'
-      titleElement.style.color = 'black' // Set color if needed
-      titleElement.style.backgroundColor = 'white' // Ensure visibility on any background
-      titleElement.style.zIndex = '1000'
-
-      // Append to the div being captured
-      screenshotRef.current.prepend(titleElement)
-
       html2canvas(
         screenshotRef.current,
         { 
@@ -205,9 +190,6 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         }
       ).then((canvas: any) => {
         canvas.toBlob((blob: any) => {
-          // Remove the temporary title element after capture
-          screenshotRef.current.removeChild(titleElement)
-
           if (blob) {
             const url = URL.createObjectURL(blob)
             const link = document.createElement('a')
