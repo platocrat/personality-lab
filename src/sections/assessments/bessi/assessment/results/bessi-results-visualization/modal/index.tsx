@@ -111,7 +111,8 @@ const Modal = ({
                 onClick={ handleShareScreenshot }
                 style={ {
                   width: '60px',
-                  padding: '6px 0px 0px 0px'
+                  padding: '6px 0px 0px 0px',
+                  backgroundColor: isCopied ? 'rgb(18, 215, 67)' : ''
                 } }
               >
                 <Image
