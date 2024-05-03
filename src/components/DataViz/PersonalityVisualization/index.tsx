@@ -2,10 +2,12 @@
 import * as d3 from 'd3'
 import React, { useState, useEffect, useRef } from 'react'
 // Locals
+import Title from '../Title'
+// Constants
 import { domainToFacetMapping, skillsMapping } from '@/utils/bessi/constants'
 // CSS
-import styles from '@/components/DataViz/PersonalityVisualization/PersonalityVisualization.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+import styles from '@/components/DataViz/PersonalityVisualization/PersonalityVisualization.module.css'
 
 
 
@@ -245,7 +247,7 @@ const PersonalityVisualization = ({
 
   return (
     <>
-      { !isExample && <h3 style={ definitelyCenteredStyle }>{ title }</h3> }
+      <Title isExample={ isExample } title={ title } />
       <div>
         <div 
           id='tooltip' 

@@ -2,6 +2,8 @@
 import React, { useRef, useEffect } from 'react'
 import * as d3 from 'd3'
 // Locals
+import Title from '../Title'
+// CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 
 
@@ -182,7 +184,7 @@ const StellarPlot = ({
 
   return (
     <>
-      { !isExample && <h3 style={ definitelyCenteredStyle }>{ title }</h3> }
+      <Title isExample={ isExample } title={ title } />
       <div ref={ ref } style={ definitelyCenteredStyle }></div>
     </>
   )

@@ -2,8 +2,11 @@
 import * as d3 from 'd3'
 import React, { useEffect, useRef } from 'react'
 // Locals
-import { definitelyCenteredStyle } from '@/theme/styles'
+import Title from '../Title'
+// Constants
 import { domainToFacetMapping } from '@/utils/bessi/constants'
+// CSS
+import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
@@ -225,7 +228,7 @@ const TreeMap = ({
 
   return (
     <>
-      { !isExample && <h3 style={ definitelyCenteredStyle }>{ title }</h3> }
+      <Title isExample={ isExample } title={ title } />
       <div ref={ d3Container } style={definitelyCenteredStyle} />
       <div 
         id='tooltip' 
