@@ -8,10 +8,10 @@ import {
   Fragment, 
   Dispatch, 
   useState,
+  useEffect,
   useContext, 
   SetStateAction,
   MutableRefObject,
-  useEffect,
 } from 'react'
 import Image from 'next/image'
 import html2canvas from 'html2canvas'
@@ -207,7 +207,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         { isExample
           ? renderVisualization(isExample, currentVisualization)
           : (
-            <>
+            <Fragment>
               <div
                 style={{
                   ...definitelyCenteredStyle,
@@ -249,7 +249,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
                 currentVisualization={ currentVisualization }
                 rateUserResults={ rateUserResults as boolean }
               />
-            </>
+            </Fragment>
           )
         }
 

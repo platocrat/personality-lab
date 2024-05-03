@@ -72,7 +72,7 @@ const TitleDropdown = ({
         </button>
 
         { isOpen && (
-          <ul className={ styles.dropdown }>
+          <div className={ styles.dropdown }> 
             { visualizations.map((viz, i: number) => (
               <Fragment key={ `viz-option-${i}` }>
                 <li
@@ -84,7 +84,7 @@ const TitleDropdown = ({
                 </li>
               </Fragment>
             )) }
-          </ul>
+          </div>
         ) }
       </div>
     </>

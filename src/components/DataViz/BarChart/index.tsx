@@ -3,12 +3,12 @@ import * as d3 from 'd3'
 import { FC, useEffect, useRef } from 'react'
 // Locals
 import Title from '../Title'
-import { 
+import {
   Facet,
-  FacetFactorType, 
+  FacetFactorType,
   skillDomainMapping,
-  SkillDomainFactorType, 
-  getSkillDomainAndWeight, 
+  SkillDomainFactorType,
+  getSkillDomainAndWeight,
 } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -17,55 +17,69 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 type BarChartType = {
   isExample: boolean
   data: {
-    facetScores: FacetFactorType,
-    domainScores: SkillDomainFactorType,
+    domainScores: SkillDomainFactorType
+    facetScores: FacetFactorType
+  } | {
+    axis: string
+    value: number
+  }[] | {
+    axis: string
+    value: number
   }
 }
 
 
 
 const BarChart: FC<BarChartType> = ({ isExample, data }) => {
-  const d3Container = useRef(null)    
+  const d3Container = useRef(null)
   const title = 'BESSI Bar Chart'
 
 
-  
+
   useEffect(() => {
     if (data && d3Container.current) {
       // Create a mapping from domain names to domain data
-      const domainMap = Object.entries(data.domainScores).reduce((acc, [key, value]) => {
-        acc[key] = {
-          domainName: key + ` (${value})`, // Append the domain score to the domain name
-          domainScore: value,
-          facetScores: [] // Array to hold facet scores for this domain
+      const domainMap = Object.entries(
+        (data as {
+          domainScores: SkillDomainFactorType,
+          facetScores: FacetFactorType
         }
-        return acc
-      }, {})
-
-      // console.log(`domainMap: `, domainMap)
+        ).domainScores).reduce(
+          (acc, [key, value]) => {
+            acc[key] = {
+              domainName: key + ` (${value})`, // Append the domain score to the domain name
+              domainScore: value,
+              facetScores: [] // Array to hold facet scores for this domain
+            }
+            return acc
+          }, {})
 
 
       // Assign facet scores to the correct domain
-      Object.entries(data.facetScores).forEach(([key, value]) => {
-        const domainInfo = getSkillDomainAndWeight(key as Facet)
+      Object.entries((data as {
+        domainScores: SkillDomainFactorType,
+        facetScores: FacetFactorType
+      }).facetScores).forEach(
+        ([key, value]) => {
+          const domainInfo = getSkillDomainAndWeight(key as Facet)
 
-        domainInfo.domain.forEach(domain => {
-          if (domainMap[domain]) { // Ensure the domain exists in the domainMap
-            domainMap[domain].facetScores.push({
-              facetName: key,
-              facetScore: value
-            })
-          } else {
-            // Log error if domain not found
-            console.error('Domain not found in domainScores: ', domain)
-          }
+          console.log(`${key}: ${value}`)
+
+          domainInfo.domain.forEach(domain => {
+            if (domainMap[domain]) { // Ensure the domain exists in the domainMap
+              domainMap[domain].facetScores.push({
+                facetName: key,
+                facetScore: value
+              })
+            } else {
+              // Log error if domain not found
+              console.error('Domain not found in domainScores: ', domain)
+            }
+          })
         })
-      })
 
       // Convert the domain map to an array for D3 processing
       const domainArray = Object.values(domainMap)
-
-      // console.log(`domainArray: `, domainArray)
 
 
       const margin = { top: 30, right: 40, bottom: 60, left: 100 }
@@ -84,18 +98,15 @@ const BarChart: FC<BarChartType> = ({ isExample, data }) => {
       // Setup the x-axis
       const x0 = d3.scaleBand()
         .rangeRound([0, width])
-        .paddingInner(0.01) // Less padding means more space for bars
+        // .paddingInner(0.01) // Less padding means more space for bars
         .domain(domainArray.map((d: any) => d.domainName))
 
       const x1 = d3.scaleBand()
-        .padding(0.1) // Ensure facets are visible by adjusting padding
+        .padding(0) // Ensure facets are visible by adjusting padding
         .domain(domainArray.flatMap(
           (d: any) => d.facetScores.map((f: any) => f.facetName)
         ))
         .rangeRound([0, x0.bandwidth()])
-
-      // console.log(`x0.domain(): `, x0.domain())
-      console.log(`x1.domain(): `, x1.domain())
 
 
       svg.append('g')
@@ -110,11 +121,11 @@ const BarChart: FC<BarChartType> = ({ isExample, data }) => {
       const y = d3.scaleLinear()
         .domain(
           [
-            0, 
+            0,
             d3.max(
               domainArray.flatMap(
-                (d: any) => d.facetScores), 
-                (f: any) => f.facetScore
+                (d: any) => d.facetScores),
+              (f: any) => f.facetScore
             )
           ]
         )
@@ -151,15 +162,14 @@ const BarChart: FC<BarChartType> = ({ isExample, data }) => {
         d3.select(this).style('stroke', 'none').style('opacity', 1)
       }
 
-
       // Create a group for each domain
-      const domainGroup = svg.selectAll('.domain')
+      const domainGroup = svg.selectAll('.domainName')
         .data(domainArray)
         .enter().append('g')
-        .attr('class', 'domain')
+        .attr('class', 'domainName')
         .attr(
-          'transform', 
-          (d: any) => `translate(${ x0(d.domainName) },0)`
+          'transform',
+          (d: any) => `translate(${x0(d.domainName)},0)`
         )
 
       // Create bars for each facet in each domain
@@ -171,7 +181,7 @@ const BarChart: FC<BarChartType> = ({ isExample, data }) => {
         .attr('y', (d: any) => y(d.facetScore))
         .attr('width', x1.bandwidth()) // Adjust bandwidth here if needed
         .attr(
-          'height', 
+          'height',
           (d: any) => height - y(d.facetScore)
         )
         .attr('fill', (d, i) => d3.schemeTableau10[i % 10])
@@ -184,53 +194,6 @@ const BarChart: FC<BarChartType> = ({ isExample, data }) => {
   }, [data])
 
 
-
-  // // create a tooltip
-  // const tooltip = d3.select('body')
-  //   .append('div')
-  //   .attr('class', 'tooltip')
-
-  // // tooltip events
-  // const mouseover = function (d) {
-  //   tooltip
-  //     .style('opacity', 1)
-  //   d3.select(this)
-  //     .style('stroke', '#EF4A60')
-  //     .style('opacity', .5)
-  // }
-  // const mousemove = function (event, d) {
-  //   const subgroupName = d3.select(this.parentNode).datum().key
-  //   const subgroupValue = d.data[subgroupName]
-  //   const f = d3.format('.0f')
-  //   tooltip
-  //     .html(`<b>${subgroupName}</b>:  ${f(subgroupValue * 100)}%`)
-  //     .style('top', event.pageY - 10 + 'px')
-  //     .style('left', event.pageX + 10 + 'px')
-  // }
-  // const mouseleave = function (d) {
-  //   tooltip
-  //     .style('opacity', 0)
-  //   d3.select(this)
-  //     .style('stroke', 'none')
-  //     .style('opacity', 1)
-  // }
-
-  // // create bars
-  // svg.append('g')
-  //   .selectAll('g')
-  //   .data(stackedData)
-  //   .join('g')
-  //   .attr('fill', d => color(d.key))
-  //   .selectAll('rect')
-  //   .data(d => d)
-  //   .join('rect')
-  //   .attr('x', d => xScale(d.data.Year))
-  //   .attr('y', d => yScale(d[1]))
-  //   .attr('width', xScale.bandwidth())
-  //   .attr('height', d => yScale(d[0]) - yScale(d[1]))
-  //   .on('mouseover', mouseover)
-  //   .on('mousemove', mousemove)
-  //   .on('mouseleave', mouseleave)
 
 
   return (
