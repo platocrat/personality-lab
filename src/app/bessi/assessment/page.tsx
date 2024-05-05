@@ -2,7 +2,7 @@
 
 // Externals
 import { FC } from 'react'
-import { Inter } from 'next/font/google'
+
 // Locals
 // Sections
 import BessiAssessment from '@/sections/assessments/bessi/assessment'
@@ -10,7 +10,7 @@ import BessiAssessment from '@/sections/assessments/bessi/assessment'
 import styles from '@/app/page.module.css'
 
 
-const inter = Inter({ subsets: ['latin'] })
+
 
 
 type BessiProps = {}
@@ -23,7 +23,7 @@ const Bessi: FC<BessiProps> = ({ }) => {
 
   return (
     <>
-      <main className={ `${styles.main} ${inter.className}` }>
+      <main className={ `${styles.main} ` }>
         <BessiAssessment />
       </main>
     </>

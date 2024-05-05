@@ -2,7 +2,7 @@
 
 // Externals
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+
 import { useState, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 // Locals
@@ -24,7 +24,6 @@ export type UserResponse = {
 }
 
 
-const inter = Inter({ subsets: ['latin'] })
 
 
 const metadata: Metadata = {
@@ -112,7 +111,7 @@ export default function RootLayout({
       { isFetchingUser ? (
         <>
           <html lang='en'>
-            <body className={ inter.className }>
+            <body>
               <div
                 style={ {
                   ...definitelyCenteredStyle,
@@ -128,7 +127,7 @@ export default function RootLayout({
       ) : (
         <>
           <html lang='en'>
-            <body className={ inter.className }>
+            <body>
               <AuthenticatedUserContext.Provider
                 value={ {
                   isAuthenticated,

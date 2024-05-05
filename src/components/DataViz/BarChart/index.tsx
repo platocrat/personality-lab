@@ -148,24 +148,6 @@ const BarChart: FC<BarChartType> = ({ isExample, data }) => {
         .style('padding', '10px')
         .style('border-radius', '5px')
 
-      // Mouse event handlers
-      const mouseover = function (event, d) {
-        tooltip.style('opacity', 1)
-        d3.select(this).style('stroke', 'black').style('opacity', 0.8)
-      }
-
-      const mousemove = function (event, d) {
-        tooltip
-          .html(`Facet: ${d.facetName}<br/>Score: ${d.facetScore}`)
-          .style('left', (event.pageX + 10) + 'px')
-          .style('top', (event.pageY - 10) + 'px')
-      }
-
-      const mouseleave = function (event, d) {
-        tooltip.style('opacity', 0)
-        d3.select(this).style('stroke', 'none').style('opacity', 1)
-      }
-
       // Create a group for each domain
       const domainGroup = svg.selectAll('.domainName')
         .data(domainArray)
@@ -190,9 +172,20 @@ const BarChart: FC<BarChartType> = ({ isExample, data }) => {
           (d: any) => height - y(d.facetScore)
         )
         .attr('fill', (d, i) => d3.schemeTableau10[i % 10])
-        .on('mouseover', mouseover)
-        .on('mousemove', mousemove)
-        .on('mouseleave', mouseleave)
+        .on('mouseover', function (event, d) {
+          tooltip.style('opacity', 1)
+          d3.select(this).style('stroke', 'black').style('opacity', 0.8)
+        })
+        .on('mousemove', function (event, d: any) {
+          tooltip
+            .html(`Facet: ${d.facetName}<br/>Score: ${d.facetScore}`)
+            .style('left', (event.pageX + 10) + 'px')
+            .style('top', (event.pageY - 10) + 'px')
+        })
+        .on('mouseleave', function (event, d) {
+          tooltip.style('opacity', 0)
+          d3.select(this).style('stroke', 'none').style('opacity', 1)
+        })
 
       // Optionally, add labels or tooltips as needed
     }

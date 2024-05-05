@@ -1,7 +1,7 @@
 'use client'
 
 // Externals
-import { Inter } from 'next/font/google'
+
 import { FC, useContext, useEffect, useLayoutEffect, useMemo, useState } from 'react'
 // Locals
 import Spinner from '@/components/Suspense/Spinner'
@@ -28,7 +28,7 @@ import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
 
 
-const inter = Inter({ subsets: ['latin'] })
+
 
 
 
@@ -176,7 +176,7 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
                 </div>
               </>
             ) : (
-              <main className={ `${styles.main} ${inter.className}` }>
+              <main className={ `${styles.main} ` }>
                 <div style={ { maxWidth: '800px' } }>
                   <BessiResultsExplanation />
                   <BessiResultsVisualization rateUserResults={ rateUserResults } />
