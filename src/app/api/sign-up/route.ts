@@ -132,11 +132,32 @@ export async function POST(
            * @dev 5. Store the cookie
           */
           cookies().set(COOKIE_NAME, token, {
+            /**
+             * @dev A cookie with the `HttpOnly` attribute can't be modified by 
+             * JavaScript, for example using `Document.cookie`; it can only be
+             * modified when it reaches the server. Cookies that persist user 
+             * sessions for example should have the `HttpOnly` attribute set — 
+             * it would be really insecure to make them available to JavaScript. 
+             * This precaution helps mitigate cross-site scripting (`XSS`) 
+             * attacks.
+             * 
+             * See Mozilla docs for more info: https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies#block_access_to_your_cookies
+             */
             httpOnly: true,
             /**
-             * @todo Change to `true` to ensure secure cookies
+             * @todo Change to `true` to ensure cookie is only sent to 
+             * the server with an encrypted request over the HTTPS 
+             * protocol (except on localhost), which means MITM attackers
+             * can't access it easily. Insecure sites (with `http`: in 
+             * the URL) can't set cookies with the `Secure` attribute. 
+             * However, don't assume that `Secure` prevents all access to
+             * sensitive information in cookies. For example, someone with
+             * access to the client's hard disk (or JavaScript if the 
+             * `HttpOnly` attribute isn't set) can read and modify the
+             * information.
+             * 
+             * See Mozilla docs for more info: https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies#block_access_to_your_cookies
              */
-            secure: false,
             sameSite: 'strict',
             path: '/',
           })

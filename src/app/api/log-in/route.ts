@@ -119,7 +119,18 @@ export async function POST(
                 cookies().set(COOKIE_NAME, token, {
                   httpOnly: true,
                   /**
-                   * @todo Change to `true` to ensure secure cookies
+                   * @todo Change to `true` to ensure cookie is only sent to 
+                   * the server with an encrypted request over the HTTPS 
+                   * protocol (except on localhost), which means MITM attackers
+                   * can't access it easily. Insecure sites (with `http`: in 
+                   * the URL) can't set cookies with the `Secure` attribute. 
+                   * However, don't assume that `Secure` prevents all access to
+                   * sensitive information in cookies. For example, someone with
+                   * access to the client's hard disk (or JavaScript if the 
+                   * `HttpOnly` attribute isn't set) can read and modify the
+                   * information.
+                   * 
+                   * See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies#block_access_to_your_cookies
                    */
                   secure: false,
                   sameSite: 'strict',
