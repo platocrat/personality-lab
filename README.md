@@ -102,6 +102,12 @@ When prompted for a password, enter your personal access token that you get from
 sudo systemctl restart docker
 ```
 
+#### 4. Prune all data from Docker
+
+```zsh
+sudo docker system prune -a
+```
+
 ### 4. Push new commits to GitHub to see the GitHub Action automate the deployment process
 
 ### 5. Manually start the Next.js app by running the image
