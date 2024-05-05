@@ -5,8 +5,8 @@ env:
   EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
   EC2_HOSTNAME: ${{ secrets.EC2_HOSTNAME }}
   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
   DOCKER_HUB_REPOSITORY: ${{ secrets.DOCKER_HUB_REPOSITORY }}
+  DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
 on:
   push:
@@ -25,7 +25,7 @@ jobs:
           node-version: '20.12.2'
       # Phase 1: Build and Push Docker Image to Docker Hub Repository
       - name: 1. Login to Docker
-        run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+        run: docker login -u $DOCKER_USERNAME -p $DOCKER_HUB_ACCESS_TOKEN
       - name: 2. Build the Docker image
         run: docker build -t personality-lab-app .
       - name: 3. Tag newly built image
@@ -36,7 +36,7 @@ jobs:
       - name: 5. Create SSH key
         run: echo "$SSH_KEY" > ssh_key && chmod 600 ssh_key
       - name: 6. SSH into EC2 instance, prune Docker system data, and pull Docker image
+        # sudo docker system prune -a -f && # No longer compatible with older Docker version
         run: ssh -o StrictHostKeyChecking=no -i ssh_key $EC2_USERNAME@$EC2_HOSTNAME '
-          sudo docker system prune -a -f &&
           sudo docker pull platocrat/personality-lab-app
           '

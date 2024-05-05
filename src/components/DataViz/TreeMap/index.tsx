@@ -138,7 +138,7 @@ const TreeMap = ({
       .data(root.leaves())
       .enter().append('g')
       .attr('transform', (d: any) => `translate(${d.x0},${d.y0})`)
-      
+
     const tooltip = d3.select('#tooltip')
 
     // Draw rectangles
@@ -229,10 +229,10 @@ const TreeMap = ({
   return (
     <>
       <Title isExample={ isExample } title={ title } />
-      <div ref={ d3Container } style={definitelyCenteredStyle} />
-      <div 
-        id='tooltip' 
-        style={{
+      <div ref={ d3Container } style={ definitelyCenteredStyle } />
+      <div
+        id='tooltip'
+        style={ {
           display: 'none',
           padding: '10px',
           background: 'white',
@@ -241,7 +241,7 @@ const TreeMap = ({
           pointerEvents: 'none',
           border: '1px solid #ccc',
           boxShadow: '0px 0px 10px rgba(0,0,0,0.5)',
-        }}
+        } }
       >
       </div>
     </>
