@@ -13,10 +13,10 @@ RUN npm i
 COPY . .
 
 # Build the Next.js application for production
-RUN npx turbo build
+RUN npm run build
 
 # Expose the port that the application will run on
 EXPOSE 3000
 
 # Start the application
-CMD ["npx", "turbo", "start"]
+CMD ["npm", "run", "start"]
