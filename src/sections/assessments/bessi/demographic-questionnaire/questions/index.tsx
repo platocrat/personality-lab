@@ -67,14 +67,14 @@ const Questions = () => {
             * `Background` text.
             */}
           <div style={{ marginBottom: '-12px' }}/>
-          {/* <BessiPriorCompletion />
+          <BessiPriorCompletion />
           <BessiGender />
           <BessiAge />
           <BessiRaceOrEthnicity />
           <BessiEnglishFluency />
           <BessiSocialClass />
           <BessiLocation />
-          <BessiEducationAndWork /> */}
+          <BessiEducationAndWork />
           <BessiMarriageAndFamily />
         </td>
       </tr>
