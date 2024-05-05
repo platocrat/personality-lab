@@ -2,8 +2,11 @@
 export const REGION = 'us-east-1'
 
 // Used for AWS DynamoDB API calls
-export const BESSI_RESULTS_TABLE_NAME = 'BESSI-results'
-export const BESSI_ACCOUNTS_TABLE_NAME = 'BESSI-accounts'
+export const DYNAMODB_TABLE_NAMES = {
+  BESSI_ACCOUNTS: 'BESSI-accounts',
+  BESSI_RESULTS: 'BESSI-results',
+  BESSI_USER_RESULT_ACCESS_TOKENS: 'BESSI-user-result-access-tokens',
+}
 export const AWS_PARAMETER_NAMES = {
   JWT_SECRET: 'JWT_SECRET',
   SENDGRID_API_KEY: 'SENDGRID_API_KEY',
