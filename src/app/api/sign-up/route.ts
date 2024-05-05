@@ -133,7 +133,10 @@ export async function POST(
           */
           cookies().set(COOKIE_NAME, token, {
             httpOnly: true,
-            secure: process.env.NEXT_NODE_ENV ? false : true,
+            /**
+             * @todo Change to `true` to ensure secure cookies
+             */
+            secure: false,
             sameSite: 'strict',
             path: '/',
           })
