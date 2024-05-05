@@ -82,27 +82,31 @@ const BarChart: FC<BarChartType> = ({ isExample, data }) => {
       const domainArray = Object.values(domainMap)
 
 
-      const margin = { top: 30, right: 40, bottom: 60, left: 100 }
-      const width = 700 - margin.left - margin.right
-      const height = 300 - margin.top - margin.bottom
+      const margin = { top: 20, right: 30, bottom: 50, left: 90 }
+      const width = 450 - margin.left - margin.right
+      const height = 425 - margin.top - margin.bottom
 
       d3.select(d3Container.current).selectAll('*').remove()
 
       const svg = d3.select(d3Container.current)
         .append('svg')
-        .attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom + 85)
+        .attr('width', width + margin.left + margin.right + 100)
+        .attr('height', height + margin.top + margin.bottom + 55)
         .append('g')
-        .attr('transform', `translate(${margin.left - 20}, ${margin.top})`)
+        // .attr('transform', `translate(${margin.left + 400}, ${margin.top})`)
+        .attr('transform', `rotate(90), translate(${45}, ${-margin.top - 460})`)
+
 
       // Setup the x-axis
       const x0 = d3.scaleBand()
-        .rangeRound([0, width])
+        .rangeRound([0, width + 100])
         // .paddingInner(0.01) // Less padding means more space for bars
+        .paddingOuter(0.01) // Less padding means more space for bars
         .domain(domainArray.map((d: any) => d.domainName))
 
       const x1 = d3.scaleBand()
-        .padding(0) // Ensure facets are visible by adjusting padding
+        .paddingInner(4) // Ensure facets are visible by adjusting padding
+        .paddingOuter(0)
         .domain(domainArray.flatMap(
           (d: any) => d.facetScores.map((f: any) => f.facetName)
         ))
@@ -113,9 +117,9 @@ const BarChart: FC<BarChartType> = ({ isExample, data }) => {
         .attr('transform', `translate(0,${height})`)
         .call(d3.axisBottom(x0))
         .selectAll('text')
-        .attr('transform', 'translate(-10,0)rotate(-45)')
+        .attr('transform', 'translate(-11, 12)rotate(-120)')
         .style('text-anchor', 'end')
-        .attr('font-size', '13px')
+        .attr('font-size', '10px')
 
       // Setup the y-axis
       const y = d3.scaleLinear()
@@ -179,7 +183,8 @@ const BarChart: FC<BarChartType> = ({ isExample, data }) => {
         .attr('class', 'bar')
         .attr('x', (d: any) => x1(d.facetName) as number)
         .attr('y', (d: any) => y(d.facetScore))
-        .attr('width', x1.bandwidth()) // Adjust bandwidth here if needed
+        // Adjust bandwidth here if needed
+        .attr('width', x1.bandwidth() + 3)
         .attr(
           'height',
           (d: any) => height - y(d.facetScore)
