@@ -25,7 +25,7 @@ jobs:
           node-version: '20.12.2'
       # Phase 1: Build and Push Docker Image to Docker Hub Repository
       - name: 1. Login to Docker
-        run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+        run: docker login -u $DOCKER_USERNAME -p $DOCKER_HUB_ACCESS_TOKEN
       - name: 2. Build the Docker image
         run: docker build -t personality-lab-app .
       - name: 3. Tag newly built image
