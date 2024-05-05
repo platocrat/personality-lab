@@ -15,9 +15,9 @@
     "clean": "rm -rf .next .turbo node_modules package-lock.json && npm i"
   },
   "dependencies": {
-    "next": "^14.2.3",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "next": "^14.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@aws-sdk/client-dynamodb": "^3.569.0",
@@ -30,12 +30,12 @@
     "@types/jsonwebtoken": "^9.0.6",
     "@types/libsodium-wrappers": "^0.7.14",
     "@types/libsodium-wrappers-sumo": "^0.7.8",
-    "@types/node": "^20.12.8",
-    "@types/react": "^18.3.1",
-    "@types/react-dom": "^18.3.0",
+    "@types/node": "^20.11.16",
+    "@types/react": "^18.2.51",
+    "@types/react-dom": "^18.2.18",
     "d3": "^7.9.0",
     "eslint": "^8.56.0",
-    "eslint-config-next": "^14.2.3",
+    "eslint-config-next": "^14.1.0",
     "html2canvas": "^1.4.1",
     "jsonwebtoken": "^9.0.2",
     "libsodium-wrappers": "^0.7.13",
