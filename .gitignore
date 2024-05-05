@@ -1,8 +1,8 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 # ---------------------------- Project Specific --------------------------------
 .env
-# .turbo
-# package-lock.json
+.turbo
+package-lock.json
 
 # dependencies
 /node_modules
