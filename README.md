@@ -70,7 +70,6 @@ server {
 sudo service nginx restart
 ```
 
+## Manual Deployment of NextJS app to AWS EC2 instance
 
-<!-- ## Manual Deployment of NextJS app to AWS EC2 instance
-
-> NOTE: This is required because of something that broke the GitHub Actions automated deployment that was set up previously. -->
+> NOTE: This is required because of something that broke the GitsHub Actions automated deployment that was set up previously.
