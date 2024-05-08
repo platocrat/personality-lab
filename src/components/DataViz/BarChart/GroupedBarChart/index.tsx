@@ -110,15 +110,16 @@ const GroupedBarChart: FC<GroupedBarChartType> = ({
       .rangeRound([height, 0])
 
 
-    const uniqueColors = generateHighContrastColors(BASELINE_NUMBER_OF_FACETS * 2)
+    // const uniqueColors = generateHighContrastColors(BASELINE_NUMBER_OF_FACETS)
 
     const color = d3.scaleOrdinal<string>()
       .domain(_data.flatMap(
         d => d.facetScores.map(
-          (_, i: number): string => i.toString())
-        )
+          (_, i) => i.toString()))
       )
-      .range(uniqueColors)
+      .range([...Array(_data.reduce(
+        (max, d) => Math.max(max, d.facetScores.length), 0))
+      ].map((_, i) => d3.interpolateRainbow(i / _data.length)));
 
 
     // Create a tooltip
@@ -175,8 +176,35 @@ const GroupedBarChart: FC<GroupedBarChartType> = ({
       .on('mouseleave', mouseleave)
 
     svg.append('g')
+      .attr('class', 'x-axis')
       .attr('transform', `translate(0,${height})`)
-      .call(d3.axisBottom(x0))
+      .call(d3.axisBottom(x0).tickFormat(d => {
+        const words = d.split(' ')
+        const lineHeight = 1.2
+        const maxWidth = x0.bandwidth()
+
+        let line = ''
+        let lines: any = []
+
+        words.forEach((word, i: number) => {
+          const testLine = line.length > 0 ? `${line} ${word}` : word
+          const testWidth = testLine.length * lineHeight
+          
+          if (testWidth > maxWidth && line.length > 0) {
+            lines[i] = line
+            line = word
+          } else {
+            line = testLine
+          }
+        })
+
+        lines.push(line)
+
+        return lines
+      }))
+      .selectAll('text')
+      .style('text-anchor', 'middle')
+      .attr('dy', '1.5em') // Adjust as needed for vertical spacing between lines
 
     svg.append('g')
       .call(d3.axisLeft(y))
