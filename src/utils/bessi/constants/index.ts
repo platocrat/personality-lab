@@ -210,6 +210,9 @@ export const domainToFacetMapping = {
   ],
 }
 
+
+
+
 export const skillDomainMapping: { [key: string]: { domain: SkillDomain[], weight: number } } = {
   // Self-Management Skills (Full Weight)
   [Facet.TimeManagement]: { domain: [SkillDomain.SelfManagement], weight: 1 },
