@@ -131,27 +131,6 @@ const GroupedBarChart: FC<GroupedBarChartType> = ({
       .style('border', '1px solid #d3d3d3')
       .style('padding', '10px')
       .style('border-radius', '5px')
-
-    const mousemove = function (event, d: any) {
-      const currentFacet = findFacetByScore(_data, d.value, d.index)
-      const facetName = currentFacet ? currentFacet.name : ''
-      const facetScore = currentFacet ? currentFacet.score : ''
-
-      tooltip
-        .html(`Facet: ${facetName}<br/>Score: ${facetScore}`)
-        .style('left', (event.pageX + 10) + 'px')
-        .style('top', (event.pageY - 10) + 'px')
-    }
-
-    const mouseover = function (event, d) {
-      tooltip.style('opacity', 1)
-      d3.select(this).style('stroke', 'black').style('opacity', 0.8)
-    }
-
-    const mouseleave = function (event, d) {
-      tooltip.style('opacity', 0)
-      d3.select(this).style('stroke', 'none').style('opacity', 1)
-    }
     
 
     svg.append('g')
@@ -171,40 +150,29 @@ const GroupedBarChart: FC<GroupedBarChartType> = ({
       .attr('width', x1.bandwidth())
       .attr('height', (d: any) => y(0)! - y(d.value))
       .attr('fill', (_: any, i) => color((i * _.value).toString()))
-      .on('mouseover', mouseover)
-      .on('mousemove', mousemove)
-      .on('mouseleave', mouseleave)
+      .on('mouseover', function (event, d) {
+        tooltip.style('opacity', 1)
+        d3.select(this).style('stroke', 'black').style('opacity', 0.8)
+      })
+      .on('mousemove', function (event, d: any) {
+        const currentFacet = findFacetByScore(_data, d.value, d.index)
+        const facetName = currentFacet ? currentFacet.name : ''
+        const facetScore = currentFacet ? currentFacet.score : ''
+
+        tooltip
+          .html(`Facet: ${facetName}<br/>Score: ${facetScore}`)
+          .style('left', (event.pageX + 10) + 'px')
+          .style('top', (event.pageY - 10) + 'px')
+      })
+      .on('mouseleave', function (event, d) {
+        tooltip.style('opacity', 0)
+        d3.select(this).style('stroke', 'none').style('opacity', 1)
+      })
 
     svg.append('g')
       .attr('class', 'x-axis')
       .attr('transform', `translate(0,${height})`)
-      .call(d3.axisBottom(x0).tickFormat(d => {
-        const words = d.split(' ')
-        const lineHeight = 1.2
-        const maxWidth = x0.bandwidth()
-
-        let line = ''
-        let lines: any = []
-
-        words.forEach((word, i: number) => {
-          const testLine = line.length > 0 ? `${line} ${word}` : word
-          const testWidth = testLine.length * lineHeight
-          
-          if (testWidth > maxWidth && line.length > 0) {
-            lines[i] = line
-            line = word
-          } else {
-            line = testLine
-          }
-        })
-
-        lines.push(line)
-
-        return lines
-      }))
-      .selectAll('text')
-      .style('text-anchor', 'middle')
-      .attr('dy', '1.5em') // Adjust as needed for vertical spacing between lines
+      .call(d3.axisBottom(x0))
 
     svg.append('g')
       .call(d3.axisLeft(y))
