@@ -121,9 +121,11 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
 
     const svgWidth = 600
     const svgHeight = 400
-    const margin = { top: 40, right: 120, bottom: 90, left: 50 }
+    const margin = { top: 20, right: 120, bottom: 90, left: 50 }
     const width = svgWidth - margin.left - margin.right
     const height = svgHeight - margin.top - margin.bottom
+
+    console.log(`data: `, data)
 
 
     const svg = d3.select(d3Container.current)
@@ -147,7 +149,7 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
     const x1 = d3.scaleBand()
       .domain((data as TargetDataStructure).facets.map(d => d.name))
       .rangeRound([0, x0.bandwidth()])
-      .padding(0.05)
+      .padding(0.25)
 
     const y = d3.scaleLinear()
       .domain([0, 100]) // Assuming scores range from 0 to 100
@@ -169,7 +171,7 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
     g.selectAll('rect')
       .data((data as TargetDataStructure).facets)
       .join('rect')
-      .attr('x', (d, i) => x1(d.name)! * i)
+      .attr('x', (d, i) => x1(d.name)!)
       .attr('y', d => y(d.score))
       .attr('width', x1.bandwidth())
       .attr('height', d => y(0)! - y(d.score))
@@ -189,10 +191,27 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
         d3.select(this).style('stroke', 'none').style('opacity', 1)
       })
 
+    // Add facet score labels to the top of each bar
+    g.selectAll('.bar-label')
+      .data((data as TargetDataStructure).facets)
+      .join('text')
+      .attr('class', 'bar-label')
+      .attr('x', (d, i) => x1(d.name)! + x1.bandwidth() / 2)
+      .attr('y', d => y(d.score) - 5)
+      .text(d => d.score)
+      .attr('text-anchor', 'middle')
+      .attr('font-size', '10px')
+      .attr('fill', 'black')
+
     g.append('g')
       .attr('class', 'x-axis')
       .attr('transform', `translate(0,${height})`)
       .call(d3.axisBottom(x1))
+      .selectAll('text')
+      .style('text-anchor', 'end')
+      .attr('dx', '-0.8em')
+      .attr('dy', '0.15em')
+      .attr('transform', 'rotate(-25)')
 
     g.append('g')
       .attr('class', 'y-axis')
@@ -201,16 +220,42 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
     // Legend
     const legend = svg.append('g')
       .attr('class', 'legend')
-      .attr('transform', `translate(${width + 20},20)`)
+      .attr('transform', `translate(${width - 20},20)`)
 
     const legendTitle = legend.append('text')
       .attr('x', 0)
       .attr('y', -10)
-      .text('Domain Score')
+      .text('Domain Score:')
+
+    const domainScore: any = legend.append('text')
+      .attr('x', 0)
+      .attr('y', 10)
+      .text((data as TargetDataStructure).domainScore)
+      // Set the color here
+      .attr('fill', color((data as TargetDataStructure).domainScore))
+      .attr('transform', 'translate(12,5)')
+    
+    const scoreRangeText: any = legend.append('text')
+      .attr('x', 0)
+      .attr('y', 10)
+      .text(`Score Range`)
+      .attr('transform', 'translate(12,50)')
+
+    const textBBox = domainScore.node().getBBox()
+
+    legend.insert('rect', 'text')
+      .attr('x', textBBox.x - 3) // Add some padding
+      .attr('y', textBBox.y - 3) // Add some padding
+      .attr('width', textBBox.width + 30) // Add some padding
+      .attr('height', textBBox.height + 4) // Add some padding
+      .attr('fill', 'black') // Set the background color
+      .attr('rx', 5) // Rounded corners
+      .attr('ry', 5) // Rounded corners
+      .attr('transform', 'translate(0,5)')
 
     const legendGradient = legend.append('g')
       .attr('class', 'legend-gradient')
-      .attr('transform', 'translate(0,10)')
+      .attr('transform', 'translate(0,71)')
 
     legendGradient.append('rect')
       .attr('width', 20)
@@ -223,7 +268,7 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
 
     const legendAxis = legend.append('g')
       .attr('class', 'legend-axis')
-      .attr('transform', 'translate(20,10)')
+      .attr('transform', 'translate(20,71)')
       .call(d3.axisRight(legendScale).ticks(5))
 
     const defs = svg.append('defs')
