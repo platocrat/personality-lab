@@ -20,6 +20,7 @@ import Modal from './modal'
 import TitleDropdown from './title-dropdown'
 import UserVisualization from './user-visualization'
 // Components
+import Title from '@/components/DataViz/Title'
 import TreeMap from '@/components/DataViz/TreeMap'
 import Spinner from '@/components/Suspense/Spinner'
 import StellarPlot from '@/components/DataViz/StellarPlot'
@@ -35,8 +36,8 @@ import { dummyVariables, imgPaths } from '@/utils/bessi/constants'
 import { SkillDomain } from '@/utils/bessi/types/enums'
 // Types
 import { 
-  BessiSkillScoresType, 
   FacetFactorType, 
+  BessiSkillScoresType, 
   SkillDomainFactorType 
 } from '@/utils/bessi/types'
 import {
@@ -156,12 +157,15 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
       case 0:
         return <StellarPlot isExample={ isExample } data={ data_(i) } />
       case 1:
+        const title = 'BESSI Bar Chart'
         const allData: TargetDataStructure[] = data_(i) as TargetDataStructure[]
 
         return (
           <>
+            <div style={{ margin: '24px 0px 0px 0px' }} />
             { allData.map((data: TargetDataStructure, i: number) => (
               <>
+                <Title isExample={ isExample } title={ title } />
                 <BarChartPerDomain isExample={ isExample } data={ data } />
               </>
             )) }
