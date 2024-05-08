@@ -4,41 +4,34 @@ import { FC, useEffect, useRef } from 'react'
 // Locals
 import Title from '../../Title'
 import {
-  Facet,
   FacetFactorType,
   findFacetByScore,
   skillDomainMapping,
   domainToFacetMapping,
   SkillDomainFactorType,
   getSkillDomainAndWeight,
-  BASELINE_NUMBER_OF_FACETS,
-  generateHighContrastColors,
 } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
-export type FacetDataType = { name: string, score: number }
+type FacetDomainDataType = { name: string, score: number }
 
 export type InputDataStructure = {
-  domainScores: { [ key: string ]: number }
+  domainScores: { [key: string]: number }
   facetScores: { [key: string]: number }
 }
 
 
 export type TargetDataStructure = {
   name: string           // The label for the group on the x-axis
-  domainScore: number    // The value to assign next to each domain name in legend
-  facetScores: number[]  // The height or value of the bar
-  facets: {
-    name: string         // The label for the individual bar within the group
-    score: number        // The height or value of the bar
-  }[]
+  domains: FacetDomainDataType[] // The value to assign next to each domain name in legend
+  facets: FacetDomainDataType[]
 }
 
 
-type GroupedBarChartType = {
+type BarChartPerDomainType = {
   isExample: boolean
   data: InputDataStructure | {
     axis: string
@@ -53,10 +46,45 @@ type GroupedBarChartType = {
 
 
 
-export function transformData(inputData: InputDataStructure): TargetDataStructure[] {
+function getDomains(
+  data: InputDataStructure
+): FacetDomainDataType[] {
+  const domains: FacetDomainDataType[] = Object.keys(
+    data.domainScores
+  ).map(
+    (domainName: string): FacetDomainDataType => ({
+      name: domainName,
+      score: data.domainScores[domainName]
+    })
+  )
+
+  return domains
+}
+
+
+function getFacets(
+  data: InputDataStructure
+): FacetDomainDataType[] {
+  const facets: FacetDomainDataType[] = Object.keys(
+    data.facetScores
+  ).map(
+    (facetName: string): FacetDomainDataType => ({
+      name: facetName,
+      score: data.domainScores[facetName]
+    })
+  )
+
+  return facets
+}
+
+
+
+
+
+function transformData(inputData: InputDataStructure): TargetDataStructure[] {
   return Object.keys(inputData.domainScores).map(domainName => {
-    const facets: FacetDataType[] = domainToFacetMapping[domainName].map(
-      (facetName: string): FacetDataType => ({
+    const facets: FacetDomainDataType[] = domainToFacetMapping[domainName].map(
+      (facetName: string): FacetDomainDataType => ({
         name: facetName,
         score: inputData.facetScores[facetName] || 0,
       })
@@ -68,7 +96,7 @@ export function transformData(inputData: InputDataStructure): TargetDataStructur
       name: domainName,
       domainScore: inputData.domainScores[domainName],
       facets,
-      facetScores: facets.map((facet: FacetDataType): number => facet.score)
+      facetScores: facets.map((facet: FacetDomainDataType): number => facet.score)
     }
   })
 }
@@ -77,9 +105,10 @@ export function transformData(inputData: InputDataStructure): TargetDataStructur
 
 
 
-const GroupedBarChart: FC<GroupedBarChartType> = ({ 
+
+const BarChartPerDomain: FC<BarChartPerDomainType> = ({
   data,
-  isExample, 
+  isExample,
 }) => {
   const d3Container = useRef(null)
   const title = 'BESSI Bar Chart'
@@ -92,7 +121,7 @@ const GroupedBarChart: FC<GroupedBarChartType> = ({
 
   // const transformedData = transformData(data as InputDataStructure)
   // console.log(`transformedData: `, transformedData)
-  
+
   const _data = transformData(data as InputDataStructure)
 
 
@@ -155,7 +184,7 @@ const GroupedBarChart: FC<GroupedBarChartType> = ({
       .style('border', '1px solid #d3d3d3')
       .style('padding', '10px')
       .style('border-radius', '5px')
-    
+
 
     svg.append('g')
       .selectAll('g')
@@ -213,4 +242,4 @@ const GroupedBarChart: FC<GroupedBarChartType> = ({
 }
 
 
-export default GroupedBarChart
+export default BarChartPerDomain
