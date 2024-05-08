@@ -111,8 +111,6 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
   isExample,
 }) => {
   const d3Container = useRef(null)
-  const title = 'BESSI Bar Chart'
-
 
 
   useEffect(() => {
@@ -245,7 +243,9 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
 
   return (
     <>
-      <Title isExample={ isExample } title={ title } />
+      <h4 style={{ margin: '0px 0px 0px 0px' }}>
+        { (data as TargetDataStructure).name }
+      </h4>
       <div ref={ d3Container } style={ definitelyCenteredStyle } />
     </>
   )
