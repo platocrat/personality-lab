@@ -24,7 +24,7 @@ import TreeMap from '@/components/DataViz/TreeMap'
 import Spinner from '@/components/Suspense/Spinner'
 import StellarPlot from '@/components/DataViz/StellarPlot'
 import BessiRateUserResults from '@/components/Forms/BESSI/RateUserResults'
-import GroupedBarChart from '@/components/DataViz/BarChart/GroupedBarChart'
+import BarChartPerDomain from '@/components/DataViz/BarChart/BarChartPerDomain'
 import BessiShareResultsButton from '@/components/Buttons/BESSI/ShareResultsButton'
 import PersonalityVisualization from '@/components/DataViz/PersonalityVisualization'
 // Contexts
@@ -39,6 +39,11 @@ import {
   FacetFactorType, 
   SkillDomainFactorType 
 } from '@/utils/bessi/types'
+import {
+  transformData,
+  InputDataStructure,
+  TargetDataStructure,
+} from '@/components/DataViz/BarChart/GroupedBarChart'
 // CSS
 import appStyles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -101,24 +106,45 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   }
 
   const data_ = (i: number) => {
-    let _ = i === 0 // if i === 0
-      ? Object.entries(
-        bessiSkillScores?.domainScores as SkillDomainFactorType
-        ?? dummyVariables.pv.data?.domainScores as SkillDomainFactorType
-      ).map(([key, value]) => ({
-        axis: key,
-        value: value / 100
-      }))
-      // if i !== 0 && domainScores !== undefined
-      : bessiSkillScores?.domainScores
-        ? {
-          facetScores: bessiSkillScores?.facetScores,
-          domainScores: bessiSkillScores?.domainScores,
-          averages: dummyVariables.pv.averages,
+    switch (i) {
+      case 0:
+        return Object.entries(
+          bessiSkillScores?.domainScores as SkillDomainFactorType
+          ?? dummyVariables.pv.data?.domainScores as SkillDomainFactorType
+        ).map(([key, value]) => ({
+          axis: key,
+          value: value / 100
+        }))
+      case 1:
+        const inputData: InputDataStructure = {
+          facetScores: bessiSkillScores?.facetScores as FacetFactorType,
+          domainScores: bessiSkillScores?.domainScores as SkillDomainFactorType,
         }
-        : dummyVariables.pv.data
 
-    return _
+        return transformData(
+          bessiSkillScores?.domainScores
+            ? inputData 
+            : dummyVariables.pv.data
+          )
+      case 2:
+        return bessiSkillScores?.domainScores
+          ? {
+            facetScores: bessiSkillScores?.facetScores,
+            domainScores: bessiSkillScores?.domainScores,
+            averages: dummyVariables.pv.averages,
+          }
+          : dummyVariables.pv.data
+      case 3:
+        return bessiSkillScores?.domainScores
+          ? {
+            facetScores: bessiSkillScores?.facetScores,
+            domainScores: bessiSkillScores?.domainScores,
+            averages: dummyVariables.pv.averages,
+          }
+          : dummyVariables.pv.data
+      default:
+        return dummyVariables.pv.data
+    }
   }
 
   // Placeholder for rendering the selected visualization
@@ -130,12 +156,17 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
       case 0:
         return <StellarPlot isExample={ isExample } data={ data_(i) } />
       case 1:
-        /**
-         * @todo Fix `data` property so that we have consistency across all
-         * components in this switch -- change `d.metrics` to something like
-         * `d.axis` and `d.values`
-         */
-        return <GroupedBarChart isExample={ isExample } data={ data_(i) } />
+        const allData: TargetDataStructure[] = data_(i) as TargetDataStructure[]
+
+        return (
+          <>
+            { allData.map((data: TargetDataStructure, i: number) => (
+              <>
+                <BarChartPerDomain isExample={ isExample } data={ data } />
+              </>
+            )) }
+          </>
+        )
       case 2:
         return <TreeMap isExample={ isExample } data={ data_(i) } />
       case 3:

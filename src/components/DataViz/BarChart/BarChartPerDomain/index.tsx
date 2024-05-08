@@ -11,6 +11,7 @@ import {
   SkillDomainFactorType,
   getSkillDomainAndWeight,
 } from '@/utils'
+import { TargetDataStructure, transformData } from '../GroupedBarChart'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 
@@ -18,22 +19,38 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 
 type FacetDomainDataType = { name: string, score: number }
 
-export type InputDataStructure = {
-  domainScores: { [key: string]: number }
-  facetScores: { [key: string]: number }
-}
+
+// export type InputDataStructure = {
+//   domainScores: { [key: string]: number }
+//   facetScores: { [key: string]: number }
+// }
 
 
-export type TargetDataStructure = {
-  name: string           // The label for the group on the x-axis
-  domains: FacetDomainDataType[] // The value to assign next to each domain name in legend
-  facets: FacetDomainDataType[]
-}
+// /**
+//  * @dev # Explanation of Data Structure 
+//  * The target data structure can be interpreted as follows:
+//  * ```ts
+//  * type TargetDataStructure = {
+//  *      domains: {
+//  *        name: string, // The title for each bar chart of the total set of 5
+//  *        score: number // Denotes the color to color each set of bars for a domain's bar chart
+//  *      }
+//  *      facets: {
+//  *        name: string, // The X-axis label for the individual bars for a given domain
+//  *        score: number // The height or value of a bar
+//  *       }
+//  * }
+//  * ```
+//  */
+// export type TargetDataStructure = {
+//   domains: FacetDomainDataType[]
+//   facets: FacetDomainDataType[] 
+// }
 
 
 type BarChartPerDomainType = {
   isExample: boolean
-  data: InputDataStructure | {
+  data: TargetDataStructure | {
     axis: string
     value: number
   }[] | {
@@ -46,60 +63,43 @@ type BarChartPerDomainType = {
 
 
 
-function getDomains(
-  data: InputDataStructure
-): FacetDomainDataType[] {
-  const domains: FacetDomainDataType[] = Object.keys(
-    data.domainScores
-  ).map(
-    (domainName: string): FacetDomainDataType => ({
-      name: domainName,
-      score: data.domainScores[domainName]
-    })
-  )
+// function getDomains(
+//   data: InputDataStructure
+// ): FacetDomainDataType[] {
+//   const domains: FacetDomainDataType[] = Object.keys(
+//     data.domainScores
+//   ).map(
+//     (domainName: string): FacetDomainDataType => ({
+//       name: domainName,
+//       score: data.domainScores[domainName]
+//     })
+//   )
 
-  return domains
-}
-
-
-function getFacets(
-  data: InputDataStructure
-): FacetDomainDataType[] {
-  const facets: FacetDomainDataType[] = Object.keys(
-    data.facetScores
-  ).map(
-    (facetName: string): FacetDomainDataType => ({
-      name: facetName,
-      score: data.domainScores[facetName]
-    })
-  )
-
-  return facets
-}
+//   return domains
+// }
 
 
+// function getFacets(
+//   data: InputDataStructure
+// ): FacetDomainDataType[] {
+//   const facets: FacetDomainDataType[] = Object.keys(
+//     data.facetScores
+//   ).map(
+//     (facetName: string): FacetDomainDataType => ({
+//       name: facetName,
+//       score: data.facetScores[facetName]
+//     })
+//   )
+
+//   return facets
+// }
 
 
-
-function transformData(inputData: InputDataStructure): TargetDataStructure[] {
-  return Object.keys(inputData.domainScores).map(domainName => {
-    const facets: FacetDomainDataType[] = domainToFacetMapping[domainName].map(
-      (facetName: string): FacetDomainDataType => ({
-        name: facetName,
-        score: inputData.facetScores[facetName] || 0,
-      })
-    )
-
-    return {
-      // Use the conversion function here
-      // name: convertToAbbreviation(domainName),
-      name: domainName,
-      domainScore: inputData.domainScores[domainName],
-      facets,
-      facetScores: facets.map((facet: FacetDomainDataType): number => facet.score)
-    }
-  })
-}
+// function transform(inputData: InputDataStructure): TargetDataStructure {
+//   const facets = getFacets(inputData)
+//   const domains = getDomains(inputData)
+//   return { domains, facets }
+// }
 
 
 
@@ -114,66 +114,47 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
   const title = 'BESSI Bar Chart'
 
 
-  const margin = { top: 40, right: 20, bottom: 90, left: 90 }
-  const width = 700 - margin.left - margin.right
-  const height = 400 - margin.top - margin.bottom
-
-
-  // const transformedData = transformData(data as InputDataStructure)
-  // console.log(`transformedData: `, transformedData)
-
-  const _data = transformData(data as InputDataStructure)
-
-
 
   useEffect(() => {
     if (!d3Container.current) return
 
-    // Remove any existing svg to avoid duplicates
-    d3.select(d3Container.current).select('svg').remove()
+    // Remove any existing svgs to avoid duplicates
+    d3.select(d3Container.current).selectAll('svg').remove()
 
-    const margin = { top: 20, right: 30, bottom: 30, left: 40 }
-    const width = 650 - margin.left - margin.right
-    const height = 300 - margin.top - margin.bottom
+    const svgWidth = 600
+    const svgHeight = 400
+    const margin = { top: 40, right: 120, bottom: 90, left: 50 }
+    const width = svgWidth - margin.left - margin.right
+    const height = svgHeight - margin.top - margin.bottom
+
 
     const svg = d3.select(d3Container.current)
       .append('svg')
-      .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom)
+      .attr('width', svgWidth)
+      .attr('height', svgHeight)
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`)
 
-    const domains = _data.map(d => d.name)
+
+    const color = d3.scaleLinear<string>()
+      .domain([0, 50, 100])
+      .range(['#ff0000', '#ffff00', '#00ff00'])
+
 
     const x0 = d3.scaleBand()
-      .domain(domains)
+      .domain([(data as TargetDataStructure).name])
       .rangeRound([0, width])
-      .paddingInner(0.72)
+      .paddingInner(0.1)
 
     const x1 = d3.scaleBand()
-      .domain(['facetScores'])
+      .domain((data as TargetDataStructure).facets.map(d => d.name))
       .rangeRound([0, x0.bandwidth()])
-      .padding(0.51)
-
-    const yMax = d3.max(_data, d => d3.max(d.facetScores))!
+      .padding(0.05)
 
     const y = d3.scaleLinear()
-      .domain([0, yMax])
+      .domain([0, 100]) // Assuming scores range from 0 to 100
       .nice()
       .rangeRound([height, 0])
-
-
-    // const uniqueColors = generateHighContrastColors(BASELINE_NUMBER_OF_FACETS)
-
-    const color = d3.scaleOrdinal<string>()
-      .domain(_data.flatMap(
-        d => d.facetScores.map(
-          (_, i) => i.toString()))
-      )
-      .range([...Array(_data.reduce(
-        (max, d) => Math.max(max, d.facetScores.length), 0))
-      ].map((_, i) => d3.interpolateRainbow(i / _data.length)));
-
 
     // Create a tooltip
     const tooltip = d3.select(d3Container.current).append('div')
@@ -185,52 +166,81 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
       .style('padding', '10px')
       .style('border-radius', '5px')
 
+    const g = svg.append('g')
 
-    svg.append('g')
-      .selectAll('g')
-      .data(_data)
-      .join('g')
-      .attr('transform', d => `translate(${x0(d.name)},0)`)
-      .selectAll('rect')
-      .data(
-        (d: any) => d.facetScores.map(
-          (value, index) => ({ value, index })
-        )
-      )
+    g.selectAll('rect')
+      .data((data as TargetDataStructure).facets)
       .join('rect')
-      .attr('x', (d: any) => x1('facetScores')! * d.index)
-      .attr('y', (d: any) => y(d.value))
+      .attr('x', (d, i) => x1(d.name)! * i)
+      .attr('y', d => y(d.score))
       .attr('width', x1.bandwidth())
-      .attr('height', (d: any) => y(0)! - y(d.value))
-      .attr('fill', (_: any, i) => color((i * _.value).toString()))
+      .attr('height', d => y(0)! - y(d.score))
+      .attr('fill', d => color(d.score))
       .on('mouseover', function (event, d) {
         tooltip.style('opacity', 1)
         d3.select(this).style('stroke', 'black').style('opacity', 0.8)
       })
       .on('mousemove', function (event, d: any) {
-        const currentFacet = findFacetByScore(_data, d.value, d.index)
-        const facetName = currentFacet ? currentFacet.name : ''
-        const facetScore = currentFacet ? currentFacet.score : ''
-
         tooltip
-          .html(`Facet: ${facetName}<br/>Score: ${facetScore}`)
+          .html(`Facet: ${d.name}<br/>Score: ${d.score}`)
           .style('left', (event.pageX + 10) + 'px')
           .style('top', (event.pageY - 10) + 'px')
       })
-      .on('mouseleave', function (event, d) {
+      .on('mouseleave', function () {
         tooltip.style('opacity', 0)
         d3.select(this).style('stroke', 'none').style('opacity', 1)
       })
 
-    svg.append('g')
+    g.append('g')
       .attr('class', 'x-axis')
       .attr('transform', `translate(0,${height})`)
-      .call(d3.axisBottom(x0))
+      .call(d3.axisBottom(x1))
 
-    svg.append('g')
-      .call(d3.axisLeft(y))
+    g.append('g')
+      .attr('class', 'y-axis')
+      .call(d3.axisLeft(y).ticks(5))
+
+    // Legend
+    const legend = svg.append('g')
+      .attr('class', 'legend')
+      .attr('transform', `translate(${width + 20},20)`)
+
+    const legendTitle = legend.append('text')
+      .attr('x', 0)
+      .attr('y', -10)
+      .text('Domain Score')
+
+    const legendGradient = legend.append('g')
+      .attr('class', 'legend-gradient')
+      .attr('transform', 'translate(0,10)')
+
+    legendGradient.append('rect')
+      .attr('width', 20)
+      .attr('height', 200)
+      .style('fill', 'url(#gradient)')
+
+    const legendScale = d3.scaleLinear()
+      .domain([0, 100])
+      .range([200, 0])
+
+    const legendAxis = legend.append('g')
+      .attr('class', 'legend-axis')
+      .attr('transform', 'translate(20,10)')
+      .call(d3.axisRight(legendScale).ticks(5))
+
+    const defs = svg.append('defs')
+    const gradient = defs.append('linearGradient')
+      .attr('id', 'gradient')
+      .attr('gradientTransform', 'rotate(90)')
+    gradient.append('stop')
+      .attr('offset', '0%')
+      .attr('stop-color', color(100))
+    gradient.append('stop')
+      .attr('offset', '100%')
+      .attr('stop-color', color(0))
 
   }, [data])
+
 
 
   return (
