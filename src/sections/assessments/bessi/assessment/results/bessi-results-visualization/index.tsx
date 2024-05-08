@@ -22,9 +22,9 @@ import UserVisualization from './user-visualization'
 // Components
 import TreeMap from '@/components/DataViz/TreeMap'
 import Spinner from '@/components/Suspense/Spinner'
-import BarChart from '@/components/DataViz/BarChart'
 import StellarPlot from '@/components/DataViz/StellarPlot'
 import BessiRateUserResults from '@/components/Forms/BESSI/RateUserResults'
+import GroupedBarChart from '@/components/DataViz/BarChart/GroupedBarChart'
 import BessiShareResultsButton from '@/components/Buttons/BESSI/ShareResultsButton'
 import PersonalityVisualization from '@/components/DataViz/PersonalityVisualization'
 // Contexts
@@ -135,7 +135,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
          * components in this switch -- change `d.metrics` to something like
          * `d.axis` and `d.values`
          */
-        return <BarChart isExample={ isExample } data={ data_(i) } />
+        return <GroupedBarChart isExample={ isExample } data={ data_(i) } />
       case 2:
         return <TreeMap isExample={ isExample } data={ data_(i) } />
       case 3:

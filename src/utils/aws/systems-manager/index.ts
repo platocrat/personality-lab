@@ -6,11 +6,19 @@ import {
 } from '@aws-sdk/client-ssm'
 import { NextResponse } from 'next/server'
 // Locals
-import { AWS_PARAMETER_NAMES, REGION } from '..'
+import { 
+  REGION,
+  CREDENTIALS,
+  AWS_PARAMETER_NAMES, 
+} from '..'
 
 
 
-export const ssmClient = new SSMClient({ region: REGION })
+// export const ssmClient = new SSMClient({ region: REGION })
+export const ssmClient = new SSMClient({ 
+  region: REGION,
+  credentials: CREDENTIALS
+})
 
 /**
  * @dev Fetches the requested parameter from AWS Parameter Store.

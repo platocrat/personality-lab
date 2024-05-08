@@ -2,7 +2,7 @@
 import * as d3 from 'd3'
 import { FC, useEffect, useRef } from 'react'
 // Locals
-import Title from '../Title'
+import Title from '../../Title'
 import {
   Facet,
   FacetFactorType,
@@ -14,7 +14,7 @@ import {
 import { definitelyCenteredStyle } from '@/theme/styles'
 
 
-type BarChartType = {
+type HorizontalBarChartType = {
   isExample: boolean
   data: {
     domainScores: SkillDomainFactorType
@@ -30,7 +30,7 @@ type BarChartType = {
 
 
 
-const BarChart: FC<BarChartType> = ({ isExample, data }) => {
+const HorizontalBarChart: FC<HorizontalBarChartType> = ({ isExample, data }) => {
   const d3Container = useRef(null)
   const title = 'BESSI Bar Chart'
 
@@ -63,7 +63,6 @@ const BarChart: FC<BarChartType> = ({ isExample, data }) => {
         ([key, value]) => {
           const domainInfo = getSkillDomainAndWeight(key as Facet)
 
-          console.log(`${key}: ${value}`)
 
           domainInfo.domain.forEach(domain => {
             if (domainMap[domain]) { // Ensure the domain exists in the domainMap
@@ -203,4 +202,4 @@ const BarChart: FC<BarChartType> = ({ isExample, data }) => {
 }
 
 
-export default BarChart
+export default HorizontalBarChart
