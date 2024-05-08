@@ -27,18 +27,17 @@ This project uses `next/font` to automatically optimize and load Inter, a custom
 
 EC2_USERNAME = ec2-user 
 EC2_HOSTNAME = 52.54.185.71
-key.pem
 
 -->
 
 ```zsh
-ssh -i personality-lab-app.pem EC2_USERNAME@EC2_HOSTNAME
+ssh -i key-pair-name.pem EC2_USERNAME@EC2_HOSTNAME
 ```
 
 #### 2. Install `nginx`
 
 ```zsh
-sudo yum install nginx
+sudo yum install nginx -y
 ```
 
 #### 3. Start/Restart `nginx` service
@@ -62,6 +61,12 @@ sudo vim /etc/nginx/conf.d/<APP_NAME>.conf
 ```
 
 #### 2. File out configuration file like so
+
+<!-- 
+
+EC2_HOSTNAME = 52.54.185.71
+
+-->
 
 ```
 server {
@@ -137,3 +142,35 @@ sudo docker run -it -p 3000:3000 <IMAGE_ID>
 <!-- ## Manual Deployment of Next.js app to AWS EC2 instance
 
 > NOTE: This is required because of something that broke the GitsHub Actions automated deployment that was set up previously. -->
+
+## What to do if the SSH key ever gets lost, deleted, or corrupted
+
+### 1. Stop and delete the EC2 instance and launch a new one
+
+Do this from the AWS Console in the browser.
+
+### 2. In the menu to launch a new EC2 instance, create a new SSH key pair
+
+Select the encryption method that you are most comfortable with, I choose ED25519.
+
+### 3. Follow the instructions on the `Connect` page to SSH into the new EC2 instance
+
+1. Open an SSH client.
+2. Locate your private key file. The key used to launch this instance is personality-lab-app.pem
+3. Run this command, if necessary, to ensure your key is not publicly viewable.
+
+    ```zsh
+    chmod 400 "key-pair-name.pem"
+    ```
+
+4. Connect to your instance using its Public DNS
+
+    ```zsh
+    EC2_HOSTNAME.compute-1.amazonaws.com
+    ```
+
+Example:
+
+```zsh
+ssh -i "key-pair-name.pem" EC2_USERNAME@EC2_HOSTNAME.compute-1.amazonaws.com
+```
