@@ -5,10 +5,14 @@ import Link from 'next/link'
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
 
+
+
 const BessiConsentForm = () => {
   const title = `Consent Form`
   const href = `/bessi/assessment`
   const buttonText = `I agree`
+
+
 
   return (
     <>
