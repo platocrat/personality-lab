@@ -40,7 +40,7 @@ const BubbleRadioInput: FC<BubbleRadioInputProps> = ({
     : ''
 
   function fragmentKey(inputLabel: InputLabelType, i: number): string {
-    return `bubble-radio-input-id${inputLabel.inputId}-${inputLabel.labelName}-${i}` 
+    return `bubble-radio-input-id${inputLabel.id}-${inputLabel.name}-${i}` 
   }
 
   function inputId(
@@ -48,7 +48,7 @@ const BubbleRadioInput: FC<BubbleRadioInputProps> = ({
     itemIndex: number, 
     i: number
   ): string {
-    const prefix = `${inputLabel.labelName}-inputId${inputLabel.inputId}`
+    const prefix = `${inputLabel.name}-inputId${inputLabel.id}`
     const suffix = `-itemIndex${itemIndex}-index${i}` 
     return prefix + suffix
   }
@@ -97,7 +97,7 @@ const BubbleRadioInput: FC<BubbleRadioInputProps> = ({
                       // Use `i + 1` because we cannot sum a value of `0`
                       value={ itemIndex ? i + 1 : i }
                     />
-                    { inputLabel.labelName }
+                    { inputLabel.name }
                   </label>
                 </div>
               </Fragment>
