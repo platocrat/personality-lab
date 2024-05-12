@@ -1,3 +1,5 @@
+'use client'
+
 // Externals
 import { useState } from 'react'
 // Locals

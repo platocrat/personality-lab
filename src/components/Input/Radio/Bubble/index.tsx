@@ -88,14 +88,14 @@ const BubbleRadioInput: FC<BubbleRadioInputProps> = ({
                     style={{ display: labelDisplay }}
                   >
                     <input
-                      onChange={ (e: any) => onChange(e, _itemIndex) }
-                      required={ true }
-                      className={ styles.radioButtonInput }
                       type='radio'
-                      id={ inputId(inputLabel, _itemIndex, i) }
+                      required={ true }
                       name={ inputName }
                       // Use `i + 1` because we cannot sum a value of `0`
                       value={ itemIndex ? i + 1 : i }
+                      className={ styles.radioButtonInput }
+                      id={ inputId(inputLabel, _itemIndex, i) }
+                      onChange={ (e: any) => onChange(e, _itemIndex) }
                     />
                     { inputLabel.name }
                   </label>

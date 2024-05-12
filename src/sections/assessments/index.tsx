@@ -28,6 +28,10 @@ type PersonalityAssessmentType = {
 
 
 
+const title = `Assessments`
+
+
+
 // const YourPersonalityDescription = () => {
 //   return (
 //     <>
@@ -42,15 +46,15 @@ type PersonalityAssessmentType = {
 const pAssessments: PersonalityAssessmentType[] = [
   {
     buttonText: `Begin`,
-    title: `The BESSI`,
-    description: <BessiDescription />,
-    href: `/bessi`,
-  },
-  {
-    buttonText: `Begin`,
     title: `Big Five, Vocational Interests, and Creativity Test`,
     description: <GenderAndCreativityUsDescription />,
     href: `/gender-and-creativity-us`,
+  },
+  {
+    buttonText: `Begin`,
+    title: `The BESSI`,
+    description: <BessiDescription />,
+    href: `/bessi`,
   },
   // {
   //   buttonText: `Begin`,
@@ -62,14 +66,14 @@ const pAssessments: PersonalityAssessmentType[] = [
 
 
 
-const PersonalityAssessments = ({ }) => {
-  const title = `Assessments`
 
+const PersonalityAssessments = ({ }) => {
   function fragmentKey(pa: PersonalityAssessmentType, i: number): string {
     const fragmentKeyBasePrefix = `personality-assessment-`
     const fragmentKeySuffix = `${pa.buttonText}-${pa.href}-${pa.title}-${i}`
     return fragmentKeyBasePrefix + fragmentKeySuffix
   }
+
 
   return (
     <Fragment key={ `personality-assessments` }>

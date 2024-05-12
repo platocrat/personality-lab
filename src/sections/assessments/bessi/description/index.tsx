@@ -1,19 +1,22 @@
 // Locals
+import EntranceNote from '../../components/entrance-note'
 import BessiResultsVisualization from '../assessment/results/bessi-results-visualization'
+// CSS
+import styles from '@/app/page.module.css'
 
 
 const isExample = true
 
 
 
-const BessiDescription = ({ }) => {
+const Description = () => {
   return (
     <>
       {
         `This assessment is called the Behavioral, Emotional, and Social Skills Inventory (BESSI) developed by `
       }
       <a
-        style={ { color: '#007ac0', textDecoration: 'underline' } }
+        className={ styles.externalLink }
         href={ `https://psychology.illinois.edu/directory/profile/bwrobrts` }
         target='_blank'
       >
@@ -38,14 +41,18 @@ const BessiDescription = ({ }) => {
           { `Example Visualizations` }
         </h3>
       </div>
+    </>
+  )
+}
 
+
+
+const BessiDescription = ({ }) => {
+  return (
+    <>
+      <Description />
       <BessiResultsVisualization isExample={ isExample } />
-
-      <br />
-      <br />
-      { `Click the button below to begin the assessment.` }
-      <br />
-      { `Please note that we do not store any information from these assessments` }
+      <EntranceNote />
     </>
   )
 }
