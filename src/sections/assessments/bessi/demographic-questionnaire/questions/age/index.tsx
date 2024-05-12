@@ -1,7 +1,8 @@
 // Externals
 import { FC, Fragment, useContext } from 'react'
 // Locals
-import { BasicRadioInput } from '@/components/Input/Radio'
+import NumberInput from '@/components/Input/Number'
+import InputWrapper from '@/components/Input/Wrapper'
 // Contexts
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 // Constants
@@ -24,39 +25,36 @@ const Label = () => {
 }
 
 const Input = () => {
-  const { onAgeChange } = useContext(UserDemographicContext)
+  const { onAgeChange } = useContext(UserDemographicContext)  
+  const name = 'age'
+
 
   return (
     <>
-      <input
-        required={ true }
-        onChange={ (e: any) => onAgeChange(e) }
-        style={{ margin: '0px 4px 0px 12px' }}
-        type='number'
-        step={ 1 }
-        min={ 0 }
-        name='age'
-        onKeyDown={ (e: any): any => {
-          if (INVALID_CHARS_FOR_NUMBERS.includes(e.key)) {
-            e.preventDefault()
-          }
-        }}
-      />
-      { ` years` }
+      <NumberInput name={ name } onChange={ onAgeChange }>
+        { ` years` }
+      </NumberInput>
     </>
   )
 }
 
 
 const BessiAge = () => {
-  const css = {
+  const classNames = {
     pClassName: styles.bessi_about_you_p,
     spanClassName: styles.bessi_text1,
   }
 
+
   return (
     <>
-      <BasicRadioInput input={ <Input /> } label={ <Label /> } css={ css }/>
+      <InputWrapper 
+        input={ <Input /> } 
+        label={ <Label /> } 
+        options={{
+          classNames: classNames
+        }}
+      />
     </>
   )
 }

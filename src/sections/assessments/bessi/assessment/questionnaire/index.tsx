@@ -8,7 +8,7 @@ import {
   useLayoutEffect,
 } from 'react'
 // Locals
-import TableRadioInput from '@/components/Input/Radio/Table'
+import TableRadioInput from '@/components/Input/Selection/Table'
 // Contexts
 import { UserScoresContext } from '@/contexts/UserScoresContext'
 // Constants
@@ -25,7 +25,7 @@ import {
 import { 
   BessiActivityType, UserScoresType
 } from '@/utils/bessi/types'
-import { InputLabelType } from '@/components/Input/Radio/types'
+import { InputLabelType } from '@/components/Input/Selection/types'
 
 
 

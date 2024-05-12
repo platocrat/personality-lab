@@ -1,7 +1,7 @@
 // Externals
 import { FC, Fragment, useContext } from 'react'
 // Locals
-import { BasicRadioInput } from '@/components/Input/Radio'
+import InputWrapper from '@/components/Input/Wrapper'
 // Contexts
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 // Enums
@@ -11,6 +11,7 @@ import {
 // CSS
 import styles from '@/app/page.module.css'
 import { inputMarginStyle } from '../..'
+
 
 
 const Label = () => {
@@ -49,14 +50,20 @@ const Input = () => {
 
 
 const BessiRaceOrEthnicity = () => {
-  const css = {
+  const classNames = {
     pClassName: styles.bessi_about_you_p,
     spanClassName: styles.bessi_text1,
   }
 
   return (
     <>
-      <BasicRadioInput input={ <Input /> } label={ <Label /> } css={ css } />
+      <InputWrapper 
+        input={ <Input /> } 
+        label={ <Label /> } 
+        options={{
+          classNames: classNames
+        }}
+      />
     </>
   )
 }
