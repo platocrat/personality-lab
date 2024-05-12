@@ -6,6 +6,8 @@ import { FC, Fragment, JSX, ReactNode, useState } from 'react'
 import Card from '@/components/Card'
 import StellarPlot from '@/components/DataViz/StellarPlot'
 // Sections
+import BessiDescription from './bessi/description'
+import GenderAndCreativityUsDescription from './gender-and-creativity-us/description'
 import BessiResultsVisualization from './bessi/assessment/results/bessi-results-visualization'
 // Constants
 import { dummyVariables } from '@/utils/bessi/constants'
@@ -16,6 +18,7 @@ import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
 
 
+
 type PersonalityAssessmentType = {
   title: string
   buttonText: string
@@ -24,68 +27,29 @@ type PersonalityAssessmentType = {
 }
 
 
-const isExample = true
-const topLevelSlug = `assessments`
+
+const title = `Assessments`
 
 
 
-
-const BessiDescription = () => {
-  return (
-    <>
-      {
-        `This assessment is called the Behavioral, Emotional, and Social Skills Inventory (BESSI) developed by `
-      }
-      <a
-        style={ { color: '#007ac0', textDecoration: 'underline' } }
-        href={`https://psychology.illinois.edu/directory/profile/bwrobrts`}
-        target='_blank'
-      >
-        { `Brent W. Roberts` }
-      </a>
-      {
-        `, Christopher J. Soto, Christopher Napolitano, Madison Sewell, and Heejun Yoon. The BESSI measures specific skills across five broad categories: Self-Management, Social Engagement, Cooperation, Emotional Resilience, and Innovation.`
-      }
-      <br />
-      <br />
-      {
-        `The BESSIE uses a skills inventory format, meaning that each BESSI item describes a specific, skill-relevant behavior, and users rate how well they can perform that behavior.`
-      }
-
-      <div>
-        <h3 
-          style={{ 
-            fontSize: '22px',
-            marginTop: '28px',
-          }}
-        >
-          { `Example Visualizations` }
-        </h3>
-      </div>
-
-      <BessiResultsVisualization isExample={ isExample } />
-
-      <br />
-      <br />
-      { `Click the button below to begin the assessment.` }
-      <br /> 
-      { `Please note that we do not store any information from these assessments` }
-    </>
-  )
-}
-
-const YourPersonalityDescription = () => {
-  return (
-    <>
-      { `Click the button below to begin to take an attachment and personality survey.` }
-      <br />
-      { `Please note that we do not store any information from these assessments.` }
-    </>
-  )
-}
+// const YourPersonalityDescription = () => {
+//   return (
+//     <>
+//       { `Click the button below to begin to take an attachment and personality survey.` }
+//       <br />
+//       { `Please note that we do not store any information from these assessments.` }
+//     </>
+//   )
+// }
 
 
 const pAssessments: PersonalityAssessmentType[] = [
+  {
+    buttonText: `Begin`,
+    title: `Big Five, Vocational Interests, and Creativity Test`,
+    description: <GenderAndCreativityUsDescription />,
+    href: `/gender-and-creativity-us`,
+  },
   {
     buttonText: `Begin`,
     title: `The BESSI`,
@@ -102,14 +66,14 @@ const pAssessments: PersonalityAssessmentType[] = [
 
 
 
-const PersonalityAssessments = ({ }) => {
-  const title = `Assessments`
 
+const PersonalityAssessments = ({ }) => {
   function fragmentKey(pa: PersonalityAssessmentType, i: number): string {
     const fragmentKeyBasePrefix = `personality-assessment-`
     const fragmentKeySuffix = `${pa.buttonText}-${pa.href}-${pa.title}-${i}`
     return fragmentKeyBasePrefix + fragmentKeySuffix
   }
+
 
   return (
     <Fragment key={ `personality-assessments` }>

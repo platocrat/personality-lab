@@ -228,3 +228,9 @@ Example:
 ```zsh
 ssh -i "key-pair-name.pem" EC2_USERNAME@EC2_HOSTNAME.compute-1.amazonaws.com
 ```
+
+where `EC2_HOSTNAME` the formatted like so:
+
+```zsh
+ec2-52-54-185-71
+```
