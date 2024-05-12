@@ -8,7 +8,7 @@ import ExternalLink from '@/components/Anchors/ExternalLink'
 // CSS
 import styles from '@/app/page.module.css'
 import { BubbleRadioInput } from '@/components/Input/Radio'
-import AssessmentButton from '../../components/assessment-button'
+import AssessmentButton from '../../../../app/components/assessment-button'
 
 
 
