@@ -25,40 +25,8 @@ import {
 import { 
   BessiActivityType, UserScoresType
 } from '@/utils/assessments/bessi/types'
-import { InputLabelType } from '@/components/Input/Selection/types'
 
 
-
-const inputLabels = (isMobile: boolean): InputLabelType[] => {
-  return wellnessRatingDescriptions.map((
-    description: string,
-    i: number
-  ) => {
-    const LabelName = () => {
-      return (
-        <>
-          { i < 2 ? <>{description}</> : (
-            <>
-              <div>
-                <p>
-                  { description.slice(0, description.indexOf(' ')) }
-                </p>
-                <p>
-                  { description.slice(description.indexOf(' ')) }
-                </p>
-              </div>
-            </>
-          )}
-        </>
-      )
-    }
-
-    return { 
-      inputId: `${wellnessRatings[i]}`, 
-      labelName: isMobile ? <LabelName /> : description
-    }
-  })
-}
 
 const QuestionText: FC<{ obj: BessiActivityType }> = ({ obj }) => {
   return (
