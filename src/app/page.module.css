@@ -170,10 +170,11 @@
 }
 
 .divider {
-  opacity: 0.2;
-  margin-bottom: 8px;
+  width: 65%;
+  margin-bottom: 24px;
   border-radius: 3rem;
-  border-bottom: 2px solid black;
+  border-bottom: 1px solid rgba(0, 123, 194, 0.19);
+  box-shadow: 0px 1px 8px #007ac09c;
 }
 
 .questionBody {
@@ -246,6 +247,8 @@
   width: 100%;
   font-size: 14px;
   color: rgb(244, 244, 244);
+
+  box-shadow: 0px 2.5px 3px #002b449c;
 
   transform: scale(1);
 

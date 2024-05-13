@@ -24,7 +24,6 @@ type GenderAndCreativityUsConsentFormProps = { }
 
 
 const buttonText = `Next`
-export const genderAndCreativityUsAssessmentHref = `/gender-and-creativity-us/assessment`
 
 
 const inputLabels = [
@@ -91,27 +90,27 @@ const GenderAndCreativityUsConsentForm: FC<GenderAndCreativityUsConsentFormProps
 
 
   // ------------------ Form selection event handlers --------------------------
-  const handleOnRacialOrEthnicConsent = (e: any, i: number): void => {
+  const onRacialOrEthnicConsentChange = (e: any, i: number): void => {
     setRacialOrEthnicConsent(i === 0 ? false : true)
   }
 
-  const handleOnPoliticalOpinionsConsent = (e: any, i: number): void => {
+  const onPoliticalOpinionsConsentChange = (e: any, i: number): void => {
     setPoliticalOpinionsConsent(i === 0 ? false : true)
   }
 
-  const handleOnRelgiousOrPhilosophhicalBeliefsConsent = (e: any, i: number): void => {
+  const onRelgiousOrPhilosophhicalBeliefsConsentChange = (e: any, i: number): void => {
     setReligiousOrPhilosophicalBeliefsConsent(i === 0 ? false : true)
   }
 
-  const handleOnHealthDataConsent = (e: any, i: number): void => {
+  const onHealthDataConsentChange = (e: any, i: number): void => {
     setHealthDataConsent(i === 0 ? false : true)
   }
 
-  const handleOnDataConcerningSexLifeConsent = (e: any, i: number): void => {
+  const onDataConcerningSexLifeConsentChange = (e: any, i: number): void => {
     setSexLifeAndOrientationConsent(i === 0 ? false : true)
   }
   
-  const handleOnFinalConsent = (e: any, i: number): void => {
+  const onFinalConsentChange = (e: any, i: number): void => {
     setFinalConsent(i === 0 ? false : true)
   }
 
@@ -125,27 +124,27 @@ const GenderAndCreativityUsConsentForm: FC<GenderAndCreativityUsConsentFormProps
     { 
       legend: `Racial or ethnic origin`,
       inputName: 'racial-or-ethnic-consent',
-      onChange: handleOnRacialOrEthnicConsent,
+      onChange: onRacialOrEthnicConsentChange,
     },
     { 
       legend: `Religious or philosophical beliefs`,
       inputName: 'political-opinions-consent',
-      onChange: handleOnPoliticalOpinionsConsent,
+      onChange: onPoliticalOpinionsConsentChange,
     },
     { 
       legend: `Racial or ethnic origin`,
       inputName: 'religious-or-philosophical-beliefs-consent',
-      onChange: handleOnRelgiousOrPhilosophhicalBeliefsConsent,
+      onChange: onRelgiousOrPhilosophhicalBeliefsConsentChange,
     },
     { 
       legend: `Health data`,
       inputName: 'health-data-consent',
-      onChange: handleOnHealthDataConsent,
+      onChange: onHealthDataConsentChange,
     },
     { 
       legend: `Data concerning a natural person's sex life or sexual orientation`,
       inputName: 'sex-life-and-orientation-consent',
-      onChange: handleOnDataConcerningSexLifeConsent,
+      onChange: onDataConcerningSexLifeConsentChange,
     }
   ]
 
@@ -199,7 +198,7 @@ const GenderAndCreativityUsConsentForm: FC<GenderAndCreativityUsConsentFormProps
           <RadioOrCheckboxInput 
             inputLabels={ inputLabels }
             legend={ <FinalConsentLabel /> }
-            onChange={ handleOnFinalConsent }
+            onChange={ onFinalConsentChange }
             inputName='consent-to-participate-in-research'
           />
         </div>

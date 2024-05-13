@@ -20,15 +20,15 @@ import {
   HighestLevelOfEducation__GACUsGender,
   GenderAndCreativityUsDemographicsType,
   Init__GenderAndCreativityUsDemographics,
+  GENDER_AND_CREATIVITY_US_ASSESSMENT_HREF,
 } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
-import { genderAndCreativityUsAssessmentHref } from '../consent'
 
 
 
-const href = `${ genderAndCreativityUsAssessmentHref }/spend-time-with-others`
+const href = `${ GENDER_AND_CREATIVITY_US_ASSESSMENT_HREF }/spend-time-with-others`
 const buttonText = `Next`
 
 
@@ -182,8 +182,8 @@ const DemographicsForm = ({ }) => {
             <Fragment key={ `gender-and-creativity-us-demographics-radio-or-checkbox-inputs-${ i }` }>
               <RadioOrCheckboxInput
                 style={ checkboxStyle }
-                legend={ input.legend }
                 inputName={ input.name }
+                legend={ input.legend }
                 onChange={ input.onChange }
                 inputLabels={ input.inputLabels }
                 options={ { 

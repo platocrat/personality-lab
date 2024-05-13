@@ -1,8 +1,8 @@
 // Externals
 import { FC, Fragment, useContext } from 'react'
 // Locals
-import NumberInput from '@/components/Input/Number'
 import InputWrapper from '@/components/Input/Wrapper'
+import TextOrNumberInput from '@/components/Input/TextOrNumber'
 // Contexts
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 // Constants
@@ -29,9 +29,9 @@ const Input = () => {
 
   return (
     <>
-      <NumberInput name={ name } onChange={ onAgeChange }>
+      <TextOrNumberInput name={ name } onChange={ onAgeChange }>
         { ` years` }
-      </NumberInput>
+      </TextOrNumberInput>
     </>
   )
 }

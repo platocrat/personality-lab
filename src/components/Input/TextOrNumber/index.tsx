@@ -1,7 +1,10 @@
 // Externals
 import { CSSProperties, ReactNode, FC } from 'react'
 // Locals
-import { INVALID_CHARS_WITH_NUMBERS } from '@/utils'
+import { 
+  INVALID_CHARS_WITH_NUMBERS,
+  INVALID_CHARS_EXCEPT_NUMBERS, 
+} from '@/utils'
 
 
 
@@ -26,6 +29,10 @@ const TextOrNumberInput: FC<TextOrNumberInputProps> = ({
   onChange,
   children,
 }) => {
+  const INVALID_CHARS = controls?.type === 'number'
+    ? INVALID_CHARS_EXCEPT_NUMBERS
+    : INVALID_CHARS_WITH_NUMBERS
+
   return (
     <>
       <input
@@ -40,7 +47,7 @@ const TextOrNumberInput: FC<TextOrNumberInputProps> = ({
           margin: '0px 4px 0px 12px'
         } }
         onKeyDown={ (e: any): any => {
-          if (INVALID_CHARS_WITH_NUMBERS.includes(e.key)) {
+          if (INVALID_CHARS.includes(e.key)) {
             e.preventDefault()
           }
         } }

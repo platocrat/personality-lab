@@ -1,4 +1,7 @@
-export const GENDER_AND_CREATIVITY_FRAGMENT_ID_PREFACE = `gender-and-creativity-us`
+export const GENDER_AND_CREATIVITY_US_ASSESSMENT_HREF = `/gender-and-creativity-us/assessment`
+
+
+export const GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACE = `gender-and-creativity-us`
 
 
 export const questionBankLegend = [

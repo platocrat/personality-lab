@@ -2,12 +2,12 @@
 import Image from 'next/image'
 // Locals
 import AssessmentButton from '@/app/components/assessment-button'
-import { genderAndCreativityUsAssessmentHref } from '../../forms/consent'
+import { GENDER_AND_CREATIVITY_US_ASSESSMENT_HREF } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 
 
-const href = `${genderAndCreativityUsAssessmentHref}/creative-activities-and-achievements/assessment`
+const href = `${ GENDER_AND_CREATIVITY_US_ASSESSMENT_HREF }/creative-activities-and-achievements/assessment`
 const imgPath = (i: number) => `./assessments/gender-and-creativity-us/creativity-and-achievements-instructions-${i}.png`
 
 

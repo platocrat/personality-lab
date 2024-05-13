@@ -92,7 +92,13 @@ const PersonalityAssessments = ({ }) => {
             />
             {
               i !== pAssessments.length - 1
-                ? <div className={ styles.divider } />
+                ? (
+                  <>
+                    <div style={ definitelyCenteredStyle }>
+                      <div className={ styles.divider } />
+                    </div>
+                  </>
+                )
                 : null
             }
           </Fragment>

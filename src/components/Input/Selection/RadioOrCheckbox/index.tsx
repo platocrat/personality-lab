@@ -12,6 +12,7 @@ import { InputLabelType } from '../types'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+import { style } from 'd3'
 
 
 
@@ -21,6 +22,7 @@ type RadioOrCheckboxInputProps = {
   inputLabels: InputLabelType[]
   style?: {
     outerWrapper?: CSSProperties
+    radioButtonText?: CSSProperties
     questionBodyStyle?: CSSProperties
     radioButtonInputStyle?: CSSProperties
     radioButtonLabelStyle?: CSSProperties
@@ -114,15 +116,27 @@ const RadioOrCheckboxInput: FC<RadioOrCheckboxInputProps> = ({
                   >
                     <input
                       value={ i }
-                      required={ true }
                       name={ inputName }
                       type={ options?.type ?? 'radio' }
                       className={ styles.radioButtonInput }
                       id={ inputId(inputLabel, itemIndex ?? 0, i) }
                       style={{ ...style?.radioButtonInputStyle }}
                       onChange={ (e: any) => onChange(e, i) }
+                      required={ 
+                        options?.type === 'checkbox' ? false : true
+                      }
                     />
-                    { inputLabel.name }
+
+                    { style?.radioButtonText 
+                      ? (
+                        <>
+                          <p style={ style?.radioButtonText }>
+                            { inputLabel.name }
+                          </p>
+                        </>
+                      )
+                      : <>{ inputLabel.name }</>
+                    }
                   </label>
                 </div>
               </Fragment>

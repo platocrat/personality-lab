@@ -41,6 +41,12 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 type BessiProps = {}
 
 
+
+const TITLE = `BESSI`
+const BUTTON_TEXT = `Submit`
+
+
+
 const BessiAssessment: FC<BessiProps> = ({ }) => {
   // Hooks
   const router = useRouter()
@@ -53,11 +59,11 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
     usState,
     zipCode,
     isParent,
-    foreignCountry,
-    isFluentInEnglish,
-    priorCompletion,
     socialClass,
+    foreignCountry,
     raceOrEthnicity,
+    priorCompletion,
+    isFluentInEnglish,
     currentMaritalStatus,
     highestFormalEducation,
     currentEmploymentStatus,
@@ -71,12 +77,6 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
   ] = useState<{ [key: string]: UserScoresType } | null>(null)
   // Booleans
   const [ isLoadingResults, setIsLoadingResults ] = useState<boolean>(false)
-    
-
-  const title = `BESSI`
-  const buttonText = `Submit`
-  const subtitle = `Instructions.`
-
 
 
   // --------------------------- Async functions -------------------------------
@@ -389,7 +389,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
           className={ styles.grayColor }
           onSubmit={ (e: any): Promise<void> => handleSubmit(e) }
         >
-          <h2 className={ styles.assessmentTitle }>{ title }</h2>
+          <h2 className={ styles.assessmentTitle }>{ TITLE }</h2>
           
           <BessiAssessmentInstructions />
 
@@ -423,7 +423,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
             <>
             <div style={{ float: 'right' }}>
               <button className={ styles.button } style={{ width: '75px' }}>
-                { buttonText }
+                { BUTTON_TEXT }
               </button>
             </div>
             </>

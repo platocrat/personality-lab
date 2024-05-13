@@ -4,7 +4,7 @@ import { FC, Fragment } from 'react'
 import {
   questionBank,
   questionBankLegend,
-  GENDER_AND_CREATIVITY_FRAGMENT_ID_PREFACE,
+  GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACE,
 } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
@@ -40,7 +40,7 @@ const LevelOfAgreementForm: FC<LevelOfAgreementFormProps> = ({ }) => {
               (level: string, i: number) => (
                 <Fragment
                   key={
-                    `${ GENDER_AND_CREATIVITY_FRAGMENT_ID_PREFACE }-${ PAGE_FRAGMENT_ID }-question-bank-legend-item-${i}`
+                    `${ GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACE }-${ PAGE_FRAGMENT_ID }-question-bank-legend-item-${i}`
                   }
                 >
                   <div>
@@ -56,7 +56,7 @@ const LevelOfAgreementForm: FC<LevelOfAgreementFormProps> = ({ }) => {
               (question: string, i: number) => (
                 <Fragment
                   key={
-                    `${ GENDER_AND_CREATIVITY_FRAGMENT_ID_PREFACE }-${ PAGE_FRAGMENT_ID }-question-item-${i}`
+                    `${ GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACE }-${ PAGE_FRAGMENT_ID }-question-item-${i}`
                   }
                 >
                   <div>
