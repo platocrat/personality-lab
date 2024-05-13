@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from 'react'
 // Locals
 import Title from '../Title'
 // Constants
-import { domainToFacetMapping } from '@/utils/assessments/bessi/constants'
+import { domainToFacetMapping } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 

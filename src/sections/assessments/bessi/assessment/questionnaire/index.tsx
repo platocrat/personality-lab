@@ -11,20 +11,16 @@ import {
 import TableRadioInput from '@/components/Input/Selection/Table'
 // Contexts
 import { UserScoresContext } from '@/contexts/UserScoresContext'
-// Constants
+// Utilities
 import { 
   getFacet, 
-  getSkillDomainAndWeight
-} from '@/utils'
-import { 
+  UserScoresType,
   wellnessRatings,
   bessiActivityBank,
+  BessiActivityType, 
+  getSkillDomainAndWeight,
   wellnessRatingDescriptions,
-} from '@/utils/assessments/bessi/constants'
-// Types
-import { 
-  BessiActivityType, UserScoresType
-} from '@/utils/assessments/bessi/types'
+} from '@/utils'
 
 
 

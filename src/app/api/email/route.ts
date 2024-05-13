@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { QueryCommand, QueryCommandInput } from '@aws-sdk/lib-dynamodb'
 // Locals
-import { ddbDocClient } from '@/utils/aws/dynamodb'
+import { ddbDocClient } from '@/utils'
 import { DYNAMODB_TABLE_NAMES } from '@/utils'
 
 

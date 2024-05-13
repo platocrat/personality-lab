@@ -4,7 +4,7 @@ import { Fragment } from 'react'
 import { 
   wellnessRatings, 
   wellnessRatingDescriptions
-} from '@/utils/assessments/bessi/constants'
+} from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 

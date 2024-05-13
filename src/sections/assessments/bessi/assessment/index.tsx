@@ -13,27 +13,24 @@ import Spinner from '@/components/Suspense/Spinner'
 import { UserScoresContext } from '@/contexts/UserScoresContext'
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
-// Utility functions
-import LibsodiumUtils from '@/utils/libsodium'
-import { AWS_PARAMETER_NAMES, calculateBessiScores } from '@/utils'
-// Types
-import { 
-  UserScoresType,
-  FacetFactorType,
-  SkillDomainFactorType,
-  BessiUserResults__DynamoDB,
-  BessiUserDemographics__DynamoDB,
-} from '@/utils/assessments/bessi/types'
-// Enums
+// Utilities
 import { 
   Gender, 
   YesOrNo,
   USState,
   SocialClass, 
+  LibsodiumUtils,
+  UserScoresType,
+  FacetFactorType,
   RaceOrEthnicity, 
+  AWS_PARAMETER_NAMES, 
   CurrentMaritalStatus, 
+  calculateBessiScores,
+  SkillDomainFactorType,
   HighestFormalEducation, 
   CurrentEmploymentStatus,
+  BessiUserResults__DynamoDB,
+  BessiUserDemographics__DynamoDB,
 } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'

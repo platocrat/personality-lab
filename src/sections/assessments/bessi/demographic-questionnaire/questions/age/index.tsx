@@ -6,9 +6,7 @@ import InputWrapper from '@/components/Input/Wrapper'
 // Contexts
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 // Constants
-import { 
-  INVALID_CHARS_FOR_NUMBERS 
-} from '@/utils/assessments/bessi/constants'
+import { INVALID_CHARS_FOR_NUMBERS } from '@/utils'
 // CSS
 import { inputMarginStyle } from '../..'
 import styles from '@/app/page.module.css'

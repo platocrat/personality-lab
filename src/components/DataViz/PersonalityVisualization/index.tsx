@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react'
 // Locals
 import Title from '../Title'
 // Constants
-import { domainToFacetMapping, skillsMapping } from '@/utils/assessments/bessi/constants'
+import { domainToFacetMapping, skillsMapping } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/components/DataViz/PersonalityVisualization/PersonalityVisualization.module.css'

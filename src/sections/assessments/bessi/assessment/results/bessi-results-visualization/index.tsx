@@ -30,16 +30,15 @@ import BessiShareResultsButton from '@/components/Buttons/BESSI/ShareResultsButt
 import PersonalityVisualization from '@/components/DataViz/PersonalityVisualization'
 // Contexts
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
-// Constants
-import { dummyVariables, imgPaths } from '@/utils/assessments/bessi/constants'
-// Enums
-import { SkillDomain } from '@/utils/bessi/types/enums'
-// Types
+// Utils
 import { 
+  imgPaths,
+  SkillDomain,
+  dummyVariables, 
   FacetFactorType, 
   BessiSkillScoresType, 
   SkillDomainFactorType 
-} from '@/utils/assessments/bessi/types'
+} from '@/utils'
 import {
   transformData,
   InputDataStructure,

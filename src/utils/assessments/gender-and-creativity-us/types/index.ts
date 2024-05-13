@@ -6,7 +6,7 @@ import {
   CurrentEmploymentStatus__GACUsGender,
   HighestLevelOfEducation__GACUsGender,
 } from './enums'
-import { RaceOrEthnicity, YesOrNo } from '@/utils/bessi/types/enums'
+import { RaceOrEthnicity, YesOrNo } from '@/utils'
 
 
 type InputLabelEnumType = typeof YesOrNo 

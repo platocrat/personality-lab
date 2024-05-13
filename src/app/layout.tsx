@@ -12,7 +12,7 @@ import Spinner from '@/components/Suspense/Spinner'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // Types
-import { BessiSkillScoresType } from '@/utils/assessments/bessi/types'
+import { BessiSkillScoresType } from '@/utils'
 // CSS
 import './globals.css'
 import { definitelyCenteredStyle } from '@/theme/styles'

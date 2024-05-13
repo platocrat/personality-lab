@@ -5,9 +5,7 @@ import InputWrapper from '@/components/Input/Wrapper'
 // Contexts
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 // Constants
-import { 
-  INVALID_CHARS_WITH_NUMBERS 
-} from '@/utils/assessments/bessi/constants'
+import { INVALID_CHARS_WITH_NUMBERS } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 

@@ -3,27 +3,29 @@
 // Externals
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { CSSProperties, FC, useContext, useMemo, useState } from 'react'
+import { 
+  FC, 
+  useMemo, 
+  useState,
+  useContext, 
+  CSSProperties, 
+} from 'react'
 // Locals
 // Components
 import Card from '@/components/Card'
-// import Treemap from '@/components/DataViz/Treemap'
-// import BarChart from '@/components/DataViz/BarChart'
 import StellarPlot from '@/components/DataViz/StellarPlot'
-// import UVIndexChart from '@/components/DataViz/UVIndexChart'
-// import PersonalityVisualization from '@/components/DataViz/PersonalityVisualization'
 // Sections
 import Form from './form'
 // Contexts
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // Utils
-import { deleteAllCookies } from '@/utils/misc'
-import { dummyVariables } from '@/utils/assessments/bessi/constants'
-// Types
-import { SkillDomainFactorType } from '@/utils/assessments/bessi/types'
+import {
+  dummyVariables,
+  deleteAllCookies, 
+  SkillDomainFactorType 
+} from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
-
 
 
 
