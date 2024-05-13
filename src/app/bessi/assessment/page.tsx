@@ -5,29 +5,25 @@ import { FC } from 'react'
 
 // Locals
 // Sections
-import BessiAssessment from '@/sections/assessments/bessi/assessment'
+import BessiAssessmentSection from '@/sections/assessments/bessi/assessment'
 // CSS
 import styles from '@/app/page.module.css'
+import Bessi from '@/sections/assessments/bessi'
+
+
+type BessiAssessmentProps = {}
 
 
 
 
-
-type BessiProps = {}
-
-
-const Bessi: FC<BessiProps> = ({ }) => {
-  const title = `BESSI`
-  const subtitle = `Complete the following questionnaire to learn more about your social, emotional, and behavioral skills. These are the skills that you use to start and support your relationships, keep your emotions in check, achieve your goals, and learn from experience. They’re things like goal setting, leadership, teamwork, creativity, and emotion regulation.`
-
-
+const BessiAssessment: FC<BessiAssessmentProps> = ({ }) => {
   return (
     <>
       <main className={ `${styles.main} ` }>
-        <BessiAssessment />
+        <BessiAssessmentSection />
       </main>
     </>
   )
 }
 
-export default Bessi
+export default BessiAssessment

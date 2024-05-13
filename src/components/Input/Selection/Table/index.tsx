@@ -5,7 +5,7 @@ import { FC, Fragment, ReactNode, Dispatch, SetStateAction } from 'react'
 import { 
   wellnessRatings,
   wellnessRatingDescriptions, 
-} from '@/utils/bessi/constants'
+} from '@/utils/assessments/bessi/constants'
 // Types
 import { InputLabelType } from '../types'
 // CSS

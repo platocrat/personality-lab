@@ -1,7 +1,7 @@
 // Externals
 import { FC, Fragment, useContext } from 'react'
 // Locals
-import { BasicRadioInput } from '@/components/Input/Radio'
+import InputWrapper from '@/components/Input/Wrapper'
 // Contexts
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 // Enums
@@ -53,14 +53,20 @@ const Input = () => {
 
 
 const BessiCurrentEmploymentStatus = () => {
-  const css = {
+  const classNames = {
     pClassName: styles.bessi_about_you_p,
     spanClassName: styles.bessi_text1,
   }
 
   return (
     <>
-      <BasicRadioInput input={ <Input /> } label={ <Label /> } css={ css } />
+      <InputWrapper 
+        input={ <Input /> } 
+        label={ <Label /> } 
+        options={{
+          classNames: classNames
+        }}
+      />
     </>
   )
 }

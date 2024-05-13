@@ -22,7 +22,7 @@ import {
   BessiSkillScoresType,
   SkillDomainFactorType,
   BessiUserDemographics__DynamoDB,
-} from '@/utils/bessi/types'
+} from '@/utils/assessments/bessi/types'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'

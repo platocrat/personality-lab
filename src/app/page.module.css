@@ -1,3 +1,15 @@
+.inputWrapperSpan {
+  display: flex;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.inputWrapperP {
+  display: flex;
+  margin: 1rem 0rem 1rem 0rem;
+}
+
+
 .externalLink {
   color: #007ac0;
   text-decoration: underline;
@@ -174,7 +186,7 @@
   margin-right: 24px;
 
   top: 2.5px;
-  left: 4px;
+  left: 2px;
 
   height: 14.5px;
   width: 14.5px;

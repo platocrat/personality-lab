@@ -18,9 +18,9 @@ import Form from './form'
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // Utils
 import { deleteAllCookies } from '@/utils/misc'
-import { dummyVariables } from '@/utils/bessi/constants'
+import { dummyVariables } from '@/utils/assessments/bessi/constants'
 // Types
-import { SkillDomainFactorType } from '@/utils/bessi/types'
+import { SkillDomainFactorType } from '@/utils/assessments/bessi/types'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 

@@ -31,7 +31,7 @@ import PersonalityVisualization from '@/components/DataViz/PersonalityVisualizat
 // Contexts
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // Constants
-import { dummyVariables, imgPaths } from '@/utils/bessi/constants'
+import { dummyVariables, imgPaths } from '@/utils/assessments/bessi/constants'
 // Enums
 import { SkillDomain } from '@/utils/bessi/types/enums'
 // Types
@@ -39,7 +39,7 @@ import {
   FacetFactorType, 
   BessiSkillScoresType, 
   SkillDomainFactorType 
-} from '@/utils/bessi/types'
+} from '@/utils/assessments/bessi/types'
 import {
   transformData,
   InputDataStructure,
