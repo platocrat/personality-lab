@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20.12.2'
+          node-version: '20.13.1'
       # Phase 1: Build and Push Docker Image to Docker Hub Repository
       - name: 1. Login to Docker
         run: docker login -u $DOCKER_USERNAME -p $DOCKER_HUB_ACCESS_TOKEN
@@ -38,5 +38,6 @@ jobs:
       - name: 6. SSH into EC2 instance, prune Docker system data, and pull Docker image
         # sudo docker system prune -a -f && # No longer compatible with older Docker version
         run: ssh -o StrictHostKeyChecking=no -i ssh_key $EC2_USERNAME@$EC2_HOSTNAME '
+          sudo docker system prune -a -f &&
           sudo docker pull platocrat/personality-lab-app
           '
