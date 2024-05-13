@@ -13,6 +13,9 @@ import styles from '@/components/Header/Header.module.css'
 type HeaderProps = { }
 
 
+const navTitle = `Personality Lab`
+
+
 
 const Header: FC<HeaderProps> = ({}) => {  
   // Contexts
@@ -21,7 +24,6 @@ const Header: FC<HeaderProps> = ({}) => {
   const router = useRouter()
   const pathname = usePathname()
 
-  const navTitle = `NavTitle`
 
   const links: NavLink[] = [
     { label: 'Profile', href: '/profile' },
