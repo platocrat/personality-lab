@@ -1,17 +1,17 @@
 // Externals
-import { CSSProperties, FC, ReactNode, useContext } from 'react'
+import { CSSProperties, ReactNode, FC } from 'react'
 // Locals
-// Utils
-import { INVALID_CHARS_FOR_NUMBERS } from '@/utils'
+import { INVALID_CHARS_WITH_NUMBERS } from '@/utils'
 
 
 
-type NumberInputProps = {
+type TextOrNumberInputProps = {
   name: string
   style?: CSSProperties
   onChange: (e: any) => void
   children?: ReactNode | undefined
   controls?: {
+    type?: 'text' | 'number'
     min?: number
     step?: number
   }
@@ -19,29 +19,28 @@ type NumberInputProps = {
 
 
 
-
-const NumberInput: FC<NumberInputProps> = ({ 
+const TextOrNumberInput: FC<TextOrNumberInputProps> = ({
   name,
   style,
-  children,
   controls,
   onChange,
+  children,
 }) => {
   return (
     <>
       <input
-        type='number'
         name={ name }
         required={ true }
+        type={ controls?.type }
         min={ controls?.min ?? 0 }
         step={ controls?.step ?? 1 }
         onChange={ (e: any) => onChange(e) }
-        style={ { 
+        style={ {
           ...style ?? undefined,
           margin: '0px 4px 0px 12px'
         } }
         onKeyDown={ (e: any): any => {
-          if (INVALID_CHARS_FOR_NUMBERS.includes(e.key)) {
+          if (INVALID_CHARS_WITH_NUMBERS.includes(e.key)) {
             e.preventDefault()
           }
         } }
@@ -52,4 +51,4 @@ const NumberInput: FC<NumberInputProps> = ({
 }
 
 
-export default NumberInput
+export default TextOrNumberInput

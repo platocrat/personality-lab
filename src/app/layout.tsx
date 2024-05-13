@@ -17,7 +17,16 @@ import { BessiSkillScoresType } from '@/utils/assessments/bessi/types'
 import './globals.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
-import { Gender, YesOrNo, USState, HighestFormalEducation, SocialClass, RaceOrEthnicity, CurrentMaritalStatus, CurrentEmploymentStatus } from '@/utils'
+import { 
+  Gender, 
+  YesOrNo, 
+  USState, 
+  SocialClass, 
+  RaceOrEthnicity, 
+  CurrentMaritalStatus, 
+  HighestFormalEducation,
+  CurrentEmploymentStatus,
+} from '@/utils'
 
 
 export type UserResponse = {
@@ -53,11 +62,19 @@ export default function RootLayout({
   // State variables UserDemographicsContext
   // Numbers
   const [ age, setAge ] = useState<number>(0)
+  const [ familySize, setFamilySize ] = useState<number>(0)
+  const [
+    annualHouseholdIncome, 
+    setAnnualHouseholdIncome 
+  ] = useState<number>(0)
   // Regular strings
+  const [
+    areaOfScienceTraining,
+    setAreaOfScienceTraining,
+  ] = useState<string>('')
   const [ zipCode, setZipCode ] = useState<string>('')
   const [ foreignCountry, setForeignCountry ] = useState<string>('')
   // Enums
-  const [ gender, setGender ] = useState<string | number>('')
   const [ isParent, setIsParent ] = useState<YesOrNo>(YesOrNo.No)
   const [ usState, setUSState ] = useState<USState>(USState.Alabama)
   const [ priorCompletion, setPriorCompletion ] = useState<YesOrNo>(YesOrNo.No)
@@ -72,7 +89,7 @@ export default function RootLayout({
   const [
     raceOrEthnicity,
     setRaceOrEthnicity
-  ] = useState<RaceOrEthnicity[]>([RaceOrEthnicity.WhiteCaucasian])
+  ] = useState<RaceOrEthnicity[]>([ ])
   // Generics
   const [
     highestFormalEducation,
@@ -86,6 +103,8 @@ export default function RootLayout({
     currentMaritalStatus,
     setCurrentMaritalStatus
   ] = useState<string | number>('')
+  const [ gender, setGender ] = useState<string | number>('')
+  const [ religion, setReligion ] = useState<string | number>('')
 
 
 
@@ -98,7 +117,7 @@ export default function RootLayout({
 
   function onGenderChange(e: any) {
     const _ = e.target.value
-    // console.log(`gender: `, _)
+    console.log(`gender: `, _)
     setGender(_)
   }
 
@@ -109,16 +128,19 @@ export default function RootLayout({
   }
 
   function onRaceOrEthnicityChange(e: any) {
-    const _ = e.target.value
-    console.log(`racesOrEthnicities: `, _)
+    const _ = Object.values(RaceOrEthnicity)[e.target.value]
     
-    setRaceOrEthnicity((prevCheckedItems) => {
-      if (prevCheckedItems.includes(_)) {
-        return prevCheckedItems.filter(
-          (item): boolean => item !== _
-        )
+    setRaceOrEthnicity((previousState) => {
+      if (previousState.includes(_)) {
+        // console.log(`raceOrEthnicity: `, previousState.filter(item => item !== _))
+
+        // If the current state is already in the array, remove it
+        return previousState.filter(item => item !== _)
       } else {
-        return [...prevCheckedItems, _]
+        // console.log(`raceOrEthnicity: `, [...previousState, _])
+        
+        // Otherwise, add it to the array
+        return [...previousState, _]
       }
     })
   }
@@ -176,6 +198,26 @@ export default function RootLayout({
     const _ = e.target.value
     setIsParent(_)
   } 
+
+  function onFamilySizeChange(e: any) {
+    const _ = e.target.value
+    setFamilySize(_)
+  }
+
+  function onReligionChange(e: any) {
+    const _ = e.target.value
+    setReligion(_)
+  }
+  
+  function onAnnualHouseholdIncomeChange(e: any) {
+    const _ = e.target.value
+    setAnnualHouseholdIncome(_)
+  }
+  
+  function onAreaOfScienceTrainingChange(e: any) {
+    const _ = e.target.value
+    setAreaOfScienceTraining(_)
+  }
 
 
   // --------------------------- Async functions -------------------------------
@@ -270,28 +312,36 @@ export default function RootLayout({
                       gender,
                       usState,
                       zipCode,
+                      religion,
                       isParent,
+                      familySize,
                       socialClass,
                       foreignCountry,
                       raceOrEthnicity,
                       priorCompletion,
                       isFluentInEnglish,
                       currentMaritalStatus,
+                      areaOfScienceTraining,
+                      annualHouseholdIncome,
                       highestFormalEducation,
                       currentEmploymentStatus,
                       // Form input handlers
                       onAgeChange,
                       onGenderChange,
                       onZipCodeChange,
+                      onReligionChange,
                       onIsParentChange,
                       onUsLocationChange,
+                      onFamilySizeChange,
                       onSocialClassChange,
                       onEnglishFluencyChange,
                       onRaceOrEthnicityChange,
                       onPriorCompletionChange,
                       onForeignLocationChange,
                       onCurrentMaritalStatusChange,
+                      onAreaOfScienceTrainingChange,
                       onHighestEducationLevelChange,
+                      onAnnualHouseholdIncomeChange,
                       onCurrentEmploymentStatusChange,
                     } }
                   >

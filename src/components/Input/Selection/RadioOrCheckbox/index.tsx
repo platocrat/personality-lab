@@ -43,8 +43,6 @@ const RadioOrCheckboxInput: FC<RadioOrCheckboxInputProps> = ({
   itemIndex,
   inputLabels,
 }) => {
-  const _itemIndex = itemIndex ?? 0
-  
   const isInputLengthLong = inputLabels.length > 3
 
   const labelDisplay = isInputLengthLong ? 'flex' : 'block'
@@ -115,15 +113,14 @@ const RadioOrCheckboxInput: FC<RadioOrCheckboxInputProps> = ({
                      }}
                   >
                     <input
+                      value={ i }
                       required={ true }
                       name={ inputName }
-                      // Use `i + 1` because we cannot sum a value of `0`
-                      value={ itemIndex ? i + 1 : i }
                       type={ options?.type ?? 'radio' }
                       className={ styles.radioButtonInput }
-                      id={ inputId(inputLabel, _itemIndex, i) }
+                      id={ inputId(inputLabel, itemIndex ?? 0, i) }
                       style={{ ...style?.radioButtonInputStyle }}
-                      onChange={ (e: any) => onChange(e, _itemIndex) }
+                      onChange={ (e: any) => onChange(e, i) }
                     />
                     { inputLabel.name }
                   </label>

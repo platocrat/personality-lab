@@ -11,7 +11,10 @@ type AssessmentButtonProps = {
 }
 
 
-
+/**
+ * @dev This component CANNOT be used to submit forms because it uses `<Link>`
+ * component which overwrites the functionality of a form element.
+ */
 const AssessmentButton: FC<AssessmentButtonProps> = ({
   href,
   buttonText

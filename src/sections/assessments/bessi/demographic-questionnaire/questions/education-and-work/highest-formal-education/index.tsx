@@ -5,9 +5,7 @@ import InputWrapper from '@/components/Input/Wrapper'
 // Contexts
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 // Enums
-import { 
-  HighestFormalEducation 
-} from '@/utils/bessi/types/enums'
+import { HighestFormalEducation } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 

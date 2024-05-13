@@ -23,7 +23,7 @@ import {
   CurrentMaritalStatus,
   HighestFormalEducation,
   CurrentEmploymentStatus,
-} from '@/utils/bessi/types/enums'
+} from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 

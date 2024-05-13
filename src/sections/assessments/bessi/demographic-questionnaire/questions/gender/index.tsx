@@ -5,7 +5,7 @@ import InputWrapper from '@/components/Input/Wrapper'
 // Contexts
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 // Enums
-import { Gender } from '@/utils/bessi/types/enums'
+import { Gender } from '@/utils'
 // CSS
 import { inputMarginStyle } from '../..'
 import styles from '@/app/page.module.css'
