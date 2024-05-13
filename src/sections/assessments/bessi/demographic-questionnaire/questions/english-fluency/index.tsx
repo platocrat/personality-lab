@@ -5,7 +5,7 @@ import InputWrapper from '@/components/Input/Wrapper'
 // Contexts
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 // Enums
-import { YesOrNo } from '@/utils/bessi/types/enums'
+import { YesOrNo } from '@/utils'
 // CSS
 import { inputMarginStyle } from '../..'
 import styles from '@/app/page.module.css'

@@ -9,7 +9,7 @@ import {
   INVALID_CHARS_EXCEPT_NUMBERS,
 } from '@/utils/assessments/bessi/constants'
 // Enums
-import { USState } from '@/utils/bessi/types/enums'
+import { USState } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 

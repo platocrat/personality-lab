@@ -5,7 +5,7 @@ import InputWrapper from '@/components/Input/Wrapper'
 // Contexts
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 // Enums
-import { SocialClass } from '@/utils/bessi/types/enums'
+import { SocialClass } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 

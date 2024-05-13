@@ -5,9 +5,7 @@ import InputWrapper from '@/components/Input/Wrapper'
 // Contexts
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 // Enums
-import { 
-  CurrentMaritalStatus 
-} from '@/utils/bessi/types/enums'
+import { CurrentMaritalStatus } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 

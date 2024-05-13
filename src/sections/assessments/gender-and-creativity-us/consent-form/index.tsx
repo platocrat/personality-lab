@@ -2,7 +2,8 @@
 
 // Externals
 import Link from 'next/link'
-import { FC, Fragment, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { FC, Fragment, useEffect, useState } from 'react'
 // Locals
 import { RadioOrCheckboxInput } from '@/components/Input'
 import ExternalLink from '@/components/Anchors/ExternalLink'
@@ -14,6 +15,7 @@ import { YesOrNo } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 import { paragraphSectionStyle } from './preface'
+import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
@@ -62,6 +64,8 @@ const FinalConsentLabel = () => {
 
 
 const ConsentForm: FC<ConsentFormProps> = ({  }) => {
+  // Hooks
+  const router = useRouter()
   // States
   const [ 
     racialOrEthnicConsent, 
@@ -81,6 +85,8 @@ const ConsentForm: FC<ConsentFormProps> = ({  }) => {
   ] = useState<boolean>(false)
   const [ finalConsent, setFinalConsent ] = useState<boolean>(false)
   const [ healthDataConsent, setHealthDataConsent ] = useState<boolean>(false)
+  // Custom
+  const [ consentInfo, setConsentInfo ] = useState<any>(null)
 
 
   // ------------------ Form selection event handlers --------------------------
@@ -110,7 +116,7 @@ const ConsentForm: FC<ConsentFormProps> = ({  }) => {
 
 
 
-  const bubbleInputs: {
+  const inputs: {
     legend: string
     inputName: string
     onChange: (e: string, i: number) => void
@@ -143,15 +149,38 @@ const ConsentForm: FC<ConsentFormProps> = ({  }) => {
   ]
 
 
+  // ------------------------ Async functions ----------------------------------
+  async function handleOnSubmit(e: any) {
+    e.preventDefault() 
+
+    const _consentInfo = {
+      finalConsent: finalConsent,
+      healthDataConsent: healthDataConsent,
+      racialOrEthnicConsent: racialOrEthnicConsent,
+      politicalOpinionsConsent: politicalOpinionsConsent,
+      sexLifeAndOrientationConsent: sexLifeAndOrientationConsent,
+      religiousOrPhilosophicalBeliefsConsent: religiousOrPhilosophicalBeliefsConsent,
+    }
+
+    setConsentInfo(_consentInfo)
+
+    // Use router to route the user to the assessment page
+    router.push(href)
+  }
+
+
 
   return (
     <Fragment key={ `gender-and-creativity-us-consent-form` }>
-      <form className={ styles.assessmentWrapper }>
+      <form 
+        className={ styles.assessmentWrapper }
+        onSubmit={ (e: any) => handleOnSubmit(e) }
+      >
 
         <div className='form-group form-row optional item-note'>
           <Preface />
 
-          { bubbleInputs.map((bInput, i: number) => (
+          { inputs.map((bInput, i: number) => (
             <Fragment key={ `bubble-inputs-for-consent-form-${i}` }>
               <RadioOrCheckboxInput
                 itemIndex={ i }
@@ -174,9 +203,14 @@ const ConsentForm: FC<ConsentFormProps> = ({  }) => {
           />
         </div>
 
+        <div style={{ float: 'right' }}>
+          <button className={ styles.button } style={ { width: '80px' } }>
+            { buttonText }
+          </button>
+        </div>
+
       </form>
 
-      <AssessmentButton href={ href } buttonText={ buttonText } />
     </Fragment>
   )
 }
