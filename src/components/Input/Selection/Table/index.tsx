@@ -28,7 +28,7 @@ const TableRadioInput: FC<TableRadioInputProps> = ({
   onChange,
 }) => {
   function fragmentKey(inputLabel: InputLabelType, i: number): string {
-    return `table-radio-input-id${inputLabel.inputId}-${inputLabel.labelName}-${i}` 
+    return `table-radio-input-id${inputLabel.id}-${inputLabel.name}-${i}` 
   }
 
   function inputId(obj: any, i: number, j: number): string {
