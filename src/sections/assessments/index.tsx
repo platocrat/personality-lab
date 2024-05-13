@@ -10,9 +10,9 @@ import BessiDescription from './bessi/description'
 import GenderAndCreativityUsDescription from './gender-and-creativity-us/description'
 import BessiResultsVisualization from './bessi/assessment/results/bessi-results-visualization'
 // Constants
-import { dummyVariables } from '@/utils/bessi/constants'
+import { dummyVariables } from '@/utils/assessments/bessi/constants'
 // Types
-import { SkillDomainFactorType } from '@/utils/bessi/types'
+import { SkillDomainFactorType } from '@/utils/assessments/bessi/types'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'

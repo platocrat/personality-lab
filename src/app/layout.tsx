@@ -12,10 +12,12 @@ import Spinner from '@/components/Suspense/Spinner'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // Types
-import { BessiSkillScoresType } from '@/utils/bessi/types'
+import { BessiSkillScoresType } from '@/utils/assessments/bessi/types'
 // CSS
 import './globals.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+import { UserDemographicContext } from '@/contexts/UserDemographicContext'
+import { Gender, YesOrNo, USState, HighestFormalEducation, SocialClass, RaceOrEthnicity, CurrentMaritalStatus, CurrentEmploymentStatus } from '@/utils'
 
 
 export type UserResponse = {
@@ -40,14 +42,141 @@ export default function RootLayout({
   const router = useRouter()
   const pathname = usePathname()
 
-  // Customs
+  // Custom state variables
   const [ 
     bessiSkillScores, 
     setBessiSkillScores 
   ] = useState<BessiSkillScoresType | null>(null)
-  // Booleans
+  // Booleans for user authentication
   const [ isFetchingUser, setIsFetchingUser ] = useState<boolean>(true)
   const [ isAuthenticated, setIsAuthenticated ] = useState<boolean>(false)
+  // State variables UserDemographicsContext
+  // Numbers
+  const [ age, setAge ] = useState<number>(0)
+  // Regular strings
+  const [ zipCode, setZipCode ] = useState<string>('')
+  const [ foreignCountry, setForeignCountry ] = useState<string>('')
+  // Enums
+  const [ gender, setGender ] = useState<string | number>('')
+  const [ isParent, setIsParent ] = useState<YesOrNo>(YesOrNo.No)
+  const [ usState, setUSState ] = useState<USState>(USState.Alabama)
+  const [ priorCompletion, setPriorCompletion ] = useState<YesOrNo>(YesOrNo.No)
+  const [
+    isFluentInEnglish,
+    setIsFluentInEnglish
+  ] = useState<YesOrNo>(YesOrNo.No)
+  const [
+    socialClass,
+    setSocialClass
+  ] = useState<SocialClass>(SocialClass.LowerMiddleClass)
+  const [
+    raceOrEthnicity,
+    setRaceOrEthnicity
+  ] = useState<RaceOrEthnicity[]>([RaceOrEthnicity.WhiteCaucasian])
+  // Generics
+  const [
+    highestFormalEducation,
+    setHighestFormalEducation
+  ] = useState<string | number>('')
+  const [
+    currentEmploymentStatus,
+    setCurrentEmploymentStatus
+  ] = useState<string | number>('')
+  const [
+    currentMaritalStatus,
+    setCurrentMaritalStatus
+  ] = useState<string | number>('')
+
+
+
+  // -------------------- Form Input handler functions -------------------------
+  function onPriorCompletionChange(e: any) {
+    const value = e.target.value
+    // console.log(`e.target.value: `, e.target.value)
+    setPriorCompletion(value)
+  }
+
+  function onGenderChange(e: any) {
+    const _ = e.target.value
+    // console.log(`gender: `, _)
+    setGender(_)
+  }
+
+  function onAgeChange(e: any) {
+    const _ = e.target.value
+    // console.log(`age: `, _)
+    setAge(_)
+  }
+
+  function onRaceOrEthnicityChange(e: any) {
+    const _ = e.target.value
+    console.log(`racesOrEthnicities: `, _)
+    
+    setRaceOrEthnicity((prevCheckedItems) => {
+      if (prevCheckedItems.includes(_)) {
+        return prevCheckedItems.filter(
+          (item): boolean => item !== _
+        )
+      } else {
+        return [...prevCheckedItems, _]
+      }
+    })
+  }
+
+  function onEnglishFluencyChange(e: any) {
+    // console.log(`e.target.value: `, e.target.value)
+    const _ = e.target.value
+    setIsFluentInEnglish(_)
+  }
+
+  function onSocialClassChange(e: any) {
+    // console.log(`e.target.value: `, e.target.value)
+    const _ = e.target.value
+    setSocialClass(_)
+  }
+
+  function onUsLocationChange(e: any) {
+    // console.log(`e.target.value: `, e.target.value)
+    const _ = e.target.value
+    setUSState(_)
+  }
+
+  function onZipCodeChange(e: any) {
+    // console.log(`e.target.value: `, e.target.value)
+    const _ = e.target.value
+    setZipCode(_)
+  }
+
+  function onForeignLocationChange(e: any) {
+    // console.log(`e.target.value: `, e.target.value)
+    const _ = e.target.value
+    setForeignCountry(_)
+  }
+
+  function onHighestEducationLevelChange(e: any) {
+    // console.log(`e.target.value: `, e.target.value)
+    const _ = e.target.value
+    setHighestFormalEducation(_)
+  }
+
+  function onCurrentEmploymentStatusChange(e: any) {
+    // console.log(`e.target.value: `, e.target.value)
+    const _ = e.target.value
+    setCurrentEmploymentStatus(_)
+  }
+
+  function onCurrentMaritalStatusChange(e: any) {
+    // console.log(`e.target.value: `, e.target.value)
+    const _ = e.target.value
+    setCurrentMaritalStatus(_)
+  }
+
+  function onIsParentChange(e: any) {
+    // console.log(`e.target.value: `, e.target.value)
+    const _ = e.target.value
+    setIsParent(_)
+  } 
+
 
   // --------------------------- Async functions -------------------------------
   async function getUser(): Promise<UserResponse> {
@@ -134,15 +263,48 @@ export default function RootLayout({
                   setIsAuthenticated,
                 } }
               >
-                <BessiSkillScoresContext.Provider
-                  value={ {
-                    bessiSkillScores,
-                    setBessiSkillScores,
-                  } }
-                >
-                  { isAuthenticated && <Header/> }
-                  { children }
-                </BessiSkillScoresContext.Provider>
+                  <UserDemographicContext.Provider
+                    value={ {
+                      // State variables
+                      age,
+                      gender,
+                      usState,
+                      zipCode,
+                      isParent,
+                      socialClass,
+                      foreignCountry,
+                      raceOrEthnicity,
+                      priorCompletion,
+                      isFluentInEnglish,
+                      currentMaritalStatus,
+                      highestFormalEducation,
+                      currentEmploymentStatus,
+                      // Form input handlers
+                      onAgeChange,
+                      onGenderChange,
+                      onZipCodeChange,
+                      onIsParentChange,
+                      onUsLocationChange,
+                      onSocialClassChange,
+                      onEnglishFluencyChange,
+                      onRaceOrEthnicityChange,
+                      onPriorCompletionChange,
+                      onForeignLocationChange,
+                      onCurrentMaritalStatusChange,
+                      onHighestEducationLevelChange,
+                      onCurrentEmploymentStatusChange,
+                    } }
+                  >
+                    <BessiSkillScoresContext.Provider
+                      value={ {
+                        bessiSkillScores,
+                        setBessiSkillScores,
+                      } }
+                    >
+                      { isAuthenticated && <Header/> }
+                      { children }
+                    </BessiSkillScoresContext.Provider>
+                  </UserDemographicContext.Provider>
               </AuthenticatedUserContext.Provider>
             </body>
           </html>

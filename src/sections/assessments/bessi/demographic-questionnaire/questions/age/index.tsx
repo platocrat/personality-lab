@@ -8,7 +8,7 @@ import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 // Constants
 import { 
   INVALID_CHARS_FOR_NUMBERS 
-} from '@/utils/bessi/constants'
+} from '@/utils/assessments/bessi/constants'
 // CSS
 import { inputMarginStyle } from '../..'
 import styles from '@/app/page.module.css'

@@ -1,4 +1,4 @@
-import ConsentForm from "./consent-form"
+import ConsentForm from './consent-form'
 
 
 const GenderAndCreativityUs = () => {

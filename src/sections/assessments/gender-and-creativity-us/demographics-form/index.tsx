@@ -1,56 +1,33 @@
 'use client'
 
 // Externals
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 // Locals
 import NumberInput from '@/components/Input/Number'
 import InputWrapper from '@/components/Input/Wrapper'
 import { RadioOrCheckboxInput } from '@/components/Input'
+// Contexts
+import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 // Utils
-import { Gender__GACUsGender, RaceOrEthnicity } from '@/utils'
-import { getInputLabels } from '@/utils/gender-and-creativity-us'
+import { 
+  getInputLabels,
+  RaceOrEthnicity,
+  Gender__GACUsGender,
+} from '@/utils'
 // CSS
-import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/app/page.module.css'
+import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
 
 const DemographicsForm = ({ }) => {
-  // States
-  const [
-    raceOrEthnicity,
-    setRaceOrEthnicity
-  ] = useState<RaceOrEthnicity[]>( [ RaceOrEthnicity.WhiteCaucasian ] )
-  const [ age, setAge ] = useState<number>(0)
-  const [ gender, setGender ] = useState<string>(Gender__GACUsGender.Male)
-
-
-  const onAgeChange = (e: any) => {
-    const age = e.target.value
-    setAge(age)
-  }
-  
-  function onGenderChange(e: any) {
-    // console.log(`e.target.value: `, e.target.value)
-    const value = e.target.value
-    setGender(value)
-  } 
-  
-  function onRaceOrEthnicityChange(e: any) {
-    // console.log(`e.target.value: `, e.target.value)
-    const value = e.target.value
-
-    setRaceOrEthnicity((prevCheckedItems) => {
-      if (prevCheckedItems.includes(value)) {
-        return prevCheckedItems.filter((item) => item !== value);
-      } else {
-        return [...prevCheckedItems, value];
-      }
-    })
-  } 
-
-
+  // Contexts
+  const {
+    onAgeChange,
+    onGenderChange,
+    onRaceOrEthnicityChange,
+  } = useContext(UserDemographicContext)
 
 
 

@@ -23,7 +23,7 @@ import {
   SkillDomainFactorType,
   BessiUserResults__DynamoDB,
   BessiUserDemographics__DynamoDB,
-} from '@/utils/bessi/types'
+} from '@/utils/assessments/bessi/types'
 // Enums
 import { 
   Gender, 
@@ -49,50 +49,31 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
   const router = useRouter()
   // Contexts
   const { setBessiSkillScores } = useContext(BessiSkillScoresContext)
+  const { 
+    // State variables
+    age,
+    gender,
+    usState,
+    zipCode,
+    isParent,
+    foreignCountry,
+    isFluentInEnglish,
+    priorCompletion,
+    socialClass,
+    raceOrEthnicity,
+    currentMaritalStatus,
+    highestFormalEducation,
+    currentEmploymentStatus,
+    // Form input handlers
+   } = useContext(UserDemographicContext)  
 
   // Custom
   const [
     userScores,
     setUserScores
   ] = useState<{ [key: string]: UserScoresType } | null>(null)
-  // Numbers
-  const [ age, setAge ] = useState<number>(0)
-  // Regular strings
-  const [ zipCode, setZipCode ] = useState<string>('')
-  const [ foreignCountry, setForeignCountry ] = useState<string>('')
   // Booleans
   const [ isLoadingResults, setIsLoadingResults ] = useState<boolean>(false)
-  // Enums
-  const [gender, setGender] = useState<Gender>(Gender.Male)
-  const [isParent, setIsParent] = useState<YesOrNo>(YesOrNo.No)
-  const [usState, setUSState] = useState<USState>(USState.Alabama)
-  const [priorCompletion, setPriorCompletion] = useState<YesOrNo>(YesOrNo.No)
-  const [
-    isFluentInEnglish,
-    setIsFluentInEnglish
-  ] = useState<YesOrNo>(YesOrNo.No)
-  const [
-    highestFormalEducation,
-    setHighestFormalEducation
-  ] = useState<HighestFormalEducation>(
-    HighestFormalEducation.HaveNotCompletedHighSchool
-  )
-  const [
-    socialClass,
-    setSocialClass
-  ] = useState<SocialClass>(SocialClass.LowerMiddleClass)
-  const [ 
-    raceOrEthnicity, 
-    setRaceOrEthnicity 
-  ] = useState<RaceOrEthnicity>(RaceOrEthnicity.WhiteCaucasian)
-  const [
-    currentMaritalStatus,
-    setCurrentMaritalStatus
-  ] = useState<CurrentMaritalStatus>(CurrentMaritalStatus.NeverMarried)
-  const [
-    currentEmploymentStatus,
-    setCurrentEmploymentStatus
-  ] = useState<CurrentEmploymentStatus>(CurrentEmploymentStatus.Student)
     
 
   const title = `BESSI`
@@ -100,84 +81,6 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
   const subtitle = `Instructions.`
 
 
-  // ------------------------ Input handler functions --------------------------
-  function onPriorCompletionChange(e: any) {
-    // console.log(`e.target.value: `, e.target.value)
-    const value = e.target.value
-    setPriorCompletion(value)
-  } 
-
-  function onGenderChange(e: any) {
-    // console.log(`e.target.value: `, e.target.value)
-    const value = e.target.value
-    setGender(value)
-  } 
-
-  function onAgeChange(e: any) {
-    // console.log(`e.target.value: `, e.target.value)
-    const value = e.target.value
-    setAge(value)
-  } 
-
-  function onRaceOrEthnicityChange(e: any) {
-    // console.log(`e.target.value: `, e.target.value)
-    const value = e.target.value
-    setRaceOrEthnicity(value)
-  } 
-
-  function onEnglishFluencyChange(e: any) {
-    // console.log(`e.target.value: `, e.target.value)
-    const value = e.target.value
-    setIsFluentInEnglish(value)
-  } 
-
-  function onSocialClassChange(e: any) {
-    // console.log(`e.target.value: `, e.target.value)
-    const value = e.target.value
-    setSocialClass(value)
-  } 
-
-  function onUsLocationChange(e: any) {
-    // console.log(`e.target.value: `, e.target.value)
-    const value = e.target.value
-    setUSState(value)
-  } 
-
-  function onZipCodeChange(e: any) {
-    // console.log(`e.target.value: `, e.target.value)
-    const value = e.target.value
-    setZipCode(value)
-  } 
-
-  function onForeignLocationChange(e: any) {
-    // console.log(`e.target.value: `, e.target.value)
-    const value = e.target.value
-    setForeignCountry(value)
-  } 
-
-  function onHighestEducationLevelChange(e: any) {
-    // console.log(`e.target.value: `, e.target.value)
-    const value = e.target.value
-    setHighestFormalEducation(value)
-  } 
-
-  function onCurrentEmploymentStatusChange(e: any) {
-    // console.log(`e.target.value: `, e.target.value)
-    const value = e.target.value
-    setCurrentEmploymentStatus(value)
-  } 
-
-  function onCurrentMaritalStatusChange(e: any) {
-    // console.log(`e.target.value: `, e.target.value)
-    const value = e.target.value
-    setCurrentMaritalStatus(value)
-  } 
-
-  function onIsParentChange(e: any) {
-    // console.log(`e.target.value: `, e.target.value)
-    const value = e.target.value
-    setIsParent(value)
-  } 
 
   // --------------------------- Async functions -------------------------------
   async function handleSubmit(e: any): Promise<void> {
@@ -502,25 +405,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
             <BessiQuestionnaire />
           </UserScoresContext.Provider>
 
-          <UserDemographicContext.Provider
-            value={{ 
-              onAgeChange,
-              onGenderChange,
-              onZipCodeChange,
-              onIsParentChange,
-              onUsLocationChange,
-              onSocialClassChange,
-              onEnglishFluencyChange,
-              onRaceOrEthnicityChange,
-              onPriorCompletionChange,
-              onForeignLocationChange,
-              onCurrentMaritalStatusChange,
-              onHighestEducationLevelChange,
-              onCurrentEmploymentStatusChange,
-            }}
-          >
-            <BessiDemographicQuestionnaire />
-          </UserDemographicContext.Provider>
+          <BessiDemographicQuestionnaire />
           
           { isLoadingResults ? (
             <>

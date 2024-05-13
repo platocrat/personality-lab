@@ -7,7 +7,7 @@ import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 // Constants
 import { 
   INVALID_CHARS_WITH_NUMBERS 
-} from '@/utils/bessi/constants'
+} from '@/utils/assessments/bessi/constants'
 // CSS
 import styles from '@/app/page.module.css'
 

@@ -7,7 +7,7 @@ import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 // Constants
 import { 
   INVALID_CHARS_EXCEPT_NUMBERS,
-} from '@/utils/bessi/constants'
+} from '@/utils/assessments/bessi/constants'
 // Enums
 import { USState } from '@/utils/bessi/types/enums'
 // CSS

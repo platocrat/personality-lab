@@ -20,11 +20,11 @@ import {
   wellnessRatings,
   bessiActivityBank,
   wellnessRatingDescriptions,
-} from '@/utils/bessi/constants'
+} from '@/utils/assessments/bessi/constants'
 // Types
 import { 
   BessiActivityType, UserScoresType
-} from '@/utils/bessi/types'
+} from '@/utils/assessments/bessi/types'
 import { InputLabelType } from '@/components/Input/Selection/types'
 
 
