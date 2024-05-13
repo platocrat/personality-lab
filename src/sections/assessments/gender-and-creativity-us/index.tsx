@@ -1,10 +1,10 @@
-import ConsentForm from './consent-form'
+import GenderAndCreativityUsForm from './forms/consent'
 
 
 const GenderAndCreativityUs = () => {
   return (
     <>
-      <ConsentForm />
+      <GenderAndCreativityUsForm />
     </>
   )
 }

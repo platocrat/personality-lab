@@ -83,10 +83,6 @@ export default function RootLayout({
     setIsFluentInEnglish
   ] = useState<YesOrNo>(YesOrNo.No)
   const [
-    socialClass,
-    setSocialClass
-  ] = useState<SocialClass>(SocialClass.LowerMiddleClass)
-  const [
     raceOrEthnicity,
     setRaceOrEthnicity
   ] = useState<RaceOrEthnicity[]>([ ])
@@ -103,6 +99,10 @@ export default function RootLayout({
     currentMaritalStatus,
     setCurrentMaritalStatus
   ] = useState<string | number>('')
+  const [
+    socialClass,
+    setSocialClass
+  ] = useState<SocialClass>(SocialClass.LowerMiddleClass)
   const [ gender, setGender ] = useState<string | number>('')
   const [ religion, setReligion ] = useState<string | number>('')
 

@@ -9,22 +9,23 @@ import { RadioOrCheckboxInput } from '@/components/Input'
 import ExternalLink from '@/components/Anchors/ExternalLink'
 // Sections
 import Preface from './preface'
-import AssessmentButton from '../../../../app/components/assessment-button'
 // Enums
 import { YesOrNo } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 import { paragraphSectionStyle } from './preface'
 import { definitelyCenteredStyle } from '@/theme/styles'
+import router from 'next/router'
 
 
 
-type ConsentFormProps = { }
+type GenderAndCreativityUsConsentFormProps = { }
 
 
 
-const href = `/gender-and-creativity-us/assessment`
 const buttonText = `Next`
+export const genderAndCreativityUsAssessmentHref = `/gender-and-creativity-us/assessment`
+
 
 const inputLabels = [
   { id: YesOrNo.No.toLowerCase(), name: YesOrNo.No },
@@ -63,7 +64,7 @@ const FinalConsentLabel = () => {
 
 
 
-const ConsentForm: FC<ConsentFormProps> = ({  }) => {
+const GenderAndCreativityUsConsentForm: FC<GenderAndCreativityUsConsentFormProps> = ({  }) => {
   // Hooks
   const router = useRouter()
   // States
@@ -165,7 +166,7 @@ const ConsentForm: FC<ConsentFormProps> = ({  }) => {
     setConsentInfo(_consentInfo)
 
     // Use router to route the user to the assessment page
-    router.push(href)
+    router.push(genderAndCreativityUsAssessmentHref)
   }
 
 
@@ -215,4 +216,4 @@ const ConsentForm: FC<ConsentFormProps> = ({  }) => {
   )
 }
 
-export default ConsentForm
+export default GenderAndCreativityUsConsentForm

@@ -7,7 +7,7 @@ import Card from '@/components/Card'
 import StellarPlot from '@/components/DataViz/StellarPlot'
 // Sections
 import BessiDescription from './bessi/description'
-import GenderAndCreativityUsDescription from './gender-and-creativity-us/description'
+import GenderAndCreativityUsDescription from './gender-and-creativity-us/descriptions/entrance'
 import BessiResultsVisualization from './bessi/assessment/results/bessi-results-visualization'
 // Utils
 import { 
