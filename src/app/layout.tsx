@@ -117,7 +117,7 @@ export default function RootLayout({
 
   function onGenderChange(e: any) {
     const _ = e.target.value
-    console.log(`gender: `, _)
+    // console.log(`gender: `, _)
     setGender(_)
   }
 
