@@ -248,7 +248,7 @@
   font-size: 14px;
   color: rgb(244, 244, 244);
 
-  box-shadow: 0px 2.5px 3px #002b449c;
+  box-shadow: 0px 2.5px 3px rgba(0, 43, 68, 0.612);
 
   transform: scale(1);
 

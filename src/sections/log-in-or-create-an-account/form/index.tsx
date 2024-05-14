@@ -421,11 +421,25 @@ const Form: FC<FormProps> = ({
 
           <div style={ { display: 'block', width: '100%' } }>
             <button
-              className={ styles.button }
+              className={ 
+                isButtonDisabled 
+                  ? '' 
+                  : styles.button
+              }
               disabled={ isButtonDisabled ? true : false }
               style={{
+                boxShadow: 
+                isButtonDisabled 
+                ? ' inset 0px 1px 6px rgba(0, 43, 68, 0.412)' 
+                : '',
                 cursor: isButtonDisabled ? 'not-allowed' : 'pointer',
-                backgroundColor: isButtonDisabled ? 'rgba(152, 152, 152, 0.30)' : ''
+                backgroundColor: isButtonDisabled ? 'rgba(152, 152, 152, 0.30)' : '',
+                borderRadius: `1rem`,
+                borderWidth: `1.2px`,
+                height: `35px`,
+                width: `100%`,
+                fontSize: `14px`,
+                color: `rgb(244, 244, 244)`,
               }}
               onClick={ (e: any) => handleSubmit(e) }
             >

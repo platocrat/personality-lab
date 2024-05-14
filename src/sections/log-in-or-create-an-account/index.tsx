@@ -316,25 +316,6 @@ const LogInOrCreateAnAccount = () => {
           />
         }}
       />
-
-      {/* <Treemap data={ data }/> */}
-      {/* <UVIndexChart /> */}
-      
-      {/* <StellarPlot 
-        data={  
-          Object.entries(
-            dummyVariables.pv.data?.domainScores as SkillDomainFactorType
-          ).map(([key, value]) => ({
-            axis: key,
-            value: value / 100
-          })) 
-        }
-      /> */}
-
-      {/* <PersonalityVisualization 
-        data={ dummyVariables.pv.data } 
-        averages={ dummyVariables.pv.averages } 
-      /> */}
     </>
   )
 }
