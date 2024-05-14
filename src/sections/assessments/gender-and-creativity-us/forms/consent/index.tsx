@@ -162,9 +162,18 @@ const GenderAndCreativityUsConsentForm: FC<GenderAndCreativityUsConsentFormProps
 
     setConsentInfo(_consentInfo)
 
+    // await sendConsentInfoToDynamoDB
+
     // Use router to route the user to the assessment page
     router.push(GENDER_AND_CREATIVITY_US_ASSESSMENT_HREF)
   }
+
+
+
+  useEffect(() => {
+    console.log(`consentInfo: `, consentInfo)
+  }, [consentInfo])
+
 
 
 

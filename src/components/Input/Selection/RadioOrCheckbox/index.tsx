@@ -12,8 +12,6 @@ import { InputLabelType } from '../types'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
-import { style } from 'd3'
-
 
 
 type RadioOrCheckboxInputProps = {
@@ -27,7 +25,7 @@ type RadioOrCheckboxInputProps = {
     radioButtonInputStyle?: CSSProperties
     radioButtonLabelStyle?: CSSProperties
   }
-  onChange: (e: any, i: number) => void
+  onChange: (e: any, i?: number) => void
   legend?: string | ReactNode | undefined
   options?: {
     isVertical?: boolean

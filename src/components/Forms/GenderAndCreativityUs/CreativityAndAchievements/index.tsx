@@ -28,6 +28,7 @@ type CreativityAndAchievementsFormProps = {
   onSubmit: (e: any) => void
   onChange: {
     onActivityChange: (e: any) => void
+    onYearsEngagedInChange: (e: any) => void
     onEngagementLevelChange: (e: any) => void
   }
 }
@@ -36,8 +37,8 @@ type CreativityAndAchievementsFormProps = {
 
 const CreativityAndAchievementsForm: FC<CreativityAndAchievementsFormProps> = ({
   href,
-  onSubmit,
   onChange,
+  onSubmit,
   pageTitle,
   pageFragmentId,
   activityBankId,
@@ -81,7 +82,7 @@ const CreativityAndAchievementsForm: FC<CreativityAndAchievementsFormProps> = ({
         <h3>{ pageTitle }</h3>
 
         <form
-          onSubmit={ onSubmit }
+          onSubmit={ (e: any) => onSubmit(e) }
         >
 
           <div>
@@ -100,7 +101,7 @@ const CreativityAndAchievementsForm: FC<CreativityAndAchievementsFormProps> = ({
                     legend={ question }
                     inputName={ question }
                     options={{ isVertical: isVertical }}
-                    onChange={ (e: any) => onChange.onActivityChange(e) }
+                    onChange={ onChange.onActivityChange }
                     style={ radioOrCheckboxInputStyle(isVertical, fontSize) }
                     inputLabels={
                       getInputLabels(
@@ -130,22 +131,6 @@ const CreativityAndAchievementsForm: FC<CreativityAndAchievementsFormProps> = ({
                     `${ GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACE }-${ pageFragmentId }-engagement-level-item-${i}`
                   }
                 >
-                  {/* <RadioOrCheckboxInput
-                    legend={ engagementLevel }
-                    inputName={ engagementLevel }
-                    options={{ isVertical: true, type: 'checkbox' }}
-                    onChange={ onChange.onEngagementLevelChange }
-                    style={ radioOrCheckboxInputStyle(true, fontSize) }
-                    inputLabels={
-                      getInputLabels(
-                        undefined,
-                        {
-                          input: GENDER_AND_CREATIVITY_US_ACTIVITY_BANK.engagementLevels
-                        }
-                      )
-                    }
-                  /> */}
-
                   <div
                     style={{
                       fontSize: '15px',
@@ -167,9 +152,7 @@ const CreativityAndAchievementsForm: FC<CreativityAndAchievementsFormProps> = ({
                         type={ 'checkbox' }
                         name={ engagementLevel }
                         className={ styles.radioButtonInput }
-                        onChange={ 
-                          (e: any) => onChange.onEngagementLevelChange(e)
-                        }
+                        onChange={ (e: any) => onChange.onEngagementLevelChange(e) }
                         id={ `${ GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACE }-creativity-and-achievements-engagement-level-${ i }` }
                         style={{
                           display: 'flex',
@@ -178,7 +161,6 @@ const CreativityAndAchievementsForm: FC<CreativityAndAchievementsFormProps> = ({
                           left: `10px`,
                         }}
                         />
-
                         { engagementLevel }
                     </label>
                   </div>
@@ -188,11 +170,21 @@ const CreativityAndAchievementsForm: FC<CreativityAndAchievementsFormProps> = ({
             }
           </div>
 
-          <div>
+          <div
+            style={{ 
+              display: 'flex',  
+              marginBottom: '48px',
+              justifyContent: 'space-between',
+            }}
+          >
             <p>{ QUESTION_YEARS_OF_ENGAGEMENT_TITLE() }</p>
-            {/* <TextOrNumberInput
-
-            /> */}
+            <TextOrNumberInput
+              onChange={ onChange.onYearsEngagedInChange }
+              name={ `years-engaged-${ pageFragmentId }` }
+              controls={{
+                type: 'number'
+              }}
+            />
           </div>
 
           <div style={ { float: 'right' } }>
