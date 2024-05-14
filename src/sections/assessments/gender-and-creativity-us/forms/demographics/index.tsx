@@ -10,7 +10,7 @@ import TextOrNumberInput from '@/components/Input/TextOrNumber'
 // Contexts
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 // Utils
-import { 
+import {
   Religion,
   getInputLabels,
   RaceOrEthnicity,
@@ -28,8 +28,8 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
-const href = `${ GENDER_AND_CREATIVITY_US_ASSESSMENT_HREF }/spend-time-with-others`
-const buttonText = `Next`
+const href = `${GENDER_AND_CREATIVITY_US_ASSESSMENT_HREF}/spend-time-with-others`
+const BUTTON_TEXT = `Next`
 
 
 const checkboxStyle = {
@@ -76,13 +76,28 @@ const DemographicsForm = ({ }) => {
     onCurrentEmploymentStatusChange,
   } = useContext(UserDemographicContext)
   // React states
-  const [ 
+  const [
     genderAndCreativityUsDemographics,
     setGenderAndCreativityUsDemographics
   ] = useState<GenderAndCreativityUsDemographicsType>(
     Init__GenderAndCreativityUsDemographics
   )
 
+
+
+  const inputWrapperOptions = {
+    splitLabelAndInput: true,
+    css: {
+      p: {
+        display: 'flex',
+        justifyContent: 'space-between',
+      },
+    },
+    classNames: {
+      pClassName: styles.inputWrapperP,
+      spanClassName: styles.inputWrapperSpan,
+    }
+  } 
 
 
   const inputs = [
@@ -135,7 +150,7 @@ const DemographicsForm = ({ }) => {
      * of this assessment.
      */
     setGenderAndCreativityUsDemographics(DEMOGRAPHICS)
-    
+
     // Route user to the next page in the list of question-pages for this 
     // assessment
     router.push(href)
@@ -150,57 +165,46 @@ const DemographicsForm = ({ }) => {
         <form
           onSubmit={ (e: any) => handleOnSubmit(e) }
         >
-          <InputWrapper 
+          <InputWrapper
             label={ `What is your age?` }
-            input={ 
-              <TextOrNumberInput  
-                name={ 'age' } 
+            options={ inputWrapperOptions }
+            input={
+              <TextOrNumberInput
+                name={ 'age' }
                 onChange={ onAgeChange }
-                controls={{ type: 'number' }}
-                style={{
+                controls={ { type: 'number' } }
+                style={ {
                   border: '1px solid gray',
                   outline: 'none',
-                }}
-              /> 
+                } }
+              />
             }
-            options={{
-              splitLabelAndInput: true,
-              css: {
-                p: {
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                },
-              },
-              classNames: {
-                pClassName: styles.inputWrapperP,
-                spanClassName: styles.inputWrapperSpan,
-              }
-            }}
-          />        
-          
+          />
+
           { inputs.map((input, i: number) => (
-            <Fragment key={ `gender-and-creativity-us-demographics-radio-or-checkbox-inputs-${ i }` }>
+            <Fragment key={ `gender-and-creativity-us-demographics-radio-or-checkbox-inputs-${i}` }>
               <RadioOrCheckboxInput
                 style={ checkboxStyle }
                 inputName={ input.name }
                 legend={ input.legend }
                 onChange={ input.onChange }
                 inputLabels={ input.inputLabels }
-                options={ { 
+                options={ {
                   isVertical: true,
                   type: i === 1 ? 'checkbox' : 'radio'
                 } }
               />
             </Fragment>
           )) }
-          
+
 
           <InputWrapper
+            options={ inputWrapperOptions }
             label={ `What is your family size? (including yourself, in numbers only)` }
             input={
               <TextOrNumberInput
                 name={ 'family-size' }
-                controls={{ type: 'number' }}
+                controls={ { type: 'number' } }
                 onChange={ onFamilySizeChange }
                 style={ {
                   border: '1px solid gray',
@@ -208,106 +212,87 @@ const DemographicsForm = ({ }) => {
                 } }
               />
             }
-            options={ {
-              splitLabelAndInput: true,
-              css: {
-                p: {
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                },
-              },
-              classNames: {
-                pClassName: styles.inputWrapperP,
-                spanClassName: styles.inputWrapperSpan,
-              }
-            } }
-          />  
-
-          <RadioOrCheckboxInput
-            style={ checkboxStyle }
-            legend={ `What is your religion?` }
-            inputName={ 'what-is-your-religion' }
-            onChange={ onReligionChange }
-            inputLabels={ getInputLabels(Religion) }
-            options={ { isVertical: true } }
           />
-          
+
+
+          <InputWrapper
+            options={ inputWrapperOptions }
+            label={ `What is your religion?` }
+            input={ 
+              <select
+                required={ true }
+                onChange={ (e: any) => onReligionChange(e) }
+                style={ { margin: '0px 0px 0px 8px' } }
+                name={ `what-is-your-religion` }
+              >
+                <option value={ `` }>{ `Please select` }</option>
+                { Object.values(Religion).map((
+                  religion: string,
+                  i: number
+                ) => (
+                  <Fragment key={ `social-class-${i}` }>
+                    <option value={ religion }>
+                      { religion }
+                    </option>
+                  </Fragment>
+                )) }
+              </select>
+             }
+          />
+
+
           <RadioOrCheckboxInput
             style={ checkboxStyle }
             options={ { isVertical: true } }
             inputName={ 'highest-level-of-education-completed' }
             onChange={ onHighestEducationLevelChange }
             inputLabels={ getInputLabels(HighestLevelOfEducation__GACUsGender) }
-            legend={ 
-              `What is the highest level of school you have completed or the highest degree you have received?` 
+            legend={
+              `What is the highest level of school you have completed or the highest degree you have received?`
             }
           />
-          
-          
+
+
           <InputWrapper
+            options={ inputWrapperOptions }
             label={ `What area of science are you trained in?` }
             input={
               <TextOrNumberInput
                 name={ 'area-of-science-trained-in' }
                 onChange={ onAreaOfScienceTrainingChange }
-                controls={{ type: 'text' }}
+                controls={ { type: 'text' } }
                 style={ {
                   border: '1px solid gray',
                   outline: 'none',
                 } }
               />
             }
-            options={ {
-              splitLabelAndInput: true,
-              css: {
-                p: {
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                },
-              },
-              classNames: {
-                pClassName: styles.inputWrapperP,
-                spanClassName: styles.inputWrapperSpan,
-              }
-            } }
-          />  
+          />
 
-          
+
           <InputWrapper
+            options={ inputWrapperOptions }
             label={ `Please indicate your entire annual household income (average) before taxes:` }
             input={
               <TextOrNumberInput
                 onChange={ onAnnualHouseholdIncomeChange }
                 name={ 'annual-household-income-before-taxes' }
-                controls={{ type: 'number' }}
+                controls={ { type: 'number' } }
                 style={ {
                   border: '1px solid gray',
                   outline: 'none',
                 } }
               />
             }
-            options={ {
-              splitLabelAndInput: true,
-              css: {
-                p: {
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                },
-              },
-              classNames: {
-                pClassName: styles.inputWrapperP,
-                spanClassName: styles.inputWrapperSpan,
-              }
-            } }
           />
 
           <div style={ { float: 'right' } }>
-            <button 
+            <button
               type={ `submit` }
-              className={ styles.button } 
+              className={ styles.button }
               style={ { width: '80px' } }
             >
-              { buttonText }
+              { BUTTON_TEXT }
             </button>
           </div>
 

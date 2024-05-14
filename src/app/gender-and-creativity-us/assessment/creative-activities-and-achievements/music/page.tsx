@@ -3,25 +3,25 @@ import { FC } from 'react'
 
 // Locals
 // Sections
-
+import MusicForm from '@/sections/assessments/gender-and-creativity-us/forms/music'
 // CSS
 import styles from '@/app/page.module.css'
 
 
 
-type AssessmentProps = {}
+type MusicProps = {}
 
 
 
 
-const Assessment: FC<AssessmentProps> = ({ }) => {
+const Music: FC<MusicProps> = ({ }) => {
   return (
     <>
       <main className={ `${styles.main} ` }>
-        {/* <DemographicsForm /> */}
+        <MusicForm />
       </main>
     </>
   )
 }
 
-export default Assessment
+export default Music

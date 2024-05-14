@@ -32,6 +32,7 @@ const InputWrapper: FC<InputWrapperProps> = ({
         style={ options?.css?.p }
         className={ options?.classNames?.pClassName }
       >
+
         { options?.splitLabelAndInput ? (
           <>
             <div style={ options?.css?.splitLabel }>

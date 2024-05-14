@@ -2,7 +2,7 @@
 import Link from 'next/link'
 // Locals
 import Content from './content'
-import AssessmentButton from '../../../../app/components/assessment-button'
+import AssessmentButton from '../../../../components/Buttons/Assessment'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 

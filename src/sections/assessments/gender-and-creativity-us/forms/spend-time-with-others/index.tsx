@@ -5,13 +5,13 @@ import { useRouter } from 'next/navigation'
 import { FC, Fragment, useLayoutEffect, useState } from 'react'
 // Locals
 import { RadioOrCheckboxInput } from '@/components/Input'
-import { 
-  questionBank, 
+import {
   getInputLabels,
-  questionBankLegend, 
+  radioOrCheckboxInputStyle,
+  GENDER_AND_CREATIVITY_US_ACTIVITY_BANK,
   GENDER_AND_CREATIVITY_US_ASSESSMENT_HREF,
   GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACE,
-  BessiUserResults__DynamoDB,
+  GENDER_AND_CREATIVITY_US_ACTIVITY_BANK_LEGEND,
 } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
@@ -19,7 +19,7 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
-const href = `${ GENDER_AND_CREATIVITY_US_ASSESSMENT_HREF }/level-of-agreement`
+const href = `${GENDER_AND_CREATIVITY_US_ASSESSMENT_HREF}/level-of-agreement`
 
 const BUTTON_TEXT = `Next`
 const PAGE_FRAGMENT_ID = `spend-time-with-others`
@@ -27,38 +27,38 @@ const QUESTION_TITLE = `Here are a number of characteristics that may or may not
 
 
 
-type SpendTimeWithOthersFormProps = { }
+type SpendTimeWithOthersFormProps = {}
 
 
 
 
-const SpendTimeWithOthersForm: FC<SpendTimeWithOthersFormProps> = ({  }) => {
+const SpendTimeWithOthersForm: FC<SpendTimeWithOthersFormProps> = ({ }) => {
   // Hooks
   const router = useRouter()
 
-  // Initial font size
-  const [ fontSize, setFontSize ] = useState<string>('13px')
-  const [ isVertical, setIsVertical ] = useState<boolean>(false)
+  // React states
+  const [fontSize, setFontSize] = useState<string>('13px')
+  const [isVertical, setIsVertical] = useState<boolean>(false)
 
-  const [ 
-    spendTimeWithOthersResponses, 
-    setSpendTimeWithOthersResponses 
-  ] = useState<any>({ 
+  const [
+    spendTimeWithOthersResponses,
+    setSpendTimeWithOthersResponses
+  ] = useState<any>({
 
   })
 
 
 
-  const onSpendTimeWithOthersChange =(e: any) => {
-    const { name, value } = e.target.value 
+  const onSpendTimeWithOthersChange = (e: any) => {
+    const { name, value } = e.target
 
     setSpendTimeWithOthersResponses({
       ...spendTimeWithOthersResponses,
-      [ `${name}` ]: value
+      [`${name}`]: value
     })
   }
 
-  
+
   // Function to update question body vertical option size based on window width
   const updateQuestionBodyDisplay = () => {
     const width = window.innerWidth
@@ -71,16 +71,19 @@ const SpendTimeWithOthersForm: FC<SpendTimeWithOthersFormProps> = ({  }) => {
   async function handleOnSubmit(e: any) {
     e.preventDefault()
 
-    await storeResponsesInDynamoDB(spendTimeWithOthersResponses)
+    // await storeResponsesInDynamoDB(spendTimeWithOthersResponses)
 
     // Use router to route the user to the assessment page
     router.push(href)
   }
 
+  
   /**
    * @todo INCOMPLETE
    */
-  async function storeResponsesInDynamoDB(spendTimeWithOthersResponses) {
+  async function storeResponsesInDynamoDB(
+    spendTimeWithOthersResponses
+  ) {
     const CURRENT_TIMESTAMP = new Date().getTime()
 
     /**
@@ -150,10 +153,10 @@ const SpendTimeWithOthersForm: FC<SpendTimeWithOthersFormProps> = ({  }) => {
 
 
 
-  
+
   return (
     <>
-      <form 
+      <form
         className={ styles.assessmentWrapper }
         onSubmit={ (e: any) => handleOnSubmit(e) }
       >
@@ -164,43 +167,34 @@ const SpendTimeWithOthersForm: FC<SpendTimeWithOthersFormProps> = ({  }) => {
             <div>
               { QUESTION_TITLE }
             </div>
-            
-            <div style={{ margin: '48px 0px 48px 0px' }}>
-              { questionBank.spendTimeWithOthers.map(
-                  (question: string, i: number) => (
-                  <Fragment 
-                    key={ 
-                      `${ GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACE }-${ PAGE_FRAGMENT_ID }-question-item-${ i }` 
+
+            <div style={ { margin: '48px 0px 48px 0px' } }>
+              { GENDER_AND_CREATIVITY_US_ACTIVITY_BANK.spendTimeWithOthers.map(
+                (question: string, i: number) => (
+                  <Fragment
+                    key={
+                      `${GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACE}-${PAGE_FRAGMENT_ID}-question-item-${i}`
                     }
                   >
                     <RadioOrCheckboxInput
                       legend={ question }
-                      options={{ isVertical: isVertical }}
+                      options={ { isVertical: isVertical } }
                       onChange={ onSpendTimeWithOthersChange }
                       inputName={ question }
-                      inputLabels={ 
-                        getInputLabels(undefined, { input: questionBankLegend }) 
+                      inputLabels={
+                        getInputLabels(
+                          undefined,
+                          {
+                            input: GENDER_AND_CREATIVITY_US_ACTIVITY_BANK_LEGEND.spendTimeWithOthers
+                          }
+                        )
                       }
-                      style={{
-                        questionBodyStyle: {
-                          ...definitelyCenteredStyle,
-                        },
-                        radioButtonLabelStyle: {
-                          width: '100%',
-                          paddingRight: '12px',
-                          margin: isVertical ? '12px 0px' : ''
-                        },
-                        radioButtonInputStyle: {
-                          marginRight: '12px',
-                          top: `0px`,
-                          left: `2px`,
-                          height: `24.5px`,
-                          width: `14.5px`,
-                        },
-                        radioButtonText: {
-                          fontSize: fontSize,
-                        }
-                      }}
+                      style={ 
+                        radioOrCheckboxInputStyle(
+                          isVertical, 
+                          fontSize
+                        )
+                      }
                     />
                   </Fragment>
                 ))
@@ -215,7 +209,7 @@ const SpendTimeWithOthersForm: FC<SpendTimeWithOthersFormProps> = ({  }) => {
             { BUTTON_TEXT }
           </button>
         </div>
-        
+
       </form>
     </>
   )

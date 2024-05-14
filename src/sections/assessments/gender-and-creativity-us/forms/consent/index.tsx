@@ -10,12 +10,11 @@ import ExternalLink from '@/components/Anchors/ExternalLink'
 // Sections
 import Preface from './preface'
 // Enums
-import { YesOrNo } from '@/utils'
+import { GENDER_AND_CREATIVITY_US_ASSESSMENT_HREF, YesOrNo } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 import { paragraphSectionStyle } from './preface'
 import { definitelyCenteredStyle } from '@/theme/styles'
-import router from 'next/router'
 
 
 
@@ -23,7 +22,7 @@ type GenderAndCreativityUsConsentFormProps = { }
 
 
 
-const buttonText = `Next`
+const BUTTON_TEXT = `Next`
 
 
 const inputLabels = [
@@ -31,7 +30,6 @@ const inputLabels = [
   { id: YesOrNo.Yes.toLowerCase(), name: YesOrNo.Yes },
 ]
 
-// const title = `Consent Form`
 
 
 
@@ -165,7 +163,7 @@ const GenderAndCreativityUsConsentForm: FC<GenderAndCreativityUsConsentFormProps
     setConsentInfo(_consentInfo)
 
     // Use router to route the user to the assessment page
-    router.push(genderAndCreativityUsAssessmentHref)
+    router.push(GENDER_AND_CREATIVITY_US_ASSESSMENT_HREF)
   }
 
 
@@ -177,7 +175,7 @@ const GenderAndCreativityUsConsentForm: FC<GenderAndCreativityUsConsentFormProps
         onSubmit={ (e: any) => handleOnSubmit(e) }
       >
 
-        <div className='form-group form-row optional item-note'>
+        <div>
           <Preface />
 
           { inputs.map((bInput, i: number) => (
@@ -205,7 +203,7 @@ const GenderAndCreativityUsConsentForm: FC<GenderAndCreativityUsConsentFormProps
 
         <div style={{ float: 'right' }}>
           <button className={ styles.button } style={ { width: '80px' } }>
-            { buttonText }
+            { BUTTON_TEXT }
           </button>
         </div>
 

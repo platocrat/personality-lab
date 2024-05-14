@@ -1,5 +1,5 @@
 // Locals
-import EntranceNote from '@/app/components/entrance-note'
+import EntranceNote from '@/components/Notes/Entrance'
 import BessiResultsVisualization from '../assessment/results/bessi-results-visualization'
 // CSS
 import styles from '@/app/page.module.css'
