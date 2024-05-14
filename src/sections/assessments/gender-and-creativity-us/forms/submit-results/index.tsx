@@ -2,7 +2,7 @@
 
 // Externals
 import { useRouter } from 'next/navigation'
-import { FC, Fragment, useEffect, useState } from 'react'
+import { FC, Fragment, useEffect, useEffect, useState } from 'react'
 // Locals
 import TextOrNumberInput from '@/components/Input/TextOrNumber'
 import CreativityAndAchievementsForm from '@/components/Forms/GenderAndCreativityUs/CreativityAndAchievements'
@@ -71,66 +71,66 @@ const SubmitResultsForm: FC<SubmitResultsFormProps> = ({
   }
 
 
-  /**
-   * @todo INCOMPLETE
-   */
-  async function storeResultsInDynamoDB(
-    _userResults
-  ) {
-    const CURRENT_TIMESTAMP = new Date().getTime()
+  // /**
+  //  * @todo INCOMPLETE
+  //  */
+  // async function storeResultsInDynamoDB(
+  //   _userResults
+  // ) {
+  //   const CURRENT_TIMESTAMP = new Date().getTime()
 
-    /**
-     * @todo Generalize this function call so that it can be called from
-     * anywhere and NOT just from the `/bessi/assessment/api/aws-parameter`
-     */
-    const email = await getUserEmailFromCookie()
+  //   /**
+  //    * @todo Generalize this function call so that it can be called from
+  //    * anywhere and NOT just from the `/bessi/assessment/api/aws-parameter`
+  //    */
+  //   const email = await getUserEmailFromCookie()
 
-    if (email === undefined) {
-      /**
-       * @todo Replace the line below by handling the error on the UI here
-       */
-      throw new Error(`Error getting email from cookie!`)
-    } else {
-      /**
-       * @dev This is the object that we store in DynamoDB using AWS's
-       * `PutItemCommand` operation.
-       */
-      const userResults_: GenderAndCreativityUs__UserResults__DynamoDB = {
-        email: email,
-        timestamp: CURRENT_TIMESTAMP,
-        userResults: _userResults,
-      }
+  //   if (email === undefined) {
+  //     /**
+  //      * @todo Replace the line below by handling the error on the UI here
+  //      */
+  //     throw new Error(`Error getting email from cookie!`)
+  //   } else {
+  //     /**
+  //      * @dev This is the object that we store in DynamoDB using AWS's
+  //      * `PutItemCommand` operation.
+  //      */
+  //     const userResults_: GenderAndCreativityUs__UserResults__DynamoDB = {
+  //       email: email,
+  //       timestamp: CURRENT_TIMESTAMP,
+  //       userResults: _userResults,
+  //     }
 
-      try {
-        const response = await fetch('/bessi/assessment/api/results', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ userResults_ }),
-        })
+  //     try {
+  //       const response = await fetch('/bessi/assessment/api/results', {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //         body: JSON.stringify({ userResults_ }),
+  //       })
 
-        const json = await response.json()
+  //       const json = await response.json()
 
-        if (response.status === 200) {
-          const userResultsId = json.data
-          return userResultsId
-        } else {
-          const error = `Error posting BESSI results to DynamoDB: `
-          /**
-           * @todo Handle error UI here
-           */
-          throw new Error(error, json.error)
-        }
-      } catch (error: any) {
-        /**
-         * @todo Handle error UI here
-         */
-        throw new Error(`Error! `, error)
+  //       if (response.status === 200) {
+  //         const userResultsId = json.data
+  //         return userResultsId
+  //       } else {
+  //         const error = `Error posting BESSI results to DynamoDB: `
+  //         /**
+  //          * @todo Handle error UI here
+  //          */
+  //         throw new Error(error, json.error)
+  //       }
+  //     } catch (error: any) {
+  //       /**
+  //        * @todo Handle error UI here
+  //        */
+  //       throw new Error(`Error! `, error)
 
-      }
-    }
-  }
+  //     }
+  //   }
+  // }
 
 
   // Test that data is being stored
