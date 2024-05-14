@@ -88,27 +88,27 @@ const GenderAndCreativityUsConsentForm: FC<GenderAndCreativityUsConsentFormProps
 
 
   // ------------------ Form selection event handlers --------------------------
-  const onRacialOrEthnicConsentChange = (e: any, i: number): void => {
+  const onRacialOrEthnicConsentChange = (e: any, i?: number): void => {
     setRacialOrEthnicConsent(i === 0 ? false : true)
   }
 
-  const onPoliticalOpinionsConsentChange = (e: any, i: number): void => {
+  const onPoliticalOpinionsConsentChange = (e: any, i?: number): void => {
     setPoliticalOpinionsConsent(i === 0 ? false : true)
   }
 
-  const onRelgiousOrPhilosophhicalBeliefsConsentChange = (e: any, i: number): void => {
+  const onRelgiousOrPhilosophhicalBeliefsConsentChange = (e: any, i?: number): void => {
     setReligiousOrPhilosophicalBeliefsConsent(i === 0 ? false : true)
   }
 
-  const onHealthDataConsentChange = (e: any, i: number): void => {
+  const onHealthDataConsentChange = (e: any, i?: number): void => {
     setHealthDataConsent(i === 0 ? false : true)
   }
 
-  const onDataConcerningSexLifeConsentChange = (e: any, i: number): void => {
+  const onDataConcerningSexLifeConsentChange = (e: any, i?: number): void => {
     setSexLifeAndOrientationConsent(i === 0 ? false : true)
   }
   
-  const onFinalConsentChange = (e: any, i: number): void => {
+  const onFinalConsentChange = (e: any, i?: number): void => {
     setFinalConsent(i === 0 ? false : true)
   }
 
@@ -117,7 +117,7 @@ const GenderAndCreativityUsConsentForm: FC<GenderAndCreativityUsConsentFormProps
   const inputs: {
     legend: string
     inputName: string
-    onChange: (e: string, i: number) => void
+    onChange: (e: string, i?: number | undefined) => void
   }[] = [
     { 
       legend: `Racial or ethnic origin`,

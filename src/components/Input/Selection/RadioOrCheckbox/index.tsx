@@ -25,7 +25,7 @@ type RadioOrCheckboxInputProps = {
     radioButtonInputStyle?: CSSProperties
     radioButtonLabelStyle?: CSSProperties
   }
-  onChange: (e: any, i?: number) => void
+  onChange: (e: any, i?: number | undefined) => void
   legend?: string | ReactNode | undefined
   options?: {
     isVertical?: boolean
