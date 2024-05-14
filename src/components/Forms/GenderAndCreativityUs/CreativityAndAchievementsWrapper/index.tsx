@@ -6,7 +6,10 @@ import { FC, useEffect, useState } from 'react'
 // Locals
 import CreativityAndAchievementsForm from '@/components/Forms/GenderAndCreativityUs/CreativityAndAchievements'
 // Utils
-import { GENDER_AND_CREATIVITY_US_ASSESSMENT_HREF } from '@/utils'
+import { 
+  GENDER_AND_CREATIVITY_US_ASSESSMENT_HREF, 
+  GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACES,
+} from '@/utils'
 
 
 
@@ -29,15 +32,20 @@ const CreativityAndAchievementsFormWrapper: FC<CreativityAndAchievementsFormWrap
 }) => {
   // Hooks
   const router = useRouter()
-  // States
+  // Custom states
   const [
     engagementLevelResponses,
     setEngagementLevelResponses
   ] = useState<any>({})
   const [ userResponses, setUserResponses ] = useState<any>({})
   const [ activityResponses, setActivityResponses ] = useState<any>({})
+  // Number states
   const [ yearsEngagedIn, setYearsEngagedIn ] = useState<number>(0)
 
+
+  const FRAGMENT_KEY_PREFACE = GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACES(
+    pageFragmentId
+  )
 
 
 
@@ -83,7 +91,9 @@ const CreativityAndAchievementsFormWrapper: FC<CreativityAndAchievementsFormWrap
 
 
   async function storeResponsesInLocalStorage(userResponses) {
-    localStorage.setItem(pageFragmentId, JSON.stringify(userResponses))
+    const key = FRAGMENT_KEY_PREFACE
+    const value = JSON.stringify(userResponses)
+    localStorage.setItem(key, value)
   }
 
   // /**
@@ -150,8 +160,9 @@ const CreativityAndAchievementsFormWrapper: FC<CreativityAndAchievementsFormWrap
 
   // Test outputs from onChange event handlers
   useEffect(() => {
-    console.log(`userResponse: `, userResponses)
+    console.log(`${FRAGMENT_KEY_PREFACE}: userResponse: `, userResponses)
   }, [userResponses])
+
 
 
 
@@ -161,9 +172,9 @@ const CreativityAndAchievementsFormWrapper: FC<CreativityAndAchievementsFormWrap
       <CreativityAndAchievementsForm
         href={ href }
         pageTitle={ pageTitle }
+        onSubmit={ handleOnSubmit }
         activityBankId={ activityBankId }
         pageFragmentId={ pageFragmentId }
-        onSubmit={ handleOnSubmit }
         onChange={ {
           onActivityChange: onActivityChange,
           onYearsEngagedInChange: onYearsEngagedInChange,

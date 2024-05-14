@@ -9,8 +9,12 @@ import { RadioOrCheckboxInput } from '@/components/Input'
 import ExternalLink from '@/components/Anchors/ExternalLink'
 // Sections
 import Preface from './preface'
-// Enums
-import { GENDER_AND_CREATIVITY_US_ASSESSMENT_HREF, YesOrNo } from '@/utils'
+// Utils
+import { 
+  YesOrNo,
+  GENDER_AND_CREATIVITY_US_ASSESSMENT_HREF,
+  GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACES, 
+} from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 import { paragraphSectionStyle } from './preface'
@@ -18,7 +22,9 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
-type GenderAndCreativityUsConsentFormProps = { }
+type GenderAndCreativityUsConsentFormProps = {
+  pageFragmentId: string
+}
 
 
 
@@ -61,7 +67,9 @@ const FinalConsentLabel = () => {
 
 
 
-const GenderAndCreativityUsConsentForm: FC<GenderAndCreativityUsConsentFormProps> = ({  }) => {
+const GenderAndCreativityUsConsentForm: FC<GenderAndCreativityUsConsentFormProps> = ({ 
+  pageFragmentId
+}) => {
   // Hooks
   const router = useRouter()
   // States
@@ -87,6 +95,12 @@ const GenderAndCreativityUsConsentForm: FC<GenderAndCreativityUsConsentFormProps
   const [ consentInfo, setConsentInfo ] = useState<any>(null)
 
 
+
+  const FRAGMENT_KEY_PREFACE = GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACES(
+    pageFragmentId
+  )
+
+
   // ------------------ Form selection event handlers --------------------------
   const onRacialOrEthnicConsentChange = (e: any, i?: number): void => {
     setRacialOrEthnicConsent(i === 0 ? false : true)
@@ -96,7 +110,7 @@ const GenderAndCreativityUsConsentForm: FC<GenderAndCreativityUsConsentFormProps
     setPoliticalOpinionsConsent(i === 0 ? false : true)
   }
 
-  const onRelgiousOrPhilosophhicalBeliefsConsentChange = (e: any, i?: number): void => {
+  const onReligiousOrPhilosophicalBeliefsConsentChange = (e: any, i?: number): void => {
     setReligiousOrPhilosophicalBeliefsConsent(i === 0 ? false : true)
   }
 
@@ -132,7 +146,7 @@ const GenderAndCreativityUsConsentForm: FC<GenderAndCreativityUsConsentFormProps
     { 
       legend: `Racial or ethnic origin`,
       inputName: 'religious-or-philosophical-beliefs-consent',
-      onChange: onRelgiousOrPhilosophhicalBeliefsConsentChange,
+      onChange: onReligiousOrPhilosophicalBeliefsConsentChange,
     },
     { 
       legend: `Health data`,
@@ -162,10 +176,17 @@ const GenderAndCreativityUsConsentForm: FC<GenderAndCreativityUsConsentFormProps
 
     setConsentInfo(_consentInfo)
 
-    // await sendConsentInfoToDynamoDB
+    await storeConsentInfoToLocalStorage(consentInfo)
 
     // Use router to route the user to the assessment page
     router.push(GENDER_AND_CREATIVITY_US_ASSESSMENT_HREF)
+  }
+
+
+  async function storeConsentInfoToLocalStorage(consentInfo) {
+    const key = FRAGMENT_KEY_PREFACE
+    const value = JSON.stringify(consentInfo)
+    localStorage.setItem(key, value)
   }
 
 

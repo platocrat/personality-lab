@@ -10,8 +10,8 @@ import {
   radioOrCheckboxInputStyle,
   GENDER_AND_CREATIVITY_US_ACTIVITY_BANK,
   GENDER_AND_CREATIVITY_US_ASSESSMENT_HREF,
-  GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACE,
   GENDER_AND_CREATIVITY_US_ACTIVITY_BANK_LEGEND,
+  GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACES,
 } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
@@ -45,11 +45,21 @@ const GeneralActivities: FC<GeneralActivitiesProps> = ({
   const [userResponses, setUserResponses] = useState<any>({})
 
 
+  const FRAGMENT_KEY_PREFACE = GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACES(
+    pageFragmentId
+  )
 
+
+  // onChange event handler
   const onChange = (e: any) => {
     const { name, value } = e.target
     setUserResponses({ ...userResponses, [`${name}`]: value })
   }
+
+  // Get `Fragment` key
+  const getActivityFragmentKey = (
+    i: number
+  ) => `${FRAGMENT_KEY_PREFACE}--question-item-${i}`
 
 
   // Function to update question body vertical option size based on window width
@@ -74,7 +84,9 @@ const GeneralActivities: FC<GeneralActivitiesProps> = ({
 
 
   async function storeResponsesInLocalStorage(userResponses) {
-    localStorage.setItem(pageFragmentId, JSON.stringify(userResponses))
+    const key = FRAGMENT_KEY_PREFACE
+    const value = JSON.stringify(userResponses)
+    localStorage.setItem(key, value)
   }
 
 
@@ -92,8 +104,9 @@ const GeneralActivities: FC<GeneralActivitiesProps> = ({
 
   // Test that data is being stored
   useLayoutEffect(() => {
-    console.log(`${pageFragmentId} userResponses: `, userResponses)
+    console.log(`${FRAGMENT_KEY_PREFACE}: userResponses: `, userResponses)
   }, [userResponses])
+
 
 
 
@@ -115,11 +128,7 @@ const GeneralActivities: FC<GeneralActivitiesProps> = ({
             <div style={ { margin: '48px 0px 48px 0px' } }>
               { GENDER_AND_CREATIVITY_US_ACTIVITY_BANK[activityBankId].map(
                 (question: string, i: number) => (
-                  <Fragment
-                    key={
-                      `${GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACE}-${pageFragmentId}-question-item-${i}`
-                    }
-                  >
+                  <Fragment key={ getActivityFragmentKey(i) }>
                     <RadioOrCheckboxInput
                       legend={ question }
                       onChange={ onChange }

@@ -127,13 +127,6 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
             : dummyVariables.pv.data
           )
       case 2:
-        return bessiSkillScores?.domainScores
-          ? {
-            facetScores: bessiSkillScores?.facetScores,
-            domainScores: bessiSkillScores?.domainScores,
-            averages: dummyVariables.pv.averages,
-          }
-          : dummyVariables.pv.data
       case 3:
         return bessiSkillScores?.domainScores
           ? {

@@ -9,7 +9,6 @@ import {
   radioOrCheckboxInputStyle,
   GENDER_AND_CREATIVITY_US_ACTIVITY_BANK,
   GENDER_AND_CREATIVITY_US_ASSESSMENT_HREF,
-  GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACE,
   GENDER_AND_CREATIVITY_US_ACTIVITY_BANK_LEGEND,
 } from '@/utils'
 
@@ -23,11 +22,11 @@ const PAGE_FRAGMENT_ID = `level-of-agreement`
 const QUESTION_TITLE = `Please indicate your level of agreement to the following statements using the options provided`
 
 
-type SpendTimeWithOthersFormProps = {}
+type LevelOfAgreementFormProps = {}
 
 
 
-const SpendTimeWithOthersForm: FC<SpendTimeWithOthersFormProps> = ({ }) => {
+const LevelOfAgreementForm: FC<LevelOfAgreementFormProps> = ({ }) => {
   return (
     <>
       <GeneralActivities
@@ -42,4 +41,4 @@ const SpendTimeWithOthersForm: FC<SpendTimeWithOthersFormProps> = ({ }) => {
 }
 
 
-export default SpendTimeWithOthersForm
+export default LevelOfAgreementForm

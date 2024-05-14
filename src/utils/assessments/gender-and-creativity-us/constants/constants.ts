@@ -1,7 +1,51 @@
 import { definitelyCenteredStyle } from "@/theme/styles"
 
 export const GENDER_AND_CREATIVITY_US_ASSESSMENT_HREF = `/gender-and-creativity-us/assessment`
-export const GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACE = `gender-and-creativity-us`
+
+export const GENDER_AND_CREATIVITY_US_FORM_IDS = [
+  'consent-info',
+  'spend-time-with-others',
+  'level-of-agreement',
+  'literature',
+  'music',
+  'arts-and-crafts',
+  'creative-cooking',
+  'sports',
+  'visual-arts',
+  'performing-arts',
+  'science-and-engineering',
+  'five-most-creative-achievements',
+  'task-enjoyment',
+]
+
+export const GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACES = (
+  fragmentName: string
+): string => {
+  const MAIN = 'gender-and-creativity-us'
+  const CREATIVITY_AND_ACHIEVEMENTS = 'creativity-and-achievements'
+
+  switch (fragmentName) {
+    case 'main':
+      return MAIN
+    case 'spend-time-with-others':
+    case 'level-of-agreement':
+    case 'creativity-and-achievements':
+    case 'five-most-creative-achievements':
+    case 'task-enjoyment':
+      return `${MAIN}--${fragmentName}`
+    case 'literature':
+    case 'music':
+    case 'arts-and-crafts':
+    case 'creative-cooking':
+    case 'sports':
+    case 'visual-arts':
+    case 'performing-arts':
+    case 'science-and-engineering':
+      return `${MAIN}--${CREATIVITY_AND_ACHIEVEMENTS}--${fragmentName}`
+    default:
+      return ''
+  }
+}
 
 
 export const radioOrCheckboxInputStyle = (

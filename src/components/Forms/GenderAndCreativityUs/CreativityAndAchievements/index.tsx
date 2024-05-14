@@ -1,18 +1,18 @@
 // Externals
 import { FC, Fragment, useLayoutEffect, useState } from 'react'
 // Locals
+import { RadioOrCheckboxInput } from '@/components/Input'
 import TextOrNumberInput from '@/components/Input/TextOrNumber'
 // Utils
 import {
   getInputLabels,
   radioOrCheckboxInputStyle,
   GENDER_AND_CREATIVITY_US_ACTIVITY_BANK,
-  GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACE,
+  GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACES,
   GENDER_AND_CREATIVITY_US_ACTIVITY_BANK_LEGEND,
 } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
-import { RadioOrCheckboxInput } from '@/components/Input'
 
 
 
@@ -53,6 +53,22 @@ const CreativityAndAchievementsForm: FC<CreativityAndAchievementsFormProps> = ({
   const QUESTION_YEARS_OF_ENGAGEMENT_TITLE = (): string => `Please state for how many years of your life (approximately) you have been engaged in the domain of ${pageFragmentId}`
 
 
+  const FRAGMENT_KEY_PREFACE = GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACES(
+    pageFragmentId
+  )
+
+  const getActivityFragmentKey = (
+    i: number
+  ): string => `${FRAGMENT_KEY_PREFACE}--activity-item-${i}`
+  
+  const getEngagementFragmentKey = (
+    i: number
+  ): string => `${FRAGMENT_KEY_PREFACE}--engagement-level-${i}`
+
+  const getEngagementLevelInputFragmentKey = (
+    i: number
+  ): string => `${FRAGMENT_KEY_PREFACE}--engagement-level-${i}--input`
+
 
   // Function to update question body vertical option size based on window width
   const updateQuestionBodyDisplay = () => {
@@ -60,7 +76,6 @@ const CreativityAndAchievementsForm: FC<CreativityAndAchievementsFormProps> = ({
     const innerWidth = 780
     setIsVertical(width < innerWidth ? true : false)
   }
-
   
 
   // Update font size on component mount and window resize
@@ -75,6 +90,7 @@ const CreativityAndAchievementsForm: FC<CreativityAndAchievementsFormProps> = ({
 
 
 
+  
   return (
     <>
       <div className={ styles.assessmentWrapper }>
@@ -92,11 +108,7 @@ const CreativityAndAchievementsForm: FC<CreativityAndAchievementsFormProps> = ({
           <div style={ { margin: '48px 0px 48px 0px' } }>
             { GENDER_AND_CREATIVITY_US_ACTIVITY_BANK[activityBankId].map(
               (question: string, i: number) => (
-                <Fragment
-                  key={
-                    `${ GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACE }-${ pageFragmentId }-activity-item-${i}`
-                  }
-                >
+                <Fragment key={ getActivityFragmentKey(i) }>
                   <RadioOrCheckboxInput
                     legend={ question }
                     inputName={ question }
@@ -126,11 +138,7 @@ const CreativityAndAchievementsForm: FC<CreativityAndAchievementsFormProps> = ({
 
             { GENDER_AND_CREATIVITY_US_ACTIVITY_BANK.engagementLevels.map(
               (engagementLevel: string, i: number) => (
-                <Fragment
-                  key={
-                    `${ GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACE }-${ pageFragmentId }-engagement-level-item-${i}`
-                  }
-                >
+                <Fragment key={ getEngagementFragmentKey(i) }>
                   <div
                     style={{
                       fontSize: '15px',
@@ -151,9 +159,9 @@ const CreativityAndAchievementsForm: FC<CreativityAndAchievementsFormProps> = ({
                         value={ i }
                         type={ 'checkbox' }
                         name={ engagementLevel }
+                        id={ getEngagementLevelInputFragmentKey(i) }
                         className={ styles.radioButtonInput }
                         onChange={ (e: any) => onChange.onEngagementLevelChange(e) }
-                        id={ `${ GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACE }-creativity-and-achievements-engagement-level-${ i }` }
                         style={{
                           display: 'flex',
                           marginRight: '24px',
@@ -179,11 +187,9 @@ const CreativityAndAchievementsForm: FC<CreativityAndAchievementsFormProps> = ({
           >
             <p>{ QUESTION_YEARS_OF_ENGAGEMENT_TITLE() }</p>
             <TextOrNumberInput
+              controls={{ type: 'number' }}
               onChange={ onChange.onYearsEngagedInChange }
               name={ `years-engaged-${ pageFragmentId }` }
-              controls={{
-                type: 'number'
-              }}
             />
           </div>
 
