@@ -17,3 +17,5 @@ const GenderAndCreativityUsResults: FC<GenderAndCreativityUsResultsProps> = ({})
     </>
   )
 }
+
+export default GenderAndCreativityUsResults

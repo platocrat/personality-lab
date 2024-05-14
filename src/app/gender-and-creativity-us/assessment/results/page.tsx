@@ -15,7 +15,7 @@ type GenderAndCreativityUsResultsProps = {}
 
 
 const GenderAndCreativityUsResults: FC<GenderAndCreativityUsResultsProps> = ({
-  
+
 }) => {
   return (
     <>
