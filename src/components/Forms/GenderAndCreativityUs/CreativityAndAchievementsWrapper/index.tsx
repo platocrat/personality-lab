@@ -82,10 +82,7 @@ const CreativityAndAchievementsFormWrapper: FC<CreativityAndAchievementsFormWrap
     }
 
     setUserResponses(userResponses)
-
     await storeResponsesInLocalStorage(userResponses)
-
-    // Use router to route the user to the assessment page
     router.push(href)
   }
 
@@ -95,67 +92,6 @@ const CreativityAndAchievementsFormWrapper: FC<CreativityAndAchievementsFormWrap
     const value = JSON.stringify(userResponses)
     localStorage.setItem(key, value)
   }
-
-  // /**
-  //  * @todo INCOMPLETE
-  //  */
-  // async function storeResponsesInDynamoDB(
-  //   userResponses
-  // ) {
-  //   const CURRENT_TIMESTAMP = new Date().getTime()
-
-  //   /**
-  //    * @todo Generalize this function call so that it can be called from 
-  //    * anywhere and NOT just from the `/bessi/assessment/api/aws-parameter`
-  //    */
-  //   const email = await getUserEmailFromCookie()
-
-  //   if (email === undefined) {
-  //     /**
-  //      * @todo Replace the line below by handling the error on the UI here
-  //      */
-  //     throw new Error(`Error getting email from cookie!`)
-  //   } else {
-  //     /**
-  //      * @dev This is the object that we store in DynamoDB using AWS's 
-  //      * `PutItemCommand` operation.
-  //      */
-  //     const userResults: GenderAndCreativityUs__UserResponses__DynamoDB = {
-  //       email: email,
-  //       timestamp: CURRENT_TIMESTAMP,
-  //       userResponses: userResponses,
-  //     }
-
-  //     try {
-  //       const response = await fetch('/bessi/assessment/api/results', {
-  //         method: 'POST',
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //         },
-  //         body: JSON.stringify({ userResponses }),
-  //       })
-
-  //       const json = await response.json()
-
-  //       if (response.status === 200) {
-  //         const userResultsId = json.data
-  //         return userResultsId
-  //       } else {
-  //         const error = `Error posting BESSI results to DynamoDB: `
-  //         /**
-  //          * @todo Handle error UI here
-  //          */
-  //         throw new Error(error, json.error)
-  //       }
-  //     } catch (error: any) {
-  //       /**
-  //        * @todo Handle error UI here
-  //        */
-  //       throw new Error(`Error! `, error)
-
-  //     }
-  //   }
-  // }
 
 
   // Test outputs from onChange event handlers

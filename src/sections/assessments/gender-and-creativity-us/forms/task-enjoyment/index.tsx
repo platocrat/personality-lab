@@ -1,6 +1,6 @@
 // Externals
 import { useRouter } from 'next/router'
-import { FC, Fragment, useLayoutEffect, useState } from 'react'
+import { FC, Fragment, useEffect, useState } from 'react'
 // Locals
 import TextOrNumberInput from '@/components/Input/TextOrNumber'
 import CreativityAndAchievementsForm from '@/components/Forms/GenderAndCreativityUs/CreativityAndAchievements'
@@ -63,12 +63,8 @@ const TaskEnjoymentForm: FC<TaskEnjoymentFormProps> = ({
   // ------------------------- Async functions ---------------------------------
   async function handleOnSubmit(e: any) {
     e.preventDefault()
-
     setUserResponses(taskEnjoyments)
-
     await storeResponsesInLocalStorage(userResponses)
-
-    // Use router to route the user to the assessment page
     router.push(href)
   }
 
@@ -81,7 +77,7 @@ const TaskEnjoymentForm: FC<TaskEnjoymentFormProps> = ({
 
 
   // Test that data is being stored
-  useLayoutEffect(() => {
+  useEffect(() => {
     console.log(`${FRAGMENT_KEY_PREFACE}: userResponses: `, userResponses)
   }, [userResponses])
 

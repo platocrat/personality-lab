@@ -2,7 +2,7 @@
 
 // Externals
 import { useRouter } from 'next/navigation'
-import { FC, Fragment, useLayoutEffect, useState } from 'react'
+import { FC, Fragment, useEffect, useLayoutEffect, useState } from 'react'
 // Locals
 import { RadioOrCheckboxInput } from '@/components/Input'
 import {
@@ -73,12 +73,8 @@ const GeneralActivities: FC<GeneralActivitiesProps> = ({
   // ------------------------- Async functions ---------------------------------
   async function handleOnSubmit(e: any) {
     e.preventDefault()
-
     setUserResponses(userResponses)
-
     await storeResponsesInLocalStorage(userResponses)
-
-    // Use router to route the user to the assessment page
     router.push(href)
   }
 
@@ -103,7 +99,7 @@ const GeneralActivities: FC<GeneralActivitiesProps> = ({
 
 
   // Test that data is being stored
-  useLayoutEffect(() => {
+  useEffect(() => {
     console.log(`${FRAGMENT_KEY_PREFACE}: userResponses: `, userResponses)
   }, [userResponses])
 

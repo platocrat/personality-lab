@@ -30,3 +30,23 @@ export function getInputLabels(
       })
   }
 }
+
+
+/**
+ * ## Usage
+ * ```
+ * // Example array of strings
+ * const keysArray = ['key1', 'key2', 'key3']
+ * // Call the function to get items from local storage
+ * const items = getItemsFromLocalStorage(keysArray)
+ * ```
+ */
+export function getItemsFromLocalStorage(keysArray: string[]) {
+  const items = {}
+  
+  keysArray.forEach((key: string): void => {
+    items[key] = localStorage.getItem(key)
+  })
+
+  return items
+}

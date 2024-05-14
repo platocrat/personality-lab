@@ -1,6 +1,6 @@
 // Externals
 import { useRouter } from 'next/navigation'
-import { FC, Fragment, useLayoutEffect, useState } from 'react'
+import { FC, Fragment, useEffect, useState } from 'react'
 // Locals
 import TextOrNumberInput from '@/components/Input/TextOrNumber'
 import CreativityAndAchievementsForm from '@/components/Forms/GenderAndCreativityUs/CreativityAndAchievements'
@@ -59,12 +59,8 @@ const FiveMostCreativeAchievementsForm: FC<FiveMostCreativeAchievementsFormProps
   // ------------------------- Async functions ---------------------------------
   async function handleOnSubmit(e: any) {
     e.preventDefault()
-
     setUserResponses(creativeAchievements)
-
     await storeResponsesInLocalStorage(userResponses)
-
-    // Use router to route the user to the assessment page
     router.push(href)
   }
 
@@ -77,7 +73,7 @@ const FiveMostCreativeAchievementsForm: FC<FiveMostCreativeAchievementsFormProps
 
   
   // Test that data is being stored
-  useLayoutEffect(() => {
+  useEffect(() => {
     console.log(`${FRAGMENT_KEY_PREFACE}: userResponses: `, userResponses)
   }, [userResponses])
 
