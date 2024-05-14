@@ -1,3 +1,5 @@
+'use client'
+
 // Externals
 import { useRouter } from 'next/navigation'
 import { FC, Fragment, useEffect, useState } from 'react'
@@ -13,6 +15,7 @@ import {
 } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
+import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
@@ -146,26 +149,33 @@ const SubmitResultsForm: FC<SubmitResultsFormProps> = ({
         onSubmit={ (e: any) => handleOnSubmit(e) }
       >
 
-        <div>
-          <p>
-            { QUESTION_TEXT }
-          </p>
-        </div>
+        <div style={{ margin: '36px 0px' }}>
+          <div>
+            <p>
+              { QUESTION_TEXT }
+            </p>
+          </div>
 
-        <div>
-          <TextOrNumberInput
-            controls={{ type: 'text' }}
-            name={ 'comments-or-feedback' }
-            onChange={ (e: any) => onCommentsOrFeedbackChange(e) }
+          <div 
             style={{
-              display: 'flex',
-              justifyContent: 'space-between',
+              ...definitelyCenteredStyle,
+              margin: '24px 0px'
             }}
-          />
+          >
+            <TextOrNumberInput
+              controls={{ type: 'text' }}
+              name={ 'comments-or-feedback' }
+              style={{
+                width: '425px',
+                height: '36px',
+              }}
+              onChange={ (e: any) => onCommentsOrFeedbackChange(e) }
+            />
+          </div>
         </div>
 
-        <div style={ { float: 'right' } }>
-          <button className={ styles.button } style={ { width: '80px' } }>
+        <div style={ definitelyCenteredStyle }>
+          <button className={ styles.button }  style={ { width: '134px' } }>
             { BUTTON_TEXT }
           </button>
         </div>

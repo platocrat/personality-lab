@@ -13,6 +13,8 @@ import {
 } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
+import Spinner from '@/components/Suspense/Spinner'
+import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
@@ -23,6 +25,7 @@ const BUTTON_TEXT = `Next`
 type CreativityAndAchievementsFormProps = {
   href: string
   pageTitle: string
+  isLoading: boolean
   pageFragmentId: string
   activityBankId: string
   onSubmit: (e: any) => void
@@ -39,6 +42,7 @@ const CreativityAndAchievementsForm: FC<CreativityAndAchievementsFormProps> = ({
   href,
   onChange,
   onSubmit,
+  isLoading,
   pageTitle,
   pageFragmentId,
   activityBankId,
@@ -95,7 +99,7 @@ const CreativityAndAchievementsForm: FC<CreativityAndAchievementsFormProps> = ({
     <>
       <div className={ styles.assessmentWrapper }>
 
-        <h3>{ pageTitle }</h3>
+        <h3 style={{ marginBottom: '12px' }}>{ pageTitle }</h3>
 
         <form
           onSubmit={ (e: any) => onSubmit(e) }
@@ -193,11 +197,30 @@ const CreativityAndAchievementsForm: FC<CreativityAndAchievementsFormProps> = ({
             />
           </div>
 
-          <div style={ { float: 'right' } }>
-            <button className={ styles.button } style={ { width: '80px' } }>
-              { BUTTON_TEXT }
-            </button>
-          </div>
+          { isLoading 
+            ? (
+              <>
+                <div
+                  style={ {
+                    ...definitelyCenteredStyle,
+                    position: 'relative',
+                    top: '80px',
+                  } }
+                >
+                  <Spinner height='40' width='40' />
+                </div>  
+              </>
+            )
+            : (
+              <>
+                <div style={ { float: 'right' } }>
+                  <button className={ styles.button } style={ { width: '80px' } }>
+                    { BUTTON_TEXT }
+                  </button>
+                </div>
+              </>
+            )
+          }
 
         </form>
       </div>

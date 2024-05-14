@@ -41,6 +41,8 @@ const CreativityAndAchievementsFormWrapper: FC<CreativityAndAchievementsFormWrap
   const [ activityResponses, setActivityResponses ] = useState<any>({})
   // Number states
   const [ yearsEngagedIn, setYearsEngagedIn ] = useState<number>(0)
+  // Boolean states
+  const [ isLoading, setIsLoading ] = useState<boolean>(false)
 
 
   const FRAGMENT_KEY_PREFACE = GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACES(
@@ -56,13 +58,20 @@ const CreativityAndAchievementsFormWrapper: FC<CreativityAndAchievementsFormWrap
 
 
   const onEngagementLevelChange = (e: any): void => {
-    const { name, value } = e.target
+    const { name, value, checked } = e.target
 
-    setEngagementLevelResponses({
-      ...engagementLevelResponses,
-      [`${ name }`]: value
-    })
+    if (!checked) {
+      const _ = { ...engagementLevelResponses }
+      delete _[name]
+      setEngagementLevelResponses(_)
+    } else {
+      setEngagementLevelResponses({
+        ...engagementLevelResponses,
+        [name]: value
+      })
+    }
   }
+
 
 
   const onYearsEngagedInChange = (e: any): void => setYearsEngagedIn(
@@ -75,6 +84,8 @@ const CreativityAndAchievementsFormWrapper: FC<CreativityAndAchievementsFormWrap
   async function handleOnSubmit(e: any) {
     e.preventDefault()
 
+    setIsLoading(true)
+
     const userResponses = {
       yearsEngagedIn,
       activityResponses,
@@ -84,6 +95,7 @@ const CreativityAndAchievementsFormWrapper: FC<CreativityAndAchievementsFormWrap
     setUserResponses(userResponses)
     await storeResponsesInLocalStorage(userResponses)
     router.push(href)
+    setIsLoading(false)
   }
 
 
@@ -107,6 +119,7 @@ const CreativityAndAchievementsFormWrapper: FC<CreativityAndAchievementsFormWrap
     <>
       <CreativityAndAchievementsForm
         href={ href }
+        isLoading={ isLoading }
         pageTitle={ pageTitle }
         onSubmit={ handleOnSubmit }
         activityBankId={ activityBankId }

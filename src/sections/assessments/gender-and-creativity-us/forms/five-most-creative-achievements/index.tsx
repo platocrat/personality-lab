@@ -1,3 +1,5 @@
+'use client'
+
 // Externals
 import { useRouter } from 'next/navigation'
 import { FC, Fragment, useEffect, useState } from 'react'
@@ -11,13 +13,14 @@ import {
 } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
+import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
 const href = `${GENDER_AND_CREATIVITY_US_ASSESSMENT_HREF}/task-enjoyment`
 
 const BUTTON_TEXT = `Next`
-const QUESTION_TEXT = `Please name your overall five most creative achievements in your life so far.Select those achievements that you think will help someone else to evaluate your actual creativity.Your responses can come from domains other than those captured by the previous inventory.Start by naming your most creative achievement, then your second - most creative achievement, and so on.Describe each achievement by writing a brief sentence in the boxes below.If there are fewer than five relevant achievements, just leave the remaining boxes empty.`
+const QUESTION_TEXT = `Please name your overall five most creative achievements in your life so far. Select those achievements that you think will help someone else to evaluate your actual creativity.Your responses can come from domains other than those captured by the previous inventory. Start by naming your most creative achievement, then your second - most creative achievement, and so on. Describe each achievement by writing a brief sentence in the boxes below. If there are fewer than five relevant achievements, just leave the remaining boxes empty.`
 
 
 
@@ -32,7 +35,7 @@ const FiveMostCreativeAchievementsForm: FC<FiveMostCreativeAchievementsFormProps
 }) => {
   // hooks
   const router = useRouter()
-
+  // States
   const [ userResponses, setUserResponses ] = useState<any>({})
   const [ creativeAchievements, setCreativeAchievements ] = useState<any>({})
 
@@ -93,12 +96,40 @@ const FiveMostCreativeAchievementsForm: FC<FiveMostCreativeAchievementsFormProps
           </p>
         </div>
 
-        <div>
+        <div 
+          style={{
+            ...definitelyCenteredStyle,
+            flexDirection: 'column',
+            marginTop: '24px',
+          }}
+        >
           { [1, 2, 3, 4, 5].map((_, i: number) => (
             <Fragment key={ getFragmentKey(i) }>
-              {/* <TextOrNumberInput
-                onChange={ (e: any) => onCreativeAchievementChange(e, _) }
-              /> */}
+              <div 
+                style={{ 
+                  display: 'flex',
+                  marginBottom: '18px',
+                }}
+              >
+                <label
+                  style={{
+                    display: 'flex',
+                    position: 'relative',
+                    top: '8px',
+                    marginRight: '4px'
+                  }}
+                >
+                  { _ }
+                </label>
+                <TextOrNumberInput
+                  style={{ 
+                      height: '36px',
+                      width: '400px',
+                  }}
+                  name={ pageFragmentId }
+                  onChange={ (e: any) => onCreativeAchievementChange(e, _) }
+                />
+              </div>
             </Fragment>
           )) }
         </div>

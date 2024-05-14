@@ -1,6 +1,11 @@
-import { definitelyCenteredStyle } from "@/theme/styles"
+import { definitelyCenteredStyle } from '@/theme/styles'
 
-export const GENDER_AND_CREATIVITY_US_ASSESSMENT_HREF = `/gender-and-creativity-us/assessment`
+
+export const GENDER_AND_CREATIVITY_US_HREF = `/gender-and-creativity-us`
+export const GENDER_AND_CREATIVITY_US_ASSESSMENT_HREF = `/${
+  GENDER_AND_CREATIVITY_US_HREF
+}/assessment`
+
 
 export const GENDER_AND_CREATIVITY_US_FORM_IDS = [
   'consent-info',
@@ -22,7 +27,7 @@ export const GENDER_AND_CREATIVITY_US_FORM_IDS = [
 export const GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACES = (
   fragmentName: string
 ): string => {
-  const MAIN = 'gender-and-creativity-us'
+  const MAIN = GENDER_AND_CREATIVITY_US_HREF
   const CREATIVITY_AND_ACHIEVEMENTS = 'creativity-and-achievements'
 
   switch (fragmentName) {
@@ -97,8 +102,18 @@ export const GENDER_AND_CREATIVITY_US_ACTIVITY_BANK_LEGEND = {
   music: creativityAndAchievementsOptions,
   artsAndCrafts: creativityAndAchievementsOptions,
   creativeCooking: creativityAndAchievementsOptions,
+  sports: creativityAndAchievementsOptions,
   visualArts: creativityAndAchievementsOptions,
   performingArts: creativityAndAchievementsOptions,
+  scienceAndEngineering: creativityAndAchievementsOptions,
+  taskEnjoyment: [
+    `Strongly`,
+    `Dislike`,
+    `Dislike`,
+    `Unsure`,
+    `Like`,
+    `Strongly Like`,
+  ],
 }
 
 
@@ -205,44 +220,60 @@ export const GENDER_AND_CREATIVITY_US_ACTIVITY_BANK = {
     `Wrote a blog entry`
   ],
   music: [
-    "Wrote a piece of music",
-    "Reinterpreted a piece of music in a creative way",
-    "Made up a melody",
-    "Made up a rhythm",
-    "Artificially created sounds (e.g. via computer or synthesizer)",
-    "Created a mix-tape (or any other compilation of songs; e.g. DJ-ing)"
+    `Wrote a piece of music`,
+    `Reinterpreted a piece of music in a creative way`,
+    `Made up a melody`,
+    `Made up a rhythm`,
+    `Artificially created sounds (e.g. via computer or synthesizer)`,
+    `Created a mix-tape (or any other compilation of songs; e.g. DJ-ing)`
   ],
   artsAndCrafts: [
-    `Wrote a short literary work (e.g. poem, short story)`,
-    `Wrote a long literary work (e.g. book, theatre play)`,
-    `Wrote a newspaper article/editorial`,
-    `Created an original talk`,
-    `Made up a joke`,
-    `Wrote a blog entry`
+    `Tinkered with a common, everyday object`,
+    `Embellished a common, everyday object`,
+    `Made a present`,
+    `Created an original decoration`,
+    `Designed a garden or landscape`,
+    `Designed or sewed clothing`,
   ],
   creativeCooking: [
-    `Wrote a short literary work (e.g. poem, short story)`,
-    `Wrote a long literary work (e.g. book, theatre play)`,
-    `Wrote a newspaper article/editorial`,
-    `Created an original talk`,
-    `Made up a joke`,
-    `Wrote a blog entry`
+    `Cooked an original dish`,
+    `Arranged a dish in a creative way`,
+    `Decorated cake or cookies in a creative way`,
+    `Formed a sculpture out of food`,
+    `Made up a new recipe`,
+    `Created a new beverage/cocktail`,
+  ],
+  sports: [
+    `Created new tricks/movements sequences requiring dexterity (e.g. juggling)`,
+    `Created new tricks/movements sequences in winter sports (e.g. skiing, snowboarding)`,
+    `Created new tricks/movements sequences in summer sports (e.g. cycling, skateboarding)`,
+    `Created new tricks/movement sequences in martial arts (e.g. karate, judo)`,
+    `Created new tricks/movements sequences in other sports`,
+    `Made up a diversified sports training schedule`
   ],
   visualArts: [
-    `Wrote a short literary work (e.g. poem, short story)`,
-    `Wrote a long literary work (e.g. book, theatre play)`,
-    `Wrote a newspaper article/editorial`,
-    `Created an original talk`,
-    `Made up a joke`,
-    `Wrote a blog entry`
+    `Created a photomontage or photo collection`,
+    `Designed a logo/banner`,
+    `Planned a building`,
+    `Made up a painted a picture/graphic`,
+    `Produced a sculpture`,
+    `Produced a blueprint for an interior redesign`
   ],
   performingArts: [
-    `Wrote a short literary work (e.g. poem, short story)`,
-    `Wrote a long literary work (e.g. book, theatre play)`,
-    `Wrote a newspaper article/editorial`,
-    `Created an original talk`,
-    `Made up a joke`,
-    `Wrote a blog entry`
+    `Performed in a play`,
+    `Performed a puppet show`,
+    `Created a new dance`,
+    `Reinterpreted a dance`,
+    `Created a movie`,
+    `Created an animated movie (e.g. stop motion, cartoon)`
+  ],
+  scienceAndEngineering: [
+    `Wrote a scientific paper`,
+    `Developed a theory to explain certain phenomena`,
+    `Solved a practical problem with an original technical trick`,
+    `Constructed something which required scientific knowledge`,
+    `Wrote a computer program`,
+    `Created a website`
   ],
   engagementLevels: [
     `I have never been engaged in this domain`,
