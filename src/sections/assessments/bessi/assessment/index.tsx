@@ -8,9 +8,10 @@ import BessiQuestionnaire from './questionnaire'
 import BessiAssessmentInstructions from './instructions'
 import BessiDemographicQuestionnaire from '../demographic-questionnaire'
 // Components
+import FormButton from '@/components/Buttons/Form'
 import Spinner from '@/components/Suspense/Spinner'
-// Contexts
 import Questionnaire from '@/components/Questionnaire'
+// Contexts
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // Utilities
@@ -49,20 +50,6 @@ type BessiProps = {}
 
 const TITLE = `BESSI`
 const BUTTON_TEXT = `Submit`
-
-
-
-const SubmitButton = () => {
-  return (
-    <>
-      <div style={{ float: 'right' }}>
-        <button className={ styles.button } style={ { width: '75px' } }>
-          { BUTTON_TEXT }
-        </button>
-      </div>
-    </>
-  )
-}
 
 
 
@@ -481,7 +468,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
               { isEndOfQuestionnaire && (
                 <>
                   <BessiDemographicQuestionnaire />
-                  <SubmitButton />
+                  <FormButton buttonText={ BUTTON_TEXT } />
                 </>
               )}
             </>

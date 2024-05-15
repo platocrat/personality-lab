@@ -4,10 +4,16 @@
 import { useRouter } from 'next/navigation'
 import { FC, Fragment, useEffect, useLayoutEffect, useState } from 'react'
 // Locals
+import FormButton from '@/components/Buttons/Form'
+import Spinner from '@/components/Suspense/Spinner'
+import Questionnaire from '@/components/Questionnaire'
 import { RadioOrCheckboxInput } from '@/components/Input'
+import SubmitFormButton from '@/components/Buttons/Form'
+// Utils
 import {
   getInputLabels,
   radioOrCheckboxInputStyle,
+  wellnessRatingDescriptions,
   GENDER_AND_CREATIVITY_US_ACTIVITY_BANK,
   GENDER_AND_CREATIVITY_US_ASSESSMENT_HREF,
   GENDER_AND_CREATIVITY_US_ACTIVITY_BANK_LEGEND,
@@ -15,13 +21,14 @@ import {
 } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
+import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
 type GeneralActivitiesProps = {
   href: string
   buttonText: string
-  questionTitle: string
+  questionText: string
   pageFragmentId: string
   activityBankId: string
 }
@@ -32,7 +39,7 @@ type GeneralActivitiesProps = {
 const GeneralActivities: FC<GeneralActivitiesProps> = ({
   href,
   buttonText,
-  questionTitle,
+  questionText,
   pageFragmentId,
   activityBankId,
 }) => {
@@ -40,10 +47,19 @@ const GeneralActivities: FC<GeneralActivitiesProps> = ({
   const router = useRouter()
 
   // React states
-  const [fontSize, setFontSize] = useState<string>('13px')
-  const [isVertical, setIsVertical] = useState<boolean>(false)
-  const [userResponses, setUserResponses] = useState<any>({})
+  const [
+    isEndOfQuestionnaire,
+    setIsEndOfQuestionnaire
+  ] = useState<boolean>(false)
+  const [ fontSize, setFontSize ] = useState<string>('13px')
+  const [ userResponses, setUserResponses] = useState<any>({})
+  const [ isVertical, setIsVertical ] = useState<boolean>(false)
+  const [ currentQuestionIndex, setCurrentQuestionIndex ] = useState(0)
 
+
+  const questions = GENDER_AND_CREATIVITY_US_ACTIVITY_BANK[
+    activityBankId
+  ]
 
   const FRAGMENT_KEY_PREFACE = GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACES(
     pageFragmentId
@@ -51,9 +67,18 @@ const GeneralActivities: FC<GeneralActivitiesProps> = ({
 
 
   // onChange event handler
-  const onChange = (e: any) => {
+  const onChange = (e: any, questionIndex: number) => {
     const { name, value } = e.target
     setUserResponses({ ...userResponses, [`${name}`]: value })
+
+    // Move to the next question after a short delay
+    if (questionIndex < questions.length - 1) {
+      const timeout = 28 // 300ms delay for the transition effect
+
+      setTimeout(() => {
+        setCurrentQuestionIndex(questionIndex + 1)
+      }, timeout)
+    }
   }
 
   // Get `Fragment` key
@@ -105,53 +130,23 @@ const GeneralActivities: FC<GeneralActivitiesProps> = ({
 
 
 
-
-
   return (
     <>
       <form
         className={ styles.assessmentWrapper }
         onSubmit={ (e: any) => handleOnSubmit(e) }
       >
+        <p>{ questionText }</p>
 
-        <table>
-          <tbody>
-
-            <div>
-              { questionTitle }
-            </div>
-
-            <div style={ { margin: '48px 0px 48px 0px' } }>
-              { GENDER_AND_CREATIVITY_US_ACTIVITY_BANK[activityBankId].map(
-                (question: string, i: number) => (
-                  <Fragment key={ getActivityFragmentKey(i) }>
-                    <RadioOrCheckboxInput
-                      legend={ question }
-                      onChange={ onChange }
-                      inputName={ question }
-                      options={ { isVertical: isVertical } }
-                      style={ radioOrCheckboxInputStyle(isVertical, fontSize) }
-                      inputLabels={
-                        getInputLabels(
-                          undefined,
-                          {
-                            input: GENDER_AND_CREATIVITY_US_ACTIVITY_BANK_LEGEND[activityBankId]
-                          }
-                        )
-                      }
-                    />
-                  </Fragment>
-                ))
-              }
-            </div>
-
-          </tbody>
-        </table>
-
-        <div style={ { float: 'right' } }>
-          <button className={ styles.button } style={ { width: '80px' } }>
-            { buttonText }
-          </button>
+        <div style={ { margin: '48px 0px 48px 0px' } }>
+          <Questionnaire
+            onChange={ onChange }
+            questions={ questions }
+            currentQuestionIndex={ currentQuestionIndex }
+            setIsEndOfQuestionnaire={ setIsEndOfQuestionnaire }
+            choices={ GENDER_AND_CREATIVITY_US_ACTIVITY_BANK_LEGEND[activityBankId] }
+          />
+          { isEndOfQuestionnaire && <FormButton buttonText={ buttonText } /> }
         </div>
 
       </form>

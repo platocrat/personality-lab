@@ -7,6 +7,8 @@ import { FC, useEffect, useState } from 'react'
 import CreativityAndAchievementsForm from '@/components/Forms/GenderAndCreativityUs/CreativityAndAchievements'
 // Utils
 import { 
+  GENDER_AND_CREATIVITY_US_ACTIVITY_BANK,
+  GENDER_AND_CREATIVITY_US_ACTIVITY_BANK_LEGEND,
   GENDER_AND_CREATIVITY_US_ASSESSMENT_HREF, 
   GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACES,
 } from '@/utils'
@@ -41,8 +43,17 @@ const CreativityAndAchievementsFormWrapper: FC<CreativityAndAchievementsFormWrap
   const [ activityResponses, setActivityResponses ] = useState<any>({})
   // Number states
   const [ yearsEngagedIn, setYearsEngagedIn ] = useState<number>(0)
+  const [ currentQuestionIndex, setCurrentQuestionIndex ] = useState(0)
   // Boolean states
   const [ isLoading, setIsLoading ] = useState<boolean>(false)
+
+
+  const questions = GENDER_AND_CREATIVITY_US_ACTIVITY_BANK[
+    activityBankId
+  ]
+  const choices = GENDER_AND_CREATIVITY_US_ACTIVITY_BANK_LEGEND[
+    activityBankId
+  ]
 
 
   const FRAGMENT_KEY_PREFACE = GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACES(
@@ -51,9 +62,18 @@ const CreativityAndAchievementsFormWrapper: FC<CreativityAndAchievementsFormWrap
 
 
 
-  const onActivityChange = (e: any): void => {
+  const onActivityChange = (e: any, questionIndex: number): void => {
     const { name, value } = e.target
     setActivityResponses({ ...activityResponses, [`${ name }`]: value })
+
+    // Move to the next question after a short delay
+    if (questionIndex < questions.length - 1) {
+      const timeout = 28 // 300ms delay for the transition effect
+
+      setTimeout(() => {
+        setCurrentQuestionIndex(questionIndex + 1)
+      }, timeout)
+    }
   }
 
 
@@ -74,9 +94,10 @@ const CreativityAndAchievementsFormWrapper: FC<CreativityAndAchievementsFormWrap
 
 
 
-  const onYearsEngagedInChange = (e: any): void => setYearsEngagedIn(
-    e.target.value
-  )
+  const onYearsEngagedInChange = (e: any): void => {
+    const { value } = e.target
+    setYearsEngagedIn(value)
+  }
 
 
 
@@ -122,8 +143,12 @@ const CreativityAndAchievementsFormWrapper: FC<CreativityAndAchievementsFormWrap
         isLoading={ isLoading }
         pageTitle={ pageTitle }
         onSubmit={ handleOnSubmit }
-        activityBankId={ activityBankId }
         pageFragmentId={ pageFragmentId }
+        questionnaire={{
+          choices: choices,
+          questions: questions,
+          currentQuestionIndex: currentQuestionIndex,
+        }}
         onChange={ {
           onActivityChange: onActivityChange,
           onYearsEngagedInChange: onYearsEngagedInChange,

@@ -19,7 +19,7 @@ const href = `${GENDER_AND_CREATIVITY_US_ASSESSMENT_HREF}/creative-activities-an
 const BUTTON_TEXT = `Next`
 const ACTIVITY_BANK_ID = `levelOfAgreement`
 const PAGE_FRAGMENT_ID = `level-of-agreement`
-const QUESTION_TITLE = `Please indicate your level of agreement to the following statements using the options provided`
+const QUESTION_TEXT = `Please indicate your level of agreement to the following statements using the options provided`
 
 
 type LevelOfAgreementFormProps = {}
@@ -32,7 +32,7 @@ const LevelOfAgreementForm: FC<LevelOfAgreementFormProps> = ({ }) => {
       <GeneralActivities
         href={ href }
         buttonText={ BUTTON_TEXT }
-        questionTitle={ QUESTION_TITLE }
+        questionText={ QUESTION_TEXT } 
         pageFragmentId={ PAGE_FRAGMENT_ID }
         activityBankId={ ACTIVITY_BANK_ID }
       />
