@@ -10,6 +10,7 @@ import BessiDemographicQuestionnaire from '../demographic-questionnaire'
 // Components
 import Spinner from '@/components/Suspense/Spinner'
 // Contexts
+import Questionnaire from '@/components/Questionnaire'
 import { UserScoresContext } from '@/contexts/UserScoresContext'
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
@@ -21,6 +22,8 @@ import {
   SocialClass, 
   LibsodiumUtils,
   UserScoresType,
+  wellnessRatings,
+  bessiActivityBank,
   FacetFactorType,
   RaceOrEthnicity, 
   AWS_PARAMETER_NAMES, 
@@ -30,6 +33,7 @@ import {
   HighestFormalEducation, 
   CurrentEmploymentStatus,
   BessiUserResults__DynamoDB,
+  wellnessRatingDescriptions,
   BessiUserDemographics__DynamoDB,
 } from '@/utils'
 // CSS
@@ -393,7 +397,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
           
           <BessiAssessmentInstructions />
 
-          <UserScoresContext.Provider
+          {/* <UserScoresContext.Provider
             value={{
               userScores,
               setUserScores,
@@ -402,7 +406,14 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
             <BessiQuestionnaire />
           </UserScoresContext.Provider>
 
-          <BessiDemographicQuestionnaire />
+          <BessiDemographicQuestionnaire /> */}
+
+          <Questionnaire
+            choices={ wellnessRatingDescriptions }
+            questions={ 
+              bessiActivityBank.map(bessiActivity => bessiActivity.activity)
+            }
+          />  
           
           { isLoadingResults ? (
             <>

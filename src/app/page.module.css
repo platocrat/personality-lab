@@ -1,3 +1,24 @@
+.questionnaire_question {
+  opacity: 0;
+  height: 0;
+  overflow: hidden;
+  transition: opacity 0.4s ease, height 0.4s ease;
+}
+
+.questionnaire_visible {
+  opacity: 1;
+  height: auto;
+  transition: opacity 0.4s ease, height 0.4s ease;
+}
+
+.questionnaire_hidden {
+  opacity: 0;
+  height: 0;
+  overflow: hidden;
+  transition: opacity 0.4s ease, height 0.4s ease;
+}
+
+
 .inputWrapperSpan {
   display: flex;
   margin-left: auto;
