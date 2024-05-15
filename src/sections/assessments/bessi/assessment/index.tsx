@@ -11,7 +11,6 @@ import BessiDemographicQuestionnaire from '../demographic-questionnaire'
 import Spinner from '@/components/Suspense/Spinner'
 // Contexts
 import Questionnaire from '@/components/Questionnaire'
-import { UserScoresContext } from '@/contexts/UserScoresContext'
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // Utilities
@@ -19,6 +18,7 @@ import {
   Gender, 
   YesOrNo,
   USState,
+  getFacet,
   SocialClass, 
   LibsodiumUtils,
   UserScoresType,
@@ -31,6 +31,7 @@ import {
   calculateBessiScores,
   SkillDomainFactorType,
   HighestFormalEducation, 
+  getSkillDomainAndWeight,
   CurrentEmploymentStatus,
   BessiUserResults__DynamoDB,
   wellnessRatingDescriptions,
@@ -48,6 +49,21 @@ type BessiProps = {}
 
 const TITLE = `BESSI`
 const BUTTON_TEXT = `Submit`
+
+
+
+const SubmitButton = () => {
+  return (
+    <>
+      <div style={{ float: 'right' }}>
+        <button className={ styles.button } style={ { width: '75px' } }>
+          { BUTTON_TEXT }
+        </button>
+      </div>
+    </>
+  )
+}
+
 
 
 
@@ -80,7 +96,47 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
     setUserScores
   ] = useState<{ [key: string]: UserScoresType } | null>(null)
   // Booleans
+  const [ 
+    isEndOfQuestionnaire, 
+    setIsEndOfQuestionnaire 
+  ] = useState<boolean>(false)
   const [ isLoadingResults, setIsLoadingResults ] = useState<boolean>(false)
+  // Numbers
+  const [ currentQuestionIndex, setCurrentQuestionIndex ] = useState<number>(0)
+
+
+  const questions = bessiActivityBank.map(
+    bessiActivity => bessiActivity.activity
+  )
+
+
+    //------------------------- Regular function handlers ----------------------
+  function onWellnessRatingChange(e: any, questionIndex: number) {
+    const { value } = e.target
+
+    // Use `itemIndex + 1` because `bessiActivityBank` has no value for 0.
+    const _itemIndex = value + 1
+
+    const _userScore: UserScoresType = {
+      facet: getFacet(_itemIndex),
+      ...getSkillDomainAndWeight(getFacet(_itemIndex)),
+      response: e.target.value
+    }
+
+    setUserScores({
+      ...userScores,
+      [`${_itemIndex}`]: _userScore
+    })
+
+    // Move to the next question after a short delay
+    if (questionIndex < questions.length - 1) {
+      const timeout = 28 // 300ms delay for the transition effect
+
+      setTimeout(() => {
+        setCurrentQuestionIndex(questionIndex + 1)
+      }, timeout)
+    }
+  }
 
 
   // --------------------------- Async functions -------------------------------
@@ -152,11 +208,11 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
       usState: usState,
       zipCode: zipCode,
       isParent: isParent,
-      foreignCountry: foreignCountry,
-      englishFluency: isFluentInEnglish,
-      priorCompletion: priorCompletion,
       socialClass: socialClass,
+      foreignCountry: foreignCountry,
+      priorCompletion: priorCompletion,
       raceOrEthnicity: raceOrEthnicity,
+      englishFluency: isFluentInEnglish,
       currentMaritalStatus: currentMaritalStatus,
       highestFormalEducation: highestFormalEducation,
       currentEmploymentStatus: currentEmploymentStatus,
@@ -397,24 +453,14 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
           
           <BessiAssessmentInstructions />
 
-          {/* <UserScoresContext.Provider
-            value={{
-              userScores,
-              setUserScores,
-            }}
-          >
-            <BessiQuestionnaire />
-          </UserScoresContext.Provider>
-
-          <BessiDemographicQuestionnaire /> */}
-
           <Questionnaire
+            questions={ questions }
+            onChange={ onWellnessRatingChange }
             choices={ wellnessRatingDescriptions }
-            questions={ 
-              bessiActivityBank.map(bessiActivity => bessiActivity.activity)
-            }
-          />  
-          
+            currentQuestionIndex={ currentQuestionIndex }
+            setIsEndOfQuestionnaire={ setIsEndOfQuestionnaire }
+          /> 
+      
           { isLoadingResults ? (
             <>
               <div
@@ -424,7 +470,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
                   flexDirection: 'column',
                 } }
               >
-                <div style={{ marginBottom: '24px' }}>
+                <div style={ { marginBottom: '24px' } }>
                   <p>{ `Loading results...` }</p>
                 </div>
                 <Spinner height='40' width='40' />
@@ -432,11 +478,12 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
             </>
           ) : (
             <>
-            <div style={{ float: 'right' }}>
-              <button className={ styles.button } style={{ width: '75px' }}>
-                { BUTTON_TEXT }
-              </button>
-            </div>
+              { isEndOfQuestionnaire && (
+                <>
+                  <BessiDemographicQuestionnaire />
+                  <SubmitButton />
+                </>
+              )}
             </>
           ) }
         </form>
