@@ -1,18 +1,16 @@
+import { GENDER_AND_CREATIVITY_US_PATH } from '@/utils/assessments'
+
+
 // To be used when creating an instance of AWS SDK
 export const REGION = 'us-east-1'
 
 
 // Used for AWS DynamoDB API calls
 export const DYNAMODB_TABLE_NAMES = {
+  results: 'results',
   accounts: 'accounts',
-  bessi: {
-    results: 'bessi--results',
-    userResultAccessTokens: 'bessi--user-result-access-tokens',
-  },
-  genderAndCreativityUs: {
-    results: 'gender-and-creativity-us--results',
-    userResultAccessTokens: 'gender-and-creativity-us-user--result-access-tokens',
-  }
+  vizRating: 'viz-ratings',
+  userResultsAccessTokens: 'user-results-access-tokens',
 }
 
 export const AWS_PARAMETER_NAMES = {
