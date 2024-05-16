@@ -1,7 +1,26 @@
-.dropdownTitle:hover {
-  padding: 0px 24px;
+.dropdownButton {
+  border: none;
+  display: flex;
+  cursor: pointer;
+  padding: 2px 16px;
+  flex-direction: row;
   border-radius: 3rem;
-  background-color: #0050ac1d;
+  justify-content: center;
+  background-color: rgba(0, 80, 172, 0.0514);
+  outline: 0.1px outset rgba(0, 80, 172, 0.514);
+  box-shadow: 0px 4px 6px 0px rgba(0, 0, 0, 0.1);
+
+  transform: scale(1);
+
+  transition: 0.1s ease-in-out;
+}
+
+.dropdownButton:hover {
+  padding: 2px 32px;
+  border-radius: 3rem;
+  background-color: rgba(0, 80, 172, 0.114);
+  transform: scale(0.98);
+
   transition: 0.1s ease-in-out;
 }
 
@@ -47,7 +66,7 @@
   transition: transform 0.1s ease;
 }
 
-.dropdownTitle:hover .dropdownIcon {
+.dropdownButton:hover .dropdownIcon {
   transform: rotate(-90deg) translateY(4px);
   transition: transform 0.1s ease;
   /* Smooth transition for translation */
@@ -59,7 +78,7 @@
   /* Smooth transition for rotation */
 }
 
-.dropdownTitle:hover .rotated {
+.dropdownButton:hover .rotated {
   transform: rotate(0deg) translateY(1px);
   transition: transform 0.1s ease;
 }

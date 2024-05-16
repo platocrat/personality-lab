@@ -47,18 +47,10 @@ const TitleDropdown = ({
       >
         <button
           onClick={ toggleDropdown }
-          style={ {
-            border: 'none',
-            outline: 'none',
-            display: 'flex',
-            cursor: 'pointer',
-            flexDirection: 'row',
-            background: 'transparent',
-          } }
+          className={ styles.dropdownButton }
         >
-          <h3
-            style={ { fontSize: '18px', } }
-            className={ styles.dropdownTitle }
+          <h3 
+            style={{ fontSize: '18px' }}
           >
             { title }
             <Image
