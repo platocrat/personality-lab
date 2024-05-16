@@ -1,7 +1,10 @@
 // Externals
 import Image from 'next/image'
-import { Fragment, useState } from 'react'
+import { Fragment, useRef, useState } from 'react'
 // Locals
+// Hooks
+import useClickOutside from '@/app/hooks/useClickOutside'
+// Utils
 import { imgPaths } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -19,6 +22,9 @@ const TitleDropdown = ({
   currentVisualization,
   setCurrentVisualization,
 }) => {
+  // Refs
+  const menuRef = useRef(null)
+  // States
   const [isOpen, setIsOpen] = useState(false)
 
   const title = visualizations[currentVisualization].name
@@ -35,6 +41,11 @@ const TitleDropdown = ({
   }
 
 
+  // -------------------------------- Hooks ------------------------------------
+  useClickOutside(menuRef, () => setIsOpen(false))
+
+
+
 
   return (
     <>
@@ -42,7 +53,8 @@ const TitleDropdown = ({
         style={ {
           ...definitelyCenteredStyle,
           position: 'relative',
-          textAlign: 'center'
+          textAlign: 'center',
+          marginBottom: '18px',
         } }
       >
         <button
@@ -64,7 +76,7 @@ const TitleDropdown = ({
         </button>
 
         { isOpen && (
-          <div className={ styles.dropdown }> 
+          <div ref={ menuRef } className={ styles.dropdown }> 
             { visualizations.map((viz, i: number) => (
               <Fragment key={ `viz-option-${i}` }>
                 <li

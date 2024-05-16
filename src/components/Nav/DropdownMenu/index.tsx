@@ -42,9 +42,7 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
 
   const toggleDropdown = () => setIsVisible(!isVisible)
 
-  useClickOutside(dropdownRef, () => {
-    setIsVisible(false)
-  })
+  useClickOutside(dropdownRef, () => setIsVisible(false))
 
 
   return (

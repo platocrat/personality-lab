@@ -24,6 +24,8 @@ import StellarPlot from '@/components/DataViz/StellarPlot'
 import BessiRateUserResults from '@/components/Forms/BESSI/RateUserResults'
 import BarChartPerDomain from '@/components/DataViz/BarChart/BarChartPerDomain'
 import PersonalityVisualization from '@/components/DataViz/PersonalityVisualization'
+// Hooks
+import useClickOutside from '@/app/hooks/useClickOutside'
 // Contexts
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // Utils
@@ -40,7 +42,8 @@ import {
 // CSS
 import appStyles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
-import styles from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization/bess-results-visualization.module.css'
+import BessiShareResults from './share-results'
+
 
 
 
@@ -92,12 +95,6 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   
   
   // ------------------------- Regular functions -------------------------------
-  const handleClickOutside = (e: any) => {
-    if (modalRef.current && !modalRef.current.contains(e.target)) {
-      setIsModalVisible(false)
-    }
-  }
-
   const data_ = (i: number) => {
     switch (i) {
       case 0:
@@ -132,6 +129,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         return dummyVariables.pv.data
     }
   }
+
 
   // Placeholder for rendering the selected visualization
   const renderVisualization = (
@@ -193,18 +191,23 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
     }
   }
 
-  
-  useEffect(() => {
-    // Only add the event listener when the dropdown is visible
-    if (isModalVisible) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
 
-    // Cleanup the event listener
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [isModalVisible])
+  const handleRateVisualization = (e: any) => {
+    const { value } = e.target
+    
+    // Submit the user's rating of the visualization to DynamoDB
+    // await storeRatingInDynamoDB
+  }
+
+
+  // ---------------------------------- Hooks ----------------------------------
+  // async function storeRatingInDynamoDB(rating) {
+  
+  // }
+
+  
+  // ---------------------------------- Hooks ----------------------------------
+  useClickOutside(modalRef, () => setIsModalVisible(false))
 
 
 
@@ -229,38 +232,13 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
           ? renderVisualization(isExample, currentVisualization)
           : (
             <Fragment>
-              <div
-                style={{
-                  ...definitelyCenteredStyle,
-                  gap: '12px',
-                  marginBottom: '8px',
-                  justifyContent: 'space-between',
+              <BessiShareResults
+                isCopied={ isCopied }
+                onClick={{
+                  handleTakeScreenshot,
+                  handleRateVisualization,
                 }}
-              >
-                <button
-                  style={ {
-                    width: '50px',
-                    fontSize: '12.5px',
-                    padding: '8px 12px',
-                    margin: '12px 0px 12px 0px',
-                    backgroundColor: isCopied ? 'rgb(18, 215, 67)' : ''
-                  } }
-                  className={ appStyles.button }
-                  onClick={ handleTakeScreenshot }
-                >
-                  <Image
-                    width={ 18 }
-                    height={ 18 }
-                    alt='Share icon to share data visualization'
-                    className={ styles.img }
-                    src={
-                      isCopied 
-                        ? `${ imgPaths().svg }white-checkmark.svg` 
-                        : `${ imgPaths().svg }white-share-icon.svg`
-                    }
-                  />
-                </button>
-              </div>
+              />
 
               <UserVisualization
                 screenshot1Ref={ screenshot1Ref }

@@ -33,10 +33,10 @@ export const wellnessRatingDescriptions = [
 
 
 export const imgPaths = () => {
-  const basePath = `/icons/`
+  const basePath = `/icons`
   return {
-    svg: `${basePath}svg/`,
-    png: `${basePath}png/`,
+    svg: `${basePath}/svg/`,
+    png: `${basePath}/png/`,
   }
 }
 
