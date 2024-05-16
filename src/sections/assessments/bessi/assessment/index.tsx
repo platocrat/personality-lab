@@ -23,9 +23,10 @@ import {
   LibsodiumUtils,
   UserScoresType,
   wellnessRatings,
-  bessiActivityBank,
+  getAccessToken,
   FacetFactorType,
   RaceOrEthnicity, 
+  bessiActivityBank,
   AWS_PARAMETER_NAMES, 
   CurrentMaritalStatus, 
   calculateBessiScores,
@@ -35,6 +36,7 @@ import {
   CurrentEmploymentStatus,
   BessiUserResults__DynamoDB,
   wellnessRatingDescriptions,
+  getUsernameAndEmailFromCookie,
   BessiUserDemographics__DynamoDB,
 } from '@/utils'
 // CSS
@@ -148,7 +150,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
       // 3. Store `userResults` in DynamoDB and generate its respective ID
       const userResultsId = await storeResultsInDynamoDB(finalScores)
       // 4. Use ID of `userResults` to generate access token
-      const accessToken = await getAccessToken(userResultsId)
+      const accessToken = await getAccessToken(ASSESSMENT_NAME, userResultsId)
 
       // 4. Create new object with final scores and access token to cache on 
       //    the client so that we can use the access token to share the user's
@@ -206,7 +208,8 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
 
     const CURRENT_TIMESTAMP = new Date().getTime()
     
-    const email = await getUserEmailFromCookie()
+    const { email, username } = await getUsernameAndEmailFromCookie()
+
 
     if (email === undefined) {
       /**
@@ -218,8 +221,9 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
        * @dev This is the object that we store in DynamoDB using AWS's 
        * `PutItemCommand` operation.
        */
-      const userResults: Omit<BessiUserResults__DynamoDB, "id">  = {
+      const userResults: Omit<BessiUserResults__DynamoDB, "id"> & { username: string } = {
         email: email,
+        username: username,
         timestamp: CURRENT_TIMESTAMP,
         facetScores: finalScores.facetScores,
         domainScores: finalScores.domainScores,
@@ -244,7 +248,9 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
           const userResultsId = json.data
           return userResultsId
         } else {
-          const error = `Error posting BESSI results to DynamoDB: `
+          const error = `Error posting ${ 
+            ASSESSMENT_NAME.toUpperCase() 
+          } results to DynamoDB: `
           /**
            * @todo Handle error UI here
            */
@@ -256,179 +262,6 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
          */
         throw new Error(`Error! `, error)
 
-      }
-    }
-  }
-
-
-  async function getAccessToken(userResultsId: string) {
-    if (!userResultsId) {
-      /**
-       * @todo Replace the line below by handling the error on the UI here
-       */
-      throw new Error(
-        `Error: 'userResultsId' is invalid, see 'userResultsId': ${ 
-          userResultsId 
-        }!`
-      )
-    } else {
-      try {
-        const response = await fetch('/api/assessment/access-token', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            assessmentName: ASSESSMENT_NAME,
-            userResultsId: userResultsId 
-          }),
-        })
-
-        const json = await response.json()
-
-        if (response.status === 200) {
-          const accessToken = json.data
-          return accessToken
-        } else {
-          const error = `Error posting BESSI results to DynamoDB: `
-          /**
-           * @todo Handle error UI here
-           */
-          throw new Error(error, json.error)
-        }
-      } catch (error: any) {
-        /**
-         * @todo Handle error UI here
-         */
-        throw new Error(`Error! `, error)
-
-      }
-    }
-  }
-
-
-  /**
-   * @dev Note that the password that is returned is a hashed password
-   */
-  async function getUserEmailFromCookie() {
-    type CookieType = { email: string,  username: string, password: string }
-    
-
-    try {
-      const response = await fetch('/api/assessment/aws-parameter', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          parameterName: AWS_PARAMETER_NAMES.JWT_SECRET
-         }),
-      })
-
-      const data = await response.json()
-
-      if (response.status === 200) {
-        const JWT_SECRET: string = data.secret
-        const cookies = document.cookie        
-        const token = cookies.split('=')[0]
-        
-        // Cannot use `verify()` because it is only used server-side
-        const decoded = decode(token)
-        const encryptedEmail = (decoded as CookieType).email
-
-        const SECRET_KEY = await getCookieSecretKey(encryptedEmail)
-        const email = await LibsodiumUtils.decryptData(encryptedEmail, SECRET_KEY)
-
-        return email
-      } else {
-        throw new Error(
-          `Error getting ${AWS_PARAMETER_NAMES.JWT_SECRET }: ${ data.error }`
-        )
-        /**
-         * @todo Handle error UI here
-         */
-      }
-    } catch (error: any) {
-      throw new Error(
-        `Error fetching ${ AWS_PARAMETER_NAMES.JWT_SECRET } from API route! ${ error }`
-      )
-      /**
-       * @todo Handle error UI here
-       */
-    }
-  }
-
-
-  async function getCookieSecretKey(encryptedEmail: string) {
-    try {
-      const response = await fetch('/api/assessment/aws-parameter', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          parameterName: AWS_PARAMETER_NAMES.COOKIE_ENCRYPTION_SECRET_KEY
-        }),
-      })
-
-      const data = await response.json()
-
-      if (response.status === 200) {
-        const SECRET_KEY: string = data.secret
-        return LibsodiumUtils.base64ToUint8Array(SECRET_KEY)
-      } else {
-        throw new Error(
-          `Error getting ${AWS_PARAMETER_NAMES.COOKIE_ENCRYPTION_SECRET_KEY}: ${data.error}`
-        )
-        /**
-         * @todo Handle error UI here
-         */
-      }
-    } catch (error: any) {
-      throw new Error(
-        `Error fetching ${AWS_PARAMETER_NAMES.COOKIE_ENCRYPTION_SECRET_KEY} from API route! ${error}`
-      )
-      /**
-       * @todo Handle error UI here
-       */
-    }
-  }
-  
-
-  async function sendEmail() {
-    const email = await getUserEmailFromCookie()
-
-    if (email === undefined) {
-      /**
-       * @todo Replace the line below by handling the error UI here
-       */
-      throw new Error(`Error getting email from cookie!`)
-    } else {
-      // Send email
-      try {
-        const response = await fetch('/api/assessment/email', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email }),
-        })
-
-        const data = await response.json()
-
-        if (response.status === 200) {
-          console.log(`data: `, data)
-        } else {
-          throw new Error(`Error getting JWT secret: ${data.error}`,)
-          /**
-           * @todo Handle error UI here
-           */
-        }
-      } catch (error: any) {
-        throw new Error(`Error! ${error}`)
-        /**
-         * @todo Handle error UI here
-         */
       }
     }
   }
@@ -467,7 +300,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
               <Questionnaire
                 questions={ questions }
                 onChange={ onWellnessRatingChange }
-                controls={ { valueType: 'number' } }
+                controls={{ valueType: 'number' }}
                 choices={ wellnessRatingDescriptions }
                 currentQuestionIndex={ currentQuestionIndex }
                 setIsEndOfQuestionnaire={ setIsEndOfQuestionnaire }

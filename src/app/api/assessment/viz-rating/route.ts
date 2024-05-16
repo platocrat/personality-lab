@@ -1,14 +1,13 @@
 // Externals
-import { NextRequest, NextResponse } from 'next/server'
-import { 
-  PutCommand, 
-  PutCommandInput,
+import {
+  PutCommand,
+  PutCommandInput
 } from '@aws-sdk/lib-dynamodb'
-import { verify } from 'jsonwebtoken'
+import { NextRequest, NextResponse } from 'next/server'
 // Locals
-import { 
+import {
   ddbDocClient,
-  getUserResultsId,
+  getUserVizRatingId,
   DYNAMODB_TABLE_NAMES,
   handleDynamoDBPutResultsOrRating,
 } from '@/utils'
@@ -25,38 +24,37 @@ export async function POST(
   res: NextResponse,
 ) {
   if (req.method === 'POST') {
-    const { userResults } = await req.json()
+    const { userVizRating } = await req.json()
 
-    const userResultsId = await getUserResultsId(userResults)
+    const userVizRatingId = await getUserVizRatingId(userVizRating)
 
-    const TableName = DYNAMODB_TABLE_NAMES.results
+    const TableName = DYNAMODB_TABLE_NAMES.vizRating
     const Item = {
-      id: userResultsId,
-      email: userResults.email,
-      timestamp: userResults.timestamp,
-      facetScores: userResults.facetScores,
-      domainScores: userResults.domainScores,
-      demographics: userResults.demographics,
-      assessmentName: userResults.assessmentName,
+      id: userVizRatingId,
+      email: userVizRating.email,
+      timestamp: userVizRating.timestamp,
+      vizName: userVizRating.facetScores,
+      rating: userVizRating.domainScores,
+      assessmentName: userVizRating.assessmentName,
     }
 
     const input: PutCommandInput = { TableName, Item }
     const command = new PutCommand(input)
 
-    const successMessage = `User results have been added to ${
-      DYNAMODB_TABLE_NAMES.results
+    const successMessage = `User data visualization rating has been added to ${
+      DYNAMODB_TABLE_NAMES.vizRating
     } table`
 
-    
+
     await handleDynamoDBPutResultsOrRating(
-      userResultsId,
+      userVizRating,
       command,
       successMessage
     )
   } else {
     return NextResponse.json(
       { error: 'Method Not Allowed' },
-      { 
+      {
         status: 405,
         headers: {
           'Content-Type': 'application/json'

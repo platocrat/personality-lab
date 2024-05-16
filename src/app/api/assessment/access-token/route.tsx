@@ -28,7 +28,7 @@ export async function POST(
 
     const JWT_SECRET = await fetchAwsParameter(AWS_PARAMETER_NAMES.JWT_SECRET)
 
-    const TableName = DYNAMODB_TABLE_NAMES[assessmentName].userResultsAccessTokens
+    const TableName = DYNAMODB_TABLE_NAMES.userResultsAccessTokens
 
     /**
      * @todo 1. Encrypt the access token before it is stored to DynamoDB
@@ -47,7 +47,8 @@ export async function POST(
         TableName,
         Item: {
           id: userResultsId,
-          accessToken: accessToken,
+          assessmentName,
+          accessToken,
         }
       }
 
@@ -58,7 +59,7 @@ export async function POST(
         const response = await ddbDocClient.send(command)
 
         const message = `Access token has been added to ${
-          DYNAMODB_TABLE_NAMES[assessmentName].userResultsAccessTokens
+          DYNAMODB_TABLE_NAMES.userResultsAccessTokens
         } table`
 
         return NextResponse.json(
@@ -118,7 +119,7 @@ export async function GET(
   if (req.method === 'GET') {
     const { assessmentName, id } = await req.json()
 
-    const TableName = DYNAMODB_TABLE_NAMES[assessmentName].userResultsAccessTokens
+    const TableName = DYNAMODB_TABLE_NAMES.userResultsAccessTokens
     const Key = { id: id }
 
     const input: GetCommandInput = { TableName, Key }
@@ -130,7 +131,7 @@ export async function GET(
 
       if (!response.Item) {
         const message = `No access token found in ${
-          DYNAMODB_TABLE_NAMES[assessmentName].userResultsAccessTokens
+          DYNAMODB_TABLE_NAMES.userResultsAccessTokens
         } table`
 
         return NextResponse.json(

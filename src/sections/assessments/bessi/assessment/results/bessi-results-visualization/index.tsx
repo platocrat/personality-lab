@@ -1,18 +1,16 @@
 'use client'
 
 // Externals
-import { 
-  FC, 
-  useRef, 
-  Fragment, 
-  Dispatch, 
-  useState, 
-  useEffect,
-  useContext, 
-  SetStateAction, 
-} from 'react'
-import Image from 'next/image'
 import html2canvas from 'html2canvas'
+import {
+  FC,
+  useRef,
+  useState,
+  Fragment,
+  Dispatch,
+  useContext,
+  SetStateAction,
+} from 'react'
 // Locals
 // Sections
 import Modal from './modal'
@@ -31,18 +29,17 @@ import useClickOutside from '@/app/hooks/useClickOutside'
 // Contexts
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // Utils
-import { 
-  imgPaths,
+import {
   transformData,
-  dummyVariables, 
-  FacetFactorType, 
+  FacetFactorType,
+  dummyVariables,
   InputDataStructure,
   TargetDataStructure,
-  BessiSkillScoresType, 
+  BessiSkillScoresType,
   SkillDomainFactorType,
+  getUsernameAndEmailFromCookie,
 } from '@/utils'
 // CSS
-import appStyles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
 
 
@@ -194,19 +191,86 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   }
 
 
-  const handleRateVisualization = (e: any) => {
-    const { value } = e.target
-
+  async function handleRateVisualization (
+    e: any, 
+    positiveOrNegative: 'positive' | 'negative',
+  ) {
     setIsRating(true)
-    
+    const rating = positiveOrNegative === 'positive' ? 1 : 0
+    const vizName = visualizations[currentVisualization].name
+
+    console.log(`[handleRateVisualization]: ${vizName} viz rating: `, rating)
+
     // Submit the user's rating of the visualization to DynamoDB
-    // await storeRatingInDynamoDB
+    const userVizRatingId = await storeRatingInDynamoDB(rating, vizName)
+    
+    console.log(
+      `[handleRateVisualization]: submission of viz rating was successful!`,
+      `userVizRatingId: `, 
+      userVizRatingId
+    )
+
+    setIsRating(false)
   }
 
 
   // ---------------------------------- Hooks ----------------------------------
-  async function storeRatingInDynamoDB(rating) {
-    
+  async function storeRatingInDynamoDB(
+    rating: number, 
+    vizName: string
+  ) {
+      const CURRENT_TIMESTAMP = new Date().getTime()
+
+      const { email, username } = await getUsernameAndEmailFromCookie()
+
+
+      if (email === undefined) {
+        /**
+         * @todo Replace the line below by handling the error on the UI here
+         */
+        throw new Error(`Error getting email from cookie!`)
+      } else {
+        /**
+         * @dev This is the object that we store in DynamoDB using AWS's
+         * `PutItemCommand` operation.
+         */
+        const userVizRating/*: BESSI__VisualizationRating__DynamoDB */ = {
+          email: email,
+          username: username,
+          timestamp: CURRENT_TIMESTAMP,
+          vizName: vizName,
+          rating: rating,
+        }
+
+        try {
+          const response = await fetch('/bessi/assessment/api/viz-name', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ userVizRating }),
+          })
+
+          const json = await response.json()
+
+          if (response.status === 200) {
+            const userVizRatingId = json.data
+            return userVizRatingId
+          } else {
+            const error = `Error posting ${ 'viz rating' } to DynamoDB: `
+            /**
+             * @todo Handle error UI here
+             */
+            throw new Error(error, json.error)
+          }
+        } catch (error: any) {
+          /**
+           * @todo Handle error UI here
+           */
+          throw new Error(`Error! `, error)
+
+        }
+      }
   }
 
   

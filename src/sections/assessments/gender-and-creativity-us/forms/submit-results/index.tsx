@@ -34,12 +34,11 @@ type SubmitResultsFormProps = {
 const SubmitResultsForm: FC<SubmitResultsFormProps> = ({
   pageFragmentId
 }) => {
-  // hooks
+  // Hooks
   const router = useRouter()
-
+  // State
   const [ userResults, setUserResults ] = useState<any>({})
   const [ commentsOrFeedback, setCommentsOrFeedback ] = useState<any>({})
-
 
 
   const FRAGMENT_KEY_PREFACE = GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACES(
@@ -47,9 +46,9 @@ const SubmitResultsForm: FC<SubmitResultsFormProps> = ({
   )
 
 
-
   function onCommentsOrFeedbackChange(e: any) {
-    setCommentsOrFeedback(e.target.value)
+    const { value } = e.target
+    setCommentsOrFeedback(value)
   }
 
 
@@ -78,10 +77,6 @@ const SubmitResultsForm: FC<SubmitResultsFormProps> = ({
   // ) {
   //   const CURRENT_TIMESTAMP = new Date().getTime()
 
-  //   /**
-  //    * @todo Generalize this function call so that it can be called from
-  //    * anywhere and NOT just from the `/bessi/assessment/api/aws-parameter`
-  //    */
   //   const email = await getUserEmailFromCookie()
 
   //   if (email === undefined) {
@@ -101,7 +96,7 @@ const SubmitResultsForm: FC<SubmitResultsFormProps> = ({
   //     }
 
   //     try {
-  //       const response = await fetch('/bessi/assessment/api/results', {
+  //       const response = await fetch('/api/assessment/results', {
   //         method: 'POST',
   //         headers: {
   //           'Content-Type': 'application/json',

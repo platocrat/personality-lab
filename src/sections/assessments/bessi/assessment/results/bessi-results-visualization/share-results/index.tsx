@@ -18,13 +18,14 @@ type BessiShareResultsProps = {
   }
   onClick: {
     handleTakeScreenshot: (e: any) => void
-    handleRateVisualization: (e: any) => void
+    handleRateVisualization: (
+      e: any, 
+      positiveOrNegative: 'positive' | 'negative'
+    ) => void
   }
 }
 
 
-
-const BUTTON_TEXT = `Rate Visualization!`
 
 
 const BessiShareResults: FC<BessiShareResultsProps> = ({
@@ -63,7 +64,12 @@ const BessiShareResults: FC<BessiShareResultsProps> = ({
               <>
                 <button
                   className={ appStyles.button }
-                  onClick={ onClick.handleRateVisualization }
+                  onClick={ 
+                    (e: any) => onClick.handleRateVisualization(
+                      e, 
+                      'positive'
+                    )
+                  }
                   style={ {
                     width: '100%',
                     fontSize: '13px',
@@ -71,18 +77,23 @@ const BessiShareResults: FC<BessiShareResultsProps> = ({
                     background: 'rgb(42, 184, 101)',
                     borderColor: 'rgb(42, 184, 101)',
                   } }
-                >
+                  >
                   <Image
                     width={ 18 }
                     height={ 18 }
                     style={ { transform: 'scaleX(-1)' } }
                     alt='Share icon to share data visualization'
                     src={ `${imgPaths().svg}thumbs-up-icon.svg` }
-                  />
+                    />
                 </button>
                 <button
                   className={ appStyles.button }
-                  onClick={ onClick.handleRateVisualization }
+                  onClick={ 
+                    (e: any) => onClick.handleRateVisualization(
+                      e,
+                      'negative'
+                    )
+                  }
                   style={ {
                     width: '100%',
                     fontSize: '13px',

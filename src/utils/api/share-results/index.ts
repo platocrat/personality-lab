@@ -27,7 +27,6 @@ import {
  * @returns 
  */
 export async function verfiyAccessTokenAndFetchUserResults(
-  assessmentName: string,
   id: string,
   accessToken: string,
   JWT_SECRET: string,
@@ -35,12 +34,12 @@ export async function verfiyAccessTokenAndFetchUserResults(
   try {
     // 3. If verification of `accessToken` using JWT secret is successful,
     //    create DynamoDB `GetCommand` to fetch `id` from
-    //    `DYNAMODB_TABLE_NAMES[assessmentName].userResultsAccessTokens`
+    //    `DYNAMODB_TABLE_NAMES.userResultsAccessTokens`
     //    which will be used later to fetch the `userResults` from the
-    //    `DYNAMODB_TABLE_NAMES[assessmentName].results` table.
+    //    `DYNAMODB_TABLE_NAMES.results` table.
     verify(accessToken, JWT_SECRET)
 
-    const TableName = DYNAMODB_TABLE_NAMES[assessmentName].userResultsAccessTokens
+    const TableName = DYNAMODB_TABLE_NAMES.userResultsAccessTokens
     const Key = { id: id, accessToken: accessToken }
 
     const input: GetCommandInput = { TableName, Key}
@@ -50,7 +49,7 @@ export async function verfiyAccessTokenAndFetchUserResults(
 
 
     // 4. Try to fetch `userResults` from DynamoDB table
-    return await fetchUserResultsIdAndUserResults(assessmentName, command)
+    return await fetchUserResultsIdAndUserResults(command)
   } catch (error: any) {
     if (error.message === jwtErrorMessages.expiredJWT) {
       /**
@@ -91,7 +90,6 @@ export async function verfiyAccessTokenAndFetchUserResults(
  * @returns 
 */
 export async function fetchUserResultsIdAndUserResults(
-  assessmentName: string,
   command: GetCommand
 ) {
   try {
@@ -100,7 +98,7 @@ export async function fetchUserResultsIdAndUserResults(
     // 5. Throw an error if the results are not in the table
     if (!response.Item) {
       const message = `No access token found in ${
-        DYNAMODB_TABLE_NAMES[assessmentName].userResultsAccessTokens
+        DYNAMODB_TABLE_NAMES.userResultsAccessTokens
       } table`
 
       return NextResponse.json(
@@ -117,7 +115,7 @@ export async function fetchUserResultsIdAndUserResults(
       const userResultsId = response.Item.id
 
       // 7. Use `userResultsId` to fetch `userResults`
-      return fetchUserResults(assessmentName, userResultsId)
+      return fetchUserResults(userResultsId)
     }
   } catch (error: any) {
     const errorMessage = `Failed fetching 'id' using 'accessToken'`
@@ -145,12 +143,11 @@ export async function fetchUserResultsIdAndUserResults(
  * @returns 
  */
 export async function fetchUserResults(
-  assessmentName: string,
   userResultsId: string
 ) {
   // 8. Build `QueryCommand` to fetch the `userResults` from the `BESSI-results` 
   //    table
-  const TableName = DYNAMODB_TABLE_NAMES[assessmentName].results
+  const TableName = DYNAMODB_TABLE_NAMES.results
   const KeyConditionExpression = 'id = :idValue'
   const ExpressionAttributeValues = { ':idValue': userResultsId }
 

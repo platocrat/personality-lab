@@ -2,7 +2,14 @@
 
 // Externals
 
-import { FC, useContext, useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import { 
+  FC, 
+  useMemo,
+  useState, 
+  useEffect, 
+  useContext, 
+  useLayoutEffect, 
+} from 'react'
 // Locals
 import Spinner from '@/components/Suspense/Spinner'
 // Sections
@@ -81,6 +88,7 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
   }, [ isAccessTokenExpired, accessToken ])
 
 
+  // --------------------------- Async functions -------------------------------
   async function getUserResults() {
     try {
       const response = await fetch('/api/assessment/share-results', {
@@ -88,11 +96,7 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
-          assessmentName: ASSESSMENT_NAME, 
-          id,
-          accessToken 
-        })
+        body: JSON.stringify({ id, accessToken })
       })
 
       const json = await response.json()
@@ -111,7 +115,7 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
       } else if (json.error === 'Access token expired') {
         setIsAccessTokenExpired(true)
       } else {
-        const error = `Error posting BESSI results to DynamoDB: `
+        const error = `Error posting ${ ASSESSMENT_NAME } results to DynamoDB: `
         /**
          * @todo Handle error UI here
         */
@@ -126,7 +130,8 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
     }
   }
 
-
+  
+  // ----------------------------- `useLayoutEffect`s --------------------------
   useLayoutEffect(() => {
     if (!id || !accessToken) {
       setIsDataLoading(true)
@@ -147,6 +152,7 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
       Promise.all(requests)
     }
   }, [id, accessToken])
+
 
 
 
