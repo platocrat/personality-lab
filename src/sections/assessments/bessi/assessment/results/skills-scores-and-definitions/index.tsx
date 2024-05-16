@@ -162,7 +162,7 @@ const BessiResultsSkillsScoresAndDefinitions = () => {
 
   return (
     <>
-      <div>
+      <div style={{ margin: '48px 0px 0px 0px' }}>
         <div style={{ margin: '18px 0px 18px 0px',  }}>
           <h3>{ title }</h3>
         </div>
