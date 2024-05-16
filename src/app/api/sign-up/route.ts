@@ -20,10 +20,10 @@ import {
   ddbDocClient,
   LibsodiumUtils,
   fetchAwsParameter, 
+  ACCOUNTS__DYNAMODB,
   AWS_PARAMETER_NAMES, 
   DYNAMODB_TABLE_NAMES,
 } from '@/utils'
-import { BESSI_accounts } from '../email/route'
 
 
 
@@ -35,7 +35,7 @@ export async function POST(
     const { email, username, password } = await req.json()
 
     let input: QueryCommandInput | PutCommandInput | GetParameterCommandInput = {
-      TableName: DYNAMODB_TABLE_NAMES.BESSI_ACCOUNTS,
+      TableName: DYNAMODB_TABLE_NAMES.accounts,
       IndexName: 'UsernameIndex',
       KeyConditionExpression: 'username = :usernameValue',
       ExpressionAttributeValues: {
@@ -53,7 +53,7 @@ export async function POST(
 
       if (response.Items && response.Items.length > 0) {
         // Only return a response if the username exists in the DynamoDB Table
-        if ((response.Items[0] as BESSI_accounts).username) {
+        if ((response.Items[0] as ACCOUNTS__DYNAMODB).username) {
           return NextResponse.json(
             { message: 'Username exists' },
             { status: 200 },
@@ -74,7 +74,7 @@ export async function POST(
     const timestamp = new Date().getTime()
 
     input = {
-      TableName: DYNAMODB_TABLE_NAMES.BESSI_ACCOUNTS,
+      TableName: DYNAMODB_TABLE_NAMES.accounts,
       Item: { 
         email: email,
         username: username, 

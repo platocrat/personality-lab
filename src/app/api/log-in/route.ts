@@ -21,10 +21,10 @@ import {
   ddbDocClient,
   LibsodiumUtils,
   fetchAwsParameter, 
+  ACCOUNTS__DYNAMODB,
   AWS_PARAMETER_NAMES,
   DYNAMODB_TABLE_NAMES,
  } from '@/utils'
-import { BESSI_accounts } from '../email/route'
 
 
 
@@ -36,7 +36,7 @@ export async function POST(
     const { email, username, password } = await req.json()     
 
     const input: QueryCommandInput = {
-      TableName: DYNAMODB_TABLE_NAMES.BESSI_ACCOUNTS,
+      TableName: DYNAMODB_TABLE_NAMES.accounts,
       KeyConditionExpression: 'email = :emailValue',
       ExpressionAttributeValues: {
         ':emailValue': email,
@@ -51,9 +51,12 @@ export async function POST(
     try {
       const response = await ddbDocClient.send(command)
 
-      if (response.Items && (response.Items[0] as BESSI_accounts).password) {
-        const storedUsername = (response.Items[0] as BESSI_accounts).username
-        const hashedPassword = (response.Items[0] as BESSI_accounts).password
+      if (
+        response.Items && 
+        (response.Items[0] as ACCOUNTS__DYNAMODB).password
+      ) {
+        const storedUsername = (response.Items[0] as ACCOUNTS__DYNAMODB).username
+        const hashedPassword = (response.Items[0] as ACCOUNTS__DYNAMODB).password
 
         const verifiedUsername = storedUsername === username
         const verifiedPassword = crypto_pwhash_str_verify(hashedPassword, password)
@@ -191,7 +194,9 @@ export async function POST(
         )
       }
     } catch (error: any) {
-      if (error.message === `Cannot read properties of undefined (reading 'password')`) {
+      const errorMessage = `Cannot read properties of undefined (reading 'password')`
+
+      if (error.message === errorMessage) {
         return NextResponse.json(
           { message: 'Email not found' },
           { status: 200 },

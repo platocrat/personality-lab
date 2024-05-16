@@ -24,7 +24,7 @@ export async function POST(
   res: NextResponse, 
 ) {
   if (req.method === 'POST') {
-    const { userResultsId } = await req.json()
+    const { assessmentName, userResultsId } = await req.json()
 
     const JWT_SECRET = await fetchAwsParameter(AWS_PARAMETER_NAMES.JWT_SECRET)
 
@@ -42,7 +42,7 @@ export async function POST(
 
       // Write to table of `id` and `accessToken` in DynamoDB
       const putCommandInput: PutCommandInput = {
-        TableName: DYNAMODB_TABLE_NAMES.BESSI_USER_RESULT_ACCESS_TOKENS,
+        TableName: DYNAMODB_TABLE_NAMES[assessmentName].userResultAccessTokens,
         Item: {
           id: userResultsId,
           accessToken: accessToken,
@@ -55,7 +55,7 @@ export async function POST(
         const response = await ddbDocClient.send(command)
 
         const message = `Access token has been added to ${
-          DYNAMODB_TABLE_NAMES.BESSI_USER_RESULT_ACCESS_TOKENS
+          DYNAMODB_TABLE_NAMES[assessmentName].userResultAccessTokens
         } table`
 
         return NextResponse.json(
@@ -111,10 +111,10 @@ export async function GET(
   res: NextResponse,
 ) {
   if (req.method === 'GET') {
-    const { id } = await req.json()
+    const { assessmentName, id } = await req.json()
 
     const input: GetCommandInput = {
-      TableName: DYNAMODB_TABLE_NAMES.BESSI_USER_RESULT_ACCESS_TOKENS,
+      TableName: DYNAMODB_TABLE_NAMES[assessmentName].userResultAccessTokens,
       Key: { id: id },
     }
 
@@ -125,7 +125,7 @@ export async function GET(
 
       if (!response.Item) {
         const message = `No access token found in ${
-          DYNAMODB_TABLE_NAMES.BESSI_USER_RESULT_ACCESS_TOKENS
+          DYNAMODB_TABLE_NAMES[assessmentName].userResultAccessTokens
         } table`
 
         return NextResponse.json(

@@ -45,6 +45,7 @@ export async function GET(
 
     const JWT_SECRET = await fetchAwsParameter(AWS_PARAMETER_NAMES.JWT_SECRET)
 
+
     if (typeof JWT_SECRET === 'string') {
       /**
        * @dev 2. Verify token using the JWT secret

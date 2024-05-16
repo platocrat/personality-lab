@@ -34,9 +34,9 @@ const Header: FC<HeaderProps> = ({}) => {
   // Handle logout logic
   async function handleLogout() {
     try {
-      const logoutResponse = await fetch('/api/logout', { method: 'POST' })
+      const response = await fetch('/api/logout', { method: 'POST' })
 
-      if (logoutResponse.status === 200) {
+      if (response.status === 200) {
         // Remove authentication from user
         setIsAuthenticated(false)
         // Refresh page to show log-in view

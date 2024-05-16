@@ -40,6 +40,7 @@ type BessiUserSharedResultsType = {
 
 
 const rateUserResults = true
+const ASSESSMENT_NAME = 'bessi'
 
 
 
@@ -82,14 +83,15 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
 
   async function getUserResults() {
     try {
-      const response = await fetch('/bessi/assessment/api/share-results', {
+      const response = await fetch('/api/assessment/share-results', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          id: id,
-          accessToken: accessToken,
+          assessmentName: ASSESSMENT_NAME, 
+          id,
+          accessToken 
         })
       })
 

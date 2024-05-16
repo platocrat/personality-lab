@@ -10,9 +10,9 @@ import {
 // Locals
 import {
   ddbDocClient,
+  jwtErrorMessages,
   DYNAMODB_TABLE_NAMES,
   BessiUserResults__DynamoDB,
-  jwtErrorMessages,
 } from '@/utils'
 
 
@@ -20,25 +20,28 @@ import {
 /**
  * @dev Verifies the user's `accessToken` and tries to fetch the `userResults`
  *      that is mapped to the given `id`.
- * @param userResultsId
+ * @param assessmentName
+ * @param id
  * @param accessToken 
  * @param JWT_SECRET 
  * @returns 
  */
 export async function verfiyAccessTokenAndFetchUserResults(
+  assessmentName: string,
   id: string,
   accessToken: string,
   JWT_SECRET: string,
 ) {
   try {
     // 3. If verification of `accessToken` using JWT secret is successful,
-    //    create DynamoDB `GetCommand` to fetch `id` from the 
-    //    `BESSI_USER_RESULT_ACCESS_TOKENS` which will be used later to fetch 
-    //    the `userResults` from the `BESSI-results` table. 
+    //    create DynamoDB `GetCommand` to fetch `id` from
+    //    `DYNAMODB_TABLE_NAMES[assessmentName].userResultAccessTokens`
+    //    which will be used later to fetch the `userResults` from the
+    //    `DYNAMODB_TABLE_NAMES[assessmentName].results` table.
     verify(accessToken, JWT_SECRET)
 
     const input: GetCommandInput = {
-      TableName: DYNAMODB_TABLE_NAMES.BESSI_USER_RESULT_ACCESS_TOKENS,
+      TableName: DYNAMODB_TABLE_NAMES[assessmentName].userResultAccessTokens,
       Key: {
         id: id,
         accessToken: accessToken
@@ -50,7 +53,7 @@ export async function verfiyAccessTokenAndFetchUserResults(
     // console.log(`GetCommand to fetch the userResultsId that is mapped to the accessToken: `, command)
 
     // 4. Try to fetch `userResults` from DynamoDB table
-    return await fetchUserResultsIdAndUserResults(command)
+    return await fetchUserResultsIdAndUserResults(assessmentName, command)
   } catch (error: any) {
     if (error.message === jwtErrorMessages.expiredJWT) {
       /**
@@ -90,14 +93,18 @@ export async function verfiyAccessTokenAndFetchUserResults(
  * @param command 
  * @returns 
 */
-export async function fetchUserResultsIdAndUserResults(command: GetCommand) {
+export async function fetchUserResultsIdAndUserResults(
+  assessmentName: string,
+  command: GetCommand
+) {
   try {
     const response = await ddbDocClient.send(command)
 
     // 5. Throw an error if the results are not in the table
     if (!response.Item) {
-      const message = `No access token found in ${DYNAMODB_TABLE_NAMES.BESSI_USER_RESULT_ACCESS_TOKENS
-        } table`
+      const message = `No access token found in ${
+        DYNAMODB_TABLE_NAMES[assessmentName].userResultAccessTokens
+      } table`
 
       return NextResponse.json(
         { message: message },
@@ -113,7 +120,7 @@ export async function fetchUserResultsIdAndUserResults(command: GetCommand) {
       const userResultsId = response.Item.id
 
       // 7. Use `userResultsId` to fetch `userResults`
-      return fetchUserResults(userResultsId)
+      return fetchUserResults(assessmentName, userResultsId)
     }
   } catch (error: any) {
     const errorMessage = `Failed fetching 'id' using 'accessToken'`
@@ -141,12 +148,13 @@ export async function fetchUserResultsIdAndUserResults(command: GetCommand) {
  * @returns 
  */
 export async function fetchUserResults(
+  assessmentName: string,
   userResultsId: string
 ) {
   // 8. Build `QueryCommand` to fetch the `userResults` from the `BESSI-results` 
   //    table
   const input: QueryCommandInput = {
-    TableName: DYNAMODB_TABLE_NAMES.BESSI_RESULTS,
+    TableName: DYNAMODB_TABLE_NAMES[assessmentName].results,
     KeyConditionExpression: 'id = :idValue',
     ExpressionAttributeValues: {
       ':idValue': userResultsId,

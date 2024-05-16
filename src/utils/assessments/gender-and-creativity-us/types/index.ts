@@ -1,7 +1,7 @@
 // Locals
 import { 
   YesOrNo,
-  RaceOrEthnicity, 
+  RaceOrEthnicity,
 } from '@/utils'
 import { 
   Religion,

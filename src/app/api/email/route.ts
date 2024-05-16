@@ -2,16 +2,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { QueryCommand, QueryCommandInput } from '@aws-sdk/lib-dynamodb'
 // Locals
-import { ddbDocClient } from '@/utils'
-import { DYNAMODB_TABLE_NAMES } from '@/utils'
+import { 
+  ddbDocClient,
+  ACCOUNTS__DYNAMODB,
+  DYNAMODB_TABLE_NAMES, 
+} from '@/utils'
 
-
-export type BESSI_accounts = {
-  password: string
-  username: string
-  email: string
-  timestamp: number
-}
 
 
 export async function POST(
@@ -22,7 +18,7 @@ export async function POST(
     const { email } = await req.json()
 
     const input: QueryCommandInput = {
-      TableName: DYNAMODB_TABLE_NAMES.BESSI_ACCOUNTS,
+      TableName: DYNAMODB_TABLE_NAMES.accounts,
       KeyConditionExpression: 'email = :emailValue',
       ExpressionAttributeValues: {
         ':emailValue': email,
@@ -35,7 +31,7 @@ export async function POST(
       const response = await ddbDocClient.send(command)
 
       if (response.Items && response.Items.length > 0) {
-        if ((response.Items[0] as BESSI_accounts).email) {
+        if ((response.Items[0] as ACCOUNTS__DYNAMODB).email) {
           return NextResponse.json(
             { message: 'Email exists' },
             { status: 200 },

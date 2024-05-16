@@ -9,7 +9,7 @@ import {
   CurrentMaritalStatus, 
   HighestFormalEducation, 
   CurrentEmploymentStatus, 
-} from './enums'
+} from '../enums'
 
 
 export type SkillDomainFactorType = {

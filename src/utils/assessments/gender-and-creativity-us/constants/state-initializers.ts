@@ -1,5 +1,5 @@
 // Locals
-import { RaceOrEthnicity } from '../../bessi/types/enums'
+import { RaceOrEthnicity } from '../../bessi/enums'
 import { GenderAndCreativityUsDemographicsType } from '../types'
 import { GENDER_AND_CREATIVITY_US_ACTIVITY_BANK } from './constants'
 

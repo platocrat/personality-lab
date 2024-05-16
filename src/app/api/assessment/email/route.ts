@@ -22,6 +22,7 @@ export async function POST(
       AWS_PARAMETER_NAMES.SENDGRID_API_KEY
     )
 
+
     if (typeof API_KEY === 'string') {
       sgMail.setApiKey(API_KEY)
 

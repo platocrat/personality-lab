@@ -4,7 +4,6 @@ import { decode } from 'jsonwebtoken'
 import { useRouter } from 'next/navigation'
 import { FC, Fragment, useContext, useEffect, useState } from 'react'
 // Locals
-import BessiQuestionnaire from './questionnaire'
 import BessiAssessmentInstructions from './instructions'
 import BessiDemographicQuestionnaire from '../demographic-questionnaire'
 // Components
@@ -50,7 +49,7 @@ type BessiProps = {}
 
 const TITLE = `BESSI`
 const BUTTON_TEXT = `Submit`
-
+const ASSESSMENT_NAME = 'bessi'
 
 
 
@@ -164,7 +163,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
       setBessiSkillScores(finalScores)
       
       // 6.  Navigate to the results page
-      const href = '/bessi/assessment/results'
+      const href = `/${ ASSESSMENT_NAME }/assessment/results`
       
       // 7. End suspense
       setIsLoadingResults(false)
@@ -228,12 +227,15 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
       }
 
       try {
-        const response = await fetch('/bessi/assessment/api/results', {
+        const response = await fetch('/api/assessment/results', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ userResults }),
+          body: JSON.stringify({ 
+            assessmentName: ASSESSMENT_NAME, 
+            userResults
+          }),
         })
 
         const json = await response.json()
@@ -271,12 +273,15 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
       )
     } else {
       try {
-        const response = await fetch('/bessi/assessment/api/access-token', {
+        const response = await fetch('/api/assessment/access-token', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ userResultsId: userResultsId }),
+          body: JSON.stringify({
+            assessmentName: ASSESSMENT_NAME,
+            userResultsId: userResultsId 
+          }),
         })
 
         const json = await response.json()
@@ -309,7 +314,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
     type CookieType = { email: string,  username: string, password: string }
     
     try {
-      const response = await fetch('/bessi/assessment/api/aws-parameter', {
+      const response = await fetch('/api/assessment/aws-parameter', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -355,7 +360,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
 
   async function getCookieSecretKey(encryptedEmail: string) {
     try {
-      const response = await fetch('/bessi/assessment/api/aws-parameter', {
+      const response = await fetch('/api/assessment/aws-parameter', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -400,7 +405,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
     } else {
       // Send email
       try {
-        const response = await fetch('/bessi/assessment/api/email', {
+        const response = await fetch('/api/assessment/email', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

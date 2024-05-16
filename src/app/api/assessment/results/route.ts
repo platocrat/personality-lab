@@ -34,12 +34,12 @@ export async function POST(
   res: NextResponse,
 ) {
   if (req.method === 'POST') {
-    const { userResults } = await req.json()
+    const { assessmentName,userResults } = await req.json()
 
     const userResultsId = await getUserResultsId(userResults)
 
     const input: PutCommandInput = {
-      TableName: DYNAMODB_TABLE_NAMES.BESSI_RESULTS,
+      TableName: DYNAMODB_TABLE_NAMES[assessmentName].results,
       Item: {
         id: userResultsId,
         email: userResults.email,
@@ -56,7 +56,7 @@ export async function POST(
       const response = await ddbDocClient.send(command)
 
       const message = `User results have been added to ${
-        DYNAMODB_TABLE_NAMES.BESSI_RESULTS
+        DYNAMODB_TABLE_NAMES[assessmentName].results
       } table`
 
       return NextResponse.json(
