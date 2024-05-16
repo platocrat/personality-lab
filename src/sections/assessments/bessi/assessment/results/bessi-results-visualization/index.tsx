@@ -148,9 +148,10 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         return (
           <>
             <div style={{ margin: '24px 0px 0px 0px' }} />
+            <Title isExample={ isExample } title={ title } />
+
             { allData.map((data: TargetDataStructure, i: number) => (
               <>
-                <Title isExample={ isExample } title={ title } />
                 <BarChartPerDomain isExample={ isExample } data={ data } />
               </>
             )) }

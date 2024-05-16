@@ -41,7 +41,7 @@ const Modal = ({
           setIsCopied(true)
 
           link.href = url
-          link.download = `${viz.imgName}.png`
+          link.download = `bessi-${viz.imgName}.png`
 
           document.body.appendChild(link)
 
@@ -87,13 +87,19 @@ const Modal = ({
                 style={ { width: '100%',  height: 'auto'  } } 
               />
 
+              {/**
+                * @todo Add user metadata of strengths and things to highlight 
+                * to them to make the image more engaging to others who may view
+                * it.  
+                */}
+              {/* User Metadata section */}
               <div
                 style={{
                   ...definitelyCenteredStyle,
                   flexDirection: 'column'
                 }}
               >
-                <div 
+                {/* <div 
                   style={{
                     margin: '12px 0px 24px 0px'
                   }}
@@ -101,7 +107,7 @@ const Modal = ({
                   <h3>{ `User Metadata` }</h3>
                   <p>{ `Name: ${'name'}` }</p>
                   <p>{ `Strengths: ${'strengths'}` }</p>
-                </div>
+                </div> */}
               </div>
             </div>
 

@@ -2,7 +2,6 @@
 import BessiResultsExplanation from './explanation'
 import BessiWantToLearnMore from './want-to-learn-more'
 import BessiResultsVisualization from './bessi-results-visualization'
-import BessiShareResultsButton from '../../../../../components/Buttons/BESSI/ShareResultsButton'
 import BessiResultsSkillsScoresAndDefinitions from './skills-scores-and-definitions'
 
 
