@@ -6,7 +6,6 @@ import { imgPaths } from '@/utils'
 // CSS
 import appStyles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
-import styles from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization/bess-results-visualization.module.css'
 import modalStyle from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization/modal/modal.module.css'
 
 
@@ -125,7 +124,6 @@ const Modal = ({
                   width={ 18 }
                   height={ 18 }
                   alt='Share icon to share data visualization'
-                  className={ styles.img }
                   src={
                     isCopied
                       ? `${imgPaths().svg}white-checkmark.svg`

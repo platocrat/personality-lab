@@ -7,12 +7,15 @@ import { imgPaths } from '@/utils'
 // CSS
 import appStyles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
-import sectionStyles from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization/bess-results-visualization.module.css'
+import sectionStyles from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization/bessi-results-visualization.module.css'
 
 
 
 type BessiShareResultsProps = {
-  isCopied: boolean
+  state: {
+    isCopied: boolean
+    isRating: boolean
+  }
   onClick: {
     handleTakeScreenshot: (e: any) => void
     handleRateVisualization: (e: any) => void
@@ -25,8 +28,8 @@ const BUTTON_TEXT = `Rate Visualization!`
 
 
 const BessiShareResults: FC<BessiShareResultsProps> = ({
+  state,
   onClick,
-  isCopied,
 }) => {
   return (
     <>
@@ -39,45 +42,64 @@ const BessiShareResults: FC<BessiShareResultsProps> = ({
         } }
       >
         <div style={{ display: 'flex', gap: '4px', marginRight: '12px' }}>
-          <button
-            className={ appStyles.button }
-            onClick={ onClick.handleRateVisualization }
-            style={ {
-              width: '100%',
-              fontSize: '13px',
-              padding: '8px 12px',
-              background: 'rgb(43, 189, 104)',
-              borderColor: 'rgb(43, 189, 104)',
-            } }
-          >
-            <Image
-              width={ 18 }
-              height={ 18 }
-              className={ sectionStyles.img }
-              style={{ transform: 'scaleX(-1)' }}
-              alt='Share icon to share data visualization'
-              src={ `${imgPaths().svg}thumbs-up-icon.svg` }
-            />
-          </button>
-          <button
-            className={ appStyles.button }
-            onClick={ onClick.handleRateVisualization }
-            style={ {
-              width: '100%',
-              fontSize: '13px',
-              padding: '8px 12px',
-              background: 'rgb(231, 76, 60)',
-              borderColor: 'rgb(231, 76, 60)',
-            } }
-          >
-            <Image
-              width={ 18 }
-              height={ 18 }
-              alt='Share icon to share data visualization'
-              className={ sectionStyles.img }
-              src={ `${imgPaths().svg}thumbs-down-icon.svg` }
-            />
-          </button>
+          { state.isRating
+            ? (
+              <>
+                <div className={ sectionStyles.completedRating }>
+                  <Image
+                    width={ 24 }
+                    height={ 24 }
+                    style={{ 
+                      ...definitelyCenteredStyle,
+                      position: 'relative',
+                      top: '3px',
+                    }}
+                    alt='Share icon to share data visualization'
+                    src={ `${imgPaths().svg}white-checkmark.svg` }
+                  />
+                </div>
+              </>
+            ) : (
+              <>
+                <button
+                  className={ appStyles.button }
+                  onClick={ onClick.handleRateVisualization }
+                  style={ {
+                    width: '100%',
+                    fontSize: '13px',
+                    padding: '8px 12px',
+                    background: 'rgb(42, 184, 101)',
+                    borderColor: 'rgb(42, 184, 101)',
+                  } }
+                >
+                  <Image
+                    width={ 18 }
+                    height={ 18 }
+                    style={ { transform: 'scaleX(-1)' } }
+                    alt='Share icon to share data visualization'
+                    src={ `${imgPaths().svg}thumbs-up-icon.svg` }
+                  />
+                </button>
+                <button
+                  className={ appStyles.button }
+                  onClick={ onClick.handleRateVisualization }
+                  style={ {
+                    width: '100%',
+                    fontSize: '13px',
+                    padding: '8px 12px',
+                    background: 'rgb(231, 76, 60)',
+                    borderColor: 'rgb(231, 76, 60)',
+                  } }
+                >
+                  <Image
+                    width={ 18 }
+                    height={ 18 }
+                    alt='Share icon to share data visualization'
+                    src={ `${imgPaths().svg}thumbs-down-icon.svg` }
+                  />
+                </button>
+              </>
+            ) }
         </div>
 
         <div>
@@ -89,7 +111,7 @@ const BessiShareResults: FC<BessiShareResultsProps> = ({
               fontSize: '12.5px',
               padding: '8px 12px',
               margin: '12px 0px 12px 0px',
-              backgroundColor: isCopied ? 'rgb(18, 215, 67)' : ''
+              backgroundColor: state.isCopied ? 'rgb(18, 215, 67)' : ''
             } }
           >
             <Image
@@ -98,7 +120,7 @@ const BessiShareResults: FC<BessiShareResultsProps> = ({
               alt='Share icon to share data visualization'
               className={ sectionStyles.img }
               src={
-                isCopied
+                state.isCopied
                   ? `${imgPaths().svg}white-checkmark.svg`
                   : `${imgPaths().svg}white-share-icon.svg`
               }

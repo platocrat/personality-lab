@@ -14,8 +14,10 @@ import {
 import Image from 'next/image'
 import html2canvas from 'html2canvas'
 // Locals
+// Sections
 import Modal from './modal'
 import TitleDropdown from './title-dropdown'
+import BessiShareResults from './share-results'
 import UserVisualization from './user-visualization'
 // Components
 import Title from '@/components/DataViz/Title'
@@ -42,7 +44,6 @@ import {
 // CSS
 import appStyles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
-import BessiShareResults from './share-results'
 
 
 
@@ -78,6 +79,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   // States
   // Booleans
   const [ isOpen, setIsOpen ] = useState(false)
+  const [ isRating, setIsRating ] = useState(false)
   const [ isCopied, setIsCopied ] = useState(false)
   const [ isModalVisible, setIsModalVisible ] = useState(false)
   // Strings
@@ -194,6 +196,8 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
 
   const handleRateVisualization = (e: any) => {
     const { value } = e.target
+
+    setIsRating(true)
     
     // Submit the user's rating of the visualization to DynamoDB
     // await storeRatingInDynamoDB
@@ -201,9 +205,9 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
 
 
   // ---------------------------------- Hooks ----------------------------------
-  // async function storeRatingInDynamoDB(rating) {
-  
-  // }
+  async function storeRatingInDynamoDB(rating) {
+    
+  }
 
   
   // ---------------------------------- Hooks ----------------------------------
@@ -233,7 +237,10 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
           : (
             <Fragment>
               <BessiShareResults
-                isCopied={ isCopied }
+                state={{
+                  isCopied: isCopied,
+                  isRating: isRating,
+                }}
                 onClick={{
                   handleTakeScreenshot,
                   handleRateVisualization,
