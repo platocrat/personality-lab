@@ -1,10 +1,11 @@
 // Externals
 import { 
+  FC, 
   Dispatch, 
   Fragment,
   useState,
   SetStateAction, 
-  useLayoutEffect, 
+  useLayoutEffect,
 } from 'react'
 // Locals
 import styles from '@/app/page.module.css'
@@ -18,14 +19,18 @@ type QuestionnaireProps = {
   currentQuestionIndex: number
   onChange: (...args: any[]) => void
   setIsEndOfQuestionnaire: Dispatch<SetStateAction<boolean>>
+  controls?: {
+    valueType?: 'string' | 'number'
+  }
 }
 
 
 
 
-const Questionnaire = ({ 
+const Questionnaire: FC<QuestionnaireProps> = ({ 
   choices,
   onChange,
+  controls,
   questions,
   currentQuestionIndex,
   setIsEndOfQuestionnaire,
@@ -89,12 +94,17 @@ const Questionnaire = ({
                   >
                     <input
                       type='radio'
-                      value={ choice }
                       id={ `choice-${ j }` }
                       name={ `question-${i}` }
                       className={ styles.radioButtonInput }
+                      value={ controls?.valueType === 'number' ? j : choice }
                       onChange={ 
-                        (e) => onChange(e, currentQuestionIndex) 
+                        (e) => onChange(
+                          e,  
+                          controls?.valueType === 'number'
+                            ? i
+                            : currentQuestionIndex
+                        ) 
                       }
                       style={{
                         top: '-1px',

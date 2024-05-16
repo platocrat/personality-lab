@@ -29,7 +29,11 @@ const Input = () => {
 
   return (
     <>
-      <TextOrNumberInput name={ name } onChange={ onAgeChange }>
+      <TextOrNumberInput 
+        name={ name } 
+        onChange={ onAgeChange }
+        controls={{ type: 'number' }}
+      >
         { ` years` }
       </TextOrNumberInput>
     </>

@@ -101,18 +101,18 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
   function onWellnessRatingChange(e: any, questionIndex: number) {
     const { value } = e.target
 
-    // Use `itemIndex + 1` because `bessiActivityBank` has no value for 0.
-    const _itemIndex = value + 1
+    // Use `questionIndex + 1` because `bessiActivityBank` has no value for 0.
+    const activityIndex = questionIndex + 1
 
     const _userScore: UserScoresType = {
-      facet: getFacet(_itemIndex),
-      ...getSkillDomainAndWeight(getFacet(_itemIndex)),
-      response: e.target.value
+      facet: getFacet(activityIndex),
+      ...getSkillDomainAndWeight(getFacet(activityIndex)),
+      response: value
     }
 
     setUserScores({
       ...userScores,
-      [`${_itemIndex}`]: _userScore
+      [ `${ activityIndex }` ]: _userScore
     })
 
     // Move to the next question after a short delay
@@ -429,6 +429,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
 
 
 
+
   return (
     <Fragment key={ `bessi-assessment` }>
       <div className={ styles.assessmentWrapper }>
@@ -437,17 +438,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
           onSubmit={ (e: any): Promise<void> => handleSubmit(e) }
         >
           <h2 className={ styles.assessmentTitle }>{ TITLE }</h2>
-          
-          <BessiAssessmentInstructions />
 
-          <Questionnaire
-            questions={ questions }
-            onChange={ onWellnessRatingChange }
-            choices={ wellnessRatingDescriptions }
-            currentQuestionIndex={ currentQuestionIndex }
-            setIsEndOfQuestionnaire={ setIsEndOfQuestionnaire }
-          /> 
-      
           { isLoadingResults ? (
             <>
               <div
@@ -465,12 +456,23 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
             </>
           ) : (
             <>
+              <BessiAssessmentInstructions />
+
+              <Questionnaire
+                questions={ questions }
+                onChange={ onWellnessRatingChange }
+                controls={ { valueType: 'number' } }
+                choices={ wellnessRatingDescriptions }
+                currentQuestionIndex={ currentQuestionIndex }
+                setIsEndOfQuestionnaire={ setIsEndOfQuestionnaire }
+              />
+
               { isEndOfQuestionnaire && (
                 <>
                   <BessiDemographicQuestionnaire />
                   <FormButton buttonText={ BUTTON_TEXT } />
                 </>
-              )}
+              ) }
             </>
           ) }
         </form>
