@@ -29,16 +29,14 @@ import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // Utils
 import { 
   imgPaths,
+  transformData,
   dummyVariables, 
   FacetFactorType, 
+  InputDataStructure,
+  TargetDataStructure,
   BessiSkillScoresType, 
   SkillDomainFactorType,
 } from '@/utils'
-import { 
-  transformData, 
-  InputDataStructure, 
-  TargetDataStructure 
-} from '@/components/DataViz/BarChart/GroupedBarChart'
 // CSS
 import appStyles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'

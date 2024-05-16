@@ -7,45 +7,14 @@ import {
   FacetFactorType,
   findFacetByScore,
   skillDomainMapping,
+  TargetDataStructure,
   domainToFacetMapping,
   SkillDomainFactorType,
   getSkillDomainAndWeight,
 } from '@/utils'
-import { TargetDataStructure, transformData } from '../GroupedBarChart'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 
-
-
-type FacetDomainDataType = { name: string, score: number }
-
-
-// export type InputDataStructure = {
-//   domainScores: { [key: string]: number }
-//   facetScores: { [key: string]: number }
-// }
-
-
-// /**
-//  * @dev # Explanation of Data Structure 
-//  * The target data structure can be interpreted as follows:
-//  * ```ts
-//  * type TargetDataStructure = {
-//  *      domains: {
-//  *        name: string, // The title for each bar chart of the total set of 5
-//  *        score: number // Denotes the color to color each set of bars for a domain's bar chart
-//  *      }
-//  *      facets: {
-//  *        name: string, // The X-axis label for the individual bars for a given domain
-//  *        score: number // The height or value of a bar
-//  *       }
-//  * }
-//  * ```
-//  */
-// export type TargetDataStructure = {
-//   domains: FacetDomainDataType[]
-//   facets: FacetDomainDataType[] 
-// }
 
 
 type BarChartPerDomainType = {
@@ -58,51 +27,6 @@ type BarChartPerDomainType = {
     value: number
   }
 }
-
-
-
-
-
-// function getDomains(
-//   data: InputDataStructure
-// ): FacetDomainDataType[] {
-//   const domains: FacetDomainDataType[] = Object.keys(
-//     data.domainScores
-//   ).map(
-//     (domainName: string): FacetDomainDataType => ({
-//       name: domainName,
-//       score: data.domainScores[domainName]
-//     })
-//   )
-
-//   return domains
-// }
-
-
-// function getFacets(
-//   data: InputDataStructure
-// ): FacetDomainDataType[] {
-//   const facets: FacetDomainDataType[] = Object.keys(
-//     data.facetScores
-//   ).map(
-//     (facetName: string): FacetDomainDataType => ({
-//       name: facetName,
-//       score: data.facetScores[facetName]
-//     })
-//   )
-
-//   return facets
-// }
-
-
-// function transform(inputData: InputDataStructure): TargetDataStructure {
-//   const facets = getFacets(inputData)
-//   const domains = getDomains(inputData)
-//   return { domains, facets }
-// }
-
-
-
 
 
 
@@ -125,7 +49,7 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
     const width = svgWidth - margin.left - margin.right
     const height = svgHeight - margin.top - margin.bottom
 
-    console.log(`data: `, data)
+    console.log(`[BarChartPerDomain: useEffect()] data: `, data)
 
 
     const svg = d3.select(d3Container.current)

@@ -60,3 +60,29 @@ export function generateHighContrastColors(count: number): string[] {
   return colors
 }
 
+
+
+export function transformData(
+  inputData: InputDataStructure
+): TargetDataStructure[] {
+  console.log(`[transformData()] inputData: `, inputData)
+
+
+  return Object.keys(inputData.domainScores).map(domainName => {
+    const facets: FacetDataType[] = domainToFacetMapping[domainName].map(
+      (facetName: string): FacetDataType => ({
+        name: facetName,
+        score: inputData.facetScores[facetName] || 0,
+      })
+    )
+
+    return {
+      // Use the conversion function here
+      // name: convertToAbbreviation(domainName),
+      name: domainName,
+      domainScore: inputData.domainScores[domainName],
+      facets,
+      facetScores: facets.map((facet: FacetDataType): number => facet.score)
+    }
+  })
+}

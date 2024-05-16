@@ -107,7 +107,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
     const _userScore: UserScoresType = {
       facet: getFacet(activityIndex),
       ...getSkillDomainAndWeight(getFacet(activityIndex)),
-      response: value
+      response: parseInt(value)
     }
 
     setUserScores({
