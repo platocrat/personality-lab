@@ -28,6 +28,8 @@ export async function POST(
 
     const JWT_SECRET = await fetchAwsParameter(AWS_PARAMETER_NAMES.JWT_SECRET)
 
+    const TableName = DYNAMODB_TABLE_NAMES[assessmentName].userResultAccessTokens
+
     /**
      * @todo 1. Encrypt the access token before it is stored to DynamoDB
      *       2. Make sure to decrypt the access token whenever it is retrieved.
@@ -42,7 +44,7 @@ export async function POST(
 
       // Write to table of `id` and `accessToken` in DynamoDB
       const putCommandInput: PutCommandInput = {
-        TableName: DYNAMODB_TABLE_NAMES[assessmentName].userResultAccessTokens,
+        TableName,
         Item: {
           id: userResultsId,
           accessToken: accessToken,
@@ -113,12 +115,12 @@ export async function GET(
   if (req.method === 'GET') {
     const { assessmentName, id } = await req.json()
 
-    const input: GetCommandInput = {
-      TableName: DYNAMODB_TABLE_NAMES[assessmentName].userResultAccessTokens,
-      Key: { id: id },
-    }
+    const TableName = DYNAMODB_TABLE_NAMES[assessmentName].userResultAccessTokens
+    const Key = { id: id }
 
+    const input: GetCommandInput = { TableName, Key }
     const command = new GetCommand(input)
+
 
     try {
       const response = await ddbDocClient.send(command)

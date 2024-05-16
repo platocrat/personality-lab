@@ -1,8 +1,10 @@
 // Utility functions
-import { getFacet, getSkillDomainAndWeight } from '..'
-import { BessiActivityType } from '../types'
-// Enums
+import { getFacet, getSkillDomainAndWeight } from '../utils'
+// Types
 import { Facet, SkillDomain } from '../enums'
+// Enums
+import { BessiActivityType } from '../types'
+
 
 // Invalid characters for strings
 export const INVALID_CHARS_FOR_NUMBERS = ['-', '+', 'e', '.']

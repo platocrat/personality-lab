@@ -27,7 +27,10 @@ export default function Home() {
   return (
     <>
       <main className={ `${styles.main} ` }>
-        { _isAuthenticated ? <PersonalityAssessments /> : <LogInOrCreateAnAccount /> }
+        { _isAuthenticated 
+          ? <PersonalityAssessments /> 
+          : <LogInOrCreateAnAccount /> 
+        }
       </main>
     </>
   )

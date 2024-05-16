@@ -49,8 +49,6 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
     const width = svgWidth - margin.left - margin.right
     const height = svgHeight - margin.top - margin.bottom
 
-    console.log(`[BarChartPerDomain: useEffect()] data: `, data)
-
 
     const svg = d3.select(d3Container.current)
       .append('svg')

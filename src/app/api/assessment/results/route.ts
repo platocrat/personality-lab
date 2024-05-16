@@ -38,19 +38,19 @@ export async function POST(
 
     const userResultsId = await getUserResultsId(userResults)
 
-    const input: PutCommandInput = {
-      TableName: DYNAMODB_TABLE_NAMES[assessmentName].results,
-      Item: {
-        id: userResultsId,
-        email: userResults.email,
-        timestamp: userResults.timestamp,
-        facetScores: userResults.facetScores,
-        domainScores: userResults.domainScores,
-        demographics: userResults.demographics,
-      },
+    const TableName = DYNAMODB_TABLE_NAMES[assessmentName].results
+    const Item = {
+      id: userResultsId,
+      email: userResults.email,
+      timestamp: userResults.timestamp,
+      facetScores: userResults.facetScores,
+      domainScores: userResults.domainScores,
+      demographics: userResults.demographics,
     }
 
+    const input: PutCommandInput = { TableName, Item }
     const command = new PutCommand(input)
+
 
     try {
       const response = await ddbDocClient.send(command)

@@ -17,15 +17,18 @@ export async function POST(
   if (req.method === 'POST') {
     const { email } = await req.json()
 
+    const TableName = DYNAMODB_TABLE_NAMES.accounts
+    const KeyConditionExpression = 'email = :emailValue'
+    const ExpressionAttributeValues = { ':emailValue': email }
+
     const input: QueryCommandInput = {
-      TableName: DYNAMODB_TABLE_NAMES.accounts,
-      KeyConditionExpression: 'email = :emailValue',
-      ExpressionAttributeValues: {
-        ':emailValue': email,
-      }
+      TableName,
+      KeyConditionExpression,
+      ExpressionAttributeValues,
     }
 
     const command = new QueryCommand(input)
+
 
     try {
       const response = await ddbDocClient.send(command)

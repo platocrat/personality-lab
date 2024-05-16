@@ -313,6 +313,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
   async function getUserEmailFromCookie() {
     type CookieType = { email: string,  username: string, password: string }
     
+
     try {
       const response = await fetch('/api/assessment/aws-parameter', {
         method: 'POST',

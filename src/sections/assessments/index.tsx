@@ -11,6 +11,7 @@ import GenderAndCreativityUsDescription from './gender-and-creativity-us/descrip
 import BessiResultsVisualization from './bessi/assessment/results/bessi-results-visualization'
 // Utils
 import { 
+  bessiActivityBank,
   dummyVariables,
   SkillDomainFactorType 
 } from '@/utils'

@@ -40,17 +40,14 @@ export async function verfiyAccessTokenAndFetchUserResults(
     //    `DYNAMODB_TABLE_NAMES[assessmentName].results` table.
     verify(accessToken, JWT_SECRET)
 
-    const input: GetCommandInput = {
-      TableName: DYNAMODB_TABLE_NAMES[assessmentName].userResultAccessTokens,
-      Key: {
-        id: id,
-        accessToken: accessToken
-      },
-    }
+    const TableName = DYNAMODB_TABLE_NAMES[assessmentName].userResultAccessTokens
+    const Key = { id: id, accessToken: accessToken }
 
+    const input: GetCommandInput = { TableName, Key}
     const command = new GetCommand(input)
 
     // console.log(`GetCommand to fetch the userResultsId that is mapped to the accessToken: `, command)
+
 
     // 4. Try to fetch `userResults` from DynamoDB table
     return await fetchUserResultsIdAndUserResults(assessmentName, command)
@@ -153,15 +150,18 @@ export async function fetchUserResults(
 ) {
   // 8. Build `QueryCommand` to fetch the `userResults` from the `BESSI-results` 
   //    table
+  const TableName = DYNAMODB_TABLE_NAMES[assessmentName].results
+  const KeyConditionExpression = 'id = :idValue'
+  const ExpressionAttributeValues = { ':idValue': userResultsId }
+
   const input: QueryCommandInput = {
-    TableName: DYNAMODB_TABLE_NAMES[assessmentName].results,
-    KeyConditionExpression: 'id = :idValue',
-    ExpressionAttributeValues: {
-      ':idValue': userResultsId,
-    }
+    TableName,
+    KeyConditionExpression,
+    ExpressionAttributeValues,
   }
 
   const command = new QueryCommand(input)
+
 
   try {
     const response = await ddbDocClient.send(command)

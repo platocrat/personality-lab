@@ -34,16 +34,19 @@ export async function POST(
   if (req.method === 'POST') {
     const { email, username, password } = await req.json()
 
-    let input: QueryCommandInput | PutCommandInput | GetParameterCommandInput = {
-      TableName: DYNAMODB_TABLE_NAMES.accounts,
-      IndexName: 'UsernameIndex',
-      KeyConditionExpression: 'username = :usernameValue',
-      ExpressionAttributeValues: {
-        ':usernameValue': username,
-      }
-    }
+    const IndexName = 'username-index'
+    const TableName = DYNAMODB_TABLE_NAMES.accounts
+    const KeyConditionExpression = 'username = :usernameValue'
+    const ExpressionAttributeValues = { ':usernameValue': username }
 
-    let command: QueryCommand | PutCommand | GetParameterCommand = new QueryCommand(input)
+
+    let input: QueryCommandInput | PutCommandInput | GetParameterCommandInput = {
+      TableName,
+      IndexName,
+      KeyConditionExpression,
+      ExpressionAttributeValues
+    },
+      command: QueryCommand | PutCommand | GetParameterCommand = new QueryCommand(input)
 
     /**
      * @dev 1. Check if the username is already in the database
@@ -74,7 +77,7 @@ export async function POST(
     const timestamp = new Date().getTime()
 
     input = {
-      TableName: DYNAMODB_TABLE_NAMES.accounts,
+      TableName,
       Item: { 
         email: email,
         username: username, 
