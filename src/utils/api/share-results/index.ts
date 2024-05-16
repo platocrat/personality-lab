@@ -35,12 +35,12 @@ export async function verfiyAccessTokenAndFetchUserResults(
   try {
     // 3. If verification of `accessToken` using JWT secret is successful,
     //    create DynamoDB `GetCommand` to fetch `id` from
-    //    `DYNAMODB_TABLE_NAMES[assessmentName].userResultAccessTokens`
+    //    `DYNAMODB_TABLE_NAMES[assessmentName].userResultsAccessTokens`
     //    which will be used later to fetch the `userResults` from the
     //    `DYNAMODB_TABLE_NAMES[assessmentName].results` table.
     verify(accessToken, JWT_SECRET)
 
-    const TableName = DYNAMODB_TABLE_NAMES[assessmentName].userResultAccessTokens
+    const TableName = DYNAMODB_TABLE_NAMES[assessmentName].userResultsAccessTokens
     const Key = { id: id, accessToken: accessToken }
 
     const input: GetCommandInput = { TableName, Key}
@@ -100,7 +100,7 @@ export async function fetchUserResultsIdAndUserResults(
     // 5. Throw an error if the results are not in the table
     if (!response.Item) {
       const message = `No access token found in ${
-        DYNAMODB_TABLE_NAMES[assessmentName].userResultAccessTokens
+        DYNAMODB_TABLE_NAMES[assessmentName].userResultsAccessTokens
       } table`
 
       return NextResponse.json(

@@ -1,9 +1,9 @@
 import { definitelyCenteredStyle } from '@/theme/styles'
 
 
-export const GENDER_AND_CREATIVITY_US_HREF = `/gender-and-creativity-us`
-export const GENDER_AND_CREATIVITY_US_ASSESSMENT_HREF = `${
-  GENDER_AND_CREATIVITY_US_HREF
+export const GENDER_AND_CREATIVITY_US_PATH = `gender-and-creativity-us`
+export const GENDER_AND_CREATIVITY_US_ASSESSMENT_HREF = `/${
+  GENDER_AND_CREATIVITY_US_PATH
 }/assessment`
 
 
@@ -27,7 +27,7 @@ export const GENDER_AND_CREATIVITY_US_FORM_IDS = [
 export const GENDER_AND_CREATIVITY_US_FRAGMENT_ID_PREFACES = (
   fragmentName: string
 ): string => {
-  const MAIN = GENDER_AND_CREATIVITY_US_HREF
+  const MAIN = GENDER_AND_CREATIVITY_US_PATH
   const CREATIVITY_AND_ACHIEVEMENTS = 'creativity-and-achievements'
 
   switch (fragmentName) {

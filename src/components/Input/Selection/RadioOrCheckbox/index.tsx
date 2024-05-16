@@ -1,6 +1,7 @@
 // Externals
 import { 
   FC, 
+  // useRef,
   Fragment, 
   ReactNode, 
   Dispatch, 
@@ -8,6 +9,8 @@ import {
   SetStateAction,
 } from 'react'
 // Locals
+import useEnterKeyClick from '@/app/hooks/useEnterKeyClick'
+// Types
 import { InputLabelType } from '../types'
 // CSS
 import styles from '@/app/page.module.css'
@@ -43,6 +46,9 @@ const RadioOrCheckboxInput: FC<RadioOrCheckboxInputProps> = ({
   itemIndex,
   inputLabels,
 }) => {
+  // // Refs
+  // const checkboxRef = useRef(null)
+
   const isInputLengthLong = inputLabels.length > 3
 
   const labelDisplay = isInputLengthLong ? 'flex' : 'block'
@@ -52,6 +58,7 @@ const RadioOrCheckboxInput: FC<RadioOrCheckboxInputProps> = ({
       ? 'block' 
       : 'flex'
     : ''
+
 
   function fragmentKey(inputLabel: InputLabelType, i: number): string {
     return `bubble-radio-input-id-${inputLabel.id}-${inputLabel.name}-${i}` 
@@ -66,6 +73,11 @@ const RadioOrCheckboxInput: FC<RadioOrCheckboxInputProps> = ({
     const suffix = `-itemIndex${itemIndex}-index${i}` 
     return prefix + suffix
   }
+
+  
+  // // Hooks
+  // useEnterKeyClick(checkboxRef)
+  
 
 
   return (
@@ -115,6 +127,7 @@ const RadioOrCheckboxInput: FC<RadioOrCheckboxInputProps> = ({
                     <input
                       value={ i }
                       name={ inputName }
+                      // ref={ checkboxRef }
                       type={ options?.type ?? 'radio' }
                       className={ styles.radioButtonInput }
                       id={ inputId(inputLabel, itemIndex ?? 0, i) }

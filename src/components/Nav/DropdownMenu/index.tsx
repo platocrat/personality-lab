@@ -1,8 +1,18 @@
 // Externals
 import Link from 'next/link'
 import Image from 'next/image'
-import { FC, Fragment, ReactNode, useEffect, useRef, useState } from 'react'
+import { 
+  FC, 
+  useRef, 
+  useState,
+  Fragment, 
+  ReactNode, 
+  useEffect, 
+} from 'react'
 // Locals
+// Hooks
+import useClickOutside from '@/app/hooks/useClickOutside'
+// Utils
 import { imgPaths } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -30,26 +40,11 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
   const dropdownRef = useRef<any>(null)
   const [isVisible, setIsVisible] = useState<boolean>(false)
 
-
   const toggleDropdown = () => setIsVisible(!isVisible)
 
-  const handleClickOutside = (e: any) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-      setIsVisible(false)
-    }
-  }
-
-  useEffect(() => {
-    // Only add the event listener when the dropdown is visible
-    if (isVisible) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-
-    // Cleanup the event listener
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [isVisible]) // Depend on isVisible so the effect runs when it changes
+  useClickOutside(dropdownRef, () => {
+    setIsVisible(false)
+  })
 
 
   return (

@@ -9,7 +9,7 @@ import CreativityAndAchievementsForm from '@/components/Forms/GenderAndCreativit
 // Utils
 import { 
   getInputLabels,
-  GENDER_AND_CREATIVITY_US_HREF,
+  GENDER_AND_CREATIVITY_US_PATH,
   GENDER_AND_CREATIVITY_US_ACTIVITY_BANK, 
   GENDER_AND_CREATIVITY_US_ASSESSMENT_HREF, 
   GENDER_AND_CREATIVITY_US_ACTIVITY_BANK_LEGEND,
@@ -20,7 +20,7 @@ import styles from '@/app/page.module.css'
 
 
 
-const href = `${GENDER_AND_CREATIVITY_US_HREF}/submit-results`
+const href = `/${GENDER_AND_CREATIVITY_US_PATH}/submit-results`
 
 const BUTTON_TEXT = `Next`
 const PAGE_FRAGMENT_ID = `task enjoyment`
