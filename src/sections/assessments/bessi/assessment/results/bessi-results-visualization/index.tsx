@@ -3,15 +3,13 @@
 // Externals
 import { 
   FC, 
-  useRef,
-  useMemo,
+  useRef, 
   Fragment, 
   Dispatch, 
-  useState,
+  useState, 
   useEffect,
   useContext, 
-  SetStateAction,
-  MutableRefObject,
+  SetStateAction, 
 } from 'react'
 import Image from 'next/image'
 import html2canvas from 'html2canvas'
@@ -22,27 +20,24 @@ import UserVisualization from './user-visualization'
 // Components
 import Title from '@/components/DataViz/Title'
 import TreeMap from '@/components/DataViz/TreeMap'
-import Spinner from '@/components/Suspense/Spinner'
 import StellarPlot from '@/components/DataViz/StellarPlot'
 import BessiRateUserResults from '@/components/Forms/BESSI/RateUserResults'
 import BarChartPerDomain from '@/components/DataViz/BarChart/BarChartPerDomain'
-import BessiShareResultsButton from '@/components/Buttons/BESSI/ShareResultsButton'
 import PersonalityVisualization from '@/components/DataViz/PersonalityVisualization'
 // Contexts
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // Utils
 import { 
   imgPaths,
-  SkillDomain,
   dummyVariables, 
   FacetFactorType, 
   BessiSkillScoresType, 
-  SkillDomainFactorType 
+  SkillDomainFactorType,
 } from '@/utils'
-import {
-  transformData,
-  InputDataStructure,
-  TargetDataStructure,
+import { 
+  transformData, 
+  InputDataStructure, 
+  TargetDataStructure 
 } from '@/components/DataViz/BarChart/GroupedBarChart'
 // CSS
 import appStyles from '@/app/page.module.css'

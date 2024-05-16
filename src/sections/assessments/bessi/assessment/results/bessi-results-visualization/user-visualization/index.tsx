@@ -41,7 +41,7 @@ const UserVisualization: FC<UserVisualizationType> = ({
         ) : (
           <>
             <div style={ { ...definitelyCenteredStyle, margin: '24px' } }>
-              <Spinner height='72' width='72' />
+              <Spinner height='48' width='48' />
             </div>
           </>
         )
