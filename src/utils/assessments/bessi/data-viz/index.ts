@@ -1,9 +1,9 @@
 // Locals
 import { 
   FacetDataType, 
-  InputDataStructure, 
+  InputDataStructure,
   TargetDataStructure, 
-} from '@/components/DataViz/BarChart/GroupedBarChart'
+} from './types'
 import { domainToFacetMapping } from '../constants'
 
 
