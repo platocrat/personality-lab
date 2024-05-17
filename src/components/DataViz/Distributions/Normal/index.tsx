@@ -116,7 +116,7 @@ const NormalDistributionChart: FC<NormalDistributionChartProps> = ({
     svg.append('path')
       .datum(areaData)
       .attr('fill', 'lightblue')
-      .attr('opacity', 0.15)  // Adjust opacity as needed
+      .attr('opacity', 0.20)  // Adjust opacity as needed
       .attr('d', area)
 
     // Add vertical line for data point
