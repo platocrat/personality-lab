@@ -58,7 +58,7 @@ const NormalDistributionChart: FC<NormalDistributionChartProps> = ({
       .range([0, width])
 
     const y = d3.scaleLinear()
-      .domain([0, d3.max(data, (d: any) => d.y)])
+      .domain([0, d3.max(data, (d: any) => d.y)] as any)
       .range([height, 0])
 
     const line = d3.line()
