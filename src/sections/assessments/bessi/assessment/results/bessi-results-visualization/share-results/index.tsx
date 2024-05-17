@@ -81,7 +81,11 @@ const BessiShareResults: FC<BessiShareResultsProps> = ({
                   <Image
                     width={ 18 }
                     height={ 18 }
-                    style={ { transform: 'scaleX(-1)' } }
+                    style={ { 
+                      top: '-1.5px',
+                      position: 'relative',
+                      transform: 'scaleX(-1)',
+                    } }
                     alt='Share icon to share data visualization'
                     src={ `${imgPaths().svg}thumbs-up-icon.svg` }
                     />
