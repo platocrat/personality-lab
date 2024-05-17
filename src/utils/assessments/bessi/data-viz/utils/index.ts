@@ -85,3 +85,75 @@ export function transformData(
     }
   })
 }
+
+
+
+export function generateAreaUnderCurve(
+  d3,
+  mean: number,
+  stddev: number
+) {
+  const xValues = d3.range(
+    mean - 3 * stddev,
+    mean + 3 * stddev,
+    stddev / 50
+  )
+
+  const yValues = xValues.map(
+    x => (
+      1 / (
+        stddev * Math.sqrt(2 * Math.PI)
+      )
+    ) * Math.exp(
+      -0.5 * (
+        (x - mean) / stddev
+      ) ** 2
+    )
+  )
+
+  return xValues.map((
+    x: number,
+    i: number
+  ): { x: number, y: number } => (
+    {
+      x,
+      y: yValues[i]
+    }
+  ))
+}
+
+
+
+// Function to generate the normal distribution curve
+export function generateNormalDistributionCurve(
+  d3,
+  mean: number,
+  stddev: number
+)  {
+  const xValues = d3.range(
+    mean - 3 * stddev,
+    mean + 3 * stddev, stddev / 50
+  )
+
+  const yValues = xValues.map(
+    x => (
+      1 / (
+        stddev * Math.sqrt(2 * Math.PI)
+      )
+    ) * Math.exp(
+      -0.5 * (
+        (x - mean) / stddev
+      ) ** 2
+    )
+  )
+
+  return xValues.map((
+    x: number,
+    i: number
+  ): { x: number, y: number } => (
+    {
+      x,
+      y: yValues[i]
+    }
+  ))
+}

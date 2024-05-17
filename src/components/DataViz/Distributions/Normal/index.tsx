@@ -3,6 +3,10 @@ import * as d3 from 'd3'
 import { FC, useEffect, useRef } from 'react'
 // Locals
 import '@/components/DataViz/Distributions/Normal/NormalDistribution.css'
+import { 
+  generateAreaUnderCurve, 
+  generateNormalDistributionCurve,
+} from '@/utils'
 
 
 
@@ -21,43 +25,12 @@ const NormalDistributionChart: FC<NormalDistributionChartProps> = ({
 }) => {
   const svgRef = useRef<any>()
 
-  // Function to generate the normal distribution curve
-  const generateNormalDistributionCurve = (
-    mean: number, 
-    stddev: number
-  ) => {
-    const xValues = d3.range(
-      mean - 3 * stddev, 
-      mean + 3 * stddev, stddev / 50
-    )
-    
-    const yValues = xValues.map(
-      x => (
-        1 / (
-          stddev * Math.sqrt(2 * Math.PI)
-        )
-      ) * Math.exp(
-          -0.5 * (
-            (x - mean) / stddev
-          ) ** 2
-      )
-    )
-
-    return xValues.map((
-      x: number, 
-      i: number
-    ): {  x: number, y: number } => (
-      { 
-        x, 
-        y: yValues[i] 
-      }
-    ))
-  }
-
 
 
   useEffect(() => {
-    const data = generateNormalDistributionCurve(mean, stddev)
+    const areaData = generateAreaUnderCurve(d3, mean, stddev)
+    const data = generateNormalDistributionCurve(d3, mean, stddev)
+
     const points = [
       { x: mean - 3 * stddev, label: 'μ - 3σ' },
       { x: mean - 2.5 * stddev, label: 'μ - 2.5σ' },
@@ -105,7 +78,7 @@ const NormalDistributionChart: FC<NormalDistributionChartProps> = ({
       .datum(data)
       .attr('fill', 'none')
       .attr('stroke', 'steelblue')
-      .attr('stroke-width', 1.5)
+      .attr('stroke-width', 2)
       .attr('d', line)
 
     // Add x-axis
@@ -134,6 +107,18 @@ const NormalDistributionChart: FC<NormalDistributionChartProps> = ({
       .call(d3.axisLeft(y))
       .style('font-size', '13px')
 
+    const area = d3.area()
+      .x((d: any) => x(d.x))
+      .y0(height)
+      .y1((d: any) => y(d.y))
+      .curve(d3.curveBasis)
+
+    svg.append('path')
+      .datum(areaData)
+      .attr('fill', 'lightblue')
+      .attr('opacity', 0.15)  // Adjust opacity as needed
+      .attr('d', area)
+
     // Add vertical line for data point
     svg.append('line')
       .attr('x1', x(score))
@@ -146,7 +131,7 @@ const NormalDistributionChart: FC<NormalDistributionChartProps> = ({
 
     // Add text label for data point
     svg.append('text')
-      .attr('x', x(score))
+      .attr('x', x(score) - 1.75)
       .attr('y', -5)
       .attr('fill', 'red')
       .attr('text-anchor', 'middle')
@@ -172,7 +157,7 @@ const NormalDistributionChart: FC<NormalDistributionChartProps> = ({
       .attr('cy', d => y((1 / (stddev * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * ((d.x - mean) / stddev) ** 2)))
       .attr('r', 5)
       .attr('fill', 'lightblue')
-      .attr('stroke', 'blue')  // Add border color
+      .attr('stroke', 'steelblue')  // Add border color
       .attr('stroke-width', 1)  // Add border width
       .on('mouseover', (event, d) => {
         const yValue = (
@@ -206,7 +191,7 @@ const NormalDistributionChart: FC<NormalDistributionChartProps> = ({
           .transition()
           .duration(100)
           .attr('r', 8)  // Increase the radius
-          .attr('stroke', 'blue')  // Add border color
+          .attr('stroke', 'steelblue')  // Add border color
           .attr('stroke-width', 2.5)  // Add border width
       })
       .on('mousemove', event => {
@@ -216,14 +201,13 @@ const NormalDistributionChart: FC<NormalDistributionChartProps> = ({
         tooltip.style('visibility', 'hidden')
           .classed('visible', false)
 
-
         // Remove the highlight
         d3.select(event.target)
           .transition()
           .duration(100)
           .attr('r', 5)
           .attr('fill', 'lightblue')
-          .attr('stroke', 'blue')  // Add border color
+          .attr('stroke', 'steelblue')  // Add border color
           .attr('stroke-width', 1)  // Add border width
       })
       
