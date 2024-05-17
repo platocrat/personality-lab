@@ -135,7 +135,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
       // 1. Trigger suspense
       setIsLoadingResults(true)
       
-      console.log(`userScores: `, userScores)
+      // console.log(`userScores: `, userScores)
 
       // 2. Calculate domain and facet scores
       let finalScores: {
@@ -145,7 +145,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
         domainScores: SkillDomainFactorType
       } = calculateBessiScores(Object.values(userScores))
 
-      console.log('finalScores: ', finalScores)
+      // console.log('finalScores: ', finalScores)
 
       // 3. Store `userResults` in DynamoDB and generate its respective ID
       const userResultsId = await storeResultsInDynamoDB(finalScores)
@@ -163,16 +163,15 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
 
       // 5. Store final scores in React state
       setBessiSkillScores(finalScores)
-      
       // 6.  Navigate to the results page
       const href = `/${ ASSESSMENT_NAME }/assessment/results`
-      
-      // 7. End suspense
-      setIsLoadingResults(false)
-      
-      // 8. Use router to route the user the results page
+      // 7. Use router to route the user the results page
       router.push(href)
-      
+      // 8. End suspense after 1 second delay
+      setTimeout(() => {
+        setIsLoadingResults(false)
+      }, 1_000)
+
       /**
        * @dev Refactor `sendEmail()` function to use SendGrid instead of
        * Postmark. Reach out to Dr. Roberts to get the API key necessary for

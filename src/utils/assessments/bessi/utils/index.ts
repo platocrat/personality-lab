@@ -177,13 +177,13 @@ export function calculateBessiScores(scores: UserScoresType[]): {
   // Convert facet scores to percentage out of 100
   for (const facet in facetScores) {
     const maxScore = 5 * facetCounts[facet]
-    facetScores[facet] = (facetScores[facet] / maxScore) * 100
+    facetScores[facet] = Math.round((facetScores[facet] / maxScore) * 100)
   }
 
   // Convert domain scores to percentage out of 100
   for (const domain in domainScores) {
     const maxScore = 5 * domainWeights[domain]
-    domainScores[domain] = (domainScores[domain] / maxScore) * 100
+    domainScores[domain] = Math.round((domainScores[domain] / maxScore) * 100)
   }
 
   return { facetScores, domainScores }

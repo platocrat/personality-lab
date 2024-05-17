@@ -9,7 +9,6 @@ import {
   ddbDocClient,
   getUserVizRatingId,
   DYNAMODB_TABLE_NAMES,
-  handleDynamoDBPutResultsOrRating,
 } from '@/utils'
 
 
@@ -46,11 +45,36 @@ export async function POST(
     } table`
 
 
-    await handleDynamoDBPutResultsOrRating(
-      userVizRating,
-      command,
-      successMessage
-    )
+    try {
+      const response = await ddbDocClient.send(command)
+
+      const message = successMessage || 'Operation successful'
+
+
+      return NextResponse.json(
+        {
+          message: message,
+          data: userVizRatingId,
+        },
+        {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+    } catch (error: any) {
+      // Something went wrong
+      return NextResponse.json(
+        { error: error },
+        {
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+    }
   } else {
     return NextResponse.json(
       { error: 'Method Not Allowed' },
