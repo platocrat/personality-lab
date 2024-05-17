@@ -41,6 +41,7 @@ import {
 } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
+import NormalDistributionChart from '@/components/DataViz/Distributions/Normal'
 
 
 
@@ -86,10 +87,11 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
 
   
   const visualizations = [
-    { id: 0, name: 'Stellar Plot', imgName: 'stellar-plot' },
-    { id: 1, name: 'Bar Graph', imgName: 'bar-graph ' },
-    { id: 2, name: 'Tree Map', imgName: 'tree-map' },
-    { id: 3, name: 'Personality Visualization', imgName: 'personality-visualization' },
+    { name: 'Stellar Plot', imgName: 'stellar-plot' },
+    { name: 'Bar Graph', imgName: 'bar-graph ' },
+    { name: 'Tree Map', imgName: 'tree-map' },
+    { name: 'Personality Visualization', imgName: 'personality-visualization' },
+    { name: 'Normal Distribution', imgName: 'normal-distribution' },
   ]
   
   
@@ -117,6 +119,14 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
           )
       case 2:
       case 3:
+        return bessiSkillScores?.domainScores
+          ? {
+            facetScores: bessiSkillScores?.facetScores,
+            domainScores: bessiSkillScores?.domainScores,
+            averages: dummyVariables.pv.averages,
+          }
+          : dummyVariables.pv.data
+      case 4:
         return bessiSkillScores?.domainScores
           ? {
             facetScores: bessiSkillScores?.facetScores,
@@ -162,6 +172,14 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
             isExample={ isExample }
             data={ data_(i) }
             averages={ dummyVariables.pv.averages }
+          />
+        )
+      case 4:
+        return (
+          <NormalDistributionChart
+            mean={ 4 }
+            stddev={ 1 }
+            score={ 2.33 }
           />
         )
       default:

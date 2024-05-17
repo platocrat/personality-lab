@@ -1,6 +1,6 @@
 // Externals
 import Image from 'next/image'
-import { Fragment, useRef, useState } from 'react'
+import { Dispatch, FC, Fragment, SetStateAction, useRef, useState } from 'react'
 // Locals
 // Hooks
 import useClickOutside from '@/app/hooks/useClickOutside'
@@ -12,12 +12,24 @@ import styles from '@/sections/assessments/bessi/assessment/results/bessi-result
 
 
 
+
+type TitleDropdownProps = {
+  currentVisualization: number
+  setCurrentVisualization: Dispatch<SetStateAction<number>>
+  visualizations: {
+    name: string
+    imgName: string
+  }[]
+}
+
+
+
 const liStyle = { padding: '8px 20px', cursor: 'pointer' }
 
 
 
 
-const TitleDropdown = ({
+const TitleDropdown: FC<TitleDropdownProps> = ({
   visualizations,
   currentVisualization,
   setCurrentVisualization,
@@ -82,7 +94,7 @@ const TitleDropdown = ({
                 <li
                   style={ liStyle }
                   className={ styles.dropdownItem }
-                  onClick={ () => handleSelection(viz.id) }
+                  onClick={ () => handleSelection(i) }
                 >
                   { viz.name }
                 </li>
