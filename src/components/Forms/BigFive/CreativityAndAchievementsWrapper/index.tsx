@@ -87,7 +87,7 @@ const CreativityAndAchievementsFormWrapper: FC<CreativityAndAchievementsFormWrap
     } else {
       setEngagementLevelResponses({
         ...engagementLevelResponses,
-        [name]: value
+        [name]: checked
       })
     }
   }
