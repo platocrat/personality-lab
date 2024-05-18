@@ -168,7 +168,7 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
             } }
           >
             <Spinner height='40' width='40' />
-          </div>  
+          </div>
         </>
       ) : (
         <>

@@ -1,10 +1,12 @@
 // Externals
 import Link from 'next/link'
-import { CSSProperties, FC, ReactNode } from 'react'
+import { CSSProperties, FC, ReactNode, useState } from 'react'
 // Locals
+import Spinner from '../Suspense/Spinner'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+
 
 
 type CardProps = {
@@ -22,6 +24,7 @@ type CardProps = {
 }
 
 
+
 const Card: FC<CardProps> = ({
   href,
   title,
@@ -30,6 +33,15 @@ const Card: FC<CardProps> = ({
   buttonText,
   description,
 }) => {
+  const [ isLoading, setIsLoading ] = useState(false)
+
+
+  function handleOnClick(e: any) {
+    setIsLoading(true)
+  }
+
+
+
   return (
     <>
       <div 
@@ -65,22 +77,40 @@ const Card: FC<CardProps> = ({
               ? options?.formContent 
               : typeof href === 'string' && (
               <>
-                <div 
-                  style={{ 
-                    ...definitelyCenteredStyle,
-                    position: 'relative',
-                    marginBottom: '8px'
-                  }}
-                >
-                  <Link href={ href }>
-                    <button 
-                      className={ styles.button }
-                      style={{ width: '70px' }}
-                    >
-                      { buttonText }
-                    </button>
-                  </Link>
-                </div>
+                { isLoading
+                  ? (
+                    <>
+                      <div
+                        style={ {
+                          ...definitelyCenteredStyle,
+                          position: 'relative',
+                          marginBottom: '12px',
+                        } }
+                      >
+                        <Spinner height='30' width='30' />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div 
+                        style={{ 
+                          ...definitelyCenteredStyle,
+                          position: 'relative',
+                          marginBottom: '8px'
+                        }}
+                      >
+                        <Link href={ href }>
+                          <button 
+                            style={{ width: '70px' }}
+                            className={ styles.button }
+                            onClick={ (e: any) => handleOnClick(e) }
+                          >
+                            { buttonText }
+                          </button>
+                        </Link>
+                      </div>
+                    </>
+                )}
               </>
             ) }
           </div>
