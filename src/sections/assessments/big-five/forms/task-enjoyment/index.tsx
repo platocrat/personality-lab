@@ -47,6 +47,8 @@ const TaskEnjoymentForm: FC<TaskEnjoymentFormProps> = ({
 
   // Boolean states
   const [isVertical, setIsVertical] = useState<boolean>(false)
+  const [ isSubmitting, setIsSubmitting ] = useState<boolean>(false)
+  const [ hasSubmitted, setHasSubmitted ] = useState<boolean>(false)
   // Custom states
   const [ userResponses, setUserResponses ] = useState<any>({})
   const [ taskEnjoyments, setTaskEnjoyments ] = useState<any>({})
@@ -79,8 +81,14 @@ const TaskEnjoymentForm: FC<TaskEnjoymentFormProps> = ({
   // ------------------------- Async functions ---------------------------------
   async function handleOnSubmit(e: any) {
     e.preventDefault()
+    
+    setIsSubmitting(true)
     setUserResponses(taskEnjoyments)
+    
     await storeResponsesInLocalStorage(userResponses)
+    
+    setHasSubmitted(true)
+    
     router.push(href)
   }
 
@@ -89,6 +97,10 @@ const TaskEnjoymentForm: FC<TaskEnjoymentFormProps> = ({
     const key = FRAGMENT_KEY_PREFACE
     const value = JSON.stringify(userResponses)
     localStorage.setItem(key, value)
+
+    setTimeout(() => {
+      setIsSubmitting(false)
+    }, 300)
   }
 
 
@@ -165,7 +177,13 @@ const TaskEnjoymentForm: FC<TaskEnjoymentFormProps> = ({
           }
         </div>
 
-        <FormButton buttonText={ BUTTON_TEXT } />
+        <FormButton 
+          buttonText={ BUTTON_TEXT }
+          state={{
+            isSubmitting: isSubmitting,
+            hasSubmitted: hasSubmitted,
+          }}
+        />
 
       </form>
     </>

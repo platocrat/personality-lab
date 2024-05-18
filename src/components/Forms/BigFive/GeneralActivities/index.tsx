@@ -53,6 +53,8 @@ const GeneralActivities: FC<GeneralActivitiesProps> = ({
   ] = useState<boolean>(false)
   const [ fontSize, setFontSize ] = useState<string>('13px')
   const [ userResponses, setUserResponses] = useState<any>({})
+  const [ isSubmitting, setIsSubmitting ] = useState(false)
+  const [ hasSubmitted, setHasSubmitted ] = useState(false)
   const [ isVertical, setIsVertical ] = useState<boolean>(false)
   const [ currentQuestionIndex, setCurrentQuestionIndex ] = useState(0)
 
@@ -98,8 +100,14 @@ const GeneralActivities: FC<GeneralActivitiesProps> = ({
   // ------------------------- Async functions ---------------------------------
   async function handleOnSubmit(e: any) {
     e.preventDefault()
+    
+    setIsSubmitting(true)
     setUserResponses(userResponses)
+    
     await storeResponsesInLocalStorage(userResponses)
+    
+    setHasSubmitted(true)
+    
     router.push(href)
   }
 
@@ -108,6 +116,10 @@ const GeneralActivities: FC<GeneralActivitiesProps> = ({
     const key = FRAGMENT_KEY_PREFACE
     const value = JSON.stringify(userResponses)
     localStorage.setItem(key, value)
+
+    setTimeout(() => {
+      setIsSubmitting(false)
+    }, 300)
   }
 
 
@@ -130,6 +142,7 @@ const GeneralActivities: FC<GeneralActivitiesProps> = ({
 
 
 
+
   return (
     <>
       <form
@@ -146,7 +159,17 @@ const GeneralActivities: FC<GeneralActivitiesProps> = ({
             setIsEndOfQuestionnaire={ setIsEndOfQuestionnaire }
             choices={ BIG_FIVE_ACTIVITY_BANK_LEGEND[activityBankId] }
           />
-          { isEndOfQuestionnaire && <FormButton buttonText={ buttonText } /> }
+          { isEndOfQuestionnaire && (
+            <>
+              <FormButton
+                buttonText={ buttonText }
+                state={ {
+                  isSubmitting: isSubmitting,
+                  hasSubmitted: hasSubmitted,
+                } }
+              />
+            </>
+          )}
         </div>
 
       </form>

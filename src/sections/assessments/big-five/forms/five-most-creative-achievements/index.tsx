@@ -39,6 +39,9 @@ const FiveMostCreativeAchievementsForm: FC<FiveMostCreativeAchievementsFormProps
   // States
   const [ userResponses, setUserResponses ] = useState<any>({})
   const [ creativeAchievements, setCreativeAchievements ] = useState<any>({})
+  // Booleans
+  const [ isSubmitting, setIsSubmitting ] = useState<boolean>(false)
+  const [ hasSubmitted, setHasSubmitted ] = useState<boolean>(false)
 
 
   
@@ -63,8 +66,14 @@ const FiveMostCreativeAchievementsForm: FC<FiveMostCreativeAchievementsFormProps
   // ------------------------- Async functions ---------------------------------
   async function handleOnSubmit(e: any) {
     e.preventDefault()
+    
+    setIsSubmitting(true)
     setUserResponses(creativeAchievements)
+    
     await storeResponsesInLocalStorage(userResponses)
+    
+    setHasSubmitted(true)
+
     router.push(href)
   }
 
@@ -73,6 +82,10 @@ const FiveMostCreativeAchievementsForm: FC<FiveMostCreativeAchievementsFormProps
     const key = FRAGMENT_KEY_PREFACE
     const value = JSON.stringify(userResponses)
     localStorage.setItem(key, value)
+
+    setTimeout(() => {
+      setIsSubmitting(false)
+    }, 300)
   }
 
   
@@ -135,7 +148,13 @@ const FiveMostCreativeAchievementsForm: FC<FiveMostCreativeAchievementsFormProps
           )) }
         </div>
         
-        <FormButton buttonText={ BUTTON_TEXT } />
+        <FormButton 
+          buttonText={ BUTTON_TEXT }
+          state={{
+            isSubmitting: isSubmitting,
+            hasSubmitted: hasSubmitted,
+          }}
+        />
 
       </form>
     </>

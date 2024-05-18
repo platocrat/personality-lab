@@ -27,27 +27,35 @@ const BUTTON_TEXT = `Next`
 type CreativityAndAchievementsFormProps = {
   href: string
   pageTitle: string
-  isLoading: boolean
   pageFragmentId: string
+  state: {
+    isSubmitting: boolean
+    hasSubmitted: boolean
+  }
   questionnaire: {
     choices: string[]
     questions: string[]
     currentQuestionIndex: number
   }
-  onSubmit: (e: any) => void
-  onChange: {
-    onYearsEngagedInChange: (e: any) => void
-    onEngagementLevelChange: (e: any) => void
-    onActivityChange: (e: any, questionIndex: number) => void
+  onEventHandlers: {
+    onSubmit: (e: any) => void
+    onChange: {
+      onYearsEngagedInChange: (e: any) => void
+      onEngagementLevelChange: (e: any) => void
+      onActivityChange: (e: any, questionIndex: number) => void
+    }
   }
 }
 
 
 type EngagementLevelAndYearsEngagedFormsProps = {
-  isLoading: boolean
   pageFragmentId: string
   yearsOfEngagementText: string
   levelOfAchievementText: string
+  state: {
+    isSubmitting: boolean
+    hasSubmitted: boolean
+  }
   fragmentKey: {
     getEngagementFragmentKey: (i: number) => string
     getEngagementLevelInputFragmentKey: (i: number) => string
@@ -61,8 +69,8 @@ type EngagementLevelAndYearsEngagedFormsProps = {
 
 
 const EngagementLevelAndYearsEngagedForms: FC<EngagementLevelAndYearsEngagedFormsProps> = ({
+  state,
   onChange,
-  isLoading,
   fragmentKey,
   pageFragmentId,
   yearsOfEngagementText,
@@ -132,7 +140,13 @@ const EngagementLevelAndYearsEngagedForms: FC<EngagementLevelAndYearsEngagedForm
         />
       </div>
 
-      <FormButton buttonText={ BUTTON_TEXT } />
+      <FormButton
+        buttonText={ BUTTON_TEXT }
+        state={ {
+          isSubmitting: state.isSubmitting,
+          hasSubmitted: state.hasSubmitted,
+        } }
+      />
     </>
   )
 }
@@ -143,12 +157,11 @@ const EngagementLevelAndYearsEngagedForms: FC<EngagementLevelAndYearsEngagedForm
 
 const CreativityAndAchievementsForm: FC<CreativityAndAchievementsFormProps> = ({
   href,
-  onChange,
-  onSubmit,
-  isLoading,
+  state,
   pageTitle,
   questionnaire,
   pageFragmentId,
+  onEventHandlers,
 }) => {
   // React states
   const [
@@ -211,7 +224,7 @@ const CreativityAndAchievementsForm: FC<CreativityAndAchievementsFormProps> = ({
         <h3 style={{ marginBottom: '12px' }}>{ pageTitle }</h3>
 
         <form
-          onSubmit={ (e: any) => onSubmit(e) }
+          onSubmit={ (e: any) => onEventHandlers.onSubmit(e) }
         >
 
           <div>
@@ -222,7 +235,7 @@ const CreativityAndAchievementsForm: FC<CreativityAndAchievementsFormProps> = ({
             <Questionnaire
               choices={ questionnaire.choices }
               questions={ questionnaire.questions }
-              onChange={ onChange.onActivityChange }
+              onChange={ onEventHandlers.onChange.onActivityChange }
               setIsEndOfQuestionnaire={ setIsEndOfQuestionnaire }
               currentQuestionIndex={ questionnaire.currentQuestionIndex }
             />
@@ -230,7 +243,7 @@ const CreativityAndAchievementsForm: FC<CreativityAndAchievementsFormProps> = ({
             { isEndOfQuestionnaire && (
               <>
                 <EngagementLevelAndYearsEngagedForms
-                  isLoading={ isLoading }
+                  state={ state }
                   pageFragmentId={ pageFragmentId }
                   yearsOfEngagementText={ QUESTION_LEVEL_OF_ACHIEVEMENT_TEXT() }
                   levelOfAchievementText={ QUESTION_YEARS_OF_ENGAGEMENT_TEXT() }
@@ -239,8 +252,8 @@ const CreativityAndAchievementsForm: FC<CreativityAndAchievementsFormProps> = ({
                     getEngagementLevelInputFragmentKey
                   }}
                   onChange={{
-                    onYearsEngagedInChange: onChange.onYearsEngagedInChange,
-                    onEngagementLevelChange: onChange.onEngagementLevelChange,
+                    onYearsEngagedInChange: onEventHandlers.onChange.onYearsEngagedInChange,
+                    onEngagementLevelChange: onEventHandlers.onChange.onEngagementLevelChange,
                   }}
                 />
               </>

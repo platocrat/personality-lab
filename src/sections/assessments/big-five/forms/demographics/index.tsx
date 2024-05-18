@@ -84,6 +84,9 @@ const DemographicsForm = ({ }) => {
   ] = useState<BigFiveDemographicsType>(
     Init__BigFiveDemographics
   )
+  // Booleans
+  const [ isSubmitting, setIsSubmitting ] = useState(false)
+  const [ hasSubmitted, setHasSubmitted ] = useState(false)
 
 
   const getFragmentKey = (i: number) => `${
@@ -138,6 +141,8 @@ const DemographicsForm = ({ }) => {
   async function handleOnSubmit(e: any) {
     e.preventDefault()
 
+    setIsSubmitting(true)
+
     const DEMOGRAPHICS: BigFiveDemographicsType = {
       age,
       gender,
@@ -151,16 +156,22 @@ const DemographicsForm = ({ }) => {
       currentEmploymentStatus,
     }
 
-    /**
-     * @todo Store `DEMOGRAPHICS` in a React context so that it persists to the
-     * next page and will be used once the user completes every question-page 
-     * of this assessment.
-     */
-    setBigFiveDemographics(DEMOGRAPHICS)
+    await storeDemographicsInLocalStorage(DEMOGRAPHICS)
 
-    // Route user to the next page in the list of question-pages for this 
-    // assessment
+    setHasSubmitted(true)
+
     router.push(href)
+  }
+
+
+  async function storeDemographicsInLocalStorage(demographics) {
+    const key = `${BIG_FIVE_PATH}--demographics`
+    const value = JSON.stringify(demographics)
+    localStorage.setItem(key, value)
+
+    setTimeout(() => {
+      setIsSubmitting(false)
+    }, 300)
   }
 
 
@@ -293,7 +304,13 @@ const DemographicsForm = ({ }) => {
             }
           />
 
-          <FormButton buttonText={ BUTTON_TEXT } />
+          <FormButton 
+            buttonText={ BUTTON_TEXT }
+            state={{
+              isSubmitting: isSubmitting,
+              hasSubmitted: hasSubmitted,
+            }}
+          />
 
         </form>
       </div>

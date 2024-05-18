@@ -45,7 +45,8 @@ const CreativityAndAchievementsFormWrapper: FC<CreativityAndAchievementsFormWrap
   const [ yearsEngagedIn, setYearsEngagedIn ] = useState<number>(0)
   const [ currentQuestionIndex, setCurrentQuestionIndex ] = useState(0)
   // Boolean states
-  const [ isLoading, setIsLoading ] = useState<boolean>(false)
+  const [isSubmitting, setIsSubmitting ] = useState<boolean>(false)
+  const [ hasSubmitted, setHasSubmitted ] = useState<boolean>(false)
 
 
   const questions = BIG_FIVE_ACTIVITY_BANK[
@@ -105,7 +106,7 @@ const CreativityAndAchievementsFormWrapper: FC<CreativityAndAchievementsFormWrap
   async function handleOnSubmit(e: any) {
     e.preventDefault()
 
-    setIsLoading(true)
+    setIsSubmitting(true)
 
     const userResponses = {
       yearsEngagedIn,
@@ -114,16 +115,24 @@ const CreativityAndAchievementsFormWrapper: FC<CreativityAndAchievementsFormWrap
     }
 
     setUserResponses(userResponses)
+
     await storeResponsesInLocalStorage(userResponses)
+    
+    setHasSubmitted(true)
+
     router.push(href)
-    setIsLoading(false)
   }
+
 
 
   async function storeResponsesInLocalStorage(userResponses) {
     const key = FRAGMENT_KEY_PREFACE
     const value = JSON.stringify(userResponses)
     localStorage.setItem(key, value)
+
+    setTimeout(() => {
+      setIsSubmitting(false)
+    }, 300)
   }
 
 
@@ -140,20 +149,25 @@ const CreativityAndAchievementsFormWrapper: FC<CreativityAndAchievementsFormWrap
     <>
       <CreativityAndAchievementsForm
         href={ href }
-        isLoading={ isLoading }
         pageTitle={ pageTitle }
-        onSubmit={ handleOnSubmit }
         pageFragmentId={ pageFragmentId }
+        state={{
+          isSubmitting: isSubmitting,
+          hasSubmitted: hasSubmitted,
+        }}
+        onEventHandlers={{
+          onSubmit: handleOnSubmit,
+          onChange: {
+            onActivityChange,
+            onEngagementLevelChange,
+            onYearsEngagedInChange
+          },
+        }}
         questionnaire={{
           choices: choices,
           questions: questions,
           currentQuestionIndex: currentQuestionIndex,
         }}
-        onChange={ {
-          onActivityChange: onActivityChange,
-          onYearsEngagedInChange: onYearsEngagedInChange,
-          onEngagementLevelChange: onEngagementLevelChange
-        } }
       />
     </>
   )

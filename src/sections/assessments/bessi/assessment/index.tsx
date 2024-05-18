@@ -247,6 +247,8 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
           const userResultsId = json.data
           return userResultsId
         } else {
+          setIsLoadingResults(false)
+          
           const error = `Error posting ${ 
             ASSESSMENT_NAME.toUpperCase() 
           } results to DynamoDB: `
@@ -256,6 +258,8 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
           throw new Error(error, json.error)
         }
       } catch (error: any) {
+        setIsLoadingResults(false)
+
         /**
          * @todo Handle error UI here
          */
@@ -308,7 +312,13 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
               { isEndOfQuestionnaire && (
                 <>
                   <BessiDemographicQuestionnaire />
-                  <FormButton buttonText={ BUTTON_TEXT } />
+                  <FormButton 
+                    buttonText={ BUTTON_TEXT }
+                    state={{
+                      isSubmitting: isLoadingResults,
+                      hasSubmitted: isLoadingResults,
+                    }}
+                  />
                 </>
               ) }
             </>

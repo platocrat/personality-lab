@@ -90,6 +90,8 @@ const BigFiveConsentForm: FC<BigFiveConsentFormProps> = ({
     religiousOrPhilosophicalBeliefsConsent, 
     setReligiousOrPhilosophicalBeliefsConsent 
   ] = useState<boolean>(false)
+  const [ isSubmitting, setIsSubmitting ] = useState<boolean>(false)
+  const [ hasSubmitted, setHasSubmitted ] = useState<boolean>(false)
   const [ finalConsent, setFinalConsent ] = useState<boolean>(false)
   const [ healthDataConsent, setHealthDataConsent ] = useState<boolean>(false)
   // Custom
@@ -166,6 +168,8 @@ const BigFiveConsentForm: FC<BigFiveConsentFormProps> = ({
   async function handleOnSubmit(e: any) {
     e.preventDefault() 
 
+    setIsSubmitting(true)
+
     const _consentInfo = {
       finalConsent: finalConsent,
       healthDataConsent: healthDataConsent,
@@ -178,6 +182,8 @@ const BigFiveConsentForm: FC<BigFiveConsentFormProps> = ({
     setConsentInfo(_consentInfo)
 
     await storeConsentInfoToLocalStorage(consentInfo)
+    
+    setHasSubmitted(true)
 
     // Use router to route the user to the assessment page
     router.push(BIG_FIVE_ASSESSMENT_HREF)
@@ -188,6 +194,10 @@ const BigFiveConsentForm: FC<BigFiveConsentFormProps> = ({
     const key = FRAGMENT_KEY_PREFACE
     const value = JSON.stringify(consentInfo)
     localStorage.setItem(key, value)
+
+    setTimeout(() => {
+      setIsSubmitting(false)
+    }, 300)
   }
 
 
@@ -232,7 +242,13 @@ const BigFiveConsentForm: FC<BigFiveConsentFormProps> = ({
           />
         </div>
 
-        <FormButton buttonText={ BUTTON_TEXT } />
+        <FormButton 
+        buttonText={ BUTTON_TEXT }
+        state={{
+          isSubmitting: isSubmitting,
+          hasSubmitted: hasSubmitted,
+        }}
+      />
       </form>
 
     </Fragment>
