@@ -33,12 +33,13 @@ const Input = () => {
       { Object.values(YesOrNo).map((yesOrNo: string, i: number) => (
         <Fragment key={ `prior-completion-${i}` }>
           <input
-            required={ true }
-            onChange={ (e: any) => onPriorCompletionChange(e) }
-            style={ inputMarginStyle }
             type='radio'
-            name='prior-completion'
+            required={ true }
             value={ yesOrNo }
+            name='prior-completion'
+            style={ inputMarginStyle }
+            className={ styles.radioButtonInput }
+            onChange={ (e: any) => onPriorCompletionChange(e) }
           />
           { yesOrNo }
         </Fragment>

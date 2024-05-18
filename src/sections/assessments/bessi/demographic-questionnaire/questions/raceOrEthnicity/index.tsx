@@ -31,11 +31,12 @@ const Input = () => {
       { Object.values(RaceOrEthnicity).map((raceOrEthnicity: string, i: number) => (
         <Fragment key={ `what-is-your-race-or-ethnicity-${i}` }>
           <input
-            onChange={ (e: any) => onRaceOrEthnicityChange(e) }
-            style={{ margin: '0px 12px 0px 8px' }}
             type='checkbox'
+            value={ raceOrEthnicity }
+            style={{ margin: '0px 12px 0px 8px' }}
+            className={ styles.radioButtonInput }
             name={ `myEthnic_${raceOrEthnicity}` }
-            value='1'
+            onChange={ (e: any) => onRaceOrEthnicityChange(e) }
           />
           { raceOrEthnicity }
           <br />

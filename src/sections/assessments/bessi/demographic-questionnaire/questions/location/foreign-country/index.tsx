@@ -25,13 +25,14 @@ const Input = () => {
   const { onForeignLocationChange } = useContext(UserDemographicContext)
   const name = `foreign-country`
 
+
   return (
     <>
       <input
-        onChange={ (e: any) => onForeignLocationChange(e) }
-        style={ { margin: '0px 0px 0px 12px' } }
         type='text'
         name={ name }
+        style={ { margin: '0px 0px 0px 12px' } }
+        onChange={ (e: any) => onForeignLocationChange(e) }
         onKeyDown={ (e: any): any => {
           if (INVALID_CHARS_WITH_NUMBERS.includes(e.key)) {
             e.preventDefault()

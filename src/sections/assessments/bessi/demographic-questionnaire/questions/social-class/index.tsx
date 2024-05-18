@@ -28,9 +28,9 @@ const Input= () => {
     <>
       <select 
         required={ true }
-        onChange={ (e: any) => onSocialClassChange(e) }
-        style={{ margin: '0px 0px 0px 8px' }}
         name={ `social-class` }
+        style={{ margin: '0px 0px 0px 8px' }}
+        onChange={ (e: any) => onSocialClassChange(e) }
       >
         <option value={ `` }>{ `Please select` }</option>
 

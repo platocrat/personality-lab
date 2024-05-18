@@ -15,6 +15,7 @@ const Label = () => {
   const sectionLabel = `Education and Work`
   const label = `What is the highest level of formal education that you have completed?`
 
+
   return (
     <>
       <strong>{ sectionLabel }</strong>
@@ -28,13 +29,14 @@ const Input = () => {
   const { onHighestEducationLevelChange } = useContext(UserDemographicContext)
   const selectName = `highest-formal-education`
 
+
   return (
     <>
       <select
         required={ true }
-        onChange={ (e: any) => onHighestEducationLevelChange(e) }
-        style={ { margin: '0px 0px 0px 12px' } }
         name={ selectName }
+        style={ { margin: '0px 0px 0px 12px' } }
+        onChange={ (e: any) => onHighestEducationLevelChange(e) }
       >
         <option value={ '' }>{ `Please select` }</option>
 

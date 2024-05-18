@@ -28,13 +28,14 @@ const Input = () => {
   const { onCurrentMaritalStatusChange } = useContext(UserDemographicContext)
   const selectLabel = `current-marital-status`
 
+  
   return (
     <>
       <select 
         required={ true }
-        onChange={ (e: any) => onCurrentMaritalStatusChange(e) }
         name={ selectLabel }
         style={{ margin: '0px 0px 0px 12px' }}
+        onChange={ (e: any) => onCurrentMaritalStatusChange(e) }
       >
         <option value={ `` }>{ `Please select` }</option>
 

@@ -30,12 +30,13 @@ const Input = () => {
       { Object.values(Gender).map((gender: string, i: number) => (
         <Fragment key={ `gender-${i}` }>
           <input
-            required={ true }
-            onChange={ (e: any) => onGenderChange(e) }
-            style={ inputMarginStyle }
-            type='radio'
             name='gender'
+            type='radio'
             value={ gender }
+            required={ true }
+            style={ inputMarginStyle }
+            className={ styles.radioButtonInput }
+            onChange={ (e: any) => onGenderChange(e) }
           />
           { gender }
         </Fragment>

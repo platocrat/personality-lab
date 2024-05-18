@@ -26,17 +26,19 @@ const Input = () => {
   const { onIsParentChange } = useContext(UserDemographicContext)
   const selectLabel = `family`
 
+
   return (
     <>
       { Object.values(YesOrNo).map((yesOrNo: string, i: number) => (
         <Fragment key={ `is-parent-${i}` }>
           <input
-            required={ true }
-            onChange={ (e: any) => onIsParentChange(e) }
-            style={ inputMarginStyle }
             type='radio'
             name='family'
             value={ yesOrNo }
+            required={ true }
+            style={ inputMarginStyle }
+            className={ styles.radioButtonInput }
+            onChange={ (e: any) => onIsParentChange(e) }
           />
           { yesOrNo }
         </Fragment>

@@ -24,13 +24,14 @@ const Input = () => {
   const { onCurrentEmploymentStatusChange } = useContext(UserDemographicContext)
   const selectName = `current-employment-status`
 
+  
   return (
     <>
       <select 
         required={ true }
-        onChange={ (e: any) => onCurrentEmploymentStatusChange(e) }
         name={ selectName }
         style={ { margin: '0px 0px 0px 12px' } }
+        onChange={ (e: any) => onCurrentEmploymentStatusChange(e) }
       >
         <option value={ '' }>{ `Please select` }</option>
 
@@ -55,6 +56,7 @@ const BessiCurrentEmploymentStatus = () => {
     pClassName: styles.bessi_about_you_p,
     spanClassName: styles.bessi_text1,
   }
+
 
   return (
     <>
