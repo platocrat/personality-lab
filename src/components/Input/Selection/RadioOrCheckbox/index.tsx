@@ -9,7 +9,7 @@ import {
   SetStateAction,
 } from 'react'
 // Locals
-import useEnterKeyClick from '@/app/hooks/useEnterKeyClick'
+import useEnterKeyClick from '@/hooks/useEnterKeyClick'
 // Types
 import { InputLabelType } from '../types'
 // CSS

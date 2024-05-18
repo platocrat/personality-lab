@@ -1,4 +1,5 @@
 // Externals
+import { Dispatch, FC, SetStateAction } from 'react'
 import Image from 'next/image'
 import html2canvas from 'html2canvas'
 // Locals
@@ -6,41 +7,56 @@ import { imgPaths } from '@/utils'
 // CSS
 import appStyles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
-import modalStyle from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization/modal/modal.module.css'
+import modalStyle from '@/components/Modals/BESSI/ResultsVisualization/ResultsVisualization.module.css'
 
 
 
-const Modal = ({
-  modalRef,
-  isCopied,
-  setIsCopied,
+type ResultsVisualizationModalProps = {
+  screenshotUrl: string
+  refs: {
+    modalRef: any
+    screenshot2Ref: any
+  }
+  state: {
+    isCopied: boolean
+    setIsCopied: Dispatch<SetStateAction<boolean>>
+    isModalVisible: boolean
+  }
+  viz: {
+    visualizations: any[]
+    currentVisualization: number
+  }
+}
+
+
+
+const ResultsVisualizationModal: FC<ResultsVisualizationModalProps> = ({
+  viz,
+  refs,
+  state,
   screenshotUrl,
-  isModalVisible,
-  screenshot2Ref,
-  visualizations,
-  currentVisualization,
 }) => {
   const title = `Share Your Results!`
 
 
   const handleShareScreenshot = () => {
     const timeout = 2_000 // 2 seconds
-    const viz = visualizations[currentVisualization]
+    const viz_ = viz.visualizations[viz.currentVisualization]
 
     // Ask the user if they want to download the screenshot
-    const alertMessage = `Download PNG of the ${viz.name}?`
+    const alertMessage = `Download PNG of the ${viz_.name}?`
     const userConfirmation = window.confirm(alertMessage)
 
-    if (userConfirmation && screenshot2Ref.current) {
-      html2canvas(screenshot2Ref.current).then((canvas: any) => {
+    if (userConfirmation && refs.screenshot2Ref.current) {
+      html2canvas(refs.screenshot2Ref.current).then((canvas: any) => {
         canvas.toBlob((blob: any) => {
           const url = URL.createObjectURL(blob)
           const link = document.createElement('a')
 
-          setIsCopied(true)
+          state.setIsCopied(true)
 
           link.href = url
-          link.download = `bessi-${viz.imgName}.png`
+          link.download = `bessi-${viz_.imgName}.png`
 
           document.body.appendChild(link)
 
@@ -51,7 +67,7 @@ const Modal = ({
           URL.revokeObjectURL(url)
 
           setTimeout(() => {
-            setIsCopied(false)
+            state.setIsCopied(false)
           }, timeout)
         })
       })
@@ -62,10 +78,10 @@ const Modal = ({
 
   return (
     <>
-      { isModalVisible && (
+      { state.isModalVisible && (
         <>
           <div 
-            ref={ modalRef }
+            ref={ refs.modalRef }
             className={ `${ modalStyle.modal } ${ modalStyle.background }` }
           >
             <h2 
@@ -77,7 +93,7 @@ const Modal = ({
                 { title }
             </h2>
 
-            <div ref={ screenshot2Ref }>
+            <div ref={ refs.screenshot2Ref }>
               <Image
                 width={ 200 }
                 height={ 200 }
@@ -117,7 +133,7 @@ const Modal = ({
                 style={ {
                   width: '60px',
                   padding: '6px 0px 0px 0px',
-                  backgroundColor: isCopied ? 'rgb(18, 215, 67)' : ''
+                  backgroundColor: state.isCopied ? 'rgb(18, 215, 67)' : ''
                 } }
               >
                 <Image
@@ -125,7 +141,7 @@ const Modal = ({
                   height={ 18 }
                   alt='Share icon to share data visualization'
                   src={
-                    isCopied
+                    state.isCopied
                       ? `${imgPaths().svg}white-checkmark.svg`
                       : `${imgPaths().svg}white-share-icon.svg`
                   }
@@ -140,4 +156,4 @@ const Modal = ({
 }
 
 
-export default Modal
+export default ResultsVisualizationModal

@@ -11,7 +11,7 @@ import {
 } from 'react'
 // Locals
 // Hooks
-import useClickOutside from '@/app/hooks/useClickOutside'
+import useClickOutside from '@/hooks/useClickOutside'
 // Utils
 import { imgPaths } from '@/utils'
 // CSS

@@ -13,7 +13,6 @@ import {
 } from 'react'
 // Locals
 // Sections
-import Modal from './modal'
 import TitleDropdown from './title-dropdown'
 import UserVisualization from './user-visualization'
 // Components
@@ -21,11 +20,13 @@ import Title from '@/components/DataViz/Title'
 import TreeMap from '@/components/DataViz/TreeMap'
 import StellarPlot from '@/components/DataViz/StellarPlot'
 import ShareResults from '@/components/DataViz/ShareResults'
+import RateUserResults from '@/components/Forms/BESSI/RateUserResults'
 import NormalDistributionChart from '@/components/DataViz/Distributions/Normal'
 import BarChartPerDomain from '@/components/DataViz/BarChart/BarChartPerDomain'
 import PersonalityVisualization from '@/components/DataViz/PersonalityVisualization'
+import ResultsVisualizationModal from '@/components/Modals/BESSI/ResultsVisualization'
 // Hooks
-import useClickOutside from '@/app/hooks/useClickOutside'
+import useClickOutside from '@/hooks/useClickOutside'
 // Contexts
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // Utils
@@ -352,15 +353,21 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         }
 
         
-        <Modal
-          modalRef={ modalRef }
-          isCopied={ isCopied }
-          setIsCopied={ setIsCopied }
+        <ResultsVisualizationModal
           screenshotUrl={ screenshotUrl }
-          isModalVisible={ isModalVisible }
-          screenshot2Ref={ screenshot2Ref }
-          visualizations={ visualizations }
-          currentVisualization={ currentVisualization }
+          refs={{ 
+            modalRef, 
+            screenshot2Ref 
+          }}
+          viz={{
+            visualizations, 
+            currentVisualization 
+          }}
+          state={{
+            isCopied,
+            setIsCopied, 
+            isModalVisible 
+          }}
         />
 
 

@@ -1,10 +1,12 @@
-'use client';
+'use client'
 
 // Externals
 
 import { useContext, useMemo } from 'react'
 // Locals
 // Sections
+
+import AdminPortal from '@/sections/admin-portal'
 import PersonalityAssessments from '@/sections/assessments'
 import LogInOrCreateAnAccount from '@/sections/log-in-or-create-an-account'
 // Contexts
@@ -17,7 +19,7 @@ import styles from '@/app/page.module.css'
 
 
 export default function Home() {
-  const { isAuthenticated } = useContext(AuthenticatedUserContext)
+  const { isAdmin, isAuthenticated } = useContext(AuthenticatedUserContext)
 
   const _isAuthenticated = useMemo((): boolean => {
     return isAuthenticated
@@ -28,7 +30,11 @@ export default function Home() {
     <>
       <main className={ `${styles.main} ` }>
         { _isAuthenticated 
-          ? <PersonalityAssessments /> 
+          ? (
+            <>
+              { isAdmin ? <AdminPortal /> : <PersonalityAssessments /> }
+            </>
+          )
           : <LogInOrCreateAnAccount /> 
         }
       </main>

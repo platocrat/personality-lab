@@ -8,7 +8,6 @@ import {
 import BessiDemographicQuestions from './questions'
 import BessiRaceOrEthnicityQuestion from './questions/raceOrEthnicity'
 // Contexts
-import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 // CSS
 import styles from '@/app/page.module.css'
 

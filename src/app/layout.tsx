@@ -57,6 +57,7 @@ export default function RootLayout({
     setBessiSkillScores 
   ] = useState<BessiSkillScoresType | null>(null)
   // Booleans for user authentication
+  const [ isAdmin, setIsAdmin ] = useState<boolean>(false)
   const [ isFetchingUser, setIsFetchingUser ] = useState<boolean>(true)
   const [ isAuthenticated, setIsAuthenticated ] = useState<boolean>(false)
   // State variables UserDemographicsContext
@@ -259,17 +260,26 @@ export default function RootLayout({
         }, timeout)
       }
     } else {
+      // Check if the user is an admin to show them the `<AdminPortal />`
+      await checkIfAdmin(user) 
+
       // Show the dashboard
       setIsAuthenticated(true)
       setIsFetchingUser(false)
     }
   }
 
+  
+  async function checkIfAdmin(user): Promise<void> {
+    setIsAdmin(user ? true : false)
+  }
+
+
 
   // ------------------------------ `useEffect`s -------------------------------
   useEffect(() => {
     const requests = [
-      pageProtection()
+      pageProtection(),
     ]
 
     Promise.all(requests).then((response: any): void => { })
