@@ -31,11 +31,12 @@ import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // Utils
 import {
   transformData,
-  FacetFactorType,
   dummyVariables,
+  FacetFactorType,
   InputDataStructure,
   TargetDataStructure,
   BessiSkillScoresType,
+  getRandomValueInRange,
   SkillDomainFactorType,
   getUsernameAndEmailFromCookie,
 } from '@/utils'
@@ -175,11 +176,17 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
           />
         )
       case 4:
+        const mean = 50
+        const stddev = getRandomValueInRange(1, 5)
+        const score = getRandomValueInRange(50 - stddev, 50 + stddev)
+
+        console.log(`[${new Date().toLocaleString() }] stddev: `, stddev)
+
         return (
           <NormalDistributionChart
-            mean={ 4 }
-            stddev={ 1 }
-            score={ 2.33 }
+            mean={ mean }
+            stddev={ stddev }
+            score={ score }
           />
         )
       default:

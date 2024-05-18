@@ -29,7 +29,11 @@ const NormalDistributionChart: FC<NormalDistributionChartProps> = ({
 
   useEffect(() => {
     const areaData = generateAreaUnderCurve(d3, mean, stddev)
-    const data = generateNormalDistributionCurve(d3, mean, stddev)
+    const data: { x: number, y: number }[] = generateNormalDistributionCurve(
+      d3, 
+      mean, 
+      stddev
+    )
 
     const points = [
       { x: mean - 3 * stddev, label: 'μ - 3σ' },
@@ -79,22 +83,27 @@ const NormalDistributionChart: FC<NormalDistributionChartProps> = ({
       .attr('fill', 'none')
       .attr('stroke', 'steelblue')
       .attr('stroke-width', 2)
-      .attr('d', line)
+      .attr('d', line as any)
+
+    // Calculate the number of ticks dynamically
+    const tickCount = Math.min(
+      7, 
+      (d3.max(x.domain()) as number) - (d3.min(x.domain()) as number)
+    )
 
     // Add x-axis
     const xAxis = d3.axisBottom(x)
-      .ticks(7)
-      .tickFormat((d, i) => {
-        switch (i) {
-          case 0: return `μ - 3σ`
-          case 1: return `μ - 2σ`
-          case 2: return `μ - σ`
-          case 3: return `μ`
-          case 4: return `μ + σ`
-          case 5: return `μ + 2σ`
-          case 6: return `μ + 3σ`
-          default: return ''
-        }
+      .ticks(tickCount)
+      .tickFormat((d: any) => {
+        const labelIndex = (d - mean) / stddev
+        if (labelIndex === -3) return `μ - 3σ`
+        if (labelIndex === -2) return `μ - 2σ`
+        if (labelIndex === -1) return `μ - σ`
+        if (labelIndex === 0) return `μ`
+        if (labelIndex === 1) return `μ + σ`
+        if (labelIndex === 2) return `μ + 2σ`
+        if (labelIndex === 3) return `μ + 3σ`
+        return ''
       })
 
     svg.append('g')
@@ -117,7 +126,7 @@ const NormalDistributionChart: FC<NormalDistributionChartProps> = ({
       .datum(areaData)
       .attr('fill', 'lightblue')
       .attr('opacity', 0.20)  // Adjust opacity as needed
-      .attr('d', area)
+      .attr('d', area as any)
 
     // Add vertical line for data point
     svg.append('line')

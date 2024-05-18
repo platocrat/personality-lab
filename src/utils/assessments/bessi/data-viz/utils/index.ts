@@ -64,9 +64,6 @@ export function generateHighContrastColors(count: number): string[] {
 export function transformData(
   inputData: InputDataStructure
 ): TargetDataStructure[] {
-  console.log(`[transformData()] inputData: `, inputData)
-
-
   return Object.keys(inputData.domainScores).map(domainName => {
     const facets: FacetDataType[] = domainToFacetMapping[domainName].map(
       (facetName: string): FacetDataType => ({
@@ -92,7 +89,7 @@ export function generateAreaUnderCurve(
   d3,
   mean: number,
   stddev: number
-) {
+): { x: number, y: number }[] {
   const xValues = d3.range(
     mean - 3 * stddev,
     mean + 3 * stddev,
@@ -111,15 +108,11 @@ export function generateAreaUnderCurve(
     )
   )
 
-  return xValues.map((
-    x: number,
-    i: number
-  ): { x: number, y: number } => (
-    {
-      x,
-      y: yValues[i]
-    }
-  ))
+  const _: { x: number, y: number }[] = xValues.map(
+    (x: number, i: number): { x: number, y: number } => ({ x, y: yValues[i] })
+  )
+
+  return _
 }
 
 
@@ -129,7 +122,7 @@ export function generateNormalDistributionCurve(
   d3,
   mean: number,
   stddev: number
-)  {
+): { x: number, y: number }[]  {
   const xValues = d3.range(
     mean - 3 * stddev,
     mean + 3 * stddev, stddev / 50
@@ -147,13 +140,9 @@ export function generateNormalDistributionCurve(
     )
   )
 
-  return xValues.map((
-    x: number,
-    i: number
-  ): { x: number, y: number } => (
-    {
-      x,
-      y: yValues[i]
-    }
-  ))
+  const _: { x: number, y: number }[] = xValues.map(
+    (x: number, i: number): { x: number, y: number } => ({ x, y: yValues[i] })
+  )
+
+  return _
 }
