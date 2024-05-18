@@ -176,9 +176,17 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
           />
         )
       case 4:
+        /**
+         * @todo Get `mean` from data 
+         */
         const mean = 50
+        /**
+         * @todo Get `stddev` from data 
+         */
         const stddev = getRandomValueInRange(1, 5)
         const score = getRandomValueInRange(50 - stddev, 50 + stddev)
+
+
 
         console.log(`[${new Date().toLocaleString() }] stddev: `, stddev)
 
