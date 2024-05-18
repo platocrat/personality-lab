@@ -16,7 +16,7 @@ const BessiConsentForm = ({ }) => {
   return (
     <>
       <Content />
-      <AssessmentButton href={ href }buttonText={ buttonText } />
+      <AssessmentButton href={ href } buttonText={ buttonText } />
     </>
   )
 }

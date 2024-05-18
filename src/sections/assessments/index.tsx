@@ -7,7 +7,7 @@ import Card from '@/components/Card'
 import StellarPlot from '@/components/DataViz/StellarPlot'
 // Sections
 import BessiDescription from './bessi/description'
-import GenderAndCreativityUsDescription from './gender-and-creativity-us/descriptions/entrance'
+import BigFiveDescription from './big-five/descriptions/entrance'
 import BessiResultsVisualization from './bessi/assessment/results/bessi-results-visualization'
 // Utils
 import { 
@@ -49,8 +49,8 @@ const pAssessments: PersonalityAssessmentType[] = [
   {
     buttonText: `Begin`,
     title: `Big Five, Vocational Interests, and Creativity Test`,
-    description: <GenderAndCreativityUsDescription />,
-    href: `/gender-and-creativity-us`,
+    description: <BigFiveDescription />,
+    href: `/big-five`,
   },
   {
     buttonText: `Begin`,
