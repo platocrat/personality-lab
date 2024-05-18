@@ -302,8 +302,8 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
 
               <Questionnaire
                 questions={ questions }
-                onChange={ onWellnessRatingChange }
                 controls={{ valueType: 'number' }}
+                onChange={ onWellnessRatingChange }
                 choices={ wellnessRatingDescriptions }
                 currentQuestionIndex={ currentQuestionIndex }
                 setIsEndOfQuestionnaire={ setIsEndOfQuestionnaire }

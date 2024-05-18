@@ -229,21 +229,12 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
     positiveOrNegative: 'positive' | 'negative',
   ) {
     setIsRating(true)
+
     const rating = positiveOrNegative === 'positive' ? 1 : 0
     const vizName = visualizations[currentVisualization].name
 
-    console.log(`[handleRateVisualization]: ${vizName} viz rating: `, rating)
-
     // Submit the user's rating of the visualization to DynamoDB
     const userVizRatingId = await storeRatingInDynamoDB(rating, vizName)
-    
-    console.log(
-      `[handleRateVisualization]: submission of viz rating was successful!`,
-      `userVizRatingId: `, 
-      userVizRatingId
-    )
-
-    setIsRating(false)
   }
 
 
@@ -276,7 +267,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         }
 
         try {
-          const response = await fetch('/bessi/assessment/api/viz-name', {
+          const response = await fetch('/api/assessment/viz-rating', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -290,6 +281,8 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
             const userVizRatingId = json.data
             return userVizRatingId
           } else {
+            setIsRating(false)
+
             const error = `Error posting ${ 'viz rating' } to DynamoDB: `
             /**
              * @todo Handle error UI here
@@ -297,6 +290,8 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
             throw new Error(error, json.error)
           }
         } catch (error: any) {
+          setIsRating(false)
+
           /**
            * @todo Handle error UI here
            */
