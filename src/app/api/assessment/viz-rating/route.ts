@@ -47,7 +47,6 @@ export async function POST(
 
     try {
       const response = await ddbDocClient.send(command)
-      console.log(`[${ new Date().toLocaleString()} -- path: 'app/api/assessment/viz-rating' ]: response: `, response)
 
       const message = successMessage || 'Operation successful'
 

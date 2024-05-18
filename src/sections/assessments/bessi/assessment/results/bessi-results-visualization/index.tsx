@@ -15,13 +15,13 @@ import {
 // Sections
 import Modal from './modal'
 import TitleDropdown from './title-dropdown'
-import BessiShareResults from './share-results'
 import UserVisualization from './user-visualization'
 // Components
 import Title from '@/components/DataViz/Title'
 import TreeMap from '@/components/DataViz/TreeMap'
 import StellarPlot from '@/components/DataViz/StellarPlot'
-import BessiRateUserResults from '@/components/Forms/BESSI/RateUserResults'
+import ShareResults from '@/components/DataViz/ShareResults'
+import NormalDistributionChart from '@/components/DataViz/Distributions/Normal'
 import BarChartPerDomain from '@/components/DataViz/BarChart/BarChartPerDomain'
 import PersonalityVisualization from '@/components/DataViz/PersonalityVisualization'
 // Hooks
@@ -42,7 +42,7 @@ import {
 } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
-import NormalDistributionChart from '@/components/DataViz/Distributions/Normal'
+import BessiRateUserResults from '@/components/Forms/BESSI/RateUserResults'
 
 
 
@@ -328,7 +328,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
           ? renderVisualization(isExample, currentVisualization)
           : (
             <Fragment>
-              <BessiShareResults
+              <ShareResults
                 state={{
                   isCopied: isCopied,
                   isRating: isRating,
