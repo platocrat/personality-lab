@@ -8,7 +8,7 @@ import TextOrNumberInput from '@/components/Input/TextOrNumber'
 // Utils
 import {
   getItemsFromLocalStorage,
-  GENDER_AND_CREATIVITY_US_FORM_IDS,
+  BIG_FIVE_FORM_IDS,
   BIG_FIVE_ASSESSMENT_HREF,
   BIG_FIVE_FRAGMENT_ID_PREFACES,
 } from '@/utils'
@@ -57,7 +57,7 @@ const SubmitResultsForm: FC<SubmitResultsFormProps> = ({
     e.preventDefault()
 
     const userResults = getItemsFromLocalStorage(
-      GENDER_AND_CREATIVITY_US_FORM_IDS
+      BIG_FIVE_FORM_IDS
     )
 
     setUserResults(userResults)
