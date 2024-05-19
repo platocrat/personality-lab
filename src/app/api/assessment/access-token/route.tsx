@@ -5,13 +5,12 @@ import {
   GetCommandInput,
   PutCommandInput,
 } from '@aws-sdk/lib-dynamodb'
-import { sign, decode } from 'jsonwebtoken'
+import { sign } from 'jsonwebtoken'
 import { NextRequest, NextResponse } from 'next/server'
 // Locals
 import { 
   MAX_AGE,
   ddbDocClient,
-  LibsodiumUtils,
   fetchAwsParameter,
   AWS_PARAMETER_NAMES,
   DYNAMODB_TABLE_NAMES,

@@ -24,6 +24,7 @@ import {
   AWS_PARAMETER_NAMES, 
   DYNAMODB_TABLE_NAMES,
 } from '@/utils'
+import { ACCOUNT_ADMINS } from '@/utils/constants'
 
 
 
@@ -32,8 +33,16 @@ export async function POST(
   res: NextResponse,
 ): Promise<NextResponse<{ message: string }> | NextResponse<{ error: any }>> {
   if (req.method === 'POST') {
-    const { email, username, password } = await req.json()
+    const { 
+      email, 
+      username, 
+      password // Password is already hashed
+    } = await req.json()
 
+    /**
+     * @dev 1. Construct the `QueryCommand` to check if the username exists in
+     *         the DynamoDB Table
+     */
     const IndexName = 'username-index'
     const TableName = DYNAMODB_TABLE_NAMES.accounts
     const KeyConditionExpression = 'username = :usernameValue'
@@ -49,7 +58,7 @@ export async function POST(
       command: QueryCommand | PutCommand | GetParameterCommand = new QueryCommand(input)
 
     /**
-     * @dev 1. Check if the username is already in the database
+     * @dev 1. Check if the username is already in the DynamoDB table
      */
     try {
       const response = await ddbDocClient.send(command)
@@ -76,17 +85,24 @@ export async function POST(
     // Get timestamp after the username is validated.
     const timestamp = new Date().getTime()
 
+    /**
+     * @dev 3. Determine if the new user is an admin
+     */
+    const isAdmin = ACCOUNT_ADMINS.some(admin => admin.email === email)
+
     input = {
       TableName,
       Item: { 
-        email: email,
-        username: username, 
-        password: password,
-        timestamp: timestamp
+        email,
+        isAdmin,
+        username, 
+        password, // This is a hashed password
+        timestamp
       },
     }
 
     command = new PutCommand(input)
+
 
     try {
       const response = await ddbDocClient.send(command)
@@ -111,7 +127,10 @@ export async function POST(
             username,
             secretKeyUint8Array
           )
-
+          const encryptedIsAdmin = await LibsodiumUtils.encryptData(
+            isAdmin.toString(),
+            secretKeyUint8Array
+          )
           const encryptedTimestamp = await LibsodiumUtils.encryptData(
             timestamp.toString(),
             secretKeyUint8Array
@@ -123,6 +142,7 @@ export async function POST(
           const token = sign(
             {
               email: encryptedEmail,
+              isAdmin: encryptedIsAdmin,
               username: encryptedUsername,
               password,
               timestamp: encryptedTimestamp
@@ -163,6 +183,7 @@ export async function POST(
              */
             sameSite: 'strict',
             path: '/',
+            // expires: MAX_AGE.SESSION,
           })
 
           const cookieValue: string = cookies().get(COOKIE_NAME)?.value ?? 'null'

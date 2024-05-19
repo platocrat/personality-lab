@@ -21,15 +21,11 @@ import styles from '@/app/page.module.css'
 export default function Home() {
   const { isAdmin, isAuthenticated } = useContext(AuthenticatedUserContext)
 
-  const _isAuthenticated = useMemo((): boolean => {
-    return isAuthenticated
-  }, [ isAuthenticated ])
-
 
   return (
     <>
       <main className={ `${styles.main} ` }>
-        { _isAuthenticated 
+        { isAuthenticated 
           ? (
             <>
               { isAdmin ? <AdminPortal /> : <PersonalityAssessments /> }

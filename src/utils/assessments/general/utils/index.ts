@@ -3,6 +3,8 @@ import { decode } from 'jsonwebtoken'
 // Locals
 import LibsodiumUtils from '@/utils/libsodium'
 import { AWS_PARAMETER_NAMES } from '@/utils/aws'
+// Types
+import { CookieType } from '../types'
 
 
 
@@ -61,9 +63,6 @@ export async function getAccessToken(
   * @dev Note that the password that is returned is a hashed password
   */
 export async function getUsernameAndEmailFromCookie() {
-  type CookieType = { email: string, username: string, password: string }
-
-
   try {
     const response = await fetch('/api/assessment/aws-parameter', {
       method: 'POST',

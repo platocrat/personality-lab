@@ -1,14 +1,27 @@
 // Externals
-import { FC, Fragment, useLayoutEffect, useRef, useState } from 'react'
+import { 
+  FC, 
+  useRef, 
+  useState,
+  Fragment, 
+  RefObject,
+  CSSProperties,
+  useLayoutEffect,
+} from 'react'
 // Locals
 // Components
+import ObserverResultsModal from '@/components/Modals/ObserverResultsModal'
 import DownloadDataModal from '@/components/Modals/AdminPortal/DownloadData'
 import CreateParticipantModal from '@/components/Modals/AdminPortal/CreateParticipant'
 // Hooks
 import useClickOutside from '@/hooks/useClickOutside'
+// Utils
+import { BessiSkillScoresType, getUsernameAndEmailFromCookie } from '@/utils'
+// Types
+import { ParticipantType } from '@/utils/types'
 // CSS
 import styles from '@/app/page.module.css'
-import { BessiSkillScoresType, getUsernameAndEmailFromCookie } from '@/utils'
+import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
@@ -17,7 +30,12 @@ type AdminPortalProps = {
 }
 
 
-const PAGE_TITLE = 'Admin Portal'
+type ShowModalType = 'createParticipantModal' | 'downloadDataModal' |
+  'viewObserverResponseModal' | 'viewObserverResultsModal' | null
+
+
+
+  const PAGE_TITLE = 'Admin Portal'
 
 const TABLE_HEADERS = [
   `ID`,
@@ -27,7 +45,11 @@ const TABLE_HEADERS = [
   `Observer Results`,
 ]
 
-
+const tdOrThStyle: CSSProperties = {
+  padding: '8px',
+  textAlign: 'center',
+  border: '1px solid #dddddd',
+}
 
 
 const AdminPortal: FC<AdminPortalProps> = ({
@@ -36,24 +58,51 @@ const AdminPortal: FC<AdminPortalProps> = ({
   // Refs
   const modalRef = useRef<any>(null)
   // States
-  const [ participants, setParticipants ] = useState<any[]>([])
-  const [ isNobelLaureate, setIsNobelLaureate ] = useState<string>('')
+  // Strings
   const [ assessmentName, setAssessmentName ] = useState<string>('')
   const [ participantName, setParticipantName ] = useState<string>('')
   const [ participantEmail, setParticipantEmail ] = useState<string>('')
-  const [ participantCreated, setParticipantCreated ] = useState(false)
-  const [ showModal, setShowModal ] = useState<'modal1' | 'modal2' | null>(null)
+  // Booleans
+  const [ isNobelLaureate, setIsNobelLaureate ] = useState<boolean>(false)
+  const [ participantCreated, setParticipantCreated ] = useState<boolean>(false)
+  // Custom
+  const [
+    selectedParticipant, 
+    setSelectedParticipant
+  ] = useState<ParticipantType | null>(null)
+  const [participants, setParticipants] = useState<ParticipantType[]>([
+    {
+      name: 'Jack Winfield 1',
+      email: 'jack.abe.winfield@gmail.com',
+      assessmentName: 'bessi',
+      isNobelLaureate: false,
+    },
+    {
+      name: 'Jack Winfield 2',
+      email: 'wmn@schuage.com',
+      assessmentName: 'bessi',
+      isNobelLaureate: false,
+    },
+  ])
+  const [ showModal, setShowModal ] = useState<ShowModalType>(null)
 
 
   // -------------------------- Regular functions ------------------------------
+  // ~~~~~~ Modal handlers ~~~~~~
+  function handleViewObserverResults (participant: ParticipantType) {
+    setSelectedParticipant(participant)
+    setShowModal('viewObserverResultsModal')
+  }
+
   function handleOpenCreateParticipantModal(e: any) {
-    setShowModal('modal1')
+    setShowModal('createParticipantModal')
   }
 
   function handleOpenDownloadDataModal(e: any) {
-    setShowModal('modal2')
+    setShowModal('downloadDataModal')
   }
   
+  // ~~~~~~ Input handlers ~~~~~~
   function onNameChange(e: any) {
     const { value } = e.target
     setParticipantName(value)
@@ -65,16 +114,21 @@ const AdminPortal: FC<AdminPortalProps> = ({
   }
   
   function onNobelLaureateChange(e: any) {
-    const { value } = e.target
-    setIsNobelLaureate(value)
+    const { value, checked } = e.target
+    setIsNobelLaureate(checked)
   }
 
   // -------------------------- Async functions --------------------------------
+  async function handleOnViewObserverResults(e: any) {
+    console.log('Viewing observer results!')
+  }
+
+
   async function handleOnCreateParticipant(e: any) {
     e.preventDefault()
 
     // 1. Create a new `participant` object
-    const participant = {
+    const participant: ParticipantType = {
       name: participantName,
       email: participantEmail,
       assessmentName: assessmentName,
@@ -135,7 +189,7 @@ const AdminPortal: FC<AdminPortalProps> = ({
       }
 
       try {
-        const response = await fetch('/api/assessment/results', {
+        const response = await fetch('/api/assessment/participants', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -207,17 +261,30 @@ const AdminPortal: FC<AdminPortalProps> = ({
 
   return (
     <>
-      <div>
-
+      <div 
+        style={{ 
+          ...definitelyCenteredStyle,
+          flexDirection: 'column',
+          width: '100%',
+          maxWidth: '800px',
+        }}
+      >
         {/* Title */}
         <h2>{ PAGE_TITLE }</h2>
 
         {/* Page Nav */ }
-        <div>
+        <div 
+          style={{ 
+            gap: '18px',
+            display: 'flex', 
+            margin: '24px 0px'
+          }}
+        >
           { pageNavButtons.map((btn, i: number) => (
             <Fragment key={ i }>
               <div>
                 <button
+                  style={{ width: '140px' }}
                   className={ styles.button }
                   onClick={ btn.onClick }
                 >
@@ -229,28 +296,98 @@ const AdminPortal: FC<AdminPortalProps> = ({
         </div>
 
         {/* Table of students */}
-        <div>
-          <table>
-            <thead>
+        <div
+          style={{
+            width: '100%',
+            margin: '20px 0',
+            overflowX: 'auto',
+          }}
+        >
+          <table
+            style={{
+              width: '100%',
+              margin: '0 auto',
+              borderCollapse: 'collapse',
+            }}
+          >
+            <thead
+              style={{
+                backgroundColor: '#f4f4f4',
+              }}
+            >
               { TABLE_HEADERS.map((name: string, i: number) => (
                 <Fragment key={ i }>
-                  <div>
+                  <th style={ tdOrThStyle }>
                     <p>
                       { name }
                     </p>
-                  </div>
+                  </th>
                 </Fragment>
               )) }
             </thead>
-            <tr>
-              { participants }
-            </tr>
+            <tbody>
+                { participants.map((participant: ParticipantType, i: number) => (
+                  <Fragment key={ i }>
+                    <tr>
+                      <td style={ tdOrThStyle }>
+                        <p>
+                          <span>
+                            <p>{ i }</p>
+                          </span>
+                        </p>
+                      </td>
+                      <td style={ tdOrThStyle }>
+                        <p>
+                          <span>
+                            <p>{ participant.name }</p>
+                          </span>
+                        </p>
+                      </td>
+                      <td style={ tdOrThStyle }>
+                        <p>
+                          <span>
+                            <p>{ participant.email }</p>
+                          </span>
+                        </p>
+                      </td>
+                      <td style={ tdOrThStyle }>
+                        <p>
+                          <span>
+                            <p>{  }</p>
+                          </span>
+                        </p>
+                      </td>
+                      <td style={ tdOrThStyle }>
+                        <p 
+                          className={ styles.externalLink }
+                          style={{
+                            cursor: 'pointer',
+                          }}
+                          onClick={
+                            (e: any) => handleViewObserverResults(
+                              participant
+                            )
+                          }
+                        >
+                          <span>
+                            <p>{ `View Results` }</p>
+                          </span>
+                        </p>
+                      </td>
+                    </tr>
+                  </Fragment>
+                )) }
+            </tbody>
           </table>
         </div>
 
-        {/* Create Participant Modal */}
-        <CreateParticipantModal 
+        {/* Modals */}
+        <CreateParticipantModal
+          modalRef={ modalRef }
           onClick={ handleOnCreateParticipant }
+          isModalVisible={ 
+            showModal === 'createParticipantModal' ? true : false 
+          }
           onChange={{
             onNameChange,
             onEmailChange,
@@ -258,9 +395,17 @@ const AdminPortal: FC<AdminPortalProps> = ({
           }}
         />
         
-        {/* Create Participant Modal */}
         <DownloadDataModal 
-
+          modalRef={ modalRef }
+        />
+        
+        <ObserverResultsModal 
+          modalRef={ modalRef }
+          onClick={ handleOnViewObserverResults }
+          selectedParticipant={ selectedParticipant }
+          isModalVisible={
+            showModal === 'viewObserverResultsModal' ? true : false
+          }
         />
 
       </div>

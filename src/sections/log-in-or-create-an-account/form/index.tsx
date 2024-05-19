@@ -96,8 +96,8 @@ const Form: FC<FormProps> = ({
     state.isFirstStep,
     state.isUsernameTaken,
     state.isPasswordHashing,
-    state.isWaitingForResponse,
     state.isPasswordIncorrect,
+    state.isWaitingForResponse,
     isHCaptchaVerificationSuccessful,
   ])
 
@@ -302,7 +302,7 @@ const Form: FC<FormProps> = ({
       return hashedPassword
     } catch (error: any) {
       set.isPasswordHashing(false)
-      console.error(error)
+      throw new Error(error)
     }
   }
 

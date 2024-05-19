@@ -40,7 +40,7 @@
 }
 
 .img:hover {
-  transform: scale(0.96);
+  transform: scale(0.95);
   transition: 0.11s;
 }
 

@@ -36,6 +36,11 @@
   text-decoration: underline;
 }
 
+.externalLink:hover {
+  color: #007ac0c5;
+  text-decoration: none;
+}
+
 
 .bessi_header2 {
   font-family: Arial, Helvetica, sans-serif;

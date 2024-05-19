@@ -7,7 +7,7 @@ import { imgPaths } from '@/utils'
 // CSS
 import appStyles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
-import modalStyle from '@/components/Modals/BESSI/ResultsVisualization/ResultsVisualization.module.css'
+import modalStyle from '@/components/Modals/Modal.module.css'
 
 
 

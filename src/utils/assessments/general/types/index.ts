@@ -1,6 +1,15 @@
 export type ACCOUNTS__DYNAMODB = {
-  password: string
-  username: string
   email: string
+  username: string
+  password: string
+  isAdmin: boolean
   timestamp: number
+}
+
+
+export type CookieType = { 
+  email: string
+  username: string
+  password: string
+  isAdmin: boolean
 }

@@ -236,6 +236,7 @@ export default function RootLayout({
     }
   }
 
+
   /**
    * @dev Protects any page by restricting access to users that
    * have already authenticated and hold a session cookie.
@@ -244,6 +245,7 @@ export default function RootLayout({
     setIsFetchingUser(true)
 
     const { user, error } = await getUser()
+
 
     if (error) {
       // Prompt user to log in 
@@ -260,20 +262,12 @@ export default function RootLayout({
         }, timeout)
       }
     } else {
-      // Check if the user is an admin to show them the `<AdminPortal />`
-      await checkIfAdmin(user) 
-
       // Show the dashboard
+      setIsAdmin(user.isAdmin)
       setIsAuthenticated(true)
       setIsFetchingUser(false)
     }
   }
-
-  
-  async function checkIfAdmin(user): Promise<void> {
-    setIsAdmin(user ? true : false)
-  }
-
 
 
   // ------------------------------ `useEffect`s -------------------------------
@@ -311,8 +305,8 @@ export default function RootLayout({
             <body>
               <AuthenticatedUserContext.Provider
                 value={ {
+                  isAdmin,
                   isAuthenticated,
-                  setIsAuthenticated,
                 } }
               >
                   <UserDemographicContext.Provider
