@@ -23,7 +23,7 @@ const NormalDistributionChart: FC<NormalDistributionChartProps> = ({
   score,
   stddev,
 }) => {
-  const svgRef = useRef<any>()
+  const d3Container = useRef<SVGSVGElement | null>(null)
 
 
 
@@ -71,7 +71,7 @@ const NormalDistributionChart: FC<NormalDistributionChartProps> = ({
       .curve(d3.curveBasis)
 
     // Create the SVG
-    const svg = d3.select(svgRef.current)
+    const svg = d3.select(d3Container.current)
       .attr('width', width + margin.left + margin.right)
       .attr('height', height + margin.top + margin.bottom)
       .append('g')
@@ -300,7 +300,7 @@ const NormalDistributionChart: FC<NormalDistributionChartProps> = ({
 
 
   return (
-    <svg ref={ svgRef }></svg>
+    <svg ref={ d3Container } />
   )
 }
 

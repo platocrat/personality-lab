@@ -1,7 +1,6 @@
 'use client'
 
 // Externals
-import html2canvas from 'html2canvas'
 import {
   FC,
   useRef,
@@ -21,8 +20,8 @@ import TreeMap from '@/components/DataViz/TreeMap'
 import StellarPlot from '@/components/DataViz/StellarPlot'
 import ShareResults from '@/components/DataViz/ShareResults'
 import RateUserResults from '@/components/Forms/BESSI/RateUserResults'
+import BarChartPerDomain from '@/components/DataViz/BarChart/PerDomain'
 import NormalDistributionChart from '@/components/DataViz/Distributions/Normal'
-import BarChartPerDomain from '@/components/DataViz/BarChart/BarChartPerDomain'
 import PersonalityVisualization from '@/components/DataViz/PersonalityVisualization'
 import ResultsVisualizationModal from '@/components/Modals/BESSI/ResultsVisualization'
 // Hooks
@@ -44,6 +43,9 @@ import {
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 import BessiRateUserResults from '@/components/Forms/BESSI/RateUserResults'
+import RadialBarChart from '@/components/DataViz/BarChart/Radial'
+import { style } from 'd3'
+import html2canvas from 'html2canvas'
 
 
 
@@ -85,19 +87,30 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   // Strings
   const [ screenshotUrl, setScreenshotUrl ] = useState('')
   // Numbers
+  const [ 
+    selectedRadialBarChart, 
+    setSelectedRadialBarChart 
+  ] = useState(0)
   const [ currentVisualization, setCurrentVisualization ] = useState(0)
 
   
   const visualizations = [
     { name: 'Stellar Plot', imgName: 'stellar-plot' },
     { name: 'Bar Graph', imgName: 'bar-graph ' },
+    { name: 'Radial Bar Graph', imgName: 'radial-bar-graph' },
     { name: 'Tree Map', imgName: 'tree-map' },
-    { name: 'Personality Visualization', imgName: 'personality-visualization' },
     { name: 'Normal Distribution', imgName: 'normal-distribution' },
+    { name: 'Personality Visualization', imgName: 'personality-visualization' },
   ]
   
   
   // ------------------------- Regular functions -------------------------------
+  function handleOnChangeRadialBarChart(e: any) {
+    const { value } = e.target
+    setSelectedRadialBarChart(value)
+  }
+
+
   const data_ = (i: number) => {
     switch (i) {
       case 0:
@@ -109,6 +122,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
           value: value / 100
         }))
       case 1:
+      case 2:
         const inputData: InputDataStructure = {
           facetScores: bessiSkillScores?.facetScores as FacetFactorType,
           domainScores: bessiSkillScores?.domainScores as SkillDomainFactorType,
@@ -119,16 +133,9 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
             ? inputData 
             : dummyVariables.pv.data
           )
-      case 2:
       case 3:
-        return bessiSkillScores?.domainScores
-          ? {
-            facetScores: bessiSkillScores?.facetScores,
-            domainScores: bessiSkillScores?.domainScores,
-            averages: dummyVariables.pv.averages,
-          }
-          : dummyVariables.pv.data
       case 4:
+      case 5:
         return bessiSkillScores?.domainScores
           ? {
             facetScores: bessiSkillScores?.facetScores,
@@ -167,15 +174,38 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
           </>
         )
       case 2:
-        return <TreeMap isExample={ isExample } data={ data_(i) } />
-      case 3:
+        const _allData = data_(i) as TargetDataStructure[]
+
         return (
-          <PersonalityVisualization
-            isExample={ isExample }
-            data={ data_(i) }
-            averages={ dummyVariables.pv.averages }
-          />
+          <>
+            <select
+              value={ selectedRadialBarChart }
+              style={{ 
+                padding: '4px 8px 4px 4px',
+                margin: '24px 0px 24px 0px',
+              }}
+              onChange={ 
+                (e: any) => handleOnChangeRadialBarChart(e) 
+              }
+            >
+              { _allData.map((data: TargetDataStructure, i: number) => (
+                <>
+                  <option key={ i } value={ i }>
+                    { data.name }
+                  </option>
+                </>
+              )) }
+            </select>
+
+            <RadialBarChart
+              isExample={ isExample }
+              data={ _allData[selectedRadialBarChart] } 
+              selectedRadialBarChart={ selectedRadialBarChart }
+            />
+          </>
         )
+      case 3:
+        return <TreeMap isExample={ isExample } data={ data_(i) } />
       case 4:
         /**
          * @todo Get `mean` from data 
@@ -187,15 +217,21 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         const stddev = getRandomValueInRange(1, 5)
         const score = getRandomValueInRange(50 - stddev, 50 + stddev)
 
-
-
-        console.log(`[${new Date().toLocaleString() }] stddev: `, stddev)
+        console.log(`[${new Date().toLocaleString()}] stddev: `, stddev)
 
         return (
           <NormalDistributionChart
             mean={ mean }
             stddev={ stddev }
             score={ score }
+          />
+        )
+      case 5:
+        return (
+          <PersonalityVisualization
+            isExample={ isExample }
+            data={ data_(i) }
+            averages={ dummyVariables.pv.averages }
           />
         )
       default:

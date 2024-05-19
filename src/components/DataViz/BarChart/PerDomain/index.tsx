@@ -34,7 +34,7 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
   data,
   isExample,
 }) => {
-  const d3Container = useRef(null)
+  const d3Container = useRef<HTMLDivElement | null>(null)
 
 
   useEffect(() => {
@@ -155,7 +155,20 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
       .text((data as TargetDataStructure).domainScore)
       // Set the color here
       .attr('fill', color((data as TargetDataStructure).domainScore))
+      .style('filter', 'url(#drop-shadow)') // Apply drop shadow filter
       .attr('transform', 'translate(12,5)')
+
+    // Add drop shadow filter
+    svg.append('defs')
+      .append('filter')
+      .attr('id', 'drop-shadow')
+      .attr('height', '130%')
+      .append('feDropShadow')
+      .attr('dx', 0)
+      .attr('dy', 1.25)
+      .attr('stdDeviation', 1)
+      .attr('flood-color', '#000000')
+      .attr('flood-opacity', '0.75')
     
     const scoreRangeText: any = legend.append('text')
       .attr('x', 0)
@@ -170,7 +183,7 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
       .attr('y', textBBox.y - 3) // Add some padding
       .attr('width', textBBox.width + 30) // Add some padding
       .attr('height', textBBox.height + 4) // Add some padding
-      .attr('fill', 'black') // Set the background color
+      .attr('fill', '#555555') // Set the background color
       .attr('rx', 5) // Rounded corners
       .attr('ry', 5) // Rounded corners
       .attr('transform', 'translate(0,5)')

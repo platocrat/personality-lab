@@ -40,7 +40,7 @@ const GroupedBarChart: FC<GroupedBarChartType> = ({
   data,
   isExample, 
 }) => {
-  const d3Container = useRef(null)
+  const d3Container = useRef<SVGSVGElement | null>(null)
   const title = 'BESSI Bar Chart'
 
 
@@ -166,7 +166,7 @@ const GroupedBarChart: FC<GroupedBarChartType> = ({
   return (
     <>
       <Title isExample={ isExample } title={ title } />
-      <div ref={ d3Container } style={ definitelyCenteredStyle } />
+      <svg ref={ d3Container } style={ definitelyCenteredStyle } />
     </>
   )
 }

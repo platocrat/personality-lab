@@ -18,8 +18,7 @@ const TreeMap = ({
   isExample,
   data,
 }) => {
-  const d3Container = useRef(null)
-
+  const d3Container = useRef<HTMLDivElement | null>(null)
   const title = `BESSI Tree Map`
 
 

@@ -16,7 +16,7 @@ const PersonalityVisualization = ({
   data,
   averages,
 }) => {
-  const svgRef = useRef<any>(null)
+  const d3Container = useRef<SVGSVGElement | null>(null)
   const [ activeDomain, setActiveDomain ] = useState('Self-Management Skills')
 
   const title = `BESSI Personality Visualization`
@@ -43,10 +43,10 @@ const PersonalityVisualization = ({
 
 
   useEffect(() => {
-    if (!svgRef.current) return
+    if (!d3Container.current) return
 
     // Clear the current SVG
-    d3.select(svgRef.current).selectAll('*').remove()
+    d3.select(d3Container.current).selectAll('*').remove()
 
     const domainNames = Object.keys(data.domainScores)
     const facetNames = domainToFacetMapping[activeDomain]
@@ -56,7 +56,7 @@ const PersonalityVisualization = ({
     const outerRadius = 170
     const innerRadius = 120
 
-    const svg = d3.select(svgRef.current)
+    const svg = d3.select(d3Container.current)
       .attr('width', width)
       .attr('height', height)
       .append('g')
@@ -252,8 +252,8 @@ const PersonalityVisualization = ({
         <div 
           id='tooltip' 
           className={ styles.tooltip }
-          />
-        <svg ref={ svgRef }></svg>
+        />
+        <svg ref={ d3Container } />
       </div>
     </>
   )

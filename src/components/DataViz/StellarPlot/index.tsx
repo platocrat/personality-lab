@@ -12,7 +12,7 @@ const StellarPlot = ({
   isExample,
   data
 }) => {
-  const ref = useRef<any>(null)
+  const d3Container = useRef<HTMLDivElement | null>(null)
 
   const title = `BESSI Stellar Plot`
 
@@ -27,9 +27,9 @@ const StellarPlot = ({
       )
 
     // Remove any existing svg to avoid duplicates
-    d3.select(ref.current).select('svg').remove()
+    d3.select(d3Container.current).select('svg').remove()
 
-    const svg = d3.select(ref.current)
+    const svg = d3.select(d3Container.current)
       .append('svg')
       .attr('width', width)
       .attr('height', height - 60)
@@ -186,7 +186,7 @@ const StellarPlot = ({
   return (
     <>
       <Title isExample={ isExample } title={ title } />
-      <div ref={ ref } style={ definitelyCenteredStyle }></div>
+      <div ref={ d3Container } style={ definitelyCenteredStyle } />
     </>
   )
 }
