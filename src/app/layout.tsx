@@ -307,6 +307,7 @@ export default function RootLayout({
                 value={ {
                   isAdmin,
                   isAuthenticated,
+                  setIsAuthenticated,
                 } }
               >
                   <UserDemographicContext.Provider

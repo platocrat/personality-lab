@@ -5,7 +5,7 @@ import {
   useState, 
   Fragment, 
   Dispatch,
-  SetStateAction, 
+  SetStateAction,
 } from 'react'
 import HCaptcha from '@hcaptcha/react-hcaptcha'
 // Locals
@@ -195,6 +195,7 @@ const Form: FC<FormProps> = ({
       set.isPasswordHashing(true)
       // 2. Store encrypted password in database
       hashPassword(_).then((hashedPassword: string): void => {
+        console.log(`hashedPassword: `, hashedPassword)
         set.password(hashedPassword)
         set.isPasswordHashing(false)
       })
@@ -205,12 +206,6 @@ const Form: FC<FormProps> = ({
       set.isPasswordHashing(false)
     }
   }
-
-
-  const debouncedOnPasswordChange = useMemo(
-    (): ((...args: any) => void) => debounce(onPasswordChange, debounceTimeout),
-    [state.password]
-  )
 
 
   function isValidEmail(email: string): boolean {
@@ -359,7 +354,7 @@ const Form: FC<FormProps> = ({
     {
       name: 'password',
       placeholder: `Password`,
-      onChange: debouncedOnPasswordChange
+      onChange: onPasswordChange
     },
   ]
 
@@ -391,8 +386,8 @@ const Form: FC<FormProps> = ({
                     id={ fi.name }
                     name={ fi.name }
                     maxLength={ 28 }
-                    placeholder={ fi.placeholder }
                     type={ formInputType(i) }
+                    placeholder={ fi.placeholder }
                     onChange={ (e: any) => fi.onChange(e) }
                     style={ {
                       width: `310px`,
