@@ -6,10 +6,9 @@ import {
 import { NextRequest, NextResponse } from 'next/server'
 // Locals
 import {
-  ddbDocClient,
-  getUserVizRatingId,
-  DYNAMODB_TABLE_NAMES,
   getEntryId,
+  ddbDocClient,
+  DYNAMODB_TABLE_NAMES,
 } from '@/utils'
 
 
