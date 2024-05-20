@@ -160,8 +160,6 @@ const AdminPortal: FC<AdminPortalProps> = ({
       if (response.status === 401) return { user: null, error: data.message }
       if (response.status === 400) return { user: null, error: data.error }
 
-      console.log(`participants: `, data.participants)
-
       setParticipants(data.participants)
       setParticipantCreated(false)
     } catch (error: any) {

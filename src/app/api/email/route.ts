@@ -4,7 +4,7 @@ import { QueryCommand, QueryCommandInput } from '@aws-sdk/lib-dynamodb'
 // Locals
 import { 
   ddbDocClient,
-  ACCOUNT_DYNAMODB,
+  ACCOUNT__DYNAMODB,
   DYNAMODB_TABLE_NAMES, 
 } from '@/utils'
 
@@ -34,7 +34,7 @@ export async function POST(
       const response = await ddbDocClient.send(command)
 
       if (response.Items && response.Items.length > 0) {
-        if ((response.Items[0] as ACCOUNT_DYNAMODB).email) {
+        if ((response.Items[0] as ACCOUNT__DYNAMODB).email) {
           return NextResponse.json(
             { message: 'Email exists' },
             { status: 200 },
