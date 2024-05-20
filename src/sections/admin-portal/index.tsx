@@ -20,6 +20,7 @@ import {
   ParticipantType, 
   BessiSkillScoresType,
   getUsernameAndEmailFromCookie,
+  PARTICIPANT_DYNAMODB,
 } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
@@ -65,6 +66,10 @@ const AdminPortal: FC<AdminPortalProps> = ({
   const [ participantEmail, setParticipantEmail ] = useState<string>('')
   const [ assessmentNames, setAssessmentNames ] = useState<string[]>([''])
   // Booleans
+  const [ 
+    isWaitingForResponse, 
+    setIsWaitingForResponse 
+  ] = useState<boolean>(false)
   const [ isNobelLaureate, setIsNobelLaureate ] = useState<boolean>(false)
   const [ participantCreated, setParticipantCreated ] = useState<boolean>(false)
   // Custom
@@ -75,16 +80,10 @@ const AdminPortal: FC<AdminPortalProps> = ({
   const [showModal, setShowModal] = useState<ShowModalType>(null)
   const [participants, setParticipants] = useState<ParticipantType[]>([
     {
-      name: 'Jack Winfield 1',
+      name: '',
       isNobelLaureate: false,
-      assessmentNames: [ 'bessi' ],
-      email: 'jack.abe.winfield@gmail.com',
-    },
-    {
-      name: 'Jack Winfield 2',
-      isNobelLaureate: false,
-      assessmentNames: [ 'bessi' ],
-      email: 'wmn@schuage.com',
+      assessmentNames: [ '' ],
+      email: '',
     },
   ])
 
@@ -129,6 +128,8 @@ const AdminPortal: FC<AdminPortalProps> = ({
   async function handleOnCreateParticipant(e: any) {
     e.preventDefault()
 
+    setIsWaitingForResponse(true)
+
     // 1. Create a new `participant` object
     const participant: ParticipantType = {
       name: participantName,
@@ -140,7 +141,11 @@ const AdminPortal: FC<AdminPortalProps> = ({
     // 2. Store the new `participant` object in DynamoDB
     await storeParticipantInDynamoDB(participant)
 
-    // 3. Update state to refetch `participants` from DynamoDB
+    // 3. Stop loading spinner
+    setIsWaitingForResponse(false)
+    // 4. Close Modal
+    setShowModal(null)
+    // 5. Update state to refetch `participants` from DynamoDB
     setParticipantCreated(true)
   }
 
@@ -152,15 +157,13 @@ const AdminPortal: FC<AdminPortalProps> = ({
       })
       const data = await response.json()
 
-      // console.log(
-      //   `[ ${new Date().toLocaleString()} -- path: src/sections/admin-portal/index.tsx -- function: getParticipants() ]: data: `, 
-      //   data
-      // )
-
       if (response.status === 401) return { user: null, error: data.message }
       if (response.status === 400) return { user: null, error: data.error }
 
-      return { participants: data.participants, error: null }
+      console.log(`participants: `, data.participants)
+
+      setParticipants(data.participants)
+      setParticipantCreated(false)
     } catch (error: any) {
       throw new Error(error.message)
     }
@@ -185,7 +188,7 @@ const AdminPortal: FC<AdminPortalProps> = ({
        * @dev This is the object that we store in DynamoDB using AWS's 
        * `PutItemCommand` operation.
        */
-      const participant = {
+      const participant: Omit<PARTICIPANT_DYNAMODB, "id"> = {
         adminEmail: email,
         adminUsername: username,
         name: _participant.name,
@@ -201,12 +204,11 @@ const AdminPortal: FC<AdminPortalProps> = ({
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            _participant
-          }),
+          body: JSON.stringify({ participant }),
         })
 
         const json = await response.json()
+
 
         if (response.status === 200) {
           const participantId = json.participantId
@@ -333,57 +335,57 @@ const AdminPortal: FC<AdminPortalProps> = ({
               )) }
             </thead>
             <tbody>
-                { participants.map((participant: ParticipantType, i: number) => (
-                  <Fragment key={ i }>
-                    <tr>
-                      <td style={ tdOrThStyle }>
-                        <p>
-                          <span>
-                            <p>{ i }</p>
-                          </span>
-                        </p>
-                      </td>
-                      <td style={ tdOrThStyle }>
-                        <p>
-                          <span>
-                            <p>{ participant.name }</p>
-                          </span>
-                        </p>
-                      </td>
-                      <td style={ tdOrThStyle }>
-                        <p>
-                          <span>
-                            <p>{ participant.email }</p>
-                          </span>
-                        </p>
-                      </td>
-                      <td style={ tdOrThStyle }>
-                        <p>
-                          <span>
-                            <p>{  }</p>
-                          </span>
-                        </p>
-                      </td>
-                      <td style={ tdOrThStyle }>
-                        <p 
-                          className={ styles.externalLink }
-                          style={{
-                            cursor: 'pointer',
-                          }}
-                          onClick={
-                            (e: any) => handleViewObserverResults(
-                              participant
-                            )
-                          }
-                        >
-                          <span>
-                            <p>{ `View Results` }</p>
-                          </span>
-                        </p>
-                      </td>
-                    </tr>
-                  </Fragment>
-                )) }
+              { participants?.map((participant: ParticipantType, i: number) => (
+                <Fragment key={ i }>
+                  <tr>
+                    <td style={ tdOrThStyle }>
+                      <p>
+                        <span>
+                          <p>{ i }</p>
+                        </span>
+                      </p>
+                    </td>
+                    <td style={ tdOrThStyle }>
+                      <p>
+                        <span>
+                          <p>{ participant.name }</p>
+                        </span>
+                      </p>
+                    </td>
+                    <td style={ tdOrThStyle }>
+                      <p>
+                        <span>
+                          <p>{ participant.email }</p>
+                        </span>
+                      </p>
+                    </td>
+                    <td style={ tdOrThStyle }>
+                      <p>
+                        <span>
+                          <p>{  }</p>
+                        </span>
+                      </p>
+                    </td>
+                    <td style={ tdOrThStyle }>
+                      <p 
+                        className={ styles.externalLink }
+                        style={{
+                          cursor: 'pointer',
+                        }}
+                        onClick={
+                          (e: any) => handleViewObserverResults(
+                            participant
+                          )
+                        }
+                      >
+                        <span>
+                          <p>{ `View Results` }</p>
+                        </span>
+                      </p>
+                    </td>
+                  </tr>
+                </Fragment>
+              )) }
             </tbody>
           </table>
         </div>
@@ -392,9 +394,12 @@ const AdminPortal: FC<AdminPortalProps> = ({
         <CreateParticipantModal
           modalRef={ modalRef }
           onClick={ handleOnCreateParticipant }
-          isModalVisible={ 
-            showModal === 'createParticipantModal' ? true : false 
-          }
+          state={{
+            isWaitingForResponse,
+            isModalVisible: showModal === 'createParticipantModal' 
+              ? true 
+              : false ,
+          }}
           onChange={{
             onNameChange,
             onEmailChange,

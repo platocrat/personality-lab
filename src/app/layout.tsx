@@ -261,10 +261,8 @@ export default function RootLayout({
         }, timeout)
       }
     } else {
-      const isAdmin_ = user.isAdmin
-
       // Show the dashboard
-      setIsAdmin(isAdmin_)
+      setIsAdmin(user.isAdmin)
       setIsAuthenticated(true)
       setIsFetchingUser(false)
     }

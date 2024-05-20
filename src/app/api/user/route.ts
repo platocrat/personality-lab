@@ -91,7 +91,7 @@ export async function GET(
           return NextResponse.json(
             {
               user,
-              message: message,
+              message,
             },
             {
               status: 200,

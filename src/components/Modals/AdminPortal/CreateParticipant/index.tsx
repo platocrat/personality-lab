@@ -6,12 +6,16 @@ import { RadioOrCheckboxInput } from '@/components/Input'
 import styles from '@/app/page.module.css'
 import modalStyle from '@/components/Modals/Modal.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+import Spinner from '@/components/Suspense/Spinner'
 
 
 
 type CreateParticipantModalProps = {
   modalRef: any
-  isModalVisible: boolean
+  state: {
+    isModalVisible: boolean
+    isWaitingForResponse: boolean
+  }
   onClick: (e: any) => void
   onChange: {
     onNameChange: (e: any) => void
@@ -43,25 +47,25 @@ const CreateParticipantModal: FC<CreateParticipantModalProps> = ({
   onClick,
   onChange,
   modalRef,
-  isModalVisible,
+  state,
 }) => {
   return (
     <>
-      { isModalVisible && (
+      { state.isModalVisible && (
         <>
           <div 
             ref={ modalRef }
+            className={ `${modalStyle.modal} ${modalStyle.background}` }
             style={{
               ...definitelyCenteredStyle,
               flexDirection: 'column',
               gap: '24px',
               width: '65%',
               height: '50%',
-              maxWidth: '300px',
+              maxWidth: '350px',
               maxHeight: '500px',
               textAlign: 'center'
             }}
-            className={ `${modalStyle.modal} ${modalStyle.background}` }
           >
             {/* Title */}
             <div style={{ width: '300px', marginBottom: '12px' }}>
@@ -79,6 +83,9 @@ const CreateParticipantModal: FC<CreateParticipantModalProps> = ({
                     // className=''
                     // id={ `${ i }` }
                     placeholder={ input.placeholder }
+                    onChange={ 
+                      i === 0 ? onChange.onNameChange : onChange.onEmailChange 
+                    }
                     style={{
                       width: '250px',
                       fontSize: '15px',
@@ -87,9 +94,6 @@ const CreateParticipantModal: FC<CreateParticipantModalProps> = ({
                       borderRadius: '4px',
                       boxShadow: '0px 1px 2px 0.5px inset black',
                     }}
-                    onChange={ 
-                      i === 0 ? onChange.onNameChange : onChange.onEmailChange 
-                    }
                   />
                 </div>
               </>
@@ -119,13 +123,30 @@ const CreateParticipantModal: FC<CreateParticipantModalProps> = ({
             </label>
 
             {/* Button */}
-            <button
-              onClick={ onClick }
-              style={ { width: '150px', marginTop: '12px' }}
-              className={ styles.button }
-            >
-              { BUTTON_TEXT }
-            </button>
+            { state.isWaitingForResponse
+              ? (
+                <>
+                  <div
+                    style={ {
+                      ...definitelyCenteredStyle,
+                      position: 'relative',
+                    } }
+                  >
+                    <Spinner height='40' width='40' />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={ onClick }
+                    style={ { width: '150px', marginTop: '12px' } }
+                    className={ styles.button }
+                  >
+                    { BUTTON_TEXT }
+                  </button>
+                </>
+              )
+            }
           </div>
         </>
       )}

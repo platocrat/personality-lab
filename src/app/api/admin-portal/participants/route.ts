@@ -63,9 +63,7 @@ export async function GET(
 
         return NextResponse.json(
           { 
-            data: {
-              participants
-            }
+            participants
           },
           {
             status: 200,

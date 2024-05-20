@@ -30,7 +30,7 @@ export async function getEntryId(obj) {
       )
 
       // Encrypt object's properties
-      const encryptedObj = encryptObject(secretKey, obj, encryptionTransformFn)
+      const encryptedObj = await encryptObject(secretKey, obj, encryptionTransformFn)
 
       const hashLength = 64
 
@@ -38,7 +38,7 @@ export async function getEntryId(obj) {
       // stored in a database
       const entryId = await LibsodiumUtils.genericHash(
         hashLength,
-        JSON.stringify(encryptObject),
+        JSON.stringify(encryptedObj),
         true // forces the return of ID as a hexadecimal string
       ) as string
 
@@ -49,7 +49,8 @@ export async function getEntryId(obj) {
       )
     }
   } catch (error: any) {
-    throw new Error(`Error getting ID for user viz rating: `, error)
+    console.error(error)
+    throw new Error(`Error getting ID for object: `, error)
   }
 }
 
@@ -61,18 +62,20 @@ const encryptObject = async (
   obj,
   transformFn,
 ) => {
-  return Object.fromEntries(
-    Object.entries(obj).map(
-      ([key, value]) => [
-        key, 
-        encryptionTransformFn(
+  const entries = await Promise.all(
+    Object.entries(obj).map(async ([key, value]) => {
+        const encryptedValue = await encryptionTransformFn(
           secretKey, 
           key, 
           value
         )
-      ]
+
+        return [key, encryptedValue]
+      }
     )
   )
+
+  return Object.fromEntries(entries)
 }
 
 
