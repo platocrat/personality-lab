@@ -71,8 +71,6 @@ export async function POST(
     try {
       const response = await ddbDocClient.send(command)
 
-      // console.log(`QueryCommand response: `, response)
-
 
       if (
         response.Items &&
@@ -114,8 +112,6 @@ export async function POST(
          */
         try {
           const response = await ddbDocClient.send(command)
-
-          // console.log(`UpdateCommand response: `, response)
 
           const message = successMessage || 'Operation successful'
 
@@ -180,8 +176,6 @@ export async function POST(
        */
       try {
         const response = await ddbDocClient.send(command)
-
-        // console.log(`UpdateCommand response: `, response)
 
         const message = successMessage || 'Operation successful'
 

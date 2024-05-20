@@ -1,9 +1,9 @@
 // Externals
-import { FC, Fragment } from 'react'
+import { FC, Fragment, useLayoutEffect, useState } from 'react'
 // Locals
 import { RadioOrCheckboxInput } from '@/components/Input'
 // Types
-import { ParticipantType } from '@/utils'
+import { ParticipantType, RESULTS__DYNAMODB } from '@/utils'
 // Styles
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -43,7 +43,38 @@ const ObserverResultsModal: FC<ObserverResultsModalProps> = ({
   isModalVisible,
   selectedParticipant,
 }) => {
+  // States
+  const [ assessmentIds, setAssessmentIds] = useState<string[]>([''])
 
+
+  // ---------------------------- Async functions ------------------------------
+  async function getAssessmentIds() {
+    try {
+      const response = await fetch('/api/assessment/results', { method: 'GET' })
+      const json = await response.json()
+
+      if (response.status === 401) throw new Error(json.error)
+      if (response.status === 400) throw new Error(json.error)
+
+      const assessmentIds: string[] = json.data.map(
+        (results: RESULTS__DYNAMODB): string => results.id
+      )
+
+      setAssessmentIds(assessmentIds)
+    } catch (error: any) {
+      throw new Error(error)
+    }
+  }
+
+
+  useLayoutEffect(() => {
+    const requests = [
+      getAssessmentIds()
+    ]
+
+    Promise.all(requests)
+  }, [ ])
+  
 
 
   return (
@@ -72,7 +103,7 @@ const ObserverResultsModal: FC<ObserverResultsModalProps> = ({
             </div>
 
             {/* Check box */ }
-            {/* { assessmentIds.map((assessmentId: string, i: number) => (
+            { assessmentIds.map((assessmentId: string, i: number) => (
               <Fragment key={ i }>
                 <label
                   style={ {
@@ -89,14 +120,14 @@ const ObserverResultsModal: FC<ObserverResultsModalProps> = ({
                     required
                     type='checkbox'
                     name={ 'select' }
-                  // className=''
-                  // style={  }
-                  // id={ `${ i }` }
-                  // onChange={ onChange.onNobelLaureateChange }
+                    // className=''
+                    // style={  }
+                    // id={ `${ i }` }
+                    // onChange={ onChange.onNobelLaureateChange }
                   />
                 </label>
               </Fragment>
-            )) } */}
+            )) }
 
             {/* Button */ }
             <button

@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { 
   PutCommand, 
+  QueryCommand,
   PutCommandInput,
 } from '@aws-sdk/lib-dynamodb'
 import { verify } from 'jsonwebtoken'
@@ -10,6 +11,7 @@ import {
   getEntryId,
   ddbDocClient,
   DYNAMODB_TABLE_NAMES,
+  RESULTS__DYNAMODB,
 } from '@/utils'
 
 
@@ -56,7 +58,7 @@ export async function POST(
 
       return NextResponse.json(
         {
-          message: message,
+          message,
           data: userResultsId,
         },
         {
@@ -87,6 +89,109 @@ export async function POST(
           'Content-Type': 'application/json'
         }
       },
+    )
+  }
+}
+
+
+
+/**
+ * @dev GET `userResults`
+ * @param req 
+ * @param res 
+ * @returns 
+ */
+export async function GET(
+  req: NextRequest,
+  res: NextResponse,
+) {
+  if (req.method === 'GET') {
+    const email = req.nextUrl.searchParams.get('email')
+
+    if (!email) {
+      return NextResponse.json(
+        { error: 'Email query parameter is required!' },
+        {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+    }
+
+    const TableName: string = DYNAMODB_TABLE_NAMES.results
+    const KeyConditionExpression = 'email = :emailValue'
+    const ExpressionAttributeValues = { ':emailValue': email }
+
+    const input = {
+      TableName,
+      KeyConditionExpression,
+      ExpressionAttributeValues,
+    }
+
+    const command: QueryCommand = new QueryCommand(input)
+
+    const successMessage = `All user results have fetched from the ${
+      DYNAMODB_TABLE_NAMES.results
+    } table`
+
+    try {
+      const response = await ddbDocClient.send(command)
+
+
+      if ((response.Items as RESULTS__DYNAMODB[])?.length === 0) {
+        const message = `No accounts were found with ${
+          email
+        } as their email in the ${ TableName } table`
+
+        return NextResponse.json(
+          { message: message },
+          {
+            status: 404,
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          },
+        )
+      } else {      
+        const allUserResults = response.Items as RESULTS__DYNAMODB[]
+
+        return NextResponse.json(
+          {
+            message: successMessage,
+            data: allUserResults,
+          },
+          {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+      }
+    } catch (error: any) {
+      console.error(`Error: `, error)
+
+      return NextResponse.json(
+        { error: error.message },
+        {
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+    }
+  } else {
+    return NextResponse.json(
+      { error: 'Method Not Allowed' },
+      {
+        status: 405,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
     )
   }
 }
