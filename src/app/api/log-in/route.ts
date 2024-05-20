@@ -21,10 +21,11 @@ import {
   ddbDocClient,
   LibsodiumUtils,
   fetchAwsParameter, 
-  ACCOUNTS__DYNAMODB,
+  ACCOUNT__DYNAMODB,
   AWS_PARAMETER_NAMES,
   DYNAMODB_TABLE_NAMES,
  } from '@/utils'
+import { ACCOUNT_ADMINS } from '@/utils/constants'
 
 
 
@@ -33,7 +34,11 @@ export async function POST(
   res: NextResponse,
 ): Promise<NextResponse<{ message: string }> | NextResponse<{ error: any }>> {
   if (req.method === 'POST') {
-    const { email, username, password } = await req.json()     
+    const { 
+      email, 
+      username, 
+      password, // Password is already hashed
+    } = await req.json()     
 
     const TableName = DYNAMODB_TABLE_NAMES.accounts
     const KeyConditionExpression = 'email = :emailValue'
@@ -56,15 +61,16 @@ export async function POST(
 
       if (
         response.Items && 
-        (response.Items[0] as ACCOUNTS__DYNAMODB).password
+        (response.Items[0] as ACCOUNT__DYNAMODB).password
       ) {
-        const storedUsername = (response.Items[0] as ACCOUNTS__DYNAMODB).username
-        const hashedPassword = (response.Items[0] as ACCOUNTS__DYNAMODB).password
+        const storedUsername = (response.Items[0] as ACCOUNT__DYNAMODB).username
+        const hashedPassword = (response.Items[0] as ACCOUNT__DYNAMODB).password
 
         const verifiedUsername = storedUsername === username
         const verifiedPassword = crypto_pwhash_str_verify(hashedPassword, password)
 
         const condition = `${ verifiedUsername }-${ verifiedPassword }`
+
 
         switch (condition) {
           // Code for when both username and password are verified
@@ -92,6 +98,14 @@ export async function POST(
                   secretKeyUint8Array
                 )
 
+                // Determine if the new user is an admin
+                const isAdmin = ACCOUNT_ADMINS.some(admin => admin.email === email)
+
+                const encryptedIsAdmin = await LibsodiumUtils.encryptData(
+                  isAdmin.toString(),
+                  secretKeyUint8Array
+                )
+
                 // Get timestamp after the username is validated.
                 const timestamp = new Date().getTime().toString()
 
@@ -106,6 +120,7 @@ export async function POST(
                 const token = sign(
                   {
                     email: encryptedEmail,
+                    isAdmin: encryptedIsAdmin,
                     username: encryptedUsername,
                     password: hashedPassword,
                     timestamp: encryptedTimestamp
@@ -151,10 +166,16 @@ export async function POST(
                  * @dev 5. Return response
                  */
                 return NextResponse.json(
-                  { message: message },
+                  { 
+                    message: message,
+                    isAdmin,
+                  },
                   {
                     status: 200,
-                    headers: { 'Set-Cookie': cookieValue }
+                    headers: { 
+                      'Set-Cookie': cookieValue,
+                      'Content-Type': 'application/json'
+                    }
                   },
                 )
               } else {

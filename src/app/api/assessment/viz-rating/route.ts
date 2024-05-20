@@ -9,6 +9,7 @@ import {
   ddbDocClient,
   getUserVizRatingId,
   DYNAMODB_TABLE_NAMES,
+  getEntryId,
 } from '@/utils'
 
 
@@ -25,7 +26,7 @@ export async function POST(
   if (req.method === 'POST') {
     const { userVizRating } = await req.json()
 
-    const userVizRatingId = await getUserVizRatingId(userVizRating)
+    const userVizRatingId = await getEntryId(userVizRating)
 
     const TableName = DYNAMODB_TABLE_NAMES.vizRating
     const Item = {

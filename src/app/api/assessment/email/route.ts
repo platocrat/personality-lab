@@ -46,6 +46,7 @@ export async function POST(
 
         console.log(`response: `, response)
 
+
         if (response[0].statusCode === 200) {
           return NextResponse.json(
             { message: `Email has been send to ${ email }` },

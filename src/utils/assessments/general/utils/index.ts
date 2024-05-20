@@ -1,10 +1,11 @@
 // Externals
 import { decode } from 'jsonwebtoken'
 // Locals
-import LibsodiumUtils from '@/utils/libsodium'
-import { AWS_PARAMETER_NAMES } from '@/utils/aws'
-// Types
-import { CookieType } from '../types'
+import { 
+  CookieType,
+  LibsodiumUtils,
+  AWS_PARAMETER_NAMES,
+} from '@/utils'
 
 
 
@@ -176,7 +177,7 @@ export async function sendEmail() {
       const data = await response.json()
 
       if (response.status === 200) {
-        console.log(`data: `, data)
+        return data
       } else {
         throw new Error(`Error getting JWT secret: ${data.error}`)
         /**

@@ -74,8 +74,6 @@ export async function POST(
           },
         )
       } catch (error: any) {
-        console.log(`error: `, error)
-
         // Something went wrong
         return NextResponse.json(
           { error: error.message ?? error },

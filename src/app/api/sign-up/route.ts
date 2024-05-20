@@ -19,8 +19,8 @@ import {
   COOKIE_NAME,
   ddbDocClient,
   LibsodiumUtils,
+  ACCOUNT__DYNAMODB,
   fetchAwsParameter, 
-  ACCOUNTS__DYNAMODB,
   AWS_PARAMETER_NAMES, 
   DYNAMODB_TABLE_NAMES,
 } from '@/utils'
@@ -65,7 +65,7 @@ export async function POST(
 
       if (response.Items && response.Items.length > 0) {
         // Only return a response if the username exists in the DynamoDB Table
-        if ((response.Items[0] as ACCOUNTS__DYNAMODB).username) {
+        if ((response.Items[0] as ACCOUNT__DYNAMODB).username) {
           return NextResponse.json(
             { message: 'Username exists' },
             { status: 200 },
@@ -189,10 +189,16 @@ export async function POST(
           const cookieValue: string = cookies().get(COOKIE_NAME)?.value ?? 'null'
 
           return NextResponse.json(
-            { message: 'User has successfully signed up' },
+            { 
+              message: 'User has successfully signed up',
+              isAdmin
+            },
             {
               status: 200,
-              headers: { 'Set-Cookie': cookieValue }
+              headers: { 
+                'Set-Cookie': cookieValue,
+                'Content-Type': 'application/json'
+              }
             },
           )
         } else {

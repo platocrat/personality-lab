@@ -7,8 +7,8 @@ import {
 import { verify } from 'jsonwebtoken'
 // Locals
 import { 
+  getEntryId,
   ddbDocClient,
-  getUserResultsId,
   DYNAMODB_TABLE_NAMES,
 } from '@/utils'
 
@@ -27,7 +27,7 @@ export async function POST(
   if (req.method === 'POST') {
     const { userResults } = await req.json()
 
-    const userResultsId = await getUserResultsId(userResults)
+    const userResultsId = await getEntryId(userResults)
 
     const TableName = DYNAMODB_TABLE_NAMES.results
     const Item = {

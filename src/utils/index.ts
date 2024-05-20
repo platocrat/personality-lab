@@ -1,6 +1,7 @@
 export * from './aws'
 export * from './api'
 export * from './misc'
+export * from './types'
 export * from './assessments'
 export * from './libsodium'
 export * from './form-validation'

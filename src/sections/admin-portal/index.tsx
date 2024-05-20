@@ -16,9 +16,11 @@ import CreateParticipantModal from '@/components/Modals/AdminPortal/CreatePartic
 // Hooks
 import useClickOutside from '@/hooks/useClickOutside'
 // Utils
-import { BessiSkillScoresType, getUsernameAndEmailFromCookie } from '@/utils'
-// Types
-import { ParticipantType } from '@/utils/types'
+import { 
+  ParticipantType, 
+  BessiSkillScoresType,
+  getUsernameAndEmailFromCookie,
+} from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -59,9 +61,9 @@ const AdminPortal: FC<AdminPortalProps> = ({
   const modalRef = useRef<any>(null)
   // States
   // Strings
-  const [ assessmentName, setAssessmentName ] = useState<string>('')
   const [ participantName, setParticipantName ] = useState<string>('')
   const [ participantEmail, setParticipantEmail ] = useState<string>('')
+  const [ assessmentNames, setAssessmentNames ] = useState<string[]>([''])
   // Booleans
   const [ isNobelLaureate, setIsNobelLaureate ] = useState<boolean>(false)
   const [ participantCreated, setParticipantCreated ] = useState<boolean>(false)
@@ -70,21 +72,21 @@ const AdminPortal: FC<AdminPortalProps> = ({
     selectedParticipant, 
     setSelectedParticipant
   ] = useState<ParticipantType | null>(null)
+  const [showModal, setShowModal] = useState<ShowModalType>(null)
   const [participants, setParticipants] = useState<ParticipantType[]>([
     {
       name: 'Jack Winfield 1',
-      email: 'jack.abe.winfield@gmail.com',
-      assessmentName: 'bessi',
       isNobelLaureate: false,
+      assessmentNames: [ 'bessi' ],
+      email: 'jack.abe.winfield@gmail.com',
     },
     {
       name: 'Jack Winfield 2',
-      email: 'wmn@schuage.com',
-      assessmentName: 'bessi',
       isNobelLaureate: false,
+      assessmentNames: [ 'bessi' ],
+      email: 'wmn@schuage.com',
     },
   ])
-  const [ showModal, setShowModal ] = useState<ShowModalType>(null)
 
 
   // -------------------------- Regular functions ------------------------------
@@ -131,7 +133,7 @@ const AdminPortal: FC<AdminPortalProps> = ({
     const participant: ParticipantType = {
       name: participantName,
       email: participantEmail,
-      assessmentName: assessmentName,
+      assessmentNames: assessmentNames,
       isNobelLaureate: isNobelLaureate,
     }
 
@@ -146,9 +148,14 @@ const AdminPortal: FC<AdminPortalProps> = ({
   async function getParticipants() {
     try {
       const response = await fetch('/api/admin-portal/participants', { 
-        method: 'GET' 
+        method: 'GET',
       })
       const data = await response.json()
+
+      // console.log(
+      //   `[ ${new Date().toLocaleString()} -- path: src/sections/admin-portal/index.tsx -- function: getParticipants() ]: data: `, 
+      //   data
+      // )
 
       if (response.status === 401) return { user: null, error: data.message }
       if (response.status === 400) return { user: null, error: data.error }
@@ -161,7 +168,7 @@ const AdminPortal: FC<AdminPortalProps> = ({
 
 
   async function storeParticipantInDynamoDB(
-    _participant
+    _participant: ParticipantType
   ) {
     const CURRENT_TIMESTAMP = new Date().getTime()
 
@@ -182,8 +189,8 @@ const AdminPortal: FC<AdminPortalProps> = ({
         adminEmail: email,
         adminUsername: username,
         name: _participant.name,
-        email: _participant.Email,
-        assessmentName: _participant.assessmentName,
+        email: _participant.email,
+        assessmentNames: _participant.assessmentNames,
         isNobelLaureate: _participant.isNobelLaureate,
         timestamp: CURRENT_TIMESTAMP,
       }
@@ -202,8 +209,8 @@ const AdminPortal: FC<AdminPortalProps> = ({
         const json = await response.json()
 
         if (response.status === 200) {
-          const userResultsId = json.data
-          return userResultsId
+          const participantId = json.participantId
+          return participantId
         } else {
           setParticipantCreated(false)
 

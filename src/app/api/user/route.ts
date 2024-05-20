@@ -81,7 +81,7 @@ export async function GET(
             secretKeyUint8Array
           )
           const isAdmin = await LibsodiumUtils.decryptData(
-            `${ encryptedIsAdmin }`, 
+            encryptedIsAdmin, 
             secretKeyUint8Array
           )
 
@@ -102,7 +102,6 @@ export async function GET(
           )
         }
       } catch (error: any) {
-        console.log(`error: `, error.message)
         // Something went wrong
         return NextResponse.json(
           { error: error, },

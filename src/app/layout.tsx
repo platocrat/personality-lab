@@ -229,7 +229,6 @@ export default function RootLayout({
 
       if (response.status === 401) return { user: null, error: data.message }
       if (response.status === 400) return { user: null, error: data.error }
-      // Assumes `response.status === 200 && data.message === 'User authenticated'`
       return { user: data.user, error: null }
     } catch (error: any) {
       return { user: null, error: error }
@@ -262,8 +261,10 @@ export default function RootLayout({
         }, timeout)
       }
     } else {
+      const isAdmin_ = user.isAdmin
+
       // Show the dashboard
-      setIsAdmin(user.isAdmin)
+      setIsAdmin(isAdmin_)
       setIsAuthenticated(true)
       setIsFetchingUser(false)
     }
@@ -306,6 +307,7 @@ export default function RootLayout({
               <AuthenticatedUserContext.Provider
                 value={ {
                   isAdmin,
+                  setIsAdmin,
                   isAuthenticated,
                   setIsAuthenticated,
                 } }

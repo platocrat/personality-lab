@@ -3,7 +3,7 @@ import { FC, Fragment } from 'react'
 // Locals
 import { RadioOrCheckboxInput } from '@/components/Input'
 // Types
-import { ParticipantType } from '@/utils/types'
+import { ParticipantType } from '@/utils'
 // Styles
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'

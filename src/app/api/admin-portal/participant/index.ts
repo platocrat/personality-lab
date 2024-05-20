@@ -1,21 +1,23 @@
 // Externals
 import { NextRequest, NextResponse } from 'next/server'
 import {
-  PutCommand,
-  PutCommandInput,
+  UpdateCommand,
+  UpdateCommandInput,
 } from '@aws-sdk/lib-dynamodb'
 import { verify } from 'jsonwebtoken'
 // Locals
 import {
+  getEntryId,
   ddbDocClient,
-  getUserResultsId,
   DYNAMODB_TABLE_NAMES,
+  PARTICIPANT_DYNAMODB,
 } from '@/utils'
 
 
 
 /**
- * @dev POST `userResults`
+ * @dev POST: Update an `account` entry with the `participant` object as an 
+ *      additional property.
  * @param req 
  * @param res 
  * @returns 
@@ -29,23 +31,36 @@ export async function POST(
 
     const participantId = await getEntryId(participant)
 
-    const TableName = DYNAMODB_TABLE_NAMES.participants
-    const Item = {
+    const participant_: PARTICIPANT_DYNAMODB = {
       id: participantId,
-      name: participant.name, 
-      email: participant.email, 
-      adminEmail: participant.adminEmail, 
-      adminUsername: participant.adminUsername, 
-      assessmentName: participant.assessmentName, 
-      isNobelLaureate: participant.isNobelLaureate, 
+      name: participant.name,
+      email: participant.email,
+      adminEmail: participant.adminEmail,
+      adminUsername: participant.adminUsername,
+      assessmentNames: participant.assessmentNames,
+      isNobelLaureate: participant.isNobelLaureate,
       timestamp: participant.timestamp, 
     }
 
-    const input: PutCommandInput = { TableName, Item }
-    const command = new PutCommand(input)
+    const TableName = DYNAMODB_TABLE_NAMES.accounts
+    const Key = { email: participant.email }
+    const UpdateExpression = `set participant = :participant`
+    const ExpressionAttributeValues = { ':participant': participant_ }
 
-    const successMessage = `User results have been added to ${DYNAMODB_TABLE_NAMES.results
-      } table`
+    const input: UpdateCommandInput = { 
+      TableName, 
+      Key, 
+      UpdateExpression,
+      ExpressionAttributeValues
+    }
+
+    const command = new UpdateCommand(input)
+
+    const successMessage = `Account for ${ 
+      participant.email 
+    } has been update in the ${
+      DYNAMODB_TABLE_NAMES.accounts
+    } table`
 
 
     try {
@@ -57,7 +72,7 @@ export async function POST(
       return NextResponse.json(
         {
           message: message,
-          data: userResultsId,
+          data: participantId,
         },
         {
           status: 200,

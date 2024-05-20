@@ -210,7 +210,7 @@ class LibsodiumUtilsExamples extends LibsodiumUtils {
       'text'
     )
     
-    console.log('Decrypted message:', decryptedMessage)
+    return { encryptedMessage, decryptedMessage }
   }
 
   /**
@@ -243,7 +243,7 @@ class LibsodiumUtilsExamples extends LibsodiumUtils {
       keyPair.publicKey
     )
 
-    console.log('Is the signature valid?', isValid)
+    return { 'Is the signature valid?': isValid}
   }
 }
 

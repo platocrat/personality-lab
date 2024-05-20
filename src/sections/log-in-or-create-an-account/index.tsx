@@ -33,7 +33,10 @@ const LogInOrCreateAnAccount = () => {
   const router = useRouter()
 
   // Contexts
-  const { setIsAuthenticated } = useContext(AuthenticatedUserContext)
+  const { 
+    setIsAdmin, 
+    setIsAuthenticated 
+  } = useContext(AuthenticatedUserContext)
 
   // Strings
   const [ email, setEmail ] = useState<string>('')
@@ -101,9 +104,11 @@ const LogInOrCreateAnAccount = () => {
       })
       
       const data = await response.json()
+
       
       if (response.status === 200) {
-        const message = data.message
+        const { message, isAdmin } = data
+
 
         switch (message) {
           case 'Verified email, username, and password':
@@ -113,6 +118,7 @@ const LogInOrCreateAnAccount = () => {
             setIsPasswordIncorrect(false)
             
             // Authenticate user
+            setIsAdmin(isAdmin)
             setIsAuthenticated(true)
             router.refresh()
             break
@@ -189,9 +195,11 @@ const LogInOrCreateAnAccount = () => {
       const data = await response.json()
 
       if (response.status === 200) {
+        const { message, isAdmin } = data
+
         setIsWaitingForResponse(false)
-        const message = data.message
-        
+
+ 
         switch (message) {
           case 'Username exists':
             setIsUsernameTaken(true)
@@ -199,6 +207,7 @@ const LogInOrCreateAnAccount = () => {
 
           case 'User has successfully signed up':
             // Authenticate user
+            setIsAdmin(isAdmin)
             setIsAuthenticated(true)
             router.refresh()
             break

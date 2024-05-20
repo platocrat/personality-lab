@@ -48,9 +48,6 @@ const GroupedBarChart: FC<GroupedBarChartType> = ({
   const width = 700 - margin.left - margin.right
   const height = 400 - margin.top - margin.bottom
 
-
-  // const transformedData = transformData(data as InputDataStructure)
-  // console.log(`transformedData: `, transformedData)
   
   const _data = transformData(data as InputDataStructure)
 

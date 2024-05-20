@@ -45,9 +45,6 @@ export async function verfiyAccessTokenAndFetchUserResults(
     const input: GetCommandInput = { TableName, Key}
     const command = new GetCommand(input)
 
-    // console.log(`GetCommand to fetch the userResultsId that is mapped to the accessToken: `, command)
-
-
     // 4. Try to fetch `userResults` from DynamoDB table
     return await fetchUserResultsIdAndUserResults(command)
   } catch (error: any) {
@@ -163,7 +160,6 @@ export async function fetchUserResults(
   try {
     const response = await ddbDocClient.send(command)
 
-    // console.log(`response: `, response)
 
     if (response.Items && response.Items.length > 0) {
       if ((response.Items[0] as BessiUserResults__DynamoDB).id) {
