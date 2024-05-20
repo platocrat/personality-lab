@@ -152,10 +152,10 @@ const AdminPortal: FC<AdminPortalProps> = ({
 
       if (response.status === 401) return { user: null, error: data.message }
       if (response.status === 400) return { user: null, error: data.error }
-      // Assumes `response.status === 200 && data.message === 'User authenticated'`
-      return { user: data.participant, error: null }
+
+      return { participants: data.participants, error: null }
     } catch (error: any) {
-      return { user: null, error: error }
+      throw new Error(error.message)
     }
   }
 
@@ -189,7 +189,7 @@ const AdminPortal: FC<AdminPortalProps> = ({
       }
 
       try {
-        const response = await fetch('/api/assessment/participants', {
+        const response = await fetch('/api/admin-portal/participant', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

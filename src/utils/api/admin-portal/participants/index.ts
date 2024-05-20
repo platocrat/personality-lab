@@ -11,9 +11,9 @@ import {
 
 
 /**
- * @dev Encrypts `userVizRating` properties to create a new encrypted version of
- *      `userVizRating` that is used to generate a unique `id`
- * @param userVizRating 
+ * @dev Encrypts `userResults` properties to create a new encrypted version of
+ *      `userResults` that is used to generate a unique `id`
+ * @param userResults 
  * @returns 
  */
 export async function getUserVizRatingId(userVizRating: {
@@ -47,12 +47,12 @@ export async function getUserVizRatingId(userVizRating: {
         userVizRating.timestamp,
         secretKey
       )
-      
+
       const encryptedAssessmentName: string = await LibsodiumUtils.encryptData(
         userVizRating.assessmentName,
         secretKey
       )
-      
+
       const encryptedVizName: string = await LibsodiumUtils.encryptData(
         userVizRating.vizName,
         secretKey
