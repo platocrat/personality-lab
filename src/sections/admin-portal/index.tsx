@@ -439,19 +439,15 @@ const AdminPortal: FC<AdminPortalProps> = ({
         <DownloadDataModal 
           modalRef={ modalRef }
         />
-        
+
         <ObserverResultsModal 
           modalRef={ modalRef }
           selectedParticipant={ selectedParticipant }
-          state={{
-            isWaitingForResponse: isWaitingForResponse,
-            setIsWaitingForResponse: setIsWaitingForResponse,
-            areNoObserverResultsToView: areNoObserverResultsToView,
-            setAreNoObserverResultsToView: setAreNoObserverResultsToView,
-            isModalVisible: showModal === 'viewObserverResultsModal' 
+          isModalVisible={
+            showModal === 'viewObserverResultsModal' 
               ? true 
               : false
-          }}
+          }
           onEventHandlers={{
             onClick: handleOnViewObserverResults,
             onViewObserverResultsChange: onViewObserverResultsChange

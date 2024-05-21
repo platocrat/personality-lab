@@ -21,14 +21,8 @@ import modalStyle from '@/components/Modals/Modal.module.css'
 
 type ObserverResultsModalProps = {
   modalRef: any
+  isModalVisible: boolean
   selectedParticipant: ParticipantType | null
-  state: {
-    isModalVisible: boolean
-    isWaitingForResponse: boolean
-    areNoObserverResultsToView: boolean
-    setIsWaitingForResponse: Dispatch<SetStateAction<boolean>>
-    setAreNoObserverResultsToView: Dispatch<SetStateAction<boolean>>
-  }
   onEventHandlers: {
     onClick: (e: any) => void
     onViewObserverResultsChange: (e: any, id: string, name: string) => void
@@ -72,18 +66,26 @@ const tableHeaders = [
 
 
 const ObserverResultsModal: FC<ObserverResultsModalProps> = ({
-  state,
   modalRef,
+  isModalVisible,
   onEventHandlers,
   selectedParticipant,
 }) => {
   // States
   const [ assessments, setAssessments] = useState<AssessmentToViewType[]>([])
+  const [ 
+    isWaitingForAssessments, 
+    setIsWaitingForAssessments 
+  ] = useState<boolean>(false)
+  const [ 
+    areNoObserverResultsToView, 
+    setAreNoObserverResultsToView 
+  ] = useState<boolean>(false)
 
 
   // ---------------------------- Async functions ------------------------------
   async function getAssessments() {
-    state.setIsWaitingForResponse(true)
+    setIsWaitingForAssessments(true)
 
     try {
       const response = await fetch(
@@ -95,13 +97,13 @@ const ObserverResultsModal: FC<ObserverResultsModalProps> = ({
 
 
       if (response.status === 404) {
-        state.setIsWaitingForResponse(false)
-        state.setAreNoObserverResultsToView(true)
+        setIsWaitingForAssessments(false)
+        setAreNoObserverResultsToView(true)
         return
       }
 
       if (response.status === 500) {
-        state.setIsWaitingForResponse(false)
+        setIsWaitingForAssessments(false)
         throw new Error(json.error)
       }
 
@@ -116,29 +118,29 @@ const ObserverResultsModal: FC<ObserverResultsModalProps> = ({
       })
 
       setAssessments(_)
-      state.setIsWaitingForResponse(false)
+      setIsWaitingForAssessments(false)
     } catch (error: any) {
-      state.setIsWaitingForResponse(false)
+      setIsWaitingForAssessments(false)
       throw new Error(error)
     }
   }
 
 
   useLayoutEffect(() => {
-    if (state.isModalVisible) {
+    if (isModalVisible) {
       const requests = [
         getAssessments()
       ]
 
       Promise.all(requests)
     }
-  }, [ state.isModalVisible ])
+  }, [ isModalVisible ])
   
 
 
   return (
     <>
-      { state.isModalVisible && (
+      { isModalVisible && (
         <>
           <div
             ref={ modalRef }
@@ -155,7 +157,7 @@ const ObserverResultsModal: FC<ObserverResultsModalProps> = ({
             } }
             className={ `${modalStyle.modal} ${modalStyle.background}` }
           >
-            { state.areNoObserverResultsToView ? (
+            { areNoObserverResultsToView ? (
               <>
                 <div>
                   <h3>{ NO_RESULTS_TITLE }</h3>
@@ -171,7 +173,7 @@ const ObserverResultsModal: FC<ObserverResultsModalProps> = ({
                 </div>
 
                 {/* Check box */ }
-                { state.isWaitingForResponse ? (
+                { isWaitingForAssessments ? (
                   <>
                     <div
                       style={ {
