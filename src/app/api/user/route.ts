@@ -84,7 +84,7 @@ export async function GET(
             encryptedIsAdmin.encryptedData,
             secretKeyCipher,
             encryptedIsAdmin.iv
-          )
+          ) === 'true' ? true : false
 
           const user = { email, username, isAdmin }
 
