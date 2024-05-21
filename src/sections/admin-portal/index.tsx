@@ -13,7 +13,7 @@ import {
 import ParticipantsTable from './participants-table'
 // Components
 import Spinner from '@/components/Suspense/Spinner'
-import ObserverResultsModal from '@/components/Modals/ObserverResultsModal'
+import ObserverResultsModal from '@/components/Modals/ViewResultsModal'
 import DownloadDataModal from '@/components/Modals/AdminPortal/DownloadData'
 import CreateParticipantModal from '@/components/Modals/AdminPortal/CreateParticipant'
 // Hooks
@@ -28,6 +28,7 @@ import {
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+import ViewResultsModal from '@/components/Modals/ViewResultsModal'
 
 
 
@@ -50,7 +51,9 @@ const AdminPortal: FC<AdminPortalProps> = ({
 
 }) => {
   // Refs
-  const modalRef = useRef<any>(null)
+  const viewResultsModalRef = useRef<any>(null)
+  const downloadDataModalRef = useRef<any>(null)
+  const createParticipantModalRef = useRef<any>(null)
   // States
   // Strings
   const [ participantName, setParticipantName ] = useState<string>('')
@@ -66,8 +69,20 @@ const AdminPortal: FC<AdminPortalProps> = ({
     setIsWaitingForResponse 
   ] = useState<boolean>(false)
   const [ 
-    areNoObserverResultsToView, 
-    setAreNoObserverResultsToView 
+    noResultsToView, 
+    setNoResultsToView 
+  ] = useState<boolean>(false)
+  const [ 
+    showViewResultsModal, 
+    setShowViewResultsModal 
+  ] = useState<boolean>(false)
+  const [ 
+    showDownloadDataModal, 
+    setShowDownloadDataModal 
+  ] = useState<boolean>(false)
+  const [ 
+    showCreateParticipantModal, 
+    setShowCreateParticipantModal 
   ] = useState<boolean>(false)
   const [ isNobelLaureate, setIsNobelLaureate ] = useState<boolean>(false)
   const [ participantCreated, setParticipantCreated ] = useState<boolean>(false)
@@ -80,23 +95,22 @@ const AdminPortal: FC<AdminPortalProps> = ({
     selectedParticipant, 
     setSelectedParticipant
   ] = useState<ParticipantType | null>(null)
-  const [showModal, setShowModal] = useState<ShowModalType>(null)
-  const [ observerResultsToView, setObserverResultsToView ] = useState<any>({})
+  const [ resultsToView, setResultsToView ] = useState<any>({})
 
 
   // -------------------------- Regular functions ------------------------------
   // ~~~~~~ Modal handlers ~~~~~~
   function handleViewObserverResults (participant: ParticipantType) {
     setSelectedParticipant(participant)
-    setShowModal('viewObserverResultsModal')
+    setShowViewResultsModal(true)
   }
 
   function handleOpenCreateParticipantModal(e: any) {
-    setShowModal('createParticipantModal')
+    setShowCreateParticipantModal(true)
   }
 
   function handleOpenDownloadDataModal(e: any) {
-    setShowModal('downloadDataModal')
+    setShowDownloadDataModal(true)
   }
   
   // ~~~~~~ Input handlers ~~~~~~
@@ -115,11 +129,11 @@ const AdminPortal: FC<AdminPortalProps> = ({
     setIsNobelLaureate(checked)
   }
 
-  function onViewObserverResultsChange(e: any, id: string, name: string) {
+  function onViewResultsChange(e: any, id: string, name: string) {
     const { checked } = e.target
 
-    setObserverResultsToView({
-      ...observerResultsToView,
+    setResultsToView({
+      ...resultsToView,
       assessment: {
         id,
         name,
@@ -128,8 +142,8 @@ const AdminPortal: FC<AdminPortalProps> = ({
   }
 
   // -------------------------- Async functions --------------------------------
-  async function handleOnViewObserverResults(e: any) {
-    console.log('Viewing observer results!')
+  async function handleOnViewResults(e: any) {
+    console.log('Viewing results!')
   }
 
 
@@ -152,7 +166,7 @@ const AdminPortal: FC<AdminPortalProps> = ({
     // 3. Stop loading spinner
     setIsCreatingParticipant(false)
     // 4. Close Modal
-    setShowModal(null)
+    setShowCreateParticipantModal(false)
     // 5. Update state to refetch `participants` from DynamoDB
     setParticipantCreated(true)
   }
@@ -258,7 +272,18 @@ const AdminPortal: FC<AdminPortalProps> = ({
 
 
   // ---------------------------------- Hooks ----------------------------------
-  useClickOutside(modalRef, () => setShowModal(null))
+  useClickOutside(
+    createParticipantModalRef, 
+    () => setShowCreateParticipantModal(false)
+  )
+  useClickOutside(
+    downloadDataModalRef, 
+    () => setShowDownloadDataModal(false)
+  )
+  useClickOutside(
+    viewResultsModalRef, 
+    () => setShowViewResultsModal(false)
+  )
 
 
   
@@ -266,9 +291,9 @@ const AdminPortal: FC<AdminPortalProps> = ({
     const requests = [
       getParticipants()
     ]
-
+    
     Promise.all(requests)
-  }, [participantCreated])
+  }, [ participantCreated ])
 
 
 
@@ -315,18 +340,16 @@ const AdminPortal: FC<AdminPortalProps> = ({
         <ParticipantsTable 
           participants={ participants }
           isWaitingForResponse={ isWaitingForResponse }
-          handleViewObserverResults={ handleOnViewObserverResults }
+          handleViewObserverResults={ handleViewObserverResults }
         />
 
         {/* Modals */}
         <CreateParticipantModal
-          modalRef={ modalRef }
           onClick={ handleOnCreateParticipant }
+          modalRef={ createParticipantModalRef }
           state={{
             isCreatingParticipant,
-            isModalVisible: showModal === 'createParticipantModal' 
-              ? true 
-              : false ,
+            isModalVisible: showCreateParticipantModal,
           }}
           onChange={{
             onNameChange,
@@ -336,20 +359,16 @@ const AdminPortal: FC<AdminPortalProps> = ({
         />
         
         <DownloadDataModal 
-          modalRef={ modalRef }
+          modalRef={ downloadDataModalRef }
         />
 
-        <ObserverResultsModal 
-          modalRef={ modalRef }
+        <ViewResultsModal 
+          modalRef={ viewResultsModalRef }
+          isModalVisible={ showViewResultsModal }
           selectedParticipant={ selectedParticipant }
-          isModalVisible={
-            showModal === 'viewObserverResultsModal' 
-              ? true 
-              : false
-          }
           onEventHandlers={{
-            onClick: handleOnViewObserverResults,
-            onViewObserverResultsChange: onViewObserverResultsChange
+            handleOnViewResults,
+            onViewResultsChange
           }}
         />
 
