@@ -84,16 +84,16 @@ const Form: FC<FormProps> = ({
       !state.isFirstStep && state.username === '' ||
       !state.isFirstStep && state.password.hash === '' ||
       state.isUsernameTaken ||
-      !state.isFirstStep && !isHCaptchaVerificationSuccessful ||
-      !state.isFirstStep  && state.isSignUp && !isValidPassword(state.password.hash)
+      !state.isFirstStep && !isHCaptchaVerificationSuccessful
+      // || !state.isFirstStep  && state.isSignUp && !isValidPassword(state.password.hash)
         ? true
         : false
   }, [
     state.email,
     state.username,
-    state.password,
     state.isSignUp,
     state.isFirstStep,
+    state.password.hash,
     state.isUsernameTaken,
     state.isPasswordHashing,
     state.isPasswordIncorrect,

@@ -11,7 +11,7 @@ import {
 class SSCrypto {
   private static readonly ALGORITHM = 'sha512'
   private static readonly ITERATIONS = 1_000_000
-  private static readonly KEYLEN = 64
+  private static readonly KEYLEN = 128
   private static readonly HASHED_PASSWORD_ENCODING = 'hex'
   private static readonly SYMBOLS = `#@*+-_;,.?!()/{}&'`
   private static readonly CAPITAL_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -35,30 +35,19 @@ class SSCrypto {
   }
 
   public hashPassword(
-    password: string
+    password: string,
+    salt?: string,
   ): { salt: string, hash: string } {
     let hashedPassword = pbkdf2Sync(
       password,
-      this.salt,
+      salt ?? this.salt,
       SSCrypto.ITERATIONS,
       SSCrypto.KEYLEN,
       SSCrypto.ALGORITHM
     ).toString(SSCrypto.HASHED_PASSWORD_ENCODING)
 
-    const numberOfInsertions = 64
-
-    for (let i = 0; i < numberOfInsertions; i++) {
-      const charToInsert = SSCrypto.getRandomChar(SSCrypto.ALL_CHARS)
-      const indexToInsert = SSCrypto.getRandomInt(0, hashedPassword.length)
-
-      hashedPassword = hashedPassword.slice(
-        0, 
-        indexToInsert
-      ) + charToInsert + hashedPassword.slice(indexToInsert)
-    }
-
     return { 
-      salt: this.salt, 
+      salt: salt ?? this.salt, 
       hash: hashedPassword 
     }
   }
@@ -72,7 +61,7 @@ class SSCrypto {
       password,
       salt,
       SSCrypto.ITERATIONS,
-      SSCrypto.KEYLEN * 2,
+      SSCrypto.KEYLEN,
       SSCrypto.ALGORITHM
     ).toString(SSCrypto.HASHED_PASSWORD_ENCODING)
 
