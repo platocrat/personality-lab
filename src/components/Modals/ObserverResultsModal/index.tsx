@@ -221,12 +221,27 @@ const ObserverResultsModal: FC<ObserverResultsModalProps> = ({
                                   key={ i }
                                   className={ styles.radioButtonLabel }
                                   onClick={
-                                    (e: any) =>
-                                      onEventHandlers.onViewObserverResultsChange(
-                                        e,
-                                        _.id,
-                                        _.name
-                                      )
+                                    (e: any) => {
+                                      if (e.target.type !== 'checkbox') {
+                                        // Ensure that checkbox is toggled when 
+                                        // `tr` element is clicked.
+                                        e.preventDefault()
+                                        
+                                        const checkbox = e.currentTarget.querySelector(
+                                          "input[type='checkbox']"
+                                        )
+                                        
+                                        checkbox.checked = !checkbox.checked
+                                        
+                                        // Call `onChange` handler to select the 
+                                        // results to view
+                                        onEventHandlers.onViewObserverResultsChange(
+                                          e,
+                                          _.id,
+                                          _.name
+                                        )
+                                      }
+                                    }
                                   }
                                   style={{
                                     cursor: 'pointer',
@@ -261,58 +276,24 @@ const ObserverResultsModal: FC<ObserverResultsModalProps> = ({
                                       required
                                       type='checkbox'
                                       name={ 'select' }
+                                      style={{ 
+                                        top: '2px',
+                                        cursor: 'pointer',
+                                        position: 'relative',
+                                      }}
+                                      onChange={
+                                        (e: any) => {
+                                          e.stopPropagation()
+                                          onEventHandlers.onViewObserverResultsChange(
+                                            e, 
+                                            _.id, 
+                                            _.name
+                                          )
+                                        }
+                                      }
                                     />
                                   </td>
                                 </tr>
-
-                                {/* <label
-                                  className={ styles.radioButtonLabel }
-                                  style={ {
-                                    ...definitelyCenteredStyle,
-                                    display: 'flex',
-                                    cursor: 'pointer',
-                                    position: 'relative',
-                                    marginBottom: '8px',
-                                    border: '0.75px solid gray',
-                                  } }
-                                >
-                                  <div
-                                    style={ {
-                                      display: 'flex',
-                                      width: '400px',
-                                      marginRight: '-24px',
-                                      gap: '24px'
-                                    } }
-                                  >
-                                    <p style={{ width: '80px' }}>
-                                      { `${_.name}: ` }
-                                    </p>
-                                    <p style={{ width: '70px' }}>
-                                      { _.id.slice(0, 8) + '...' }
-                                    </p>
-                                    <p style={{ width: '150px' }}>
-                                      { _.timestamp }
-                                    </p>
-                                  </div>
-
-                                  <input
-                                    required
-                                    type='checkbox'
-                                    name={ 'select' }
-                                    style={ {
-                                      cursor: 'pointer',
-                                    } }
-                                    // className=''
-                                    // id={ `${ i }` }
-                                    onChange={
-                                      (e: any) => onEventHandlers.onViewObserverResultsChange(
-                                        e,
-                                        _.id,
-                                        _.name
-                                      )
-                                    }
-                                  />
-                                </label> */}
                               </Fragment>
                             )) }
                           </tbody>

@@ -136,6 +136,14 @@ const AdminPortal: FC<AdminPortalProps> = ({
 
   // -------------------------- Async functions --------------------------------
   async function handleOnViewObserverResults(e: any) {
+    e.preventDefault()
+
+    const checkbox = e.currentTarget.querySelector(
+      "input[type='checkbox']"
+    )
+
+    checkbox.checked = !checkbox.checked
+
     console.log('Viewing observer results!')
   }
 
