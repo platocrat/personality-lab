@@ -8,6 +8,10 @@ import {
   useLayoutEffect, 
 } from 'react'
 // Locals
+// Sections
+import ViewResultsModalTableBody from './table-body'
+import ViewResultsModalTableHead from './table-head'
+// Components
 import Spinner from '@/components/Suspense/Spinner'
 import { RadioOrCheckboxInput } from '@/components/Input'
 // Types
@@ -16,8 +20,6 @@ import { ParticipantType, RESULTS__DYNAMODB } from '@/utils'
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
 import modalStyle from '@/components/Modals/Modal.module.css'
-import ViewResultsModalTableBody from './table-body'
-import ViewResultsModalTableHead from './table-head'
 
 
 
@@ -32,7 +34,7 @@ type ViewResultsModalProps = {
 }
 
 
-type AssessmentToViewType = { 
+export type AssessmentToViewType = { 
   id: string
   name: string 
   timestamp: string

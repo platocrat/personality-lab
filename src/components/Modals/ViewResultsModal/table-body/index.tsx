@@ -1,14 +1,19 @@
 // Externals
 import { FC, Fragment } from 'react'
-import styles from '@/app/page.module.css'
+// Locals
 import assessments from '@/sections/assessments'
+// Types
 import { AssessmentToViewType } from '..'
+// CSS
+import styles from '@/app/page.module.css'
+
 
 
 type ViewResultsModalTableBodyProps = {
   assessments: AssessmentToViewType[]
   onViewResultsChange: (e: any, id: string, name: string) => void
 }
+
 
 
 const ViewResultsModalTableBody: FC<ViewResultsModalTableBodyProps> = ({
