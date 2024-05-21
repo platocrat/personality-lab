@@ -1,6 +1,14 @@
 // Externals
-import { FC, Fragment, useLayoutEffect, useState } from 'react'
+import { 
+  FC, 
+  useState,
+  Fragment, 
+  Dispatch, 
+  SetStateAction, 
+  useLayoutEffect, 
+} from 'react'
 // Locals
+import Spinner from '@/components/Suspense/Spinner'
 import { RadioOrCheckboxInput } from '@/components/Input'
 // Types
 import { ParticipantType, RESULTS__DYNAMODB } from '@/utils'
@@ -13,18 +21,33 @@ import modalStyle from '@/components/Modals/Modal.module.css'
 
 type ObserverResultsModalProps = {
   modalRef: any
-  isModalVisible: boolean
   selectedParticipant: ParticipantType | null
+  state: {
+    isModalVisible: boolean
+    isWaitingForResponse: boolean
+    areNoObserverResultsToView: boolean
+    setIsWaitingForResponse: Dispatch<SetStateAction<boolean>>
+    setAreNoObserverResultsToView: Dispatch<SetStateAction<boolean>>
+  }
   onEventHandlers: {
     onClick: (e: any) => void
-    onViewObserverResultsChange: (e: any, assessmentId: string) => void
+    onViewObserverResultsChange: (e: any, id: string, name: string) => void
   }
 }
+
+
+type AssessmentToViewType = { 
+  id: string
+  name: string 
+  timestamp: string
+}
+
 
 
 const BUTTON_TEXT = `View Results`
 
 const title = (name: string) => `For ${ name }, which assessment you would like to see the observer results for?`
+const NO_RESULTS_TITLE = 'There are no results for this participant to view'
 
 
 const inputs = [
@@ -38,56 +61,84 @@ const inputs = [
   }
 ]
 
+const tableHeaders = [
+  'Assessment Name',
+  'ID',
+  'Date',
+  'View?'
+]
+
+
 
 
 const ObserverResultsModal: FC<ObserverResultsModalProps> = ({
+  state,
   modalRef,
-  isModalVisible,
   onEventHandlers,
   selectedParticipant,
 }) => {
   // States
-  const [ assessmentIds, setAssessmentIds] = useState<string[]>([''])
+  const [ assessments, setAssessments] = useState<AssessmentToViewType[]>([])
 
 
   // ---------------------------- Async functions ------------------------------
-  async function getAssessmentIds() {
+  async function getAssessments() {
+    state.setIsWaitingForResponse(true)
+
     try {
       const response = await fetch(
-        `/api/assessment/results?email${ selectedParticipant?.email }`, 
+        `/api/assessment/results?email=${ selectedParticipant?.email }`, 
         { method: 'GET' }
       )
+
       const json = await response.json()
 
-      if (response.status === 401) throw new Error(json.error)
-      if (response.status === 400) throw new Error(json.error)
 
-      const assessmentIds: string[] = json.data.map(
-        (results: RESULTS__DYNAMODB): string => results.id
-      )
+      if (response.status === 404) {
+        state.setIsWaitingForResponse(false)
+        state.setAreNoObserverResultsToView(true)
+        return
+      }
 
-      setAssessmentIds(assessmentIds)
+      if (response.status === 500) {
+        state.setIsWaitingForResponse(false)
+        throw new Error(json.error)
+      }
+
+      const _: AssessmentToViewType[] = json.data.map((
+        results: RESULTS__DYNAMODB
+      ): AssessmentToViewType => {
+        return {
+          id: results.id,
+          name: results.assessmentName,
+          timestamp: new Date(results.timestamp).toDateString()
+        } 
+      })
+
+      setAssessments(_)
+      state.setIsWaitingForResponse(false)
     } catch (error: any) {
+      state.setIsWaitingForResponse(false)
       throw new Error(error)
     }
   }
 
 
   useLayoutEffect(() => {
-    if (isModalVisible) {
+    if (state.isModalVisible) {
       const requests = [
-        getAssessmentIds()
+        getAssessments()
       ]
 
       Promise.all(requests)
     }
-  }, [ ])
+  }, [ state.isModalVisible ])
   
 
 
   return (
     <>
-      { isModalVisible && (
+      { state.isModalVisible && (
         <>
           <div
             ref={ modalRef }
@@ -97,61 +148,190 @@ const ObserverResultsModal: FC<ObserverResultsModalProps> = ({
               gap: '24px',
               width: '65%',
               height: '50%',
-              maxWidth: '400px',
+              maxWidth: '600px',
+              minWidth: '400px',
               maxHeight: '500px',
               textAlign: 'center'
             } }
             className={ `${modalStyle.modal} ${modalStyle.background}` }
           >
-            {/* Title */ }
-            <div style={ { width: '300px', marginBottom: '12px' } }>
-              <h3>
-                { title(selectedParticipant ? selectedParticipant.name : '') }
-              </h3>
-            </div>
+            { state.areNoObserverResultsToView ? (
+              <>
+                <div>
+                  <h3>{ NO_RESULTS_TITLE }</h3>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Title */ }
+                <div style={ { width: '300px', marginBottom: '12px' } }>
+                  <h3>
+                    { title(selectedParticipant ? selectedParticipant.name : '') }
+                  </h3>
+                </div>
 
-            {/* Check box */ }
-            { assessmentIds.map((assessmentId: string, i: number) => (
-              <Fragment key={ i }>
-                <label
-                  style={ {
-                    ...definitelyCenteredStyle,
-                    display: 'flex',
-                    cursor: 'pointer',
-                  } }
-                >
-                  <p style={ { marginRight: '8px' } }>
-                    { assessmentId }
-                  </p>
+                {/* Check box */ }
+                { state.isWaitingForResponse ? (
+                  <>
+                    <div
+                      style={ {
+                        ...definitelyCenteredStyle,
+                        position: 'relative',
+                      } }
+                    >
+                      <Spinner height='40' width='40' />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div
+                      style={{
+                        ...definitelyCenteredStyle,
+                        width: '100%',
+                        overflowX: 'auto',
+                      }}
+                    >
+                      { assessments && (
+                            <table style={ { border: '1px solid #f4f4f4' } }>
+                          <thead 
+                            style={{ 
+                                backgroundColor: '#f4f4f4',
+                            }}
+                          >
+                            <tr>
+                              { tableHeaders.map((name: string) => (
+                                <>
+                                  <th
+                                    style={{ 
+                                      fontSize: '14px',
+                                      padding: '8px 24px',
+                                    }}
+                                  >
+                                    { name }
+                                  </th>
+                                </>
+                              ))}
+                            </tr>
+                          </thead>
 
-                  <input
-                    required
-                    type='checkbox'
-                    name={ 'select' }
-                    style={{
-                      cursor: 'pointer',
-                    }}
-                    // className=''
-                    // id={ `${ i }` }
-                    onChange={ 
-                      (e: any) => onEventHandlers.onViewObserverResultsChange(
-                        e,
-                        assessmentId
-                      )
-                    }
-                  />
-                </label>
-              </Fragment>
-            )) }
+                          <tbody>
+                            { assessments.map((_: AssessmentToViewType, i: number) => (
+                              <Fragment key={ i }>
+                                <tr
+                                  key={ i }
+                                  className={ styles.radioButtonLabel }
+                                  onClick={
+                                    (e: any) =>
+                                      onEventHandlers.onViewObserverResultsChange(
+                                        e,
+                                        _.id,
+                                        _.name
+                                      )
+                                  }
+                                  style={{
+                                    cursor: 'pointer',
+                                    marginBottom: '8px',
+                                    fontSize: '14px',
+                                    border: '0.75px solid gray',
+                                  }}
+                                >
+                                  <td
+                                    style={ {
+                                      width: '125px',
+                                      padding: '4px 0px',
+                                    } }
+                                  >{ _.name }</td>
+                                  <td 
+                                    style={{
+                                      width: '125px',
+                                    }}
+                                  >
+                                    { _.id.slice(0, 8) + '...' }
+                                  </td>
+                                  <td
+                                    style={ {
+                                      width: '175px',
+                                    } }
+                                  >
+                                    { _.timestamp }
+                                  </td>
 
-            {/* Button */ }
-            <button
-              className={ styles.button }
-              style={ { width: '150px', marginTop: '12px' } }
-              onClick={ (e: any) => onEventHandlers.onClick(e) }
-            >
-              { BUTTON_TEXT }
-            </button>
+                                  <td>
+                                    <input
+                                      required
+                                      type='checkbox'
+                                      name={ 'select' }
+                                    />
+                                  </td>
+                                </tr>
+
+                                {/* <label
+                                  className={ styles.radioButtonLabel }
+                                  style={ {
+                                    ...definitelyCenteredStyle,
+                                    display: 'flex',
+                                    cursor: 'pointer',
+                                    position: 'relative',
+                                    marginBottom: '8px',
+                                    border: '0.75px solid gray',
+                                  } }
+                                >
+                                  <div
+                                    style={ {
+                                      display: 'flex',
+                                      width: '400px',
+                                      marginRight: '-24px',
+                                      gap: '24px'
+                                    } }
+                                  >
+                                    <p style={{ width: '80px' }}>
+                                      { `${_.name}: ` }
+                                    </p>
+                                    <p style={{ width: '70px' }}>
+                                      { _.id.slice(0, 8) + '...' }
+                                    </p>
+                                    <p style={{ width: '150px' }}>
+                                      { _.timestamp }
+                                    </p>
+                                  </div>
+
+                                  <input
+                                    required
+                                    type='checkbox'
+                                    name={ 'select' }
+                                    style={ {
+                                      cursor: 'pointer',
+                                    } }
+                                    // className=''
+                                    // id={ `${ i }` }
+                                    onChange={
+                                      (e: any) => onEventHandlers.onViewObserverResultsChange(
+                                        e,
+                                        _.id,
+                                        _.name
+                                      )
+                                    }
+                                  />
+                                </label> */}
+                              </Fragment>
+                            )) }
+                          </tbody>
+                        </table>
+                      )}
+                    </div>
+
+                    {/* Button */ }
+                    <button
+                      className={ styles.button }
+                      style={ { width: '150px' } }
+                      onClick={ (e: any) => onEventHandlers.onClick(e) }
+                    >
+                      { BUTTON_TEXT }
+                    </button>
+                  </>
+                ) }
+              </>
+            )}
           </div>
         </>
       ) }

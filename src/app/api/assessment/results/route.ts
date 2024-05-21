@@ -4,6 +4,7 @@ import {
   PutCommand, 
   QueryCommand,
   PutCommandInput,
+  QueryCommandInput,
 } from '@aws-sdk/lib-dynamodb'
 import { verify } from 'jsonwebtoken'
 // Locals
@@ -108,6 +109,7 @@ export async function GET(
   if (req.method === 'GET') {
     const email = req.nextUrl.searchParams.get('email')
 
+
     if (!email) {
       return NextResponse.json(
         { error: 'Email query parameter is required!' },
@@ -121,11 +123,13 @@ export async function GET(
     }
 
     const TableName: string = DYNAMODB_TABLE_NAMES.results
+    const IndexName = 'email-timestamp-index'
     const KeyConditionExpression = 'email = :emailValue'
     const ExpressionAttributeValues = { ':emailValue': email }
 
-    const input = {
+    const input: QueryCommandInput = {
       TableName,
+      IndexName,
       KeyConditionExpression,
       ExpressionAttributeValues,
     }
@@ -135,6 +139,7 @@ export async function GET(
     const successMessage = `All user results have fetched from the ${
       DYNAMODB_TABLE_NAMES.results
     } table`
+
 
     try {
       const response = await ddbDocClient.send(command)
@@ -156,6 +161,7 @@ export async function GET(
         )
       } else {      
         const allUserResults = response.Items as RESULTS__DYNAMODB[]
+
 
         return NextResponse.json(
           {

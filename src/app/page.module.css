@@ -233,7 +233,7 @@
 
 .radioButtonLabel:hover {
   border-radius: 3rem;
-  background-color: #0050ac1d;
+  background-color: rgba(0, 80, 172, 0.114);
   transition: 0.25s ease-in-out;
 }
 

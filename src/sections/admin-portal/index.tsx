@@ -72,6 +72,10 @@ const AdminPortal: FC<AdminPortalProps> = ({
     isWaitingForResponse, 
     setIsWaitingForResponse 
   ] = useState<boolean>(false)
+  const [ 
+    areNoObserverResultsToView, 
+    setAreNoObserverResultsToView 
+  ] = useState<boolean>(false)
   const [ isNobelLaureate, setIsNobelLaureate ] = useState<boolean>(false)
   const [ participantCreated, setParticipantCreated ] = useState<boolean>(false)
   // Custom
@@ -118,19 +122,15 @@ const AdminPortal: FC<AdminPortalProps> = ({
     setIsNobelLaureate(checked)
   }
 
-  function onViewObserverResultsChange(e: any, assessmentId: string) {
+  function onViewObserverResultsChange(e: any, id: string, name: string) {
     const { checked } = e.target
 
-    setObserverResultsToView(previousState => {
-      const _ = new Set(previousState)
-
-      if (checked) {
-        _.add(assessmentId)
-      } else {
-        _.delete(assessmentId)
-      }
-
-      return _
+    setObserverResultsToView({
+      ...observerResultsToView,
+      assessment: {
+        id,
+        name,
+      },
     })
   }
 
@@ -443,9 +443,15 @@ const AdminPortal: FC<AdminPortalProps> = ({
         <ObserverResultsModal 
           modalRef={ modalRef }
           selectedParticipant={ selectedParticipant }
-          isModalVisible={
-            showModal === 'viewObserverResultsModal' ? true : false
-          }
+          state={{
+            isWaitingForResponse: isWaitingForResponse,
+            setIsWaitingForResponse: setIsWaitingForResponse,
+            areNoObserverResultsToView: areNoObserverResultsToView,
+            setAreNoObserverResultsToView: setAreNoObserverResultsToView,
+            isModalVisible: showModal === 'viewObserverResultsModal' 
+              ? true 
+              : false
+          }}
           onEventHandlers={{
             onClick: handleOnViewObserverResults,
             onViewObserverResultsChange: onViewObserverResultsChange

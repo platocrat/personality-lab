@@ -219,12 +219,16 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
        * @dev This is the object that we store in DynamoDB using AWS's 
        * `PutItemCommand` operation.
        */
-      const userResults: Omit<BessiUserResults__DynamoDB, "id"> & { username: string } = {
+      const userResults: Omit<BessiUserResults__DynamoDB, "id"> & { 
+        username: string
+        assessmentName: string
+      } = {
         email: email,
         username: username,
         timestamp: CURRENT_TIMESTAMP,
         facetScores: finalScores.facetScores,
         domainScores: finalScores.domainScores,
+        assessmentName: ASSESSMENT_NAME,
         demographics: DEMOGRAPHICS,
       }
 
@@ -234,10 +238,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ 
-            assessmentName: ASSESSMENT_NAME, 
-            userResults
-          }),
+          body: JSON.stringify({ userResults }),
         })
 
         const json = await response.json()
