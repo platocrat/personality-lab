@@ -1,11 +1,12 @@
 import {
-  BinaryLike,
   CipherKey,
+  pbkdf2Sync,
+  scryptSync,
+  randomBytes,
+  createHash,
+  BinaryLike,
   createCipheriv,
   createDecipheriv,
-  pbkdf2Sync,
-  randomBytes,
-  scryptSync,
 } from 'crypto'
 
 
@@ -13,13 +14,13 @@ import {
 /**
  * @dev Server-side cryptography using Node.js's built-in `crypto` library
  */
-class SSCrypto {
+export class SSCrypto {
   private static readonly HASH_ALGORITHM = 'sha512'
   private static readonly ITERATIONS = 1_000_000
   private static readonly KEYLEN = 128
   private static readonly IV_LENGTH = 16
   private static readonly ENCRYPTION_KEY_LENGTH = 16
-  private static readonly ENCRYPTION_ALGORITHM = 'aes-256-cbs'
+  private static readonly ENCRYPTION_ALGORITHM = 'aes-256-cbc'
   private static readonly HASHED_PASSWORD_ENCODING = 'hex'
   private static readonly SYMBOLS = `#@*+-_;,.?!()/{}&'`
   private static readonly CAPITAL_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -122,6 +123,22 @@ class SSCrypto {
 
     return JSON.parse(decryptedData)
   }
-}
 
-export default SSCrypto
+
+  // Function to create a hash
+  public createHash(data: any, algorithm = 'sha512') {
+    // Create a hash object
+    const hash = createHash(
+      algorithm, 
+      { 
+        outputLength: 64, 
+      }
+    )
+
+    // Update the hash with the data
+    hash.update(data)
+
+    // Calculate the hash digest (output) in hex format
+    return hash.digest('hex')
+  }
+}

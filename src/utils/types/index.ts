@@ -39,11 +39,17 @@ export type PARTICIPANT_DYNAMODB = {
 }
 
 
+type EncryptedCookieFieldType = {
+  iv: string
+  encryptedData: string
+}
+
+
 export type CookieType = {
-  email: string
-  username: string
-  password: string
-  isAdmin: string
+  email: EncryptedCookieFieldType
+  username: EncryptedCookieFieldType
+  password: EncryptedCookieFieldType
+  isAdmin: EncryptedCookieFieldType
 }
 
 

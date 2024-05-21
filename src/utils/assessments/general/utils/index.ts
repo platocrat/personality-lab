@@ -3,8 +3,8 @@ import { decode } from 'jsonwebtoken'
 // Locals
 import { 
   CookieType,
-  LibsodiumUtils,
   AWS_PARAMETER_NAMES,
+  SSCrypto,
 } from '@/utils'
 
 
@@ -89,9 +89,18 @@ export async function getUsernameAndEmailFromCookie() {
       const encryptedUsername = (decoded as CookieType).username
 
       const SECRET_KEY = await getCookieSecretKey()
+      const secretKeyCipher = Buffer.from(SECRET_KEY, 'hex')
 
-      const email = await LibsodiumUtils.decryptData(encryptedEmail, SECRET_KEY)
-      const username = await LibsodiumUtils.decryptData(encryptedUsername, SECRET_KEY)
+      const email = new SSCrypto().decrypt(
+        encryptedEmail.encryptedData, 
+        secretKeyCipher,
+        encryptedEmail.iv
+      )
+      const username = new SSCrypto().decrypt(
+        encryptedUsername.encryptedData, 
+        secretKeyCipher,
+        encryptedUsername.iv
+      )
 
       return { email, username }
     } else {
@@ -132,7 +141,7 @@ export async function getCookieSecretKey() {
 
     if (response.status === 200) {
       const SECRET_KEY: string = data.secret
-      return LibsodiumUtils.base64ToUint8Array(SECRET_KEY)
+      return SECRET_KEY
     } else {
       throw new Error(
         `Error getting ${AWS_PARAMETER_NAMES.COOKIE_ENCRYPTION_SECRET_KEY}: ${data.error}`

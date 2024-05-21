@@ -4,24 +4,22 @@ import {
   GetParameterCommandInput, 
 } from '@aws-sdk/client-ssm'
 import { sign } from 'jsonwebtoken'
-import { pbkdf2Sync, randomBytes } from 'crypto'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 import { QueryCommand, QueryCommandInput } from '@aws-sdk/lib-dynamodb'
 // Locals
 import { 
   MAX_AGE,
+  SSCrypto,
   ssmClient,
   COOKIE_NAME, 
   ddbDocClient,
-  LibsodiumUtils,
+  ACCOUNT_ADMINS,
   fetchAwsParameter, 
   ACCOUNT__DYNAMODB,
   AWS_PARAMETER_NAMES,
   DYNAMODB_TABLE_NAMES,
  } from '@/utils'
-import { ACCOUNT_ADMINS } from '@/utils/constants'
-import SSCrypto from '@/utils/crypto'
 
 
 
@@ -85,38 +83,30 @@ export async function POST(
               )
 
               if (typeof SECRET_KEY === 'string') {
-                const secretKeyUint8Array = LibsodiumUtils.base64ToUint8Array(
-                  SECRET_KEY
-                )
+                const secretKeyCipher = Buffer.from(SECRET_KEY, 'hex')
 
-                const encryptedEmail = await LibsodiumUtils.encryptData(
-                  email,
-                  secretKeyUint8Array
+                const encryptedEmail = new SSCrypto().encrypt(
+                  email, 
+                  secretKeyCipher
                 )
-                const encryptedUsername = await LibsodiumUtils.encryptData(
-                  username,
-                  secretKeyUint8Array
+                const encryptedUsername = new SSCrypto().encrypt(
+                  username, 
+                  secretKeyCipher
                 )
 
                 // Determine if the new user is an admin
                 const isAdmin = ACCOUNT_ADMINS.some(admin => admin.email === email)
-
-                const encryptedIsAdmin = await LibsodiumUtils.encryptData(
-                  isAdmin.toString(),
-                  secretKeyUint8Array
+                const encryptedIsAdmin = new SSCrypto().encrypt(
+                  isAdmin.toString(), 
+                  secretKeyCipher
                 )
 
                 // Get timestamp after the username is validated.
                 const timestamp = new Date().getTime().toString()
-
-                const encryptedTimestamp = await LibsodiumUtils.encryptData(
-                  timestamp,
-                  secretKeyUint8Array
+                const encryptedTimestamp = new SSCrypto().encrypt(
+                  timestamp, 
+                  secretKeyCipher
                 )
-                // const encryptedTimestamp = new SSCrypto().encrypt(
-                //   timestamp,
-                //   secretKeyUint8Array
-                // )
 
                 /**
                  * @dev Make sure the password that is stored in the cookie is hashed!

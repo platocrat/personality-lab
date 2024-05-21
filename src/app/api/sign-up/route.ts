@@ -18,13 +18,13 @@ import {
   ssmClient,
   COOKIE_NAME,
   ddbDocClient,
-  LibsodiumUtils,
+  ACCOUNT_ADMINS,
   ACCOUNT__DYNAMODB,
   fetchAwsParameter, 
   AWS_PARAMETER_NAMES, 
   DYNAMODB_TABLE_NAMES,
+  SSCrypto,
 } from '@/utils'
-import { ACCOUNT_ADMINS } from '@/utils/constants'
 
 
 
@@ -115,25 +115,23 @@ export async function POST(
         )
 
         if (typeof SECRET_KEY === 'string') {
-          const secretKeyUint8Array = LibsodiumUtils.base64ToUint8Array(
-            SECRET_KEY
-          )
+          const secretKeyCipher = Buffer.from(SECRET_KEY, 'hex')
 
-          const encryptedEmail = await LibsodiumUtils.encryptData(
-            email,
-            secretKeyUint8Array
+          const encryptedEmail = new SSCrypto().encrypt(
+            email, 
+            secretKeyCipher
           )
-          const encryptedUsername = await LibsodiumUtils.encryptData(
-            username,
-            secretKeyUint8Array
+          const encryptedUsername = new SSCrypto().encrypt(
+            username, 
+            secretKeyCipher
           )
-          const encryptedIsAdmin = await LibsodiumUtils.encryptData(
-            isAdmin.toString(),
-            secretKeyUint8Array
+          const encryptedIsAdmin = new SSCrypto().encrypt(
+            isAdmin.toString(), 
+            secretKeyCipher
           )
-          const encryptedTimestamp = await LibsodiumUtils.encryptData(
-            timestamp.toString(),
-            secretKeyUint8Array
+          const encryptedTimestamp = new SSCrypto().encrypt(
+            timestamp.toString(), 
+            secretKeyCipher
           )
 
           /**

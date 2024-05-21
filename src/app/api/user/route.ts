@@ -11,10 +11,10 @@ import {
   ssmClient,
   CookieType,
   COOKIE_NAME,
-  LibsodiumUtils,
   fetchAwsParameter, 
   AWS_PARAMETER_NAMES,
   getCookieSecretKey,
+  SSCrypto,
  } from '@/utils'
 
 
@@ -68,21 +68,22 @@ export async function GET(
         )
 
         if (typeof SECRET_KEY === 'string') {
-          const secretKeyUint8Array = LibsodiumUtils.base64ToUint8Array(
-            SECRET_KEY
-          )
+          const secretKeyCipher = Buffer.from(SECRET_KEY, 'hex')
 
-          const email = await LibsodiumUtils.decryptData(
-            encryptedEmail, 
-            secretKeyUint8Array
+          const email = new SSCrypto().decrypt(
+            encryptedEmail.encryptedData,
+            secretKeyCipher,
+            encryptedEmail.iv
           )
-          const username = await LibsodiumUtils.decryptData(
-            encryptedUsername, 
-            secretKeyUint8Array
+          const username = new SSCrypto().decrypt(
+            encryptedUsername.encryptedData,
+            secretKeyCipher,
+            encryptedUsername.iv
           )
-          const isAdmin = await LibsodiumUtils.decryptData(
-            encryptedIsAdmin, 
-            secretKeyUint8Array
+          const isAdmin = new SSCrypto().decrypt(
+            encryptedIsAdmin.encryptedData,
+            secretKeyCipher,
+            encryptedIsAdmin.iv
           )
 
           const user = { email, username, isAdmin }
