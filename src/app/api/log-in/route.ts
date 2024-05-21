@@ -113,6 +113,10 @@ export async function POST(
                   timestamp,
                   secretKeyUint8Array
                 )
+                // const encryptedTimestamp = new SSCrypto().encrypt(
+                //   timestamp,
+                //   secretKeyUint8Array
+                // )
 
                 /**
                  * @dev Make sure the password that is stored in the cookie is hashed!
