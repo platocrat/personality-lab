@@ -31,9 +31,10 @@ export async function POST(
     const Item = {
       id: userVizRatingId,
       email: userVizRating.email,
+      rating: userVizRating.rating,
+      vizName: userVizRating.vizName,
+      username: userVizRating.username,
       timestamp: userVizRating.timestamp,
-      vizName: userVizRating.facetScores,
-      rating: userVizRating.domainScores,
       assessmentName: userVizRating.assessmentName,
     }
 

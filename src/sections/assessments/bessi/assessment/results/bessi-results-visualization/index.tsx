@@ -310,6 +310,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
           timestamp: CURRENT_TIMESTAMP,
           vizName: vizName,
           rating: rating,
+          assessmentName: 'bessi'
         }
 
         try {
