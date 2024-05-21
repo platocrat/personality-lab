@@ -25,6 +25,7 @@ import {
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+import Spinner from '@/components/Suspense/Spinner'
 
 
 
@@ -74,18 +75,14 @@ const AdminPortal: FC<AdminPortalProps> = ({
   const [ participantCreated, setParticipantCreated ] = useState<boolean>(false)
   // Custom
   const [
+    participants, 
+    setParticipants
+  ] = useState<ParticipantType[] | null>(null)
+  const [
     selectedParticipant, 
     setSelectedParticipant
   ] = useState<ParticipantType | null>(null)
   const [showModal, setShowModal] = useState<ShowModalType>(null)
-  const [participants, setParticipants] = useState<ParticipantType[]>([
-    {
-      name: '',
-      isNobelLaureate: false,
-      assessmentNames: [ '' ],
-      email: '',
-    },
-  ])
 
 
   // -------------------------- Regular functions ------------------------------
@@ -151,6 +148,8 @@ const AdminPortal: FC<AdminPortalProps> = ({
 
 
   async function getParticipants() {
+    setIsWaitingForResponse(true)
+
     try {
       const response = await fetch('/api/admin-portal/participants', { 
         method: 'GET',
@@ -162,6 +161,7 @@ const AdminPortal: FC<AdminPortalProps> = ({
 
       setParticipants(data.participants)
       setParticipantCreated(false)
+      setIsWaitingForResponse(false)
     } catch (error: any) {
       throw new Error(error.message)
     }
@@ -303,90 +303,105 @@ const AdminPortal: FC<AdminPortalProps> = ({
         </div>
 
         {/* Table of students */}
-        <div
-          style={{
-            width: '100%',
-            margin: '20px 0',
-            overflowX: 'auto',
-          }}
-        >
-          <table
-            style={{
-              width: '100%',
-              margin: '0 auto',
-              borderCollapse: 'collapse',
-            }}
-          >
-            <thead
-              style={{
-                backgroundColor: '#f4f4f4',
-              }}
+        { isWaitingForResponse ? (
+          <>
+            <div
+              style={ {
+                ...definitelyCenteredStyle,
+                position: 'relative',
+              } }
             >
-              { TABLE_HEADERS.map((name: string, i: number) => (
-                <Fragment key={ i }>
-                  <th style={ tdOrThStyle }>
-                    <p>
-                      { name }
-                    </p>
-                  </th>
-                </Fragment>
-              )) }
-            </thead>
-            <tbody>
-              { participants?.map((participant: ParticipantType, i: number) => (
-                <Fragment key={ i }>
-                  <tr>
-                    <td style={ tdOrThStyle }>
-                      <p>
-                        <span>
-                          <p>{ i }</p>
-                        </span>
-                      </p>
-                    </td>
-                    <td style={ tdOrThStyle }>
-                      <p>
-                        <span>
-                          <p>{ participant.name }</p>
-                        </span>
-                      </p>
-                    </td>
-                    <td style={ tdOrThStyle }>
-                      <p>
-                        <span>
-                          <p>{ participant.email }</p>
-                        </span>
-                      </p>
-                    </td>
-                    <td style={ tdOrThStyle }>
-                      <p>
-                        <span>
-                          <p>{  }</p>
-                        </span>
-                      </p>
-                    </td>
-                    <td style={ tdOrThStyle }>
-                      <p 
-                        className={ styles.externalLink }
-                        style={{
-                          cursor: 'pointer',
-                        }}
-                        onClick={
-                          (e: any) => handleViewObserverResults(
-                            participant
-                          )
-                        }
-                      >
-                        <span>
-                          <p>{ `View Results` }</p>
-                        </span>
-                      </p>
-                    </td>
-                  </tr>
-                </Fragment>
-              )) }
-            </tbody>
-          </table>
-        </div>
+              <Spinner height='40' width='40' />
+            </div>
+          </>
+        ) : (
+          <>
+            <div
+              style={ {
+                width: '100%',
+                margin: '20px 0',
+                overflowX: 'auto',
+              } }
+            >
+              <table
+                style={ {
+                  width: '100%',
+                  margin: '0 auto',
+                  borderCollapse: 'collapse',
+                } }
+              >
+                <thead
+                  style={ {
+                    backgroundColor: '#f4f4f4',
+                  } }
+                >
+                  { TABLE_HEADERS.map((name: string, i: number) => (
+                    <Fragment key={ i }>
+                      <th style={ tdOrThStyle }>
+                        <p>
+                          { name }
+                        </p>
+                      </th>
+                    </Fragment>
+                  )) }
+                </thead>
+                <tbody>
+                  { participants?.map((participant: ParticipantType, i: number) => (
+                    <Fragment key={ i }>
+                      <tr>
+                        <td style={ tdOrThStyle }>
+                          <p>
+                            <span>
+                              <p>{ i }</p>
+                            </span>
+                          </p>
+                        </td>
+                        <td style={ tdOrThStyle }>
+                          <p>
+                            <span>
+                              <p>{ participant.name }</p>
+                            </span>
+                          </p>
+                        </td>
+                        <td style={ tdOrThStyle }>
+                          <p>
+                            <span>
+                              <p>{ participant.email }</p>
+                            </span>
+                          </p>
+                        </td>
+                        <td style={ tdOrThStyle }>
+                          <p>
+                            <span>
+                              <p>{ }</p>
+                            </span>
+                          </p>
+                        </td>
+                        <td style={ tdOrThStyle }>
+                          <p
+                            className={ styles.externalLink }
+                            style={ {
+                              cursor: 'pointer',
+                            } }
+                            onClick={
+                              (e: any) => handleViewObserverResults(
+                                participant
+                              )
+                            }
+                          >
+                            <span>
+                              <p>{ `View Results` }</p>
+                            </span>
+                          </p>
+                        </td>
+                      </tr>
+                    </Fragment>
+                  )) }
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
 
         {/* Modals */}
         <CreateParticipantModal

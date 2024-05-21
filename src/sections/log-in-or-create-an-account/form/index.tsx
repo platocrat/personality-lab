@@ -24,19 +24,18 @@ export type FormProps = {
     email: string
     isSignUp: boolean
     username: string
-    password: string
     isFirstStep: boolean
     emailExists: boolean
     isUsernameTaken: boolean
     isEmailIncorrect: boolean
     isPasswordHashing: boolean
-    isWaitingForResponse: boolean
     isUsernameIncorrect: boolean
     isPasswordIncorrect: boolean
+    isWaitingForResponse: boolean
+    password: { hash: string, salt: string }
   }
   set: {
     email: Dispatch<SetStateAction<string>>
-    password: Dispatch<SetStateAction<string>>
     username: Dispatch<SetStateAction<string>>
     isUsernameTaken: Dispatch<SetStateAction<boolean>> 
     isEmailIncorrect: Dispatch<SetStateAction<boolean>>
@@ -44,6 +43,7 @@ export type FormProps = {
     isPasswordIncorrect: Dispatch<SetStateAction<boolean>>
     isUsernameIncorrect: Dispatch<SetStateAction<boolean>>
     isWaitingForResponse: Dispatch<SetStateAction<boolean>>
+    password: Dispatch<SetStateAction<{ hash: string,  salt: string }>>
   }
   handler: {
     handleLogIn: (e: any) => void
@@ -82,17 +82,17 @@ const Form: FC<FormProps> = ({
       state.isFirstStep && state.email === '' || 
       !state.isFirstStep && state.email === '' ||
       !state.isFirstStep && state.username === '' ||
-      !state.isFirstStep && state.password === '' ||
+      !state.isFirstStep && state.password.hash === '' ||
       state.isUsernameTaken ||
       !state.isFirstStep && !isHCaptchaVerificationSuccessful ||
-      !state.isFirstStep  && state.isSignUp && !isValidPassword(state.password)
+      !state.isFirstStep  && state.isSignUp && !isValidPassword(state.password.hash)
         ? true
         : false
   }, [
     state.email,
     state.username,
-    state.isSignUp,
     state.password,
+    state.isSignUp,
     state.isFirstStep,
     state.isUsernameTaken,
     state.isPasswordHashing,
@@ -194,8 +194,10 @@ const Form: FC<FormProps> = ({
 
       set.isPasswordHashing(true)
       // 2. Store encrypted password in database
-      hashPassword(_).then((hashedPassword: string): void => {
-        set.password(hashedPassword)
+      hashPassword(_).then((password: { hash: string, salt: string }): void => {
+        console.log(`password; `, password)
+
+        set.password(password)
         set.isPasswordHashing(false)
       })
     } else {
@@ -292,8 +294,8 @@ const Form: FC<FormProps> = ({
         body: JSON.stringify({ password }),
       })
 
-      const { hashedPassword } = await response.json()
-      return hashedPassword
+      const { hash, salt } = await response.json()
+      return { hash, salt }
     } catch (error: any) {
       set.isPasswordHashing(false)
       throw new Error(error)
@@ -399,7 +401,17 @@ const Form: FC<FormProps> = ({
                     } }
                   />
                 </div>
-                <IncorrectInput i={ i } state={ state } />
+
+                <IncorrectInput 
+                  i={ i } 
+                  state={{
+                    isSignUp: state.isSignUp,
+                    isUsernameTaken: state.isUsernameTaken,
+                    isEmailIncorrect: state.isEmailIncorrect,
+                    isUsernameIncorrect: state.isUsernameIncorrect,
+                    isPasswordIncorrect: state.isPasswordIncorrect,
+                  }} 
+                />
               </Fragment>
             ))}
           </div>

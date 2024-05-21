@@ -36,7 +36,7 @@ export async function POST(
     const { 
       email, 
       username, 
-      password // Password is already hashed
+      password // Contains a password that is already hashed
     } = await req.json()
 
     /**
@@ -96,7 +96,7 @@ export async function POST(
         email,
         isAdmin,
         username, 
-        password, // This is a hashed password
+        password, // Contains a password that is already hashed
         timestamp
       },
     }
@@ -144,7 +144,7 @@ export async function POST(
               email: encryptedEmail,
               isAdmin: encryptedIsAdmin,
               username: encryptedUsername,
-              password,
+              password: password.hash,
               timestamp: encryptedTimestamp
             },
             JWT_SECRET as string,

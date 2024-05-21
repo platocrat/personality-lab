@@ -41,7 +41,6 @@ const LogInOrCreateAnAccount = () => {
   // Strings
   const [ email, setEmail ] = useState<string>('')
   const [ username, setUsername ] = useState<string>('')
-  const [ password, setPassword ] = useState<string>('')
   // Booleans
   const [ 
     isPasswordIncorrect, 
@@ -61,6 +60,11 @@ const LogInOrCreateAnAccount = () => {
   const [ isUsernameTaken, setIsUsernameTaken ] = useState<boolean>(false)
   const [ isEmailIncorrect, setIsEmailIncorrect ] = useState<boolean>(false)
   const [ isPasswordHashing, setIsPasswordHashing ] = useState<boolean>(false)
+  // Custom
+  const [ 
+    password, 
+    setPassword 
+  ] = useState<{ hash: string, salt: string }>({ hash: '', salt: '' })
 
 
   const title = isFirstStep 

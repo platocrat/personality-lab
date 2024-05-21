@@ -50,7 +50,10 @@ const ObserverResultsModal: FC<ObserverResultsModalProps> = ({
   // ---------------------------- Async functions ------------------------------
   async function getAssessmentIds() {
     try {
-      const response = await fetch('/api/assessment/results', { method: 'GET' })
+      const response = await fetch(
+        `/api/assessment/results?email${ selectedParticipant?.email }`, 
+        { method: 'GET' }
+      )
       const json = await response.json()
 
       if (response.status === 401) throw new Error(json.error)
@@ -68,11 +71,13 @@ const ObserverResultsModal: FC<ObserverResultsModalProps> = ({
 
 
   useLayoutEffect(() => {
-    const requests = [
-      getAssessmentIds()
-    ]
+    if (isModalVisible) {
+      const requests = [
+        getAssessmentIds()
+      ]
 
-    Promise.all(requests)
+      Promise.all(requests)
+    }
   }, [ ])
   
 

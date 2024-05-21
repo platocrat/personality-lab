@@ -7,16 +7,9 @@ import InputError from '@/components/Errors/InputError'
 type IncorrectInputProps = {
   i: number
   state: {
-    email: string
     isSignUp: boolean
-    username: string
-    password: string
-    isFirstStep: boolean
-    emailExists: boolean
     isUsernameTaken: boolean
     isEmailIncorrect: boolean
-    isPasswordHashing: boolean
-    isWaitingForResponse: boolean
     isUsernameIncorrect: boolean
     isPasswordIncorrect: boolean
   }

@@ -1,11 +1,9 @@
 // Externals
+import SSCrypto from '@/utils/crypto'
 import { 
-  ready, 
-  crypto_pwhash_str,
-  crypto_pwhash_str_verify,
-  crypto_pwhash_MEMLIMIT_INTERACTIVE,
-  crypto_pwhash_OPSLIMIT_INTERACTIVE,
-} from 'libsodium-wrappers-sumo'
+  pbkdf2Sync, 
+  randomBytes, 
+} from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
 
 
@@ -17,16 +15,15 @@ export async function POST(
     try {
       const { password } = await req.json()
 
-      await ready
-      
-      let hashedPassword = crypto_pwhash_str(
-        password,
-        crypto_pwhash_OPSLIMIT_INTERACTIVE,
-        crypto_pwhash_MEMLIMIT_INTERACTIVE
-      )
+      const { hash, salt } = new SSCrypto().hashPassword(password)
 
+
+      
       return NextResponse.json(
-        { hashedPassword },
+        { 
+          salt,
+          hash,
+        },
         { status: 200 }
       )
     } catch (error: any) {

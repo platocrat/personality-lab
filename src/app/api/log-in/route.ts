@@ -3,13 +3,8 @@ import {
   GetParameterCommand,
   GetParameterCommandInput, 
 } from '@aws-sdk/client-ssm'
-import { 
-  crypto_pwhash_str, 
-  crypto_pwhash_str_verify,
-  crypto_pwhash_OPSLIMIT_INTERACTIVE, 
-  crypto_pwhash_MEMLIMIT_INTERACTIVE 
-} from 'libsodium-wrappers-sumo'
 import { sign } from 'jsonwebtoken'
+import { pbkdf2Sync, randomBytes } from 'crypto'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 import { QueryCommand, QueryCommandInput } from '@aws-sdk/lib-dynamodb'
@@ -26,6 +21,7 @@ import {
   DYNAMODB_TABLE_NAMES,
  } from '@/utils'
 import { ACCOUNT_ADMINS } from '@/utils/constants'
+import SSCrypto from '@/utils/crypto'
 
 
 
@@ -64,10 +60,14 @@ export async function POST(
         (response.Items[0] as ACCOUNT__DYNAMODB).password
       ) {
         const storedUsername = (response.Items[0] as ACCOUNT__DYNAMODB).username
-        const hashedPassword = (response.Items[0] as ACCOUNT__DYNAMODB).password
+        const storedPassword = (response.Items[0] as ACCOUNT__DYNAMODB).password
 
         const verifiedUsername = storedUsername === username
-        const verifiedPassword = crypto_pwhash_str_verify(hashedPassword, password)
+        const verifiedPassword = new SSCrypto().verifyPassword(
+          password,
+          storedPassword.hash,
+          storedPassword.salt,
+        )
 
         const condition = `${ verifiedUsername }-${ verifiedPassword }`
 
@@ -122,7 +122,7 @@ export async function POST(
                     email: encryptedEmail,
                     isAdmin: encryptedIsAdmin,
                     username: encryptedUsername,
-                    password: hashedPassword,
+                    password: storedPassword.hash,
                     timestamp: encryptedTimestamp
                   },
                   JWT_SECRET as string,

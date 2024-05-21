@@ -9,9 +9,9 @@ import {
 export type ACCOUNT__DYNAMODB = {
   email: string
   username: string
-  password: string
   isAdmin: boolean
   timestamp: number
+  password: { hash: string, salt: string }
   participant?: PARTICIPANT_DYNAMODB
 }
 

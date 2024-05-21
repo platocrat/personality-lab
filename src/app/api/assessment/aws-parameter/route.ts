@@ -4,7 +4,6 @@ import {
   GetParameterCommandInput,
 } from '@aws-sdk/client-ssm'
 import { verify } from 'jsonwebtoken'
-import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 // Locals
 import { 
