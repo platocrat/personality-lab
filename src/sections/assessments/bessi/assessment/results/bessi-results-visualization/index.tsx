@@ -7,6 +7,7 @@ import {
   useState,
   Fragment,
   Dispatch,
+  useEffect,
   useContext,
   SetStateAction,
 } from 'react'
@@ -158,13 +159,13 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
       case 0:
         return <StellarPlot isExample={ isExample } data={ data_(i) } />
       case 1:
-        const title = 'BESSI Bar Chart'
+        const barChartTitle = 'BESSI Bar Chart'
         const allData: TargetDataStructure[] = data_(i) as TargetDataStructure[]
 
         return (
           <>
             <div style={{ margin: '24px 0px 0px 0px' }} />
-            <Title isExample={ isExample } title={ title } />
+            <Title isExample={ isExample } title={ barChartTitle } />
 
             { allData.map((data: TargetDataStructure, i: number) => (
               <>
@@ -174,34 +175,42 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
           </>
         )
       case 2:
+        const radialBarChartTitle = `BESSI Radial Bar Chart`
         const _allData = data_(i) as TargetDataStructure[]
 
         return (
           <>
-            <select
-              value={ selectedRadialBarChart }
+            <div 
               style={{ 
-                padding: '4px 8px 4px 4px',
-                margin: '24px 0px 24px 0px',
+                ...definitelyCenteredStyle,
+                flexDirection: 'column',
               }}
-              onChange={ 
-                (e: any) => handleOnChangeRadialBarChart(e) 
-              }
             >
-              { _allData.map((data: TargetDataStructure, i: number) => (
-                <>
-                  <option key={ i } value={ i }>
-                    { data.name }
-                  </option>
-                </>
-              )) }
-            </select>
+              <Title isExample={ isExample } title={ radialBarChartTitle } />
+              <select
+                value={ selectedRadialBarChart }
+                style={{ 
+                  padding: '4px 8px 4px 4px',
+                  margin: '4px 0px 4px 0px',
+                }}
+                onChange={ 
+                  (e: any) => handleOnChangeRadialBarChart(e) 
+                }
+              >
+                { _allData.map((data: TargetDataStructure, i: number) => (
+                  <>
+                    <option key={ i } value={ i }>
+                      { data.name }
+                    </option>
+                  </>
+                )) }
+              </select>
 
-            <RadialBarChart
-              isExample={ isExample }
-              data={ _allData[selectedRadialBarChart] } 
-              selectedRadialBarChart={ selectedRadialBarChart }
-            />
+              <RadialBarChart
+                data={ _allData[selectedRadialBarChart] } 
+                selectedRadialBarChart={ selectedRadialBarChart }
+              />
+            </div>
           </>
         )
       case 3:
@@ -341,6 +350,11 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   
   // ---------------------------------- Hooks ----------------------------------
   useClickOutside(modalRef, () => setIsModalVisible(false))
+
+  
+  useEffect(() => {
+    setIsRating(false)
+  }, [ currentVisualization ])
 
 
 

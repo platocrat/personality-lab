@@ -1,10 +1,12 @@
 // Externals
-import SSCrypto from '@/utils/crypto'
 import { 
   pbkdf2Sync, 
   randomBytes, 
 } from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
+// Locals
+import { SSCrypto } from '@/utils'
+
 
 
 export async function POST(

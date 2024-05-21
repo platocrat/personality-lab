@@ -11,7 +11,6 @@ import styles from '@/components/DataViz/BarChart/Radial/Radial.module.css'
 
 
 type RadialBarChartProps = {
-  isExample: boolean
   data: TargetDataStructure
   selectedRadialBarChart: number
 }
@@ -21,26 +20,26 @@ type RadialBarChartProps = {
 
 const RadialBarChart: FC<RadialBarChartProps> = ({
   data,
-  isExample,
   selectedRadialBarChart,
 }) => {
   const d3Container = useRef<SVGSVGElement | null>(null)
-  const TITLE = `BESSI Radial Bar Chart`
 
 
   useEffect(() => {
     d3.select(d3Container.current).selectAll('*').remove()
 
-    const width = 400
-    const height = 400
-    const innerRadius = 80
+    const margin = { top: 30, right: 50, bottom: 100, left: 10 }
+    const width = 350
+    const height = 300
+    const innerRadius = 100
     const outerRadius = Math.min(width, height) / 2.2
 
     const svg = d3.select(d3Container.current)
-      .attr('width', width)
-      .attr('height', height)
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom)
       .append('g')
       .attr('transform', `translate(${width / 2},${height / 2})`)
+      .attr('transform', `translate(${margin.right * 4.1},${margin.bottom + margin.top * 4.1})`)
 
     const x = d3.scaleBand()
       .domain(data.facets.map(d => d.name))
@@ -102,15 +101,12 @@ const RadialBarChart: FC<RadialBarChartProps> = ({
       .attr('width', 200)
       .attr('height', 50)
       .attr('x', -100)
-      .attr('y', -27)
+      .attr('y', -37)
       .html(
         `
-        <div style="text-align: center; font-size: 14.5px;">
+        <div style="text-align: center; font-size: 15px;">
           <p>
-            ${ data.name.slice(0, data.name.indexOf('Skills')) }
-          </p>
-          <p>
-            ${ data.name.slice(data.name.indexOf('Skills')) }
+            ${ data.name }
           </p>
         </div>
         `
@@ -119,12 +115,11 @@ const RadialBarChart: FC<RadialBarChartProps> = ({
     const domainScore: any = svg.append('text')
       .attr('text-anchor', 'middle')
       .attr('alignment-baseline', 'middle')
-      .style('z-index', '10')
-      .style('font-size', '18px')
+      .style('font-size', '22px')
       .text(data.domainScore)
       .attr('fill', z((data as TargetDataStructure).domainScore))
       .style('filter', 'url(#drop-shadow)') // Apply drop shadow filter
-      .attr('y', 38.5)
+      .attr('y', 20)
 
     // Add drop shadow filter
     svg.append('defs')
@@ -182,7 +177,6 @@ const RadialBarChart: FC<RadialBarChartProps> = ({
 
   return (
     <>
-      <Title isExample={ isExample } title={ TITLE } />
       <svg ref={ d3Container } />
       <div
         id='tooltip'

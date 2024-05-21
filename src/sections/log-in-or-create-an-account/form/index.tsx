@@ -195,8 +195,6 @@ const Form: FC<FormProps> = ({
       set.isPasswordHashing(true)
       // 2. Store encrypted password in database
       hashPassword(_).then((password: { hash: string, salt: string }): void => {
-        console.log(`password; `, password)
-
         set.password(password)
         set.isPasswordHashing(false)
       })
