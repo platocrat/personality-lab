@@ -151,8 +151,8 @@ const ViewResultsModal: FC<ViewResultsModalProps> = ({
               height: '50%',
               maxWidth: '600px',
               minWidth: '400px',
-              maxHeight: '500px',
-              textAlign: 'center'
+              maxHeight: '400px',
+              textAlign: 'center',
             } }
             className={ `${modalStyle.modal} ${modalStyle.background}` }
           >
@@ -193,7 +193,11 @@ const ViewResultsModal: FC<ViewResultsModalProps> = ({
                       }}
                     >
                       { assessments.length !== 0 ? (
-                        <table style={ { border: '1px solid #f4f4f4' } }>
+                        <table 
+                          style={{ 
+                            border: '2px solid #f4f4f4',
+                          }}
+                        >
                           <ViewResultsModalTableHead />
                           <ViewResultsModalTableBody 
                             assessments={ assessments }
