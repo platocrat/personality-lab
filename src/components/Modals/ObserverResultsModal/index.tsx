@@ -46,7 +46,7 @@ type AssessmentToViewType = {
 
 const BUTTON_TEXT = `View Results`
 
-const title = (name: string) => `For ${ name }, which assessment you would like to see the observer results for?`
+const title = (name: string) => `For ${ name }, which assessment you would like to see results for?`
 const NO_RESULTS_TITLE = 'There are no results for this participant to view'
 
 
