@@ -75,11 +75,11 @@ export async function getUsernameAndEmailFromCookie() {
       }),
     })
 
-    const data = await response.json()
+    const json = await response.json()
 
 
     if (response.status === 200) {
-      const JWT_SECRET: string = data.secret
+      const JWT_SECRET: string = json.secret
       const cookies = document.cookie
       const token = cookies.split('=')[0]
 
@@ -105,7 +105,7 @@ export async function getUsernameAndEmailFromCookie() {
       return { email, username }
     } else {
       throw new Error(
-        `Error getting ${AWS_PARAMETER_NAMES.JWT_SECRET}: ${data.error}`
+        `Error getting ${AWS_PARAMETER_NAMES.JWT_SECRET}: ${json.error}`
       )
       /**
        * @todo Handle error UI here

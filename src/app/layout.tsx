@@ -225,11 +225,11 @@ export default function RootLayout({
   async function getUser(): Promise<UserResponse> {
     try {
       const response = await fetch('/api/user', { method: 'GET' })
-      const data = await response.json()
+      const json = await response.json()
 
-      if (response.status === 401) return { user: null, error: data.message }
-      if (response.status === 400) return { user: null, error: data.error }
-      return { user: data.user, error: null }
+      if (response.status === 401) return { user: null, error: json.message }
+      if (response.status === 400) return { user: null, error: json.error }
+      return { user: json.user, error: null }
     } catch (error: any) {
       return { user: null, error: error }
     }

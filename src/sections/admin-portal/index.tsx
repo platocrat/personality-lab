@@ -9,7 +9,10 @@ import {
   useLayoutEffect,
 } from 'react'
 // Locals
+// Sections
+import ParticipantsTable from './participants-table'
 // Components
+import Spinner from '@/components/Suspense/Spinner'
 import ObserverResultsModal from '@/components/Modals/ObserverResultsModal'
 import DownloadDataModal from '@/components/Modals/AdminPortal/DownloadData'
 import CreateParticipantModal from '@/components/Modals/AdminPortal/CreateParticipant'
@@ -19,14 +22,12 @@ import useClickOutside from '@/hooks/useClickOutside'
 import { 
   ParticipantType, 
   BessiSkillScoresType,
-  getUsernameAndEmailFromCookie,
   PARTICIPANT_DYNAMODB,
+  getUsernameAndEmailFromCookie,
 } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
-import Spinner from '@/components/Suspense/Spinner'
-import { randomBytes } from 'crypto'
 
 
 
@@ -40,21 +41,9 @@ type ShowModalType = 'createParticipantModal' | 'downloadDataModal' |
 
 
 
-  const PAGE_TITLE = 'Admin Portal'
+const PAGE_TITLE = 'Admin Portal'
 
-const TABLE_HEADERS = [
-  `ID`,
-  `Username`,
-  `Email`,
-  `Observer Response`,
-  `Observer Results`,
-]
 
-const tdOrThStyle: CSSProperties = {
-  padding: '8px',
-  textAlign: 'center',
-  border: '1px solid #dddddd',
-}
 
 
 const AdminPortal: FC<AdminPortalProps> = ({
@@ -68,6 +57,10 @@ const AdminPortal: FC<AdminPortalProps> = ({
   const [ participantEmail, setParticipantEmail ] = useState<string>('')
   const [ assessmentNames, setAssessmentNames ] = useState<string[]>([''])
   // Booleans
+  const [
+    isCreatingParticipant,
+    setIsCreatingParticipant
+  ] = useState(false)
   const [ 
     isWaitingForResponse, 
     setIsWaitingForResponse 
@@ -143,7 +136,7 @@ const AdminPortal: FC<AdminPortalProps> = ({
   async function handleOnCreateParticipant(e: any) {
     e.preventDefault()
 
-    setIsWaitingForResponse(true)
+    setIsCreatingParticipant(true)
 
     // 1. Create a new `participant` object
     const participant: ParticipantType = {
@@ -157,7 +150,7 @@ const AdminPortal: FC<AdminPortalProps> = ({
     await storeParticipantInDynamoDB(participant)
 
     // 3. Stop loading spinner
-    setIsWaitingForResponse(false)
+    setIsCreatingParticipant(false)
     // 4. Close Modal
     setShowModal(null)
     // 5. Update state to refetch `participants` from DynamoDB
@@ -172,12 +165,12 @@ const AdminPortal: FC<AdminPortalProps> = ({
       const response = await fetch('/api/admin-portal/participants', { 
         method: 'GET',
       })
-      const data = await response.json()
+      const json = await response.json()
 
-      if (response.status === 401) return { user: null, error: data.message }
-      if (response.status === 400) return { user: null, error: data.error }
+      if (response.status === 500) throw new Error(json.error)
+      if (response.status === 405) throw new Error(json.error)
 
-      setParticipants(data.participants)
+      setParticipants(json.participants)
       setParticipantCreated(false)
       setIsWaitingForResponse(false)
     } catch (error: any) {
@@ -318,113 +311,19 @@ const AdminPortal: FC<AdminPortalProps> = ({
           )) }
         </div>
 
-        {/* Table of students */}
-        { isWaitingForResponse ? (
-          <>
-            <div
-              style={ {
-                ...definitelyCenteredStyle,
-                position: 'relative',
-              } }
-            >
-              <Spinner height='40' width='40' />
-            </div>
-          </>
-        ) : (
-          <>
-            <div
-              style={ {
-                width: '100%',
-                margin: '20px 0',
-                overflowX: 'auto',
-              } }
-            >
-              <table
-                style={ {
-                  width: '100%',
-                  margin: '0 auto',
-                  borderCollapse: 'collapse',
-                } }
-              >
-                <thead
-                  style={ {
-                    backgroundColor: '#f4f4f4',
-                  } }
-                >
-                  { TABLE_HEADERS.map((name: string, i: number) => (
-                    <Fragment key={ i }>
-                      <th style={ tdOrThStyle }>
-                        <p>
-                          { name }
-                        </p>
-                      </th>
-                    </Fragment>
-                  )) }
-                </thead>
-                <tbody>
-                  { participants?.map((participant: ParticipantType, i: number) => (
-                    <Fragment key={ i }>
-                      <tr>
-                        <td style={ tdOrThStyle }>
-                          <p>
-                            <span>
-                              <p>{ i }</p>
-                            </span>
-                          </p>
-                        </td>
-                        <td style={ tdOrThStyle }>
-                          <p>
-                            <span>
-                              <p>{ participant.name }</p>
-                            </span>
-                          </p>
-                        </td>
-                        <td style={ tdOrThStyle }>
-                          <p>
-                            <span>
-                              <p>{ participant.email }</p>
-                            </span>
-                          </p>
-                        </td>
-                        <td style={ tdOrThStyle }>
-                          <p>
-                            <span>
-                              <p>{ }</p>
-                            </span>
-                          </p>
-                        </td>
-                        <td style={ tdOrThStyle }>
-                          <p
-                            className={ styles.externalLink }
-                            style={ {
-                              cursor: 'pointer',
-                            } }
-                            onClick={
-                              (e: any) => handleViewObserverResults(
-                                participant
-                              )
-                            }
-                          >
-                            <span>
-                              <p>{ `View Results` }</p>
-                            </span>
-                          </p>
-                        </td>
-                      </tr>
-                    </Fragment>
-                  )) }
-                </tbody>
-              </table>
-            </div>
-          </>
-        )}
+        {/* Table of participants */}
+        <ParticipantsTable 
+          participants={ participants }
+          isWaitingForResponse={ isWaitingForResponse }
+          handleViewObserverResults={ handleOnViewObserverResults }
+        />
 
         {/* Modals */}
         <CreateParticipantModal
           modalRef={ modalRef }
           onClick={ handleOnCreateParticipant }
           state={{
-            isWaitingForResponse,
+            isCreatingParticipant,
             isModalVisible: showModal === 'createParticipantModal' 
               ? true 
               : false ,

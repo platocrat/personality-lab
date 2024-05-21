@@ -14,7 +14,7 @@ type CreateParticipantModalProps = {
   modalRef: any
   state: {
     isModalVisible: boolean
-    isWaitingForResponse: boolean
+    isCreatingParticipant: boolean
   }
   onClick: (e: any) => void
   onChange: {
@@ -123,7 +123,7 @@ const CreateParticipantModal: FC<CreateParticipantModalProps> = ({
             </label>
 
             {/* Button */}
-            { state.isWaitingForResponse
+            { state.isCreatingParticipant
               ? (
                 <>
                   <div

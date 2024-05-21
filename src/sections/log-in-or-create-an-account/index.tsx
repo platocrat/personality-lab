@@ -106,11 +106,11 @@ const LogInOrCreateAnAccount = () => {
         body: JSON.stringify({ email, username, password }),
       })
       
-      const data = await response.json()
+      const json = await response.json()
 
       
       if (response.status === 200) {
-        const { message, isAdmin } = data
+        const { message, isAdmin } = json
 
 
         switch (message) {
@@ -160,7 +160,7 @@ const LogInOrCreateAnAccount = () => {
         setIsUsernameIncorrect(false)
         setIsPasswordIncorrect(false)
 
-        console.error(`Error verifying log in credentials: `, data.error)
+        console.error(`Error verifying log in credentials: `, json.error)
       }
     } catch (error: any) {
       setIsWaitingForResponse(false)
@@ -195,10 +195,10 @@ const LogInOrCreateAnAccount = () => {
         body: JSON.stringify({ email, username, password }),
       })
       
-      const data = await response.json()
+      const json = await response.json()
 
       if (response.status === 200) {
-        const { message, isAdmin } = data
+        const { message, isAdmin } = json
 
         setIsWaitingForResponse(false)
 
@@ -217,7 +217,7 @@ const LogInOrCreateAnAccount = () => {
         }
       } else {
         setIsWaitingForResponse(false)
-        throw new Error(`Error signing up: `, data.error)
+        throw new Error(`Error signing up: `, json.error)
       }
     } catch (error: any) {
       setIsWaitingForResponse(false)
@@ -243,10 +243,10 @@ const LogInOrCreateAnAccount = () => {
         body: JSON.stringify({ email }),
       })
 
-      const data = await response.json()
+      const json = await response.json()
 
       if (response.status === 200) { // If email exists
-        const message = data.message
+        const message = json.message
 
         switch (message) {
           case 'Email with password exists':
@@ -263,7 +263,7 @@ const LogInOrCreateAnAccount = () => {
         }
       } else {
         setIsWaitingForResponse(false)
-        const error = data.error
+        const error = json.error
         console.error(`Error sending POST request to DynamoDB table: `, error)
         /**
          * @todo Handle error UI here
