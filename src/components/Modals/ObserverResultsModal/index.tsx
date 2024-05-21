@@ -14,8 +14,11 @@ import modalStyle from '@/components/Modals/Modal.module.css'
 type ObserverResultsModalProps = {
   modalRef: any
   isModalVisible: boolean
-  onClick: (e: any) => void
   selectedParticipant: ParticipantType | null
+  onEventHandlers: {
+    onClick: (e: any) => void
+    onViewObserverResultsChange: (e: any, assessmentId: string) => void
+  }
 }
 
 
@@ -38,9 +41,9 @@ const inputs = [
 
 
 const ObserverResultsModal: FC<ObserverResultsModalProps> = ({
-  onClick,
   modalRef,
   isModalVisible,
+  onEventHandlers,
   selectedParticipant,
 }) => {
   // States
@@ -125,10 +128,17 @@ const ObserverResultsModal: FC<ObserverResultsModalProps> = ({
                     required
                     type='checkbox'
                     name={ 'select' }
+                    style={{
+                      cursor: 'pointer',
+                    }}
                     // className=''
-                    // style={  }
                     // id={ `${ i }` }
-                    // onChange={ onChange.onNobelLaureateChange }
+                    onChange={ 
+                      (e: any) => onEventHandlers.onViewObserverResultsChange(
+                        e,
+                        assessmentId
+                      )
+                    }
                   />
                 </label>
               </Fragment>
@@ -136,9 +146,9 @@ const ObserverResultsModal: FC<ObserverResultsModalProps> = ({
 
             {/* Button */ }
             <button
-              onClick={ onClick }
               className={ styles.button }
               style={ { width: '150px', marginTop: '12px' } }
+              onClick={ (e: any) => onEventHandlers.onClick(e) }
             >
               { BUTTON_TEXT }
             </button>

@@ -84,6 +84,7 @@ const AdminPortal: FC<AdminPortalProps> = ({
     setSelectedParticipant
   ] = useState<ParticipantType | null>(null)
   const [showModal, setShowModal] = useState<ShowModalType>(null)
+  const [ observerResultsToView, setObserverResultsToView ] = useState<any>({})
 
 
   // -------------------------- Regular functions ------------------------------
@@ -115,6 +116,22 @@ const AdminPortal: FC<AdminPortalProps> = ({
   function onNobelLaureateChange(e: any) {
     const { value, checked } = e.target
     setIsNobelLaureate(checked)
+  }
+
+  function onViewObserverResultsChange(e: any, assessmentId: string) {
+    const { checked } = e.target
+
+    setObserverResultsToView(previousState => {
+      const _ = new Set(previousState)
+
+      if (checked) {
+        _.add(assessmentId)
+      } else {
+        _.delete(assessmentId)
+      }
+
+      return _
+    })
   }
 
   // -------------------------- Async functions --------------------------------
@@ -425,11 +442,14 @@ const AdminPortal: FC<AdminPortalProps> = ({
         
         <ObserverResultsModal 
           modalRef={ modalRef }
-          onClick={ handleOnViewObserverResults }
           selectedParticipant={ selectedParticipant }
           isModalVisible={
             showModal === 'viewObserverResultsModal' ? true : false
           }
+          onEventHandlers={{
+            onClick: handleOnViewObserverResults,
+            onViewObserverResultsChange: onViewObserverResultsChange
+          }}
         />
 
       </div>

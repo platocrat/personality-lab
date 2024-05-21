@@ -52,7 +52,6 @@ export async function POST(
      * @dev 1. Construct `QueryCommand` to fetch the user's account entry from 
      *         the `accounts` table.
      */
-    
     const TableName = DYNAMODB_TABLE_NAMES.accounts
     const KeyConditionExpression = 'email = :emailValue'
     const ExpressionAttributeValues = { ':emailValue': participant.email }

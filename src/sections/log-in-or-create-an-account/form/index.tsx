@@ -25,7 +25,6 @@ export type FormProps = {
     isSignUp: boolean
     username: string
     isFirstStep: boolean
-    emailExists: boolean
     isUsernameTaken: boolean
     isEmailIncorrect: boolean
     isPasswordHashing: boolean
@@ -48,7 +47,7 @@ export type FormProps = {
   handler: {
     handleLogIn: (e: any) => void
     handleSignUp: (e: any) => void
-    handleEmailExists: (e: any) => void
+    handleEmailWithPasswordExists: (e: any) => void
   }
 }
 
@@ -305,7 +304,7 @@ const Form: FC<FormProps> = ({
     e.preventDefault()
 
     if (state.isFirstStep) {
-      return handler.handleEmailExists(e)
+      return handler.handleEmailWithPasswordExists(e)
     } else if (state.isSignUp) {
       return handler.handleSignUp(e)
     } else {

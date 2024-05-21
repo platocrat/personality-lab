@@ -56,7 +56,6 @@ const LogInOrCreateAnAccount = () => {
   ] = useState<boolean>(false)
   const [ isSignUp, setIsSignUp ] = useState<boolean>(false)
   const [ isFirstStep, setIsFirstStep ] = useState<boolean>(true)
-  const [ emailExists, setEmailExists ] = useState<boolean>(false)
   const [ isUsernameTaken, setIsUsernameTaken ] = useState<boolean>(false)
   const [ isEmailIncorrect, setIsEmailIncorrect ] = useState<boolean>(false)
   const [ isPasswordHashing, setIsPasswordHashing ] = useState<boolean>(false)
@@ -230,7 +229,7 @@ const LogInOrCreateAnAccount = () => {
   }
 
     
-  async function handleEmailExists(e: any) {
+  async function handleEmailWithPasswordExists(e: any) {
     e.preventDefault()
 
     setIsWaitingForResponse(true)
@@ -250,13 +249,13 @@ const LogInOrCreateAnAccount = () => {
         const message = data.message
 
         switch (message) {
-          case 'Email exists':
+          case 'Email with password exists':
             setIsWaitingForResponse(false)
             setIsFirstStep(false)
             setIsSignUp(false)
             break
 
-          case 'Email does not exist':
+          case 'Email with password does not exist':
             setIsWaitingForResponse(false)
             setIsFirstStep(false)
             setIsSignUp(true)    
@@ -288,7 +287,6 @@ const LogInOrCreateAnAccount = () => {
     password: password,
     isSignUp: isSignUp,
     isFirstStep: isFirstStep,
-    emailExists: emailExists,
     isUsernameTaken: isUsernameTaken,
     isEmailIncorrect: isEmailIncorrect,
     isPasswordHashing: isPasswordHashing,
@@ -307,7 +305,7 @@ const LogInOrCreateAnAccount = () => {
     isUsernameIncorrect: setIsUsernameIncorrect,
     isWaitingForResponse: setIsWaitingForResponse,
   }
-  const handler = { handleLogIn, handleSignUp, handleEmailExists }
+  const handler = { handleLogIn, handleSignUp, handleEmailWithPasswordExists }
 
 
 
