@@ -16,8 +16,6 @@ export async function POST(
       const { password } = await req.json()
 
       const { hash, salt } = new SSCrypto().hashPassword(password)
-
-
       
       return NextResponse.json(
         { 
