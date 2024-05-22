@@ -19,7 +19,7 @@ import {
   MaritalStatus__BigFive,
   BigFiveDemographicsType,
   BIG_FIVE_ASSESSMENT_HREF,
-  Init__BigFiveDemographics,
+  INIT__BIG_FIVE_DEMOGRAPHICS,
   CurrentEmploymentStatus__BigFive,
   HighestLevelOfEducation__BigFive,
   BIG_FIVE_PATH,
@@ -82,7 +82,7 @@ const DemographicsForm = ({ }) => {
     bigFiveDemographics,
     setBigFiveDemographics
   ] = useState<BigFiveDemographicsType>(
-    Init__BigFiveDemographics
+    INIT__BIG_FIVE_DEMOGRAPHICS
   )
   // Booleans
   const [ isSubmitting, setIsSubmitting ] = useState(false)

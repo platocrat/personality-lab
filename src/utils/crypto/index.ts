@@ -131,7 +131,7 @@ export class SSCrypto {
     const hash = createHash(
       algorithm, 
       { 
-        outputLength: 64, 
+        outputLength: 64,
       }
     )
 

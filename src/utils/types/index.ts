@@ -10,9 +10,9 @@ import {
 export type STUDY__DYNAMODB = {
   id: string
   name: string
-  url: string
   isActive: boolean
   timestamp: number
+  ownerEmail: string
   adminEmails: string[]
   details: {
     description: string

@@ -6,24 +6,28 @@ import {
   Fragment, 
   Dispatch,
   SetStateAction,
+  useContext,
 } from 'react'
 import HCaptcha from '@hcaptcha/react-hcaptcha'
 // Locals
-import { H_CAPTCHA_SITE_KEY, debounce } from '@/utils'
 import IncorrectInput from './incorrect-input'
-import Spinner from '@/components/Suspense/Spinner'
 import PasswordValidation from './password-validation'
+// Components
+import Spinner from '@/components/Suspense/Spinner'
+// Contexts
+import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
+// Utils
+import { H_CAPTCHA_SITE_KEY, debounce } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
 
 
+
 export type FormProps = {
   buttonText: string
   state: {
-    email: string
     isSignUp: boolean
-    username: string
     isFirstStep: boolean
     isUsernameTaken: boolean
     isEmailIncorrect: boolean
@@ -34,8 +38,6 @@ export type FormProps = {
     password: { hash: string, salt: string }
   }
   set: {
-    email: Dispatch<SetStateAction<string>>
-    username: Dispatch<SetStateAction<string>>
     isUsernameTaken: Dispatch<SetStateAction<boolean>> 
     isEmailIncorrect: Dispatch<SetStateAction<boolean>>
     isPasswordHashing: Dispatch<SetStateAction<boolean>>
@@ -52,7 +54,9 @@ export type FormProps = {
 }
 
 
+
 const debounceTimeout = 300
+
 
 
 
@@ -62,6 +66,14 @@ const Form: FC<FormProps> = ({
   handler,
   buttonText,
 }) => {
+  // Contexts
+  const { 
+    email, 
+    username,
+    setEmail,
+    setUsername,
+  } = useContext(AuthenticatedUserContext)
+
   const [
     isHCaptchaVerificationSuccessful, 
     setIsHCaptchaVerificationSuccessful
@@ -78,9 +90,9 @@ const Form: FC<FormProps> = ({
     return state.isPasswordHashing || 
       state.isPasswordIncorrect ||
       state.isWaitingForResponse ||
-      state.isFirstStep && state.email === '' || 
-      !state.isFirstStep && state.email === '' ||
-      !state.isFirstStep && state.username === '' ||
+      state.isFirstStep && email === '' || 
+      !state.isFirstStep && email === '' ||
+      !state.isFirstStep && username === '' ||
       !state.isFirstStep && state.password.hash === '' ||
       state.isUsernameTaken ||
       !state.isFirstStep && !isHCaptchaVerificationSuccessful
@@ -88,8 +100,8 @@ const Form: FC<FormProps> = ({
         ? true
         : false
   }, [
-    state.email,
-    state.username,
+    email,
+    username,
     state.isSignUp,
     state.isFirstStep,
     state.password.hash,
@@ -138,7 +150,7 @@ const Form: FC<FormProps> = ({
     
     if (isValid) {
       set.isEmailIncorrect(false)
-      set.email(_)
+      setEmail(_)
     } else {
       set.isEmailIncorrect(true)
     }
@@ -147,7 +159,7 @@ const Form: FC<FormProps> = ({
 
   const debouncedOnEmailChange = useMemo(
     (): ((...args: any) => void) => debounce(onEmailChange, debounceTimeout),
-    [state.email]
+    [email]
   )
 
 
@@ -160,7 +172,7 @@ const Form: FC<FormProps> = ({
 
     if (isValid) {
       set.isUsernameIncorrect(false)
-      set.username(_)
+      setUsername(_)
     } else {
       set.isUsernameIncorrect(true)
     }
@@ -169,7 +181,7 @@ const Form: FC<FormProps> = ({
 
   const debouncedOnUsernameChange = useMemo(
     (): ((...args: any) => void) => debounce(onUsernameChange, debounceTimeout),
-    [state.username]
+    [username]
   )
 
 

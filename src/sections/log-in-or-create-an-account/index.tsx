@@ -34,13 +34,15 @@ const LogInOrCreateAnAccount = () => {
 
   // Contexts
   const { 
-    setIsAdmin, 
+    email,
+    username,
+    setEmail,
+    setIsAdmin,
+    setUsername,
     setIsAuthenticated 
   } = useContext(AuthenticatedUserContext)
 
   // Strings
-  const [ email, setEmail ] = useState<string>('')
-  const [ username, setUsername ] = useState<string>('')
   // Booleans
   const [ 
     isPasswordIncorrect, 
@@ -282,8 +284,6 @@ const LogInOrCreateAnAccount = () => {
 
   // Props to pass to `FormContent`
   const state = {
-    email: email,
-    username: username,
     password: password,
     isSignUp: isSignUp,
     isFirstStep: isFirstStep,
@@ -295,9 +295,7 @@ const LogInOrCreateAnAccount = () => {
     isWaitingForResponse: isWaitingForResponse,
   }
   const set = {
-    email: setEmail,
     password: setPassword,
-    username: setUsername,
     isUsernameTaken: setIsUsernameTaken,
     isEmailIncorrect: setIsEmailIncorrect,
     isPasswordHashing: setIsPasswordHashing,

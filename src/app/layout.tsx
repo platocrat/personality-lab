@@ -29,18 +29,25 @@ import {
 } from '@/utils'
 
 
+
+type UserType = { email: string, username: string, isAdmin: boolean }
+
+
 export type UserResponse = {
-  user: any | null
+  user: UserType | null
   error: Error | null
 }
 
 
 
 
-const metadata: Metadata = {
-  title: 'Personality Lab',
-  description: 'Take a personality test and learn about yourself. See your results immediately after the survey.',
+const INIT_USER = {
+  email: '',
+  username: '',
+  isAdmin: false,
 }
+
+
 
 
 export default function RootLayout({
@@ -56,8 +63,11 @@ export default function RootLayout({
     bessiSkillScores, 
     setBessiSkillScores 
   ] = useState<BessiSkillScoresType | null>(null)
-  // Booleans for user authentication
+  // State variables for `UserType`
+  const [ email, setEmail ] = useState<string>('')
+  const [ username, setUsername ] = useState<string>('')
   const [ isAdmin, setIsAdmin ] = useState<boolean>(false)
+  // Booleans for user authentication
   const [ isFetchingUser, setIsFetchingUser ] = useState<boolean>(true)
   const [ isAuthenticated, setIsAuthenticated ] = useState<boolean>(false)
   // State variables UserDemographicsContext
@@ -74,7 +84,6 @@ export default function RootLayout({
     setAreaOfScienceTraining,
   ] = useState<string>('')
   const [ zipCode, setZipCode ] = useState<string>('')
-  const [ username, setUsername ] = useState<string>('')
   const [ foreignCountry, setForeignCountry ] = useState<string>('')
   // Enums
   const [ isParent, setIsParent ] = useState<YesOrNo>(YesOrNo.No)
@@ -263,8 +272,9 @@ export default function RootLayout({
       }
     } else {
       // Show the dashboard
-      setUsername(user.username)
-      setIsAdmin(user.isAdmin)
+      setEmail((user as UserType).email)
+      setUsername((user as UserType).username)
+      setIsAdmin((user as UserType).isAdmin)
       setIsAuthenticated(true)
       setIsFetchingUser(false)
     }
@@ -306,9 +316,12 @@ export default function RootLayout({
             <body>
               <AuthenticatedUserContext.Provider
                 value={ {
-                  isAdmin,
+                  email,
                   username,
+                  isAdmin,
+                  setEmail,
                   setIsAdmin,
+                  setUsername,
                   isAuthenticated,
                   setIsAuthenticated,
                 } }

@@ -5,6 +5,9 @@ import {
   Fragment, 
   useState,
 } from 'react'
+import { useRouter } from 'next/navigation'
+// Locals
+import Spinner from '@/components/Suspense/Spinner'
 // Utils
 import { 
   STUDY__DYNAMODB, 
@@ -22,15 +25,23 @@ type CreateStudyProps = {
 }
 
 
+
+const VIEW_STUDIES_HREF = '/view-studies'
+
+
+
+
 const CreateStudy: FC<CreateStudyProps> = ({
 
 }) => {
+  // Hooks
+  const router = useRouter()
   // States
   const [ study, setStudy ] = useState<STUDY__DYNAMODB>({
     id: '',
-    url: '',
     name: '',
     timestamp: 0,
+    ownerEmail: '',
     isActive: false,
     adminEmails: [],
     details: {
@@ -103,8 +114,9 @@ const CreateStudy: FC<CreateStudyProps> = ({
 
     await storeStudyInDynamoDB()
 
+    router.push(VIEW_STUDIES_HREF)
+
     setIsCreatingStudy(false)
-    setNewStudyCreated(true)
   }
 
 
@@ -124,14 +136,14 @@ const CreateStudy: FC<CreateStudyProps> = ({
        */
       const study_: STUDY__DYNAMODB = {
         ...study,
-        url: '',
         isActive: true,
-        adminEmails: [...study.adminEmails, email],
+        ownerEmail: email,
+        adminEmails: [...study.adminEmails],
       }
 
 
       try {
-        const response = await fetch('/api/create-study', {
+        const response = await fetch('/api/study', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -284,15 +296,31 @@ const CreateStudy: FC<CreateStudyProps> = ({
             )}
           </div>
 
-          <div style={{ ...definitelyCenteredStyle }}>
-            <button 
-              type='submit'
-              style={{ width: '125px', marginTop: '24px' }}
-              className={ appStyles.button }
-            >
-              { `Create Study` }
-            </button>
-          </div>
+
+          { isCreatingStudy || newStudyCreated  ? (
+            <>  
+              <div
+                style={ {
+                  ...definitelyCenteredStyle,
+                  position: 'relative',
+                } }
+              >
+                <Spinner height='40' width='40' />
+              </div>
+            </>
+          ) : (
+            <>
+              <div style={ { ...definitelyCenteredStyle } }>
+                <button
+                  type='submit'
+                  style={ { width: '125px', marginTop: '24px' } }
+                  className={ appStyles.button }
+                >
+                  { `Create Study` }
+                </button>
+              </div>
+            </>
+          )}
         </form>
       </div>
     </>

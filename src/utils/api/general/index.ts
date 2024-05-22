@@ -61,7 +61,6 @@ const encryptObject = async (
   const entries = await Promise.all(
     Object.entries(obj).map(async ([key, value]) => {
         const encryptedValue = await encryptionTransformFn(secretKey, value)
-
         return [key, encryptedValue]
       }
     )
@@ -81,10 +80,10 @@ const encryptionTransformFn = (
   // Generic transformations here
   if (typeof value === 'string') {
     return new SSCrypto().encrypt(value, secretKey)
-  } else if (typeof value === 'number') {
-    return new SSCrypto().encrypt(value.toString(), secretKey)
   } else if (typeof value === 'boolean') {
     return new SSCrypto().encrypt(`${ value }`, secretKey)
+  } else if (typeof value === 'number') {
+    return new SSCrypto().encrypt(value.toString(), secretKey)
   } else {
     return value
   }

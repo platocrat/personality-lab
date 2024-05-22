@@ -24,7 +24,7 @@ const AdminPortal: FC<AdminPortalProps> = ({
 }) => {
   const { username } = useContext(AuthenticatedUserContext)
 
-  const PAGE_TITLE = `Welcome, ${username}!`
+  const PAGE_TITLE = `Welcome, ${ username }!`
 
 
   return (

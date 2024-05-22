@@ -5,7 +5,7 @@ import { BIG_FIVE_ACTIVITY_BANK } from './constants'
 
 
 
-export const Init__BigFiveDemographics: BigFiveDemographicsType = {
+export const INIT__BIG_FIVE_DEMOGRAPHICS: BigFiveDemographicsType = {
   age: 0,
   familySize: 0,
   gender: '',
@@ -19,7 +19,7 @@ export const Init__BigFiveDemographics: BigFiveDemographicsType = {
 }
 
 
-export const Init__EngagementLevelResponses: {
+export const INIT__ENGAGEMENT_LEVEL_RESPONSES: {
   [key: string]: boolean
 } = BIG_FIVE_ACTIVITY_BANK.engagementLevels.reduce(
   (acc: { [key: string]: boolean }, eL: string): { [key: string]: boolean } => {
@@ -29,7 +29,7 @@ export const Init__EngagementLevelResponses: {
 )
 
 
-export const Init__ActivitiyResponses = (
+export const INIT__ACTIVITY_RESPONSES = (
   actvityBankId: string
 ): { [key: string]: number } => BIG_FIVE_ACTIVITY_BANK[
   actvityBankId
