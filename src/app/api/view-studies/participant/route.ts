@@ -13,7 +13,7 @@ import {
   ddbDocClient,
   ACCOUNT__DYNAMODB,
   DYNAMODB_TABLE_NAMES,
-  PARTICIPANT_DYNAMODB,
+  PARTICIPANT__DYNAMODB,
 } from '@/utils'
 
 
@@ -37,13 +37,13 @@ export async function POST(
      */
     const participantId = await getEntryId(participant)
 
-    const participant_: PARTICIPANT_DYNAMODB = {
+    const participant_: PARTICIPANT__DYNAMODB = {
       id: participantId,
-      name: participant.name,
       email: participant.email,
+      username: participant.username,
+      studyNames: participant.studyNames,
       adminEmail: participant.adminEmail,
       adminUsername: participant.adminUsername,
-      assessmentNames: participant.assessmentNames,
       isNobelLaureate: participant.isNobelLaureate,
       timestamp: participant.timestamp,
     }

@@ -74,6 +74,7 @@ export default function RootLayout({
     setAreaOfScienceTraining,
   ] = useState<string>('')
   const [ zipCode, setZipCode ] = useState<string>('')
+  const [ username, setUsername ] = useState<string>('')
   const [ foreignCountry, setForeignCountry ] = useState<string>('')
   // Enums
   const [ isParent, setIsParent ] = useState<YesOrNo>(YesOrNo.No)
@@ -262,6 +263,7 @@ export default function RootLayout({
       }
     } else {
       // Show the dashboard
+      setUsername(user.username)
       setIsAdmin(user.isAdmin)
       setIsAuthenticated(true)
       setIsFetchingUser(false)
@@ -305,6 +307,7 @@ export default function RootLayout({
               <AuthenticatedUserContext.Provider
                 value={ {
                   isAdmin,
+                  username,
                   setIsAdmin,
                   isAuthenticated,
                   setIsAuthenticated,

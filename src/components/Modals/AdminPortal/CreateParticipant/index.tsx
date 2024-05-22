@@ -1,12 +1,12 @@
 // Externals
 import { FC } from 'react'
 // Locals
+import Spinner from '@/components/Suspense/Spinner'
 import { RadioOrCheckboxInput } from '@/components/Input'
 // Styles
 import styles from '@/app/page.module.css'
-import modalStyle from '@/components/Modals/Modal.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
-import Spinner from '@/components/Suspense/Spinner'
+import modalStyle from '@/components/Modals/Modal.module.css'
 
 
 
@@ -18,22 +18,22 @@ type CreateParticipantModalProps = {
   }
   onClick: (e: any) => void
   onChange: {
-    onNameChange: (e: any) => void
     onEmailChange: (e: any) => void
+    onUsernameChange: (e: any) => void
     onNobelLaureateChange: (e: any) => void
   }
 
 }
 
 
-const TITLE = `Enter the full name of the participant you want to add`
+const TITLE = `Enter in the user details of the participant you want to add.`
 const NOBLE_LAUREATE_TEXT = `Is this participant a Nobel Laureate?`
 const BUTTON_TEXT = `Create Participant`
 
 const inputs = [
   { 
-    name: `name`,
-    placeholder: `Name`,
+    name: `username`,
+    placeholder: `Username`,
   },
   { 
     name: `email`,
@@ -84,7 +84,9 @@ const CreateParticipantModal: FC<CreateParticipantModalProps> = ({
                     // id={ `${ i }` }
                     placeholder={ input.placeholder }
                     onChange={ 
-                      i === 0 ? onChange.onNameChange : onChange.onEmailChange 
+                      i === 0 
+                        ? onChange.onUsernameChange 
+                        : onChange.onEmailChange 
                     }
                     style={{
                       width: '250px',

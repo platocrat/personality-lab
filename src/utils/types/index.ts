@@ -6,13 +6,32 @@ import {
 
 
 
+
+export type STUDY__DYNAMODB = {
+  id: string
+  name: string
+  url: string
+  isActive: boolean
+  timestamp: number
+  adminEmails: string[]
+  details: {
+    description: string
+    allowedSubmissionsPerParticipant: number
+  }
+}
+
+
 export type ACCOUNT__DYNAMODB = {
   email: string
   username: string
-  isAdmin: boolean
   timestamp: number
-  password: { hash: string, salt: string }
-  participant?: PARTICIPANT_DYNAMODB
+  isAdmin: boolean
+  studyNames: string[]
+  password: { 
+    hash: string
+    salt: string
+  }
+  participant?: PARTICIPANT__DYNAMODB
 }
 
 
@@ -20,22 +39,22 @@ export type RESULTS__DYNAMODB = {
   id: string
   email: string
   timestamp: number
+  studyName: string
   facetScores: FacetFactorType
   domainScores: SkillDomainFactorType
   demographics: BessiUserDemographics__DynamoDB
-  assessmentName: string
 }
 
 
-export type PARTICIPANT_DYNAMODB = {
+export type PARTICIPANT__DYNAMODB = {
   id: string
-  name: any
-  email: any
-  adminEmail: any
-  adminUsername: any
-  assessmentNames: any
-  isNobelLaureate: any
-  timestamp: any
+  email: string
+  username: string
+  adminEmail: string
+  studyNames: string[]
+  adminUsername: string
+  isNobelLaureate: boolean
+  timestamp: number
 }
 
 
@@ -54,8 +73,8 @@ export type CookieType = {
 
 
 export type ParticipantType = {
-  name: string
   email: string
+  username: string
   isNobelLaureate: boolean
-  assessmentNames: string[]
+  studyNames: string[]
 }
