@@ -169,7 +169,12 @@ const ViewResultsModal: FC<ViewResultsModalProps> = ({
                 {/* Title */ }
                 <div style={ { width: '300px', marginBottom: '12px' } }>
                   <h3>
-                    { title(selectedParticipant ? selectedParticipant.name : '') }
+                      { title(
+                          selectedParticipant 
+                            ? selectedParticipant.username 
+                            : ''
+                        ) 
+                      }
                   </h3>
                 </div>
 
