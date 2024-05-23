@@ -3,17 +3,20 @@ import { NextRequest, NextResponse } from 'next/server'
 import { 
   PutCommand, 
   ScanCommand,
+  QueryCommand,
   PutCommandInput,
   ScanCommandInput,
+  QueryCommandInput,
 } from '@aws-sdk/lib-dynamodb'
 // Locals
 import { 
   getEntryId, 
   ddbDocClient,
-  DYNAMODB_TABLE_NAMES,
   STUDY__DYNAMODB, 
+  DYNAMODB_TABLE_NAMES,
 } from '@/utils'
 import study from '@/sections/admin-portal/studies/view/study'
+import error from 'next/error'
 
 
 
@@ -32,16 +35,11 @@ export async function POST(
 
     const studyId = await getEntryId(study)
 
-    console.log(`studyId: `, studyId)
-
     const TableName = DYNAMODB_TABLE_NAMES.studies
     const Item = {
-      id: study.id,
-      name: study.name,
-      isActive: study.isActive,
+      ...study,
+      id: studyId,
       timestamp: Date.now(),
-      adminEmails: study.adminEmails,
-      details: study.details
     }
 
     const input: PutCommandInput = { TableName, Item }
@@ -54,8 +52,6 @@ export async function POST(
 
     try {
       const response = await ddbDocClient.send(command)
-
-      console.log(`response: `, response)
 
 
       const message = successMessage || 'Operation successful'
@@ -74,7 +70,7 @@ export async function POST(
         }
       )
     } catch (error: any) {
-      console.error(error)
+      // console.error(error)
 
       // Something went wrong
       return NextResponse.json(
@@ -111,26 +107,20 @@ export async function GET(
   req: NextRequest,
   res: NextResponse,
 ) {
-  if (req.method === 'POST') {
+  if (req.method === 'GET') {
     const adminEmail = req.nextUrl.searchParams.get('adminEmail')
-
-    const params = {
-      TableName: 'your-table-name',
-      FilterExpression: 'contains(adminEmails, :email)',
-      ExpressionAttributeValues: {
-        ':email': adminEmail
-      }
-    }
 
     const TableName = DYNAMODB_TABLE_NAMES.studies
     const FilterExpression = 'contains(adminEmails, :email)'
-    const ExpressionAttributeValues = { ':email': adminEmail }
+    
+    let ExpressionAttributeValues = { ':email': adminEmail },
+      input: ScanCommandInput | QueryCommandInput = {
+        TableName, 
+        FilterExpression,
+        ExpressionAttributeValues
+      },
+      command: ScanCommand | QueryCommand = new ScanCommand(input)
 
-    const input: ScanCommandInput = { 
-      TableName, 
-      FilterExpression
-    }
-    const command = new ScanCommand(input)
     
     const successMessage = `Scanned the '${
       TableName
@@ -142,30 +132,80 @@ export async function GET(
     try {
       const response = await ddbDocClient.send(command)
 
-      console.log(`response: `, response)
-
-
       const message = successMessage || 'Operation successful'
 
+
       if (response.Items?.length === 0) {
-        const message = `No studies were found with '${
-            FilterExpression
-          }' in the '${ TableName }' table`
+        // Search `adminEmail` as `ownerEmail` instead
+        const KeyConditionExpression = `ownerEmail = :email`
+        
+        ExpressionAttributeValues = { ':email': adminEmail }
+        input = { 
+          TableName, 
+          KeyConditionExpression, 
+          ExpressionAttributeValues 
+        }
+
+        command = new QueryCommand(input)
 
 
-        return NextResponse.json(
-          { message: message },
-          {
-            status: 404,
-            headers: {
-              'Content-Type': 'application/json'
+        const successMessage = `Fetched all studies from the '${
+          TableName
+        }' table for the owner email '${
+          adminEmail
+        }'`
+
+
+        try {
+          const response = await ddbDocClient.send(command)
+
+
+          if (response.Items && response.Items.length > 0) {
+            const studies = (response.Items as STUDY__DYNAMODB[])
+
+
+            return NextResponse.json(
+              {
+                message: successMessage,
+                studies,
+              },
+              {
+                status: 200,
+                headers: {
+                  'Content-Type': 'application/json'
+                }
+              }
+            )
+          } else {
+            const message = `'No studies found for '${ adminEmail }' in the ${
+              TableName
+            } table`
+
+            // Something went wrong
+            return NextResponse.json(
+              { message: message },
+              {
+                status: 404,
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              }
+            )
+          }
+        } catch (error: any) {
+          // Something went wrong
+          return NextResponse.json(
+            { error: error },
+            {
+              status: 500,
+              headers: {
+                'Content-Type': 'application/json',
+              },
             }
-          },
-        )
+          )
+        }
       } else {
         const studies = (response.Items as STUDY__DYNAMODB[])
-        
-        console.log(`studies: `, studies)
 
 
         return NextResponse.json(

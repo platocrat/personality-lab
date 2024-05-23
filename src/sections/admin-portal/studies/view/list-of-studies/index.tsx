@@ -6,6 +6,8 @@ import router from 'next/router'
 import { FC, Fragment, useContext, useLayoutEffect, useState } from 'react'
 // Locals
 import ViewStudy from '../study'
+// Components
+import Spinner from '@/components/Suspense/Spinner'
 // Contexts
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // Utils
@@ -43,8 +45,8 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
   const { email } = useContext(AuthenticatedUserContext)
   // States
   const [ 
-    isWaitingForResponse, 
-    setIsWaitingForResponse 
+    isLoadingStudies, 
+    setIsLoadingStudies 
   ] = useState<boolean>(false)
   const [ studies, setStudies ] = useState<any>([])
 
@@ -59,7 +61,7 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
 
   // -------------------------- Async functions --------------------------------
   async function getStudies() {
-    setIsWaitingForResponse(true)
+    setIsLoadingStudies(true)
 
     try {
       const response = await fetch(`/api/study?adminEmail=${ email }`, {
@@ -71,8 +73,10 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
       if (response.status === 500) throw new Error(json.error)
       if (response.status === 405) throw new Error(json.error)
 
+      console.log(`json: `, json)
+
       setStudies(json.studies)
-      setIsWaitingForResponse(false)
+      setIsLoadingStudies(false)
     } catch (error: any) {
       throw new Error(error.message)
     }
@@ -93,51 +97,78 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
 
   return (
     <>
-      <div style={{ marginTop: '24px' }}>
-        <table className={ sectionStyles.table }>
-          <thead>
-            <tr>
-              { TABLE_HEADERS.map((name: string, i: number) => (
-                <Fragment key={ i }>
-                  <th>{ name }</th>
-                </Fragment>
-              )) }
-            </tr>
-          </thead>
-          <tbody>
-            { studies.map((study: STUDY__DYNAMODB, i: number) => (
-              <Fragment key={ i }>
-                <tr>
-                  <td>{ study.id }</td>
-                  <td>{ study.name }</td>
-                  <td>{ study.isActive ? 'Yes' : 'No' }</td>
-                  <td>{ new Date(study.timestamp).toLocaleString() }</td>
-                  <td>{ study.adminEmails.join(', ') }</td>
-                  <td>{ study.details.description }</td>
-                  <td>{ study.details.allowedSubmissionsPerParticipant }</td>
-                  <td>
-                    <Link href={ `/view-study/${study.name}` }>
-                      <button
-                        style={ { width: '80px' } }
-                        className={ appStyles.button }
-                        onClick={ 
-                          (e: any) => handleOnViewStudy(
-                            e, 
-                            study.id, 
-                            study.name
-                          )
-                        }
-                      >
-                        { `View Study` }
-                      </button>
-                    </Link>
-                  </td>
-                </tr>
-              </Fragment>
-            )) }
-          </tbody>
-        </table>
-      </div>
+      { isLoadingStudies ? (
+        <>
+          <div
+            style={ {
+              ...definitelyCenteredStyle,
+              position: 'relative',
+            } }
+          >
+            <Spinner height='40' width='40' />
+          </div>
+        </>
+      ) : (
+        <>
+            <div 
+              style={ {
+                width: '100%',
+                margin: '24px 0',
+                overflowX: 'auto',
+              } }
+            >
+              <table className={ sectionStyles.table }>
+                <thead>
+                  <tr>
+                    { TABLE_HEADERS.map((name: string, i: number) => (
+                      <Fragment key={ i }>
+                        <th
+                          style={{
+                            width: name === 'Allowed Submissions' ? '70px' : ''
+                          }}
+                        >
+                          { name }
+                        </th>
+                      </Fragment>
+                    )) }
+                  </tr>
+                </thead>
+                <tbody>
+                  { studies.map((study: STUDY__DYNAMODB, i: number) => (
+                    <Fragment key={ i }>
+                      <tr>
+                        <td>{ study.id.slice(0, 6) + '...' }</td>
+                        <td>{ study.name }</td>
+                        <td>{ study.isActive ? 'Yes' : 'No' }</td>
+                        <td>{ new Date(study.timestamp).toLocaleString() }</td>
+                        <td>{ study.adminEmails.join(', ') }</td>
+                        <td>{ study.details.description }</td>
+                        <td>{ study.details.allowedSubmissionsPerParticipant }</td>
+                        <td>
+                          <Link href={ `/view-study/${study.name}` }>
+                            <button
+                              style={ { width: '100px' } }
+                              className={ appStyles.button }
+                              onClick={
+                                (e: any) => handleOnViewStudy(
+                                  e,
+                                  study.id,
+                                  study.name
+                                )
+                              }
+                            >
+                              { `View Study` }
+                            </button>
+                          </Link>
+                        </td>
+                      </tr>
+                    </Fragment>
+                  )) }
+                </tbody>
+              </table>
+            </div>
+        </>
+      ) }
     </>
   )
 }

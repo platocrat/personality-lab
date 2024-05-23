@@ -24,7 +24,10 @@ const ViewStudies: FC<ViewStudiesProps> = ({
       <div
         style={ {
           ...definitelyCenteredStyle,
-          flexDirection: 'column'
+          flexDirection: 'column',
+          width: '100%',
+          margin: '0 auto',
+          borderCollapse: 'collapse',
         } }
       >
         <ViewStudiesTitle />
