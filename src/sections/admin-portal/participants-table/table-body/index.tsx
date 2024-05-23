@@ -35,7 +35,7 @@ const ParticipantsTableBody: FC<ParticipantsTableBodyProps> = ({
               <td style={ tdOrThStyle }>
                 <p>
                   <span>
-                    <p>{ participant.name }</p>
+                    <p>{ participant.username }</p>
                   </span>
                 </p>
               </td>
