@@ -1,0 +1,321 @@
+.questionnaire_question {
+  opacity: 0;
+  height: 0;
+  overflow: hidden;
+  transition: opacity 0.4s ease, height 0.4s ease;
+}
+
+.questionnaire_visible {
+  opacity: 1;
+  height: auto;
+  transition: opacity 0.4s ease, height 0.4s ease;
+}
+
+.questionnaire_hidden {
+  opacity: 0;
+  height: 0;
+  overflow: hidden;
+  transition: opacity 0.4s ease, height 0.4s ease;
+}
+
+
+.inputWrapperSpan {
+  display: flex;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.inputWrapperP {
+  display: flex;
+  margin: 1rem 0rem 1rem 0rem;
+}
+
+
+.externalLink {
+  color: #007ac0;
+  text-decoration: underline;
+}
+
+.externalLink:hover {
+  color: #007ac0c5;
+  text-decoration: none;
+}
+
+
+.bessi_header2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14pt;
+  font-weight: bold;
+}
+
+.bessi_text1 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11pt;
+}
+
+.bessi_about_you_p {
+  display: block;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+}
+
+.bessi_assessment_td {
+  border-style: solid;
+  border-width: 2;
+  border-collapse: collapse;
+  border-color: #F3BD4D;
+  background-color: #FBF5D8;
+  padding: 6px;
+
+  text-align: center;
+}
+
+.bessi_assessment_p {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11pt;
+  text-align: center;
+}
+
+.bessi_assessment_th {
+  border-style: solid;
+  border-width: 2;
+  border-collapse: collapse;
+  border-color: #F3BD4D;
+  background-color: #F6E8A9;
+  padding: 6px;
+
+  width: 10%;
+}
+
+.bessi_assessment_tr {
+  display: table-row;
+}
+
+.bessi_assessment_tbody {
+  display: table-row-group;
+  vertical-align: middle;
+}
+
+.bessi_assessment_table_body {
+  width: 100%;
+  border-spacing: 0px;
+  border-collapse: collapse;
+
+  display: table;
+  border-collapse: separate;
+  box-sizing: border-box;
+  text-indent: initial;
+  line-height: normal;
+  font-weight: normal;
+  font-size: medium;
+  font-style: normal;
+  text-align: start;
+
+  border-color: gray;
+  white-space: normal;
+  font-variant: normal;
+}
+
+
+.bessi_instruction_td {
+  border-style: solid;
+  border-width: 2;
+  border-collapse: collapse;
+  border-color: #F3BD4D;
+  background-color: #FBF5D8;
+  padding: 6px;
+}
+
+.bessi_instruction_text1 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11pt;
+}
+
+.bessi_instruction_p {
+  display: block;
+  margin-block-start: 0.2em;
+  margin-block-end: 0.2em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+}
+
+.bessi_instruction_th {
+  width: 20%;
+
+  border-style: solid;
+  border-width: 2;
+  border-collapse: collapse;
+  border-color: #F3BD4D;
+  background-color: #F6E8A9;
+
+  padding: 6px;
+}
+
+.bessi_instruction_tr {
+  display: table-row;
+}
+
+.bessi_instruction_tbody {
+  display: table-row-group;
+  vertical-align: middle;
+}
+
+.bessi_instruction_table_body {
+  width: 100%;
+  border-collapse: collapse;
+
+  display: table;
+  box-sizing: border-box;
+  line-height: normal;
+  font-weight: normal;
+  font-size: medium;
+  font-style: normal;
+  text-align: center;
+  border-spacing: 2px;
+  white-space: normal;
+  font-variant: normal;
+}
+
+.bessi_instruction_table_wrapper {
+  display: block;
+  margin-bottom: 24px;
+}
+
+@media only screen and (min-width: 650px) {
+  .assessmentWrapper {
+    max-width: 720px;
+  }
+}
+
+@media only screen and (max-width: 650px) {
+  .assessmentWrapper {
+    max-width: max-content;
+  }
+}
+
+.divider {
+  width: 65%;
+  margin-bottom: 24px;
+  border-radius: 3rem;
+  border-bottom: 1px solid rgba(0, 123, 194, 0.19);
+  box-shadow: 0px 1px 8px #007ac09c;
+}
+
+.questionBody {
+  margin-top: 18px;
+}
+
+.radioButtonInput {
+  position: relative;
+
+  margin-right: 24px;
+
+  accent-color: rgb(85, 221, 254);
+
+  top: 2.5px;
+  left: 2px;
+
+  height: 14.5px;
+  width: 14.5px;
+}
+
+.radioButtonLabel {
+  position: relative;
+  cursor: pointer;
+  padding: 8px;
+  align-items: center;
+
+  background-color: transparent;
+  transition: 0.3s ease-in-out;
+}
+
+.radioButtonLabel:hover {
+  border-radius: 3rem;
+  background-color: rgba(0, 80, 172, 0.114);
+  transition: 0.25s ease-in-out;
+}
+
+.radioButtonWrapper {
+  margin-bottom: 8px;
+  font-size: 15px;
+  background: rgba(0, 0, 0, .06);
+  border-radius: 3rem;
+}
+
+@media only screen and (max-width: 700px) {
+  .radioButtonWrapper {
+    width: 20%;
+  }
+
+  .radioButtonLabel {
+    font-size: 10px;
+  }
+}
+
+.assessmentTitle {
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+
+.assessmentSubtitle {
+  font-size: 18px;
+}
+
+.grayColor {
+  color: #757575;
+}
+
+.button {
+  background-color: rgb(0, 123, 194);
+  border-radius: 1rem;
+  border-width: 1.2px;
+  height: 35px;
+  width: 100%;
+  font-size: 14px;
+  color: rgb(244, 244, 244);
+
+  box-shadow: 0px 2.5px 3px rgba(0, 43, 68, 0.612);
+
+  transform: scale(1);
+
+  transition: 0.1s ease-in-out;
+}
+
+.button:hover {
+  background-color: rgb(0, 123, 194, 0.85);
+  transform: scale(0.98);
+  transition: 0.1s ease-in-out;
+  cursor: pointer;
+}
+
+.button:active {
+  background-color: rgb(0, 123, 194, 0.95);
+  transform: scale(0.955);
+  transition: 0.1s ease-in-out;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 6rem 6rem 6rem;
+}
+
+@media only screen and (max-width: 650px) {
+  .main {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2.5rem 2.5rem 2.5rem;
+    min-height: 100vh;
+  }
+}
+
+.title {
+  font-size: 1.75em;
+  padding-bottom: 14px;
+}
