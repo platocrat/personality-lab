@@ -99,7 +99,7 @@ const ViewResultsModal: FC<ViewResultsModalProps> = ({
         ): AssessmentToViewType => {
           return {
             id: results.id,
-            name: results.assessmentName,
+            name: results.studyName,
             timestamp: new Date(results.timestamp).toDateString()
           }
         })
