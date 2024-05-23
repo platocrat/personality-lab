@@ -3,7 +3,13 @@
 // Externals
 import Link from 'next/link'
 import router from 'next/router'
-import { FC, Fragment, useContext, useLayoutEffect, useState } from 'react'
+import { 
+  FC, 
+  Fragment, 
+  useState,
+  useContext, 
+  useLayoutEffect, 
+} from 'react'
 // Locals
 import ViewStudy from '../study'
 // Components

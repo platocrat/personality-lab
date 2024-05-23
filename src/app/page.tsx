@@ -22,7 +22,7 @@ export default function Home() {
 
   return (
     <>
-      <main className={ `${styles.main} ` }>
+      <main className={ `${isAdmin ? '' : styles.main }` }>
         { isAuthenticated 
           ? (
             <>

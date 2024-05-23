@@ -4,6 +4,7 @@ import ViewStudiesTitle from './title'
 import { definitelyCenteredStyle } from '@/theme/styles'
 import ViewStudy from './study'
 import ListOfStudies from './list-of-studies'
+import LeftHandNav from '@/components/Nav/LeftHand'
 
 
 
@@ -21,18 +22,10 @@ const ViewStudies: FC<ViewStudiesProps> = ({
 
   return (
     <>
-      <div
-        style={ {
-          ...definitelyCenteredStyle,
-          flexDirection: 'column',
-          width: '100%',
-          margin: '0 auto',
-          borderCollapse: 'collapse',
-        } }
-      >
+      <LeftHandNav>
         <ViewStudiesTitle />
         <ListOfStudies />
-      </div>
+      </LeftHandNav>
     </>
   )
 }

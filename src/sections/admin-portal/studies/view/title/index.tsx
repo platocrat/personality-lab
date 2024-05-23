@@ -13,7 +13,7 @@ const ViewStudiesTitle = () => {
   // Contexts
   const { username } = useContext(AuthenticatedUserContext)
 
-  const PAGE_TITLE = `You are viewing your list of studies.`
+  const PAGE_TITLE = `Studies where you are an admin.`
 
 
 

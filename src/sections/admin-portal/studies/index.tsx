@@ -1,45 +1,30 @@
 // Externals
 import Link from 'next/link'
-import { FC, Fragment, useState } from 'react'
+import { FC, Fragment, useContext } from 'react'
 // Locals
-// CSS
-import styles from '@/app/page.module.css'
+import LeftHandNav from '@/components/Nav/LeftHand'
+// Contexts
+import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 
 
+type StudiesProps = {}
 
-type StudiesProps = {
-
-}
-
-
-const BUTTONS = [
-  { text: 'Create Study', href: '/create-study'},
-  { text: 'View Studies', href: '/view-studies'},
-]
 
 
 const Studies: FC<StudiesProps> = ({ }) => {
+  const { username } = useContext(AuthenticatedUserContext)
+
+  const PAGE_TITLE = `Welcome, ${username}!`
+
+
+
   return (
-    <div
-      style={{
-        gap: '24px',
-        display: 'flex',
-        marginTop: '24px',
-      }}
-    >
-      { BUTTONS.map((btn, i: number) => (
-        <Fragment key={ i }>
-          <Link href={ btn.href }>
-            <button 
-              style={{ width: '125px' }}
-              className={ styles.button }
-            >
-              { btn.text }
-            </button>
-          </Link>
-        </Fragment>
-      )) }
-    </div>
+    <>
+      <LeftHandNav>
+        {/* Title */ }
+        <h2>{ PAGE_TITLE }</h2>
+      </LeftHandNav>
+    </>
   )
 }
 

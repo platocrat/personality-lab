@@ -12,7 +12,7 @@ const PAGE_FRAGMENT_ID = 'view-studies'
 export default function _() {
   return (
     <>
-      <main className={ `${styles.main} ` }>
+      <main>
         <ViewStudies />
       </main>
     </>
