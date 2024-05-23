@@ -5,6 +5,7 @@ import { FC, Fragment, useContext } from 'react'
 import LeftHandNav from '@/components/Nav/LeftHand'
 // Contexts
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
+import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 type StudiesProps = {}
@@ -21,8 +22,13 @@ const Studies: FC<StudiesProps> = ({ }) => {
   return (
     <>
       <LeftHandNav>
-        {/* Title */ }
-        <h2>{ PAGE_TITLE }</h2>
+        <div style={ definitelyCenteredStyle }>
+          {/* Title */ }
+          <h2>{ PAGE_TITLE }</h2>
+        </div>
+        
+        {/* Main content goes here */}
+        
       </LeftHandNav>
     </>
   )

@@ -7,6 +7,7 @@ import {
   useRef, 
   useState,
 } from 'react'
+import { usePathname } from 'next/navigation'
 // Locals
 import ParticipantsTable from './participants-table'
 // Components
@@ -24,11 +25,12 @@ import {
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+import LeftHandNav from '@/components/Nav/LeftHand'
 
 
 
 
-type ViewStudyProps = {
+type ViewStudySectionProps = {
 
 }
 
@@ -36,15 +38,18 @@ type ViewStudyProps = {
 
 
 
-const ViewStudy: FC<ViewStudyProps> = ({
+const ViewStudySection: FC<ViewStudySectionProps> = ({
 
 }) => {
+  // Hooks
+  const pathname = usePathname()
   // Refs
   const viewResultsModalRef = useRef<any>(null)
   const downloadDataModalRef = useRef<any>(null)
   const createParticipantModalRef = useRef<any>(null)
   // States
   // Strings
+  const [studyId, setStudyId] = useState<string>('')
   const [studyNames, setStudyNames] = useState<string[]>([''])
   const [participantEmail, setParticipantEmail] = useState<string>('')
   const [participantUsername, setParticipantUsername] = useState<string>('')
@@ -182,6 +187,15 @@ const ViewStudy: FC<ViewStudyProps> = ({
   }
 
 
+  async function getStudyId() {
+    setStudyId(
+      pathname.slice(
+        pathname.indexOf('/study/') + '/study/'.length
+      )
+    )
+  }
+
+
   async function storeParticipantInDynamoDB(
     _participant: ParticipantType
   ) {
@@ -278,87 +292,122 @@ const ViewStudy: FC<ViewStudyProps> = ({
 
   useLayoutEffect(() => {
     const requests = [
-      getParticipants()
+      getStudyId(),
+      getParticipants(),
     ]
 
     Promise.all(requests)
-  }, [participantCreated])
+  }, [ participantCreated ])
 
 
 
 
   return (
     <>
-      <div
-        style={ {
-          ...definitelyCenteredStyle,
-          flexDirection: 'column',
-          width: '100%',
-          maxWidth: '800px',
-        } }
-      >
-        {/* Page Nav */ }
-        <div
-          style={ {
-            gap: '18px',
-            display: 'flex',
-            margin: '24px 0px'
-          } }
+      <LeftHandNav>
+        <div 
+          style={ { 
+            ...definitelyCenteredStyle, 
+            flexDirection: 'column' 
+          }}
         >
-          { pageNavButtons.map((btn, i: number) => (
-            <Fragment key={ i }>
-              <div>
-                <button
-                  style={ { width: '140px' } }
-                  className={ styles.button }
-                  onClick={ btn.onClick }
-                >
-                  { btn.buttonText }
-                </button>
-              </div>
-            </Fragment>
-          )) }
+          <div 
+            style={{ 
+              ...definitelyCenteredStyle,
+              flexDirection: 'column'
+            }}
+          >
+            <h3 style={{ marginBottom: '4px' }}>
+              { `Viewing study ${ '<STUDY_NAME>' }` }
+            </h3>
+            <div
+              style={{ 
+                ...definitelyCenteredStyle,
+                fontSize: '12px', 
+                color: 'gray',
+              }}
+            >
+              <p style={{ marginRight: '8px' }}>
+                { `ID: ` }
+              </p>
+              <p>
+                { studyId }
+              </p>
+            </div>
+          </div>
+
+          <div
+            style={ {
+              ...definitelyCenteredStyle,
+              flexDirection: 'column',
+              width: '100%',
+              fontSize: '13px',
+            } }
+          >
+            {/* Page Nav */ }
+            <div
+              style={ {
+                gap: '18px',
+                display: 'flex',
+                margin: '24px 0px'
+              } }
+            >
+              { pageNavButtons.map((btn, i: number) => (
+                <Fragment key={ i }>
+                  <div>
+                    <button
+                      style={ { width: '140px' } }
+                      className={ styles.button }
+                      onClick={ btn.onClick }
+                    >
+                      { btn.buttonText }
+                    </button>
+                  </div>
+                </Fragment>
+              )) }
+            </div>
+
+            {/* Table of participants */ }
+            <ParticipantsTable
+              participants={ participants }
+              isWaitingForResponse={ isWaitingForResponse }
+              handleViewObserverResults={ handleViewObserverResults }
+            />
+
+            {/* Modals */ }
+            <CreateParticipantModal
+              onClick={ handleOnCreateParticipant }
+              modalRef={ createParticipantModalRef }
+              state={ {
+                isCreatingParticipant,
+                isModalVisible: showCreateParticipantModal,
+              } }
+              onChange={ {
+                onEmailChange,
+                onUsernameChange,
+                onNobelLaureateChange,
+              } }
+            />
+
+            <DownloadDataModal
+              modalRef={ downloadDataModalRef }
+            />
+
+            <ViewResultsModal
+              modalRef={ viewResultsModalRef }
+              isModalVisible={ showViewResultsModal }
+              selectedParticipant={ selectedParticipant }
+              onEventHandlers={ {
+                handleOnViewResults,
+                onViewResultsChange
+              } }
+            />
+          </div>
         </div>
-
-        {/* Table of participants */ }
-        <ParticipantsTable
-          participants={ participants }
-          isWaitingForResponse={ isWaitingForResponse }
-          handleViewObserverResults={ handleViewObserverResults }
-        />
-
-        {/* Modals */ }
-        <CreateParticipantModal
-          onClick={ handleOnCreateParticipant }
-          modalRef={ createParticipantModalRef }
-          state={ {
-            isCreatingParticipant,
-            isModalVisible: showCreateParticipantModal,
-          } }
-          onChange={ {
-            onEmailChange,
-            onUsernameChange,
-            onNobelLaureateChange,
-          } }
-        />
-
-        <DownloadDataModal
-          modalRef={ downloadDataModalRef }
-        />
-
-        <ViewResultsModal
-          modalRef={ viewResultsModalRef }
-          isModalVisible={ showViewResultsModal }
-          selectedParticipant={ selectedParticipant }
-          onEventHandlers={ {
-            handleOnViewResults,
-            onViewResultsChange
-          } }
-        />
-      </div>
+      </LeftHandNav>
     </>
   )
 }
 
 
-export default ViewStudy
+export default ViewStudySection

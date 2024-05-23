@@ -7,9 +7,12 @@ import {
   useState,
   Fragment, 
   ReactNode, 
-  useEffect, 
+  useEffect,
+  useContext, 
 } from 'react'
 // Locals
+// Contexts
+import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // Hooks
 import useClickOutside from '@/hooks/useClickOutside'
 // Utils
@@ -37,12 +40,18 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
   links,
   children
 }) => {
+  // Contexts
+  const { username } = useContext(AuthenticatedUserContext)
+  // Refs
   const dropdownRef = useRef<any>(null)
+  // States
   const [isVisible, setIsVisible] = useState<boolean>(false)
 
   const toggleDropdown = () => setIsVisible(!isVisible)
 
+
   useClickOutside(dropdownRef, () => setIsVisible(false))
+
 
 
   return (
@@ -65,6 +74,17 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
         { isVisible && (
           <Fragment key={ `dropdown-menu` }>
             <div className={ styles.dropdownContent }>
+              <div 
+                className={ `${styles.username}` }
+                style={{
+                  cursor: 'default',
+                  borderRadius: '1rem 1rem 0rem 0rem',
+                }}
+              >
+                <p style={ definitelyCenteredStyle }>
+                  { username }
+                </p>
+              </div>
               { links.map((link: NavLink, i: number) => (
                 <Fragment
                   key={ i }
@@ -72,9 +92,6 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
                   <Link
                     href={ link.href }
                     className={ styles.dropdownLink }
-                    style={{
-                      borderRadius: i === 0 ? '1rem 1rem 0rem 0rem' : ''
-                    }}
                   >
                     { link.label }
                   </Link>

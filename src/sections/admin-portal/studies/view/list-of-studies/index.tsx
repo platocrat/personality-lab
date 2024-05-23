@@ -57,14 +57,6 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
   const [ studies, setStudies ] = useState<any>([])
 
 
-
-  function handleOnViewStudy(e: any, id: string, studyName: string) {
-    const href = `${ id }-studyName`
-
-    router.push(href)
-  }
-
-
   // -------------------------- Async functions --------------------------------
   async function getStudies() {
     setIsLoadingStudies(true)
@@ -78,8 +70,6 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
 
       if (response.status === 500) throw new Error(json.error)
       if (response.status === 405) throw new Error(json.error)
-
-      console.log(`json: `, json)
 
       setStudies(json.studies)
       setIsLoadingStudies(false)
@@ -109,6 +99,7 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
             style={ {
               ...definitelyCenteredStyle,
               position: 'relative',
+              marginTop: '24px',
             } }
           >
             <Spinner height='40' width='40' />
@@ -151,17 +142,11 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
                         <td>{ study.details.description }</td>
                         <td>{ study.details.allowedSubmissionsPerParticipant }</td>
                         <td>
-                          <Link href={ `/view-study/${study.name}` }>
+                          <Link href={ `/view-studies/study/${study.id.toString()}` }>
                             <button
+                              type='button'
                               style={ { width: '100px' } }
                               className={ appStyles.button }
-                              onClick={
-                                (e: any) => handleOnViewStudy(
-                                  e,
-                                  study.id,
-                                  study.name
-                                )
-                              }
                             >
                               { `View Study` }
                             </button>

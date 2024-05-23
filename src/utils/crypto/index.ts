@@ -126,14 +126,12 @@ export class SSCrypto {
 
 
   // Function to create a hash
-  public createHash(data: any, algorithm = 'sha512') {
+  public createHash(
+    data: any, 
+    algorithm = 'shake256',
+  ): string {
     // Create a hash object
-    const hash = createHash(
-      algorithm, 
-      { 
-        outputLength: 64,
-      }
-    )
+    const hash = createHash(algorithm, { outputLength: 16 })
 
     // Update the hash with the data
     hash.update(data)

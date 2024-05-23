@@ -184,6 +184,9 @@ const CreateStudy: FC<CreateStudyProps> = ({
   return (
     <>
       <div className={ `${sectionStyles['form-container']} ` }>
+        <div style={{ ...definitelyCenteredStyle, marginBottom: '12px' }}>
+          <h3>{ `Create a new study` }</h3>
+        </div>
         <form onSubmit={ handleCreateStudy }>
           <div>
             <label>
@@ -303,6 +306,7 @@ const CreateStudy: FC<CreateStudyProps> = ({
                 style={ {
                   ...definitelyCenteredStyle,
                   position: 'relative',
+                  marginTop: '24px',
                 } }
               >
                 <Spinner height='40' width='40' />

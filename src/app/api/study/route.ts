@@ -7,6 +7,8 @@ import {
   PutCommandInput,
   ScanCommandInput,
   QueryCommandInput,
+  GetCommand,
+  GetCommandInput,
 } from '@aws-sdk/lib-dynamodb'
 // Locals
 import { 
@@ -98,7 +100,7 @@ export async function POST(
 
 
 /**
- * @dev GET all studies for the `adminEmail`
+ * @dev GET aall studies for the `adminEmail` or get a single study by ID
  * @param req 
  * @param res 
  * @returns 
@@ -110,128 +112,182 @@ export async function GET(
   if (req.method === 'GET') {
     const adminEmail = req.nextUrl.searchParams.get('adminEmail')
 
-    const TableName = DYNAMODB_TABLE_NAMES.studies
-    const FilterExpression = 'contains(adminEmails, :email)'
-    
-    let ExpressionAttributeValues = { ':email': adminEmail },
-      input: ScanCommandInput | QueryCommandInput = {
-        TableName, 
-        FilterExpression,
-        ExpressionAttributeValues
-      },
-      command: ScanCommand | QueryCommand = new ScanCommand(input)
+    // 1.0 Handle the case where adminEmail exists
+    if (adminEmail) {
+      const TableName = DYNAMODB_TABLE_NAMES.studies
+      const FilterExpression = 'contains(adminEmails, :email)'
 
-    
-    const successMessage = `Scanned the '${
-      TableName
-    }' table and retrieved all studies for '${
-      adminEmail
-    }'`
+      let ExpressionAttributeValues = { ':email': adminEmail },
+        input: ScanCommandInput | QueryCommandInput = {
+          TableName,
+          FilterExpression,
+          ExpressionAttributeValues
+        },
+        command: ScanCommand | QueryCommand = new ScanCommand(input)
 
 
-    try {
-      const response = await ddbDocClient.send(command)
-
-      const message = successMessage || 'Operation successful'
-
-
-      if (response.Items?.length === 0) {
-        // Search `adminEmail` as `ownerEmail` instead
-        const KeyConditionExpression = `ownerEmail = :email`
-        
-        ExpressionAttributeValues = { ':email': adminEmail }
-        input = { 
-          TableName, 
-          KeyConditionExpression, 
-          ExpressionAttributeValues 
-        }
-
-        command = new QueryCommand(input)
-
-
-        const successMessage = `Fetched all studies from the '${
-          TableName
-        }' table for the owner email '${
-          adminEmail
+      const successMessage = `Scanned the '${TableName
+        }' table and retrieved all studies for '${adminEmail
         }'`
 
 
-        try {
-          const response = await ddbDocClient.send(command)
+      try {
+        const response = await ddbDocClient.send(command)
+
+        const message = successMessage || 'Operation successful'
 
 
-          if (response.Items && response.Items.length > 0) {
-            const studies = (response.Items as STUDY__DYNAMODB[])
+        // 1.1 Search `ownerEmail` for `adminEmail`
+        if (response.Items?.length === 0) {
+          const KeyConditionExpression = `ownerEmail = :email`
+
+          ExpressionAttributeValues = { ':email': adminEmail }
+          input = {
+            TableName,
+            KeyConditionExpression,
+            ExpressionAttributeValues
+          }
+
+          command = new QueryCommand(input)
 
 
-            return NextResponse.json(
-              {
-                message: successMessage,
-                studies,
-              },
-              {
-                status: 200,
-                headers: {
-                  'Content-Type': 'application/json'
+          const successMessage = `Fetched all studies from the '${TableName
+            }' table for the owner email '${adminEmail
+            }'`
+
+
+          try {
+            const response = await ddbDocClient.send(command)
+
+
+            if (response.Items && response.Items.length > 0) {
+              const studies = (response.Items as STUDY__DYNAMODB[])
+
+
+              return NextResponse.json(
+                {
+                  message: successMessage,
+                  studies,
+                },
+                {
+                  status: 200,
+                  headers: {
+                    'Content-Type': 'application/json'
+                  }
                 }
-              }
-            )
-          } else {
-            const message = `'No studies found for '${ adminEmail }' in the ${
-              TableName
-            } table`
+              )
+            } else {
+              const message = `'No studies found for '${adminEmail}' in the ${TableName
+                } table`
 
+              // Something went wrong
+              return NextResponse.json(
+                { message: message },
+                {
+                  status: 404,
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                }
+              )
+            }
+          } catch (error: any) {
             // Something went wrong
             return NextResponse.json(
-              { message: message },
+              { error: error },
               {
-                status: 404,
+                status: 500,
                 headers: {
                   'Content-Type': 'application/json',
                 },
               }
             )
           }
-        } catch (error: any) {
-          // Something went wrong
+        } else {
+          // 1.2 Return list of studies if the `adminEmail` was found in the
+          //     `adminEmails` attribute
+          const studies = (response.Items as STUDY__DYNAMODB[])
+
+
           return NextResponse.json(
-            { error: error },
             {
-              status: 500,
+              message: successMessage,
+              studies,
+            },
+            {
+              status: 200,
               headers: {
-                'Content-Type': 'application/json',
-              },
+                'Content-Type': 'application/json'
+              }
             }
           )
         }
-      } else {
-        const studies = (response.Items as STUDY__DYNAMODB[])
-
-
+      } catch (error: any) {
+        // Something went wrong
         return NextResponse.json(
+          { error: error },
           {
-            message: successMessage,
-            studies,
-          },
-          {
-            status: 200,
+            status: 500,
             headers: {
-              'Content-Type': 'application/json'
-            }
+              'Content-Type': 'application/json',
+            },
           }
         )
       }
-    } catch (error: any) {
-      // Something went wrong
-      return NextResponse.json(
-        { error: error },
-        {
-          status: 500,
-          headers: {
-            'Content-Type': 'application/json',
-          },
+    // 2.0 Handle the case where `adminEmail` does not exist and id is 
+    //     retrieved
+    } else {
+      const id = req.nextUrl.searchParams.get('id')
+
+      const TableName = DYNAMODB_TABLE_NAMES.studies
+      const Key = { id: id }
+
+      const input: GetCommandInput = { TableName, Key }
+      const command = new GetCommand(input)
+
+
+      try {
+        const response = await ddbDocClient.send(command)
+
+        if (!(response.Item as STUDY__DYNAMODB)) {
+          const message = `No ID found in ${TableName} table`
+
+          return NextResponse.json(
+            { message: message },
+            {
+              status: 404,
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            },
+          )
+        } else {
+          const study = response.Item as STUDY__DYNAMODB
+
+          return NextResponse.json(
+            { 
+              study,
+            },
+            {
+              status: 200,
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            }
+          )
         }
-      )
+      } catch (error: any) {
+        // Something went wrong
+        return NextResponse.json(
+          { error: error },
+          {
+            status: 500,
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          },
+        )
+      }
     }
   } else {
     return NextResponse.json(
