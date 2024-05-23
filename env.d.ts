@@ -1,3 +1,0 @@
-namespace NodeJS {
-  interface ProcessEnv { }
-}
