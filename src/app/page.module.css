@@ -1,3 +1,24 @@
+.questionnaire_question {
+  opacity: 0;
+  height: 0;
+  overflow: hidden;
+  transition: opacity 0.4s ease, height 0.4s ease;
+}
+
+.questionnaire_visible {
+  opacity: 1;
+  height: auto;
+  transition: opacity 0.4s ease, height 0.4s ease;
+}
+
+.questionnaire_hidden {
+  opacity: 0;
+  height: 0;
+  overflow: hidden;
+  transition: opacity 0.4s ease, height 0.4s ease;
+}
+
+
 .inputWrapperSpan {
   display: flex;
   margin-left: auto;
@@ -13,6 +34,11 @@
 .externalLink {
   color: #007ac0;
   text-decoration: underline;
+}
+
+.externalLink:hover {
+  color: #007ac0c5;
+  text-decoration: none;
 }
 
 
@@ -170,10 +196,11 @@
 }
 
 .divider {
-  opacity: 0.2;
-  margin-bottom: 8px;
+  width: 65%;
+  margin-bottom: 24px;
   border-radius: 3rem;
-  border-bottom: 2px solid black;
+  border-bottom: 1px solid rgba(0, 123, 194, 0.19);
+  box-shadow: 0px 1px 8px #007ac09c;
 }
 
 .questionBody {
@@ -184,6 +211,8 @@
   position: relative;
 
   margin-right: 24px;
+
+  accent-color: rgb(85, 221, 254);
 
   top: 2.5px;
   left: 2px;
@@ -204,7 +233,7 @@
 
 .radioButtonLabel:hover {
   border-radius: 3rem;
-  background-color: #0050ac1d;
+  background-color: rgba(0, 80, 172, 0.114);
   transition: 0.25s ease-in-out;
 }
 
@@ -247,6 +276,8 @@
   font-size: 14px;
   color: rgb(244, 244, 244);
 
+  box-shadow: 0px 2.5px 3px rgba(0, 43, 68, 0.612);
+
   transform: scale(1);
 
   transition: 0.1s ease-in-out;
@@ -261,7 +292,7 @@
 
 .button:active {
   background-color: rgb(0, 123, 194, 0.95);
-  transform: scale(0.965);
+  transform: scale(0.955);
   transition: 0.1s ease-in-out;
 }
 

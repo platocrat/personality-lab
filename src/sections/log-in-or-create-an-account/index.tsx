@@ -3,27 +3,29 @@
 // Externals
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { CSSProperties, FC, useContext, useMemo, useState } from 'react'
+import { 
+  FC, 
+  useMemo, 
+  useState,
+  useContext, 
+  CSSProperties, 
+} from 'react'
 // Locals
 // Components
 import Card from '@/components/Card'
-// import Treemap from '@/components/DataViz/Treemap'
-// import BarChart from '@/components/DataViz/BarChart'
 import StellarPlot from '@/components/DataViz/StellarPlot'
-// import UVIndexChart from '@/components/DataViz/UVIndexChart'
-// import PersonalityVisualization from '@/components/DataViz/PersonalityVisualization'
 // Sections
 import Form from './form'
 // Contexts
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // Utils
-import { deleteAllCookies } from '@/utils/misc'
-import { dummyVariables } from '@/utils/assessments/bessi/constants'
-// Types
-import { SkillDomainFactorType } from '@/utils/assessments/bessi/types'
+import {
+  dummyVariables,
+  deleteAllCookies, 
+  SkillDomainFactorType 
+} from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
-
 
 
 
@@ -31,12 +33,16 @@ const LogInOrCreateAnAccount = () => {
   const router = useRouter()
 
   // Contexts
-  const { setIsAuthenticated } = useContext(AuthenticatedUserContext)
+  const { 
+    email,
+    username,
+    setEmail,
+    setIsAdmin,
+    setUsername,
+    setIsAuthenticated 
+  } = useContext(AuthenticatedUserContext)
 
   // Strings
-  const [ email, setEmail ] = useState<string>('')
-  const [ username, setUsername ] = useState<string>('')
-  const [ password, setPassword ] = useState<string>('')
   // Booleans
   const [ 
     isPasswordIncorrect, 
@@ -52,10 +58,14 @@ const LogInOrCreateAnAccount = () => {
   ] = useState<boolean>(false)
   const [ isSignUp, setIsSignUp ] = useState<boolean>(false)
   const [ isFirstStep, setIsFirstStep ] = useState<boolean>(true)
-  const [ emailExists, setEmailExists ] = useState<boolean>(false)
   const [ isUsernameTaken, setIsUsernameTaken ] = useState<boolean>(false)
   const [ isEmailIncorrect, setIsEmailIncorrect ] = useState<boolean>(false)
   const [ isPasswordHashing, setIsPasswordHashing ] = useState<boolean>(false)
+  // Custom
+  const [ 
+    password, 
+    setPassword 
+  ] = useState<{ hash: string, salt: string }>({ hash: '', salt: '' })
 
 
   const title = isFirstStep 
@@ -98,10 +108,12 @@ const LogInOrCreateAnAccount = () => {
         body: JSON.stringify({ email, username, password }),
       })
       
-      const data = await response.json()
+      const json = await response.json()
+
       
       if (response.status === 200) {
-        const message = data.message
+        const { message, isAdmin } = json
+
 
         switch (message) {
           case 'Verified email, username, and password':
@@ -111,6 +123,7 @@ const LogInOrCreateAnAccount = () => {
             setIsPasswordIncorrect(false)
             
             // Authenticate user
+            setIsAdmin(isAdmin)
             setIsAuthenticated(true)
             router.refresh()
             break
@@ -149,7 +162,7 @@ const LogInOrCreateAnAccount = () => {
         setIsUsernameIncorrect(false)
         setIsPasswordIncorrect(false)
 
-        console.error(`Error verifying log in credentials: `, data.error)
+        console.error(`Error verifying log in credentials: `, json.error)
       }
     } catch (error: any) {
       setIsWaitingForResponse(false)
@@ -184,12 +197,14 @@ const LogInOrCreateAnAccount = () => {
         body: JSON.stringify({ email, username, password }),
       })
       
-      const data = await response.json()
+      const json = await response.json()
 
       if (response.status === 200) {
+        const { message, isAdmin } = json
+
         setIsWaitingForResponse(false)
-        const message = data.message
-        
+
+ 
         switch (message) {
           case 'Username exists':
             setIsUsernameTaken(true)
@@ -197,13 +212,14 @@ const LogInOrCreateAnAccount = () => {
 
           case 'User has successfully signed up':
             // Authenticate user
+            setIsAdmin(isAdmin)
             setIsAuthenticated(true)
             router.refresh()
             break
         }
       } else {
         setIsWaitingForResponse(false)
-        throw new Error(`Error signing up: `, data.error)
+        throw new Error(`Error signing up: `, json.error)
       }
     } catch (error: any) {
       setIsWaitingForResponse(false)
@@ -215,7 +231,7 @@ const LogInOrCreateAnAccount = () => {
   }
 
     
-  async function handleEmailExists(e: any) {
+  async function handleEmailWithPasswordExists(e: any) {
     e.preventDefault()
 
     setIsWaitingForResponse(true)
@@ -229,19 +245,19 @@ const LogInOrCreateAnAccount = () => {
         body: JSON.stringify({ email }),
       })
 
-      const data = await response.json()
+      const json = await response.json()
 
       if (response.status === 200) { // If email exists
-        const message = data.message
+        const message = json.message
 
         switch (message) {
-          case 'Email exists':
+          case 'Email with password exists':
             setIsWaitingForResponse(false)
             setIsFirstStep(false)
             setIsSignUp(false)
             break
 
-          case 'Email does not exist':
+          case 'Email with password does not exist':
             setIsWaitingForResponse(false)
             setIsFirstStep(false)
             setIsSignUp(true)    
@@ -249,7 +265,7 @@ const LogInOrCreateAnAccount = () => {
         }
       } else {
         setIsWaitingForResponse(false)
-        const error = data.error
+        const error = json.error
         console.error(`Error sending POST request to DynamoDB table: `, error)
         /**
          * @todo Handle error UI here
@@ -268,12 +284,9 @@ const LogInOrCreateAnAccount = () => {
 
   // Props to pass to `FormContent`
   const state = {
-    email: email,
-    username: username,
     password: password,
     isSignUp: isSignUp,
     isFirstStep: isFirstStep,
-    emailExists: emailExists,
     isUsernameTaken: isUsernameTaken,
     isEmailIncorrect: isEmailIncorrect,
     isPasswordHashing: isPasswordHashing,
@@ -282,9 +295,7 @@ const LogInOrCreateAnAccount = () => {
     isWaitingForResponse: isWaitingForResponse,
   }
   const set = {
-    email: setEmail,
     password: setPassword,
-    username: setUsername,
     isUsernameTaken: setIsUsernameTaken,
     isEmailIncorrect: setIsEmailIncorrect,
     isPasswordHashing: setIsPasswordHashing,
@@ -292,7 +303,7 @@ const LogInOrCreateAnAccount = () => {
     isUsernameIncorrect: setIsUsernameIncorrect,
     isWaitingForResponse: setIsWaitingForResponse,
   }
-  const handler = { handleLogIn, handleSignUp, handleEmailExists }
+  const handler = { handleLogIn, handleSignUp, handleEmailWithPasswordExists }
 
 
 
@@ -314,25 +325,6 @@ const LogInOrCreateAnAccount = () => {
           />
         }}
       />
-
-      {/* <Treemap data={ data }/> */}
-      {/* <UVIndexChart /> */}
-      
-      {/* <StellarPlot 
-        data={  
-          Object.entries(
-            dummyVariables.pv.data?.domainScores as SkillDomainFactorType
-          ).map(([key, value]) => ({
-            axis: key,
-            value: value / 100
-          })) 
-        }
-      /> */}
-
-      {/* <PersonalityVisualization 
-        data={ dummyVariables.pv.data } 
-        averages={ dummyVariables.pv.averages } 
-      /> */}
     </>
   )
 }

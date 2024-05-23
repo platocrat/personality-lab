@@ -6,7 +6,7 @@ import { Fragment, useContext, useEffect } from 'react'
 // Contexts
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // Constants
-import { skillsMapping } from '@/utils/assessments/bessi/constants'
+import { skillsMapping } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 
@@ -162,7 +162,7 @@ const BessiResultsSkillsScoresAndDefinitions = () => {
 
   return (
     <>
-      <div>
+      <div style={{ margin: '48px 0px 0px 0px' }}>
         <div style={{ margin: '18px 0px 18px 0px',  }}>
           <h3>{ title }</h3>
         </div>

@@ -5,9 +5,7 @@ import InputWrapper from '@/components/Input/Wrapper'
 // Contexts
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 // Enums
-import { 
-  CurrentEmploymentStatus 
-} from '@/utils/bessi/types/enums'
+import { CurrentEmploymentStatus } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 
@@ -26,13 +24,14 @@ const Input = () => {
   const { onCurrentEmploymentStatusChange } = useContext(UserDemographicContext)
   const selectName = `current-employment-status`
 
+  
   return (
     <>
       <select 
         required={ true }
-        onChange={ (e: any) => onCurrentEmploymentStatusChange(e) }
         name={ selectName }
         style={ { margin: '0px 0px 0px 12px' } }
+        onChange={ (e: any) => onCurrentEmploymentStatusChange(e) }
       >
         <option value={ '' }>{ `Please select` }</option>
 
@@ -57,6 +56,7 @@ const BessiCurrentEmploymentStatus = () => {
     pClassName: styles.bessi_about_you_p,
     spanClassName: styles.bessi_text1,
   }
+
 
   return (
     <>

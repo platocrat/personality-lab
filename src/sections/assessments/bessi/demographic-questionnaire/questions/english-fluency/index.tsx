@@ -5,7 +5,7 @@ import InputWrapper from '@/components/Input/Wrapper'
 // Contexts
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 // Enums
-import { YesOrNo } from '@/utils/bessi/types/enums'
+import { YesOrNo } from '@/utils'
 // CSS
 import { inputMarginStyle } from '../..'
 import styles from '@/app/page.module.css'
@@ -30,12 +30,13 @@ const Input = () => {
       { Object.values(YesOrNo).map((yesOrNo: string, i: number) => (
         <Fragment key={ `english-fluency-${i}` }>
           <input
-            required={ true }
-            onChange={ (e: any) => onEnglishFluencyChange(e) }
-            style={ inputMarginStyle }
             type='radio'
-            name='english-fluency'
             value={ yesOrNo }
+            required={ true }
+            name='english-fluency'
+            style={ inputMarginStyle }
+            className={ styles.radioButtonInput }
+            onChange={ (e: any) => onEnglishFluencyChange(e) }
           />
           { yesOrNo }
         </Fragment>

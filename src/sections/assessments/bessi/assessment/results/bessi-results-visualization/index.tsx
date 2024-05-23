@@ -1,54 +1,53 @@
 'use client'
 
 // Externals
-import { 
-  FC, 
+import {
+  FC,
   useRef,
-  useMemo,
-  Fragment, 
-  Dispatch, 
   useState,
+  Fragment,
+  Dispatch,
   useEffect,
-  useContext, 
+  useContext,
   SetStateAction,
-  MutableRefObject,
 } from 'react'
-import Image from 'next/image'
-import html2canvas from 'html2canvas'
 // Locals
-import Modal from './modal'
+// Sections
 import TitleDropdown from './title-dropdown'
 import UserVisualization from './user-visualization'
 // Components
 import Title from '@/components/DataViz/Title'
 import TreeMap from '@/components/DataViz/TreeMap'
-import Spinner from '@/components/Suspense/Spinner'
 import StellarPlot from '@/components/DataViz/StellarPlot'
-import BessiRateUserResults from '@/components/Forms/BESSI/RateUserResults'
-import BarChartPerDomain from '@/components/DataViz/BarChart/BarChartPerDomain'
-import BessiShareResultsButton from '@/components/Buttons/BESSI/ShareResultsButton'
+import ShareResults from '@/components/DataViz/ShareResults'
+import RateUserResults from '@/components/Forms/BESSI/RateUserResults'
+import BarChartPerDomain from '@/components/DataViz/BarChart/PerDomain'
+import NormalDistributionChart from '@/components/DataViz/Distributions/Normal'
 import PersonalityVisualization from '@/components/DataViz/PersonalityVisualization'
+import ResultsVisualizationModal from '@/components/Modals/BESSI/ResultsVisualization'
+// Hooks
+import useClickOutside from '@/hooks/useClickOutside'
 // Contexts
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
-// Constants
-import { dummyVariables, imgPaths } from '@/utils/assessments/bessi/constants'
-// Enums
-import { SkillDomain } from '@/utils/bessi/types/enums'
-// Types
-import { 
-  FacetFactorType, 
-  BessiSkillScoresType, 
-  SkillDomainFactorType 
-} from '@/utils/assessments/bessi/types'
+// Utils
 import {
   transformData,
+  dummyVariables,
+  FacetFactorType,
   InputDataStructure,
   TargetDataStructure,
-} from '@/components/DataViz/BarChart/GroupedBarChart'
+  BessiSkillScoresType,
+  getRandomValueInRange,
+  SkillDomainFactorType,
+  getUsernameAndEmailFromCookie,
+} from '@/utils'
 // CSS
-import appStyles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
-import styles from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization/bess-results-visualization.module.css'
+import BessiRateUserResults from '@/components/Forms/BESSI/RateUserResults'
+import RadialBarChart from '@/components/DataViz/BarChart/Radial'
+import { style } from 'd3'
+import html2canvas from 'html2canvas'
+
 
 
 
@@ -83,28 +82,35 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   // States
   // Booleans
   const [ isOpen, setIsOpen ] = useState(false)
+  const [ isRating, setIsRating ] = useState(false)
   const [ isCopied, setIsCopied ] = useState(false)
   const [ isModalVisible, setIsModalVisible ] = useState(false)
   // Strings
   const [ screenshotUrl, setScreenshotUrl ] = useState('')
   // Numbers
+  const [ 
+    selectedRadialBarChart, 
+    setSelectedRadialBarChart 
+  ] = useState(0)
   const [ currentVisualization, setCurrentVisualization ] = useState(0)
 
   
   const visualizations = [
-    { id: 0, name: 'Stellar Plot', imgName: 'stellar-plot' },
-    { id: 1, name: 'Bar Graph', imgName: 'bar-graph ' },
-    { id: 2, name: 'Tree Map', imgName: 'tree-map' },
-    { id: 3, name: 'Personality Visualization', imgName: 'personality-visualization' },
+    { name: 'Stellar Plot', imgName: 'stellar-plot' },
+    { name: 'Bar Graph', imgName: 'bar-graph ' },
+    { name: 'Radial Bar Graph', imgName: 'radial-bar-graph' },
+    { name: 'Tree Map', imgName: 'tree-map' },
+    { name: 'Normal Distribution', imgName: 'normal-distribution' },
+    { name: 'Personality Visualization', imgName: 'personality-visualization' },
   ]
   
   
   // ------------------------- Regular functions -------------------------------
-  const handleClickOutside = (e: any) => {
-    if (modalRef.current && !modalRef.current.contains(e.target)) {
-      setIsModalVisible(false)
-    }
+  function handleOnChangeRadialBarChart(e: any) {
+    const { value } = e.target
+    setSelectedRadialBarChart(value)
   }
+
 
   const data_ = (i: number) => {
     switch (i) {
@@ -117,6 +123,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
           value: value / 100
         }))
       case 1:
+      case 2:
         const inputData: InputDataStructure = {
           facetScores: bessiSkillScores?.facetScores as FacetFactorType,
           domainScores: bessiSkillScores?.domainScores as SkillDomainFactorType,
@@ -127,15 +134,9 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
             ? inputData 
             : dummyVariables.pv.data
           )
-      case 2:
-        return bessiSkillScores?.domainScores
-          ? {
-            facetScores: bessiSkillScores?.facetScores,
-            domainScores: bessiSkillScores?.domainScores,
-            averages: dummyVariables.pv.averages,
-          }
-          : dummyVariables.pv.data
       case 3:
+      case 4:
+      case 5:
         return bessiSkillScores?.domainScores
           ? {
             facetScores: bessiSkillScores?.facetScores,
@@ -148,6 +149,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
     }
   }
 
+
   // Placeholder for rendering the selected visualization
   const renderVisualization = (
     isExample: boolean, 
@@ -157,23 +159,83 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
       case 0:
         return <StellarPlot isExample={ isExample } data={ data_(i) } />
       case 1:
-        const title = 'BESSI Bar Chart'
+        const barChartTitle = 'BESSI Bar Chart'
         const allData: TargetDataStructure[] = data_(i) as TargetDataStructure[]
 
         return (
           <>
             <div style={{ margin: '24px 0px 0px 0px' }} />
+            <Title isExample={ isExample } title={ barChartTitle } />
+
             { allData.map((data: TargetDataStructure, i: number) => (
               <>
-                <Title isExample={ isExample } title={ title } />
                 <BarChartPerDomain isExample={ isExample } data={ data } />
               </>
             )) }
           </>
         )
       case 2:
-        return <TreeMap isExample={ isExample } data={ data_(i) } />
+        const radialBarChartTitle = `BESSI Radial Bar Chart`
+        const _allData = data_(i) as TargetDataStructure[]
+
+        return (
+          <>
+            <div 
+              style={{ 
+                ...definitelyCenteredStyle,
+                flexDirection: 'column',
+              }}
+            >
+              <Title isExample={ isExample } title={ radialBarChartTitle } />
+              <select
+                value={ selectedRadialBarChart }
+                style={{ 
+                  padding: '4px 8px 4px 4px',
+                  margin: '4px 0px 4px 0px',
+                }}
+                onChange={ 
+                  (e: any) => handleOnChangeRadialBarChart(e) 
+                }
+              >
+                { _allData.map((data: TargetDataStructure, i: number) => (
+                  <>
+                    <option key={ i } value={ i }>
+                      { data.name }
+                    </option>
+                  </>
+                )) }
+              </select>
+
+              <RadialBarChart
+                data={ _allData[selectedRadialBarChart] } 
+                selectedRadialBarChart={ selectedRadialBarChart }
+              />
+            </div>
+          </>
+        )
       case 3:
+        return <TreeMap isExample={ isExample } data={ data_(i) } />
+      case 4:
+        /**
+         * @todo Get `mean` from data 
+         */
+        const mean = 50
+        /**
+         * @todo Get `stddev` from data 
+         */
+        const stddev = getRandomValueInRange(1, 5)
+        const score = getRandomValueInRange(50 - stddev, 50 + stddev)
+
+        console.log(`[${new Date().toLocaleString()}] stddev: `, stddev)
+
+        return (
+          <NormalDistributionChart
+            mean={ mean }
+            stddev={ stddev }
+            score={ score }
+          />
+        )
+      case 5:
         return (
           <PersonalityVisualization
             isExample={ isExample }
@@ -207,18 +269,93 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
     }
   }
 
+
+  async function handleRateVisualization (
+    e: any, 
+    positiveOrNegative: 'positive' | 'negative',
+  ) {
+    setIsRating(true)
+
+    const rating = positiveOrNegative === 'positive' ? 1 : 0
+    const vizName = visualizations[currentVisualization].name
+
+    // Submit the user's rating of the visualization to DynamoDB
+    const userVizRatingId = await storeRatingInDynamoDB(rating, vizName)
+  }
+
+
+  // ---------------------------------- Hooks ----------------------------------
+  async function storeRatingInDynamoDB(
+    rating: number, 
+    vizName: string
+  ) {
+      const CURRENT_TIMESTAMP = new Date().getTime()
+
+      const { email, username } = await getUsernameAndEmailFromCookie()
+
+
+      if (email === undefined) {
+        /**
+         * @todo Replace the line below by handling the error on the UI here
+         */
+        throw new Error(`Error getting email from cookie!`)
+      } else {
+        /**
+         * @dev This is the object that we store in DynamoDB using AWS's
+         * `PutItemCommand` operation.
+         */
+        const userVizRating/*: BESSI__VisualizationRating__DynamoDB */ = {
+          email: email,
+          username: username,
+          timestamp: CURRENT_TIMESTAMP,
+          vizName: vizName,
+          rating: rating,
+          assessmentName: 'bessi'
+        }
+
+        try {
+          const response = await fetch('/api/assessment/viz-rating', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ userVizRating }),
+          })
+
+          const json = await response.json()
+
+          if (response.status === 200) {
+            const userVizRatingId = json.data
+            return userVizRatingId
+          } else {
+            setIsRating(false)
+
+            const error = `Error posting ${ 'viz rating' } to DynamoDB: `
+            /**
+             * @todo Handle error UI here
+             */
+            throw new Error(error, json.error)
+          }
+        } catch (error: any) {
+          setIsRating(false)
+
+          /**
+           * @todo Handle error UI here
+           */
+          throw new Error(`Error! `, error)
+
+        }
+      }
+  }
+
+  
+  // ---------------------------------- Hooks ----------------------------------
+  useClickOutside(modalRef, () => setIsModalVisible(false))
+
   
   useEffect(() => {
-    // Only add the event listener when the dropdown is visible
-    if (isModalVisible) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-
-    // Cleanup the event listener
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [isModalVisible])
+    setIsRating(false)
+  }, [ currentVisualization ])
 
 
 
@@ -243,38 +380,16 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
           ? renderVisualization(isExample, currentVisualization)
           : (
             <Fragment>
-              <div
-                style={{
-                  ...definitelyCenteredStyle,
-                  gap: '12px',
-                  marginBottom: '8px',
-                  justifyContent: 'space-between',
+              <ShareResults
+                state={{
+                  isCopied: isCopied,
+                  isRating: isRating,
                 }}
-              >
-                <button
-                  style={ {
-                    width: '50px',
-                    fontSize: '12.5px',
-                    padding: '8px 12px',
-                    margin: '12px 0px 12px 0px',
-                    backgroundColor: isCopied ? 'rgb(18, 215, 67)' : ''
-                  } }
-                  className={ appStyles.button }
-                  onClick={ handleTakeScreenshot }
-                >
-                  <Image
-                    width={ 18 }
-                    height={ 18 }
-                    alt='Share icon to share data visualization'
-                    className={ styles.img }
-                    src={
-                      isCopied 
-                        ? `${ imgPaths().svg }white-checkmark.svg` 
-                        : `${ imgPaths().svg }white-share-icon.svg`
-                    }
-                  />
-                </button>
-              </div>
+                onClick={{
+                  handleTakeScreenshot,
+                  handleRateVisualization,
+                }}
+              />
 
               <UserVisualization
                 screenshot1Ref={ screenshot1Ref }
@@ -289,15 +404,21 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         }
 
         
-        <Modal
-          modalRef={ modalRef }
-          isCopied={ isCopied }
-          setIsCopied={ setIsCopied }
+        <ResultsVisualizationModal
           screenshotUrl={ screenshotUrl }
-          isModalVisible={ isModalVisible }
-          screenshot2Ref={ screenshot2Ref }
-          visualizations={ visualizations }
-          currentVisualization={ currentVisualization }
+          refs={{ 
+            modalRef, 
+            screenshot2Ref 
+          }}
+          viz={{
+            visualizations, 
+            currentVisualization 
+          }}
+          state={{
+            isCopied,
+            setIsCopied, 
+            isModalVisible 
+          }}
         />
 
 

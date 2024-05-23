@@ -5,9 +5,7 @@ import InputWrapper from '@/components/Input/Wrapper'
 // Contexts
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 // Enums
-import { 
-  RaceOrEthnicity
-} from '@/utils/bessi/types/enums'
+import { RaceOrEthnicity } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 import { inputMarginStyle } from '../..'
@@ -33,11 +31,12 @@ const Input = () => {
       { Object.values(RaceOrEthnicity).map((raceOrEthnicity: string, i: number) => (
         <Fragment key={ `what-is-your-race-or-ethnicity-${i}` }>
           <input
-            onChange={ (e: any) => onRaceOrEthnicityChange(e) }
-            style={{ margin: '0px 12px 0px 8px' }}
             type='checkbox'
+            value={ raceOrEthnicity }
+            style={{ margin: '0px 12px 0px 8px' }}
+            className={ styles.radioButtonInput }
             name={ `myEthnic_${raceOrEthnicity}` }
-            value='1'
+            onChange={ (e: any) => onRaceOrEthnicityChange(e) }
           />
           { raceOrEthnicity }
           <br />

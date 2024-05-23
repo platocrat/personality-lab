@@ -12,26 +12,42 @@ import Spinner from '@/components/Suspense/Spinner'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // Types
-import { BessiSkillScoresType } from '@/utils/assessments/bessi/types'
+import { BessiSkillScoresType } from '@/utils'
 // CSS
 import './globals.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
-import { Gender, YesOrNo, USState, HighestFormalEducation, SocialClass, RaceOrEthnicity, CurrentMaritalStatus, CurrentEmploymentStatus } from '@/utils'
+import { 
+  Gender, 
+  YesOrNo, 
+  USState, 
+  SocialClass, 
+  RaceOrEthnicity, 
+  CurrentMaritalStatus, 
+  HighestFormalEducation,
+  CurrentEmploymentStatus,
+} from '@/utils'
+
+
+
+type UserType = { email: string, username: string, isAdmin: boolean }
 
 
 export type UserResponse = {
-  user: any | null
+  user: UserType | null
   error: Error | null
 }
 
 
 
 
-const metadata: Metadata = {
-  title: 'Personality Lab',
-  description: 'Take a personality test and learn about yourself. See your results immediately after the survey.',
+const INIT_USER = {
+  email: '',
+  username: '',
+  isAdmin: false,
 }
+
+
 
 
 export default function RootLayout({
@@ -47,17 +63,29 @@ export default function RootLayout({
     bessiSkillScores, 
     setBessiSkillScores 
   ] = useState<BessiSkillScoresType | null>(null)
+  // State variables for `UserType`
+  const [ email, setEmail ] = useState<string>('')
+  const [ username, setUsername ] = useState<string>('')
+  const [ isAdmin, setIsAdmin ] = useState<boolean>(false)
   // Booleans for user authentication
   const [ isFetchingUser, setIsFetchingUser ] = useState<boolean>(true)
   const [ isAuthenticated, setIsAuthenticated ] = useState<boolean>(false)
   // State variables UserDemographicsContext
   // Numbers
   const [ age, setAge ] = useState<number>(0)
+  const [ familySize, setFamilySize ] = useState<number>(0)
+  const [
+    annualHouseholdIncome, 
+    setAnnualHouseholdIncome 
+  ] = useState<number>(0)
   // Regular strings
+  const [
+    areaOfScienceTraining,
+    setAreaOfScienceTraining,
+  ] = useState<string>('')
   const [ zipCode, setZipCode ] = useState<string>('')
   const [ foreignCountry, setForeignCountry ] = useState<string>('')
   // Enums
-  const [ gender, setGender ] = useState<string | number>('')
   const [ isParent, setIsParent ] = useState<YesOrNo>(YesOrNo.No)
   const [ usState, setUSState ] = useState<USState>(USState.Alabama)
   const [ priorCompletion, setPriorCompletion ] = useState<YesOrNo>(YesOrNo.No)
@@ -66,13 +94,9 @@ export default function RootLayout({
     setIsFluentInEnglish
   ] = useState<YesOrNo>(YesOrNo.No)
   const [
-    socialClass,
-    setSocialClass
-  ] = useState<SocialClass>(SocialClass.LowerMiddleClass)
-  const [
     raceOrEthnicity,
     setRaceOrEthnicity
-  ] = useState<RaceOrEthnicity[]>([RaceOrEthnicity.WhiteCaucasian])
+  ] = useState<RaceOrEthnicity[]>([ ])
   // Generics
   const [
     highestFormalEducation,
@@ -86,6 +110,12 @@ export default function RootLayout({
     currentMaritalStatus,
     setCurrentMaritalStatus
   ] = useState<string | number>('')
+  const [
+    socialClass,
+    setSocialClass
+  ] = useState<SocialClass>(SocialClass.LowerMiddleClass)
+  const [ gender, setGender ] = useState<string | number>('')
+  const [ religion, setReligion ] = useState<string | number>('')
 
 
 
@@ -109,16 +139,19 @@ export default function RootLayout({
   }
 
   function onRaceOrEthnicityChange(e: any) {
-    const _ = e.target.value
-    console.log(`racesOrEthnicities: `, _)
+    const _ = Object.values(RaceOrEthnicity)[e.target.value]
     
-    setRaceOrEthnicity((prevCheckedItems) => {
-      if (prevCheckedItems.includes(_)) {
-        return prevCheckedItems.filter(
-          (item): boolean => item !== _
-        )
+    setRaceOrEthnicity((previousState) => {
+      if (previousState.includes(_)) {
+        // console.log(`raceOrEthnicity: `, previousState.filter(item => item !== _))
+
+        // If the current state is already in the array, remove it
+        return previousState.filter(item => item !== _)
       } else {
-        return [...prevCheckedItems, _]
+        // console.log(`raceOrEthnicity: `, [...previousState, _])
+        
+        // Otherwise, add it to the array
+        return [...previousState, _]
       }
     })
   }
@@ -177,21 +210,41 @@ export default function RootLayout({
     setIsParent(_)
   } 
 
+  function onFamilySizeChange(e: any) {
+    const _ = e.target.value
+    setFamilySize(_)
+  }
+
+  function onReligionChange(e: any) {
+    const _ = e.target.value
+    setReligion(_)
+  }
+  
+  function onAnnualHouseholdIncomeChange(e: any) {
+    const _ = e.target.value
+    setAnnualHouseholdIncome(_)
+  }
+  
+  function onAreaOfScienceTrainingChange(e: any) {
+    const _ = e.target.value
+    setAreaOfScienceTraining(_)
+  }
+
 
   // --------------------------- Async functions -------------------------------
   async function getUser(): Promise<UserResponse> {
     try {
       const response = await fetch('/api/user', { method: 'GET' })
-      const data = await response.json()
+      const json = await response.json()
 
-      if (response.status === 401) return { user: null, error: data.message }
-      if (response.status === 400) return { user: null, error: data.error }
-      // Assumes `response.status === 200 && data.message === 'User authenticated'`
-      return { user: data.user, error: null }
+      if (response.status === 401) return { user: null, error: json.message }
+      if (response.status === 400) return { user: null, error: json.error }
+      return { user: json.user, error: null }
     } catch (error: any) {
       return { user: null, error: error }
     }
   }
+
 
   /**
    * @dev Protects any page by restricting access to users that
@@ -201,6 +254,7 @@ export default function RootLayout({
     setIsFetchingUser(true)
 
     const { user, error } = await getUser()
+
 
     if (error) {
       // Prompt user to log in 
@@ -218,6 +272,9 @@ export default function RootLayout({
       }
     } else {
       // Show the dashboard
+      setEmail((user as UserType).email)
+      setUsername((user as UserType).username)
+      setIsAdmin((user as UserType).isAdmin)
       setIsAuthenticated(true)
       setIsFetchingUser(false)
     }
@@ -227,7 +284,7 @@ export default function RootLayout({
   // ------------------------------ `useEffect`s -------------------------------
   useEffect(() => {
     const requests = [
-      pageProtection()
+      pageProtection(),
     ]
 
     Promise.all(requests).then((response: any): void => { })
@@ -259,6 +316,12 @@ export default function RootLayout({
             <body>
               <AuthenticatedUserContext.Provider
                 value={ {
+                  email,
+                  username,
+                  isAdmin,
+                  setEmail,
+                  setIsAdmin,
+                  setUsername,
                   isAuthenticated,
                   setIsAuthenticated,
                 } }
@@ -270,28 +333,36 @@ export default function RootLayout({
                       gender,
                       usState,
                       zipCode,
+                      religion,
                       isParent,
+                      familySize,
                       socialClass,
                       foreignCountry,
                       raceOrEthnicity,
                       priorCompletion,
                       isFluentInEnglish,
                       currentMaritalStatus,
+                      areaOfScienceTraining,
+                      annualHouseholdIncome,
                       highestFormalEducation,
                       currentEmploymentStatus,
                       // Form input handlers
                       onAgeChange,
                       onGenderChange,
                       onZipCodeChange,
+                      onReligionChange,
                       onIsParentChange,
                       onUsLocationChange,
+                      onFamilySizeChange,
                       onSocialClassChange,
                       onEnglishFluencyChange,
                       onRaceOrEthnicityChange,
                       onPriorCompletionChange,
                       onForeignLocationChange,
                       onCurrentMaritalStatusChange,
+                      onAreaOfScienceTrainingChange,
                       onHighestEducationLevelChange,
+                      onAnnualHouseholdIncomeChange,
                       onCurrentEmploymentStatusChange,
                     } }
                   >

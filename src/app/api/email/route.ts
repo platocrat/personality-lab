@@ -2,16 +2,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { QueryCommand, QueryCommandInput } from '@aws-sdk/lib-dynamodb'
 // Locals
-import { ddbDocClient } from '@/utils/aws/dynamodb'
-import { DYNAMODB_TABLE_NAMES } from '@/utils'
+import { 
+  ddbDocClient,
+  ACCOUNT__DYNAMODB,
+  DYNAMODB_TABLE_NAMES, 
+} from '@/utils'
 
-
-export type BESSI_accounts = {
-  password: string
-  username: string
-  email: string
-  timestamp: number
-}
 
 
 export async function POST(
@@ -21,23 +17,29 @@ export async function POST(
   if (req.method === 'POST') {
     const { email } = await req.json()
 
+    const TableName = DYNAMODB_TABLE_NAMES.accounts
+    const KeyConditionExpression = 'email = :emailValue'
+    const ExpressionAttributeValues = { ':emailValue': email }
+
     const input: QueryCommandInput = {
-      TableName: DYNAMODB_TABLE_NAMES.BESSI_ACCOUNTS,
-      KeyConditionExpression: 'email = :emailValue',
-      ExpressionAttributeValues: {
-        ':emailValue': email,
-      }
+      TableName,
+      KeyConditionExpression,
+      ExpressionAttributeValues,
     }
 
     const command = new QueryCommand(input)
+
 
     try {
       const response = await ddbDocClient.send(command)
 
       if (response.Items && response.Items.length > 0) {
-        if ((response.Items[0] as BESSI_accounts).email) {
+        if (
+          (response.Items[0] as ACCOUNT__DYNAMODB).email &&
+          (response.Items[0] as ACCOUNT__DYNAMODB).password
+        ) {
           return NextResponse.json(
-            { message: 'Email exists' },
+            { message: 'Email with password exists' },
             { status: 200 },
           )
         } else { 
@@ -52,17 +54,18 @@ export async function POST(
            * Promise<NextResponse<{ message: string }> | NextResponse<{ error: any }> | undefined> 
            */
           return NextResponse.json(
-            { message: 'Email does not exist' },
+            { message: 'Email with password does not exist' },
             { status: 200 },
           )
         }
       } else {
         return NextResponse.json(
-          { message: 'Email does not exist' },
+          { message: 'Email with password does not exist' },
           { status: 200 },
         )
       }
-    } catch (error: any) { // Error sending POST request to DynamoDB table
+    } catch (error: any) {
+      // Error sending POST request to DynamoDB table
       return NextResponse.json(
         { error: error },
         { status: 500 },

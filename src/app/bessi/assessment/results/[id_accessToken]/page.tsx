@@ -2,7 +2,14 @@
 
 // Externals
 
-import { FC, useContext, useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import { 
+  FC, 
+  useMemo,
+  useState, 
+  useEffect, 
+  useContext, 
+  useLayoutEffect, 
+} from 'react'
 // Locals
 import Spinner from '@/components/Suspense/Spinner'
 // Sections
@@ -22,7 +29,7 @@ import {
   BessiSkillScoresType,
   SkillDomainFactorType,
   BessiUserDemographics__DynamoDB,
-} from '@/utils/assessments/bessi/types'
+} from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -40,6 +47,7 @@ type BessiUserSharedResultsType = {
 
 
 const rateUserResults = true
+const ASSESSMENT_NAME = 'bessi'
 
 
 
@@ -80,17 +88,15 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
   }, [ isAccessTokenExpired, accessToken ])
 
 
+  // --------------------------- Async functions -------------------------------
   async function getUserResults() {
     try {
-      const response = await fetch('/bessi/assessment/api/share-results', {
+      const response = await fetch('/api/assessment/share-results', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
-          id: id,
-          accessToken: accessToken,
-        })
+        body: JSON.stringify({ id, accessToken })
       })
 
       const json = await response.json()
@@ -109,7 +115,7 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
       } else if (json.error === 'Access token expired') {
         setIsAccessTokenExpired(true)
       } else {
-        const error = `Error posting BESSI results to DynamoDB: `
+        const error = `Error posting ${ ASSESSMENT_NAME } results to DynamoDB: `
         /**
          * @todo Handle error UI here
         */
@@ -124,7 +130,8 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
     }
   }
 
-
+  
+  // ----------------------------- `useLayoutEffect`s --------------------------
   useLayoutEffect(() => {
     if (!id || !accessToken) {
       setIsDataLoading(true)
@@ -148,6 +155,7 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
 
 
 
+
   return (
     <>
       { isDataLoading ? (
@@ -160,7 +168,7 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
             } }
           >
             <Spinner height='40' width='40' />
-          </div>  
+          </div>
         </>
       ) : (
         <>

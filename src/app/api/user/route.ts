@@ -3,16 +3,18 @@ import {
   GetParameterCommand, 
   GetParameterCommandInput, 
 } from '@aws-sdk/client-ssm'
-import { verify } from 'jsonwebtoken'
+import { decode, verify } from 'jsonwebtoken'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 // Locals
 import { 
   ssmClient,
+  CookieType,
   COOKIE_NAME,
-  LibsodiumUtils,
   fetchAwsParameter, 
   AWS_PARAMETER_NAMES,
+  getCookieSecretKey,
+  SSCrypto,
  } from '@/utils'
 
 
@@ -45,6 +47,7 @@ export async function GET(
 
     const JWT_SECRET = await fetchAwsParameter(AWS_PARAMETER_NAMES.JWT_SECRET)
 
+
     if (typeof JWT_SECRET === 'string') {
       /**
        * @dev 2. Verify token using the JWT secret
@@ -54,15 +57,61 @@ export async function GET(
 
         const message = 'User authenticated'
 
-        return NextResponse.json(
-          { message: message, },
-          { status: 200, },
+        const decoded = decode(tokenValue)
+
+        const encryptedEmail = (decoded as CookieType).email
+        const encryptedUsername = (decoded as CookieType).username
+        const encryptedIsAdmin = (decoded as CookieType).isAdmin
+
+        const SECRET_KEY = await fetchAwsParameter(
+          AWS_PARAMETER_NAMES.COOKIE_ENCRYPTION_SECRET_KEY
         )
+
+        if (typeof SECRET_KEY === 'string') {
+          const secretKeyCipher = Buffer.from(SECRET_KEY, 'hex')
+
+          const email = new SSCrypto().decrypt(
+            encryptedEmail.encryptedData,
+            secretKeyCipher,
+            encryptedEmail.iv
+          )
+          const username = new SSCrypto().decrypt(
+            encryptedUsername.encryptedData,
+            secretKeyCipher,
+            encryptedUsername.iv
+          )
+          const isAdmin = new SSCrypto().decrypt(
+            encryptedIsAdmin.encryptedData,
+            secretKeyCipher,
+            encryptedIsAdmin.iv
+          ) === 'true' ? true : false
+
+          const user = { email, username, isAdmin }
+
+
+          return NextResponse.json(
+            {
+              user,
+              message,
+            },
+            {
+              status: 200,
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            },
+          )
+        }
       } catch (error: any) {
         // Something went wrong
         return NextResponse.json(
           { error: error, },
-          { status: 400, },
+          { 
+            status: 400, 
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          },
         )
       }
     } else { // Return the error in the json of the `NextResponse`
@@ -71,7 +120,12 @@ export async function GET(
   } else {
     return NextResponse.json(
       { error: 'Method Not Allowed' },
-      { status: 405 },
+      { 
+        status: 405,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
     )
   }
 }

@@ -1,14 +1,12 @@
 // Externals
 import { FC, Fragment, useContext } from 'react'
 // Locals
-import NumberInput from '@/components/Input/Number'
 import InputWrapper from '@/components/Input/Wrapper'
+import TextOrNumberInput from '@/components/Input/TextOrNumber'
 // Contexts
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 // Constants
-import { 
-  INVALID_CHARS_FOR_NUMBERS 
-} from '@/utils/assessments/bessi/constants'
+import { INVALID_CHARS_FOR_NUMBERS } from '@/utils'
 // CSS
 import { inputMarginStyle } from '../..'
 import styles from '@/app/page.module.css'
@@ -31,9 +29,13 @@ const Input = () => {
 
   return (
     <>
-      <NumberInput name={ name } onChange={ onAgeChange }>
+      <TextOrNumberInput 
+        name={ name } 
+        onChange={ onAgeChange }
+        controls={{ type: 'number' }}
+      >
         { ` years` }
-      </NumberInput>
+      </TextOrNumberInput>
     </>
   )
 }

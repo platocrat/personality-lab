@@ -1,6 +1,7 @@
 // Externals
 import { 
   FC, 
+  // useRef,
   Fragment, 
   ReactNode, 
   Dispatch, 
@@ -8,11 +9,12 @@ import {
   SetStateAction,
 } from 'react'
 // Locals
+import useEnterKeyClick from '@/hooks/useEnterKeyClick'
+// Types
 import { InputLabelType } from '../types'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
-
 
 
 type RadioOrCheckboxInputProps = {
@@ -21,11 +23,12 @@ type RadioOrCheckboxInputProps = {
   inputLabels: InputLabelType[]
   style?: {
     outerWrapper?: CSSProperties
+    radioButtonText?: CSSProperties
     questionBodyStyle?: CSSProperties
     radioButtonInputStyle?: CSSProperties
     radioButtonLabelStyle?: CSSProperties
   }
-  onChange: (e: any, i: number) => void
+  onChange: (e: any, i?: number | undefined) => void
   legend?: string | ReactNode | undefined
   options?: {
     isVertical?: boolean
@@ -43,8 +46,9 @@ const RadioOrCheckboxInput: FC<RadioOrCheckboxInputProps> = ({
   itemIndex,
   inputLabels,
 }) => {
-  const _itemIndex = itemIndex ?? 0
-  
+  // // Refs
+  // const checkboxRef = useRef(null)
+
   const isInputLengthLong = inputLabels.length > 3
 
   const labelDisplay = isInputLengthLong ? 'flex' : 'block'
@@ -54,6 +58,7 @@ const RadioOrCheckboxInput: FC<RadioOrCheckboxInputProps> = ({
       ? 'block' 
       : 'flex'
     : ''
+
 
   function fragmentKey(inputLabel: InputLabelType, i: number): string {
     return `bubble-radio-input-id-${inputLabel.id}-${inputLabel.name}-${i}` 
@@ -68,6 +73,11 @@ const RadioOrCheckboxInput: FC<RadioOrCheckboxInputProps> = ({
     const suffix = `-itemIndex${itemIndex}-index${i}` 
     return prefix + suffix
   }
+
+  
+  // // Hooks
+  // useEnterKeyClick(checkboxRef)
+  
 
 
   return (
@@ -115,17 +125,29 @@ const RadioOrCheckboxInput: FC<RadioOrCheckboxInputProps> = ({
                      }}
                   >
                     <input
-                      required={ true }
+                      value={ i }
                       name={ inputName }
-                      // Use `i + 1` because we cannot sum a value of `0`
-                      value={ itemIndex ? i + 1 : i }
+                      // ref={ checkboxRef }
                       type={ options?.type ?? 'radio' }
                       className={ styles.radioButtonInput }
-                      id={ inputId(inputLabel, _itemIndex, i) }
+                      id={ inputId(inputLabel, itemIndex ?? 0, i) }
                       style={{ ...style?.radioButtonInputStyle }}
-                      onChange={ (e: any) => onChange(e, _itemIndex) }
+                      onChange={ (e: any) => onChange(e, i) }
+                      required={ 
+                        options?.type === 'checkbox' ? false : true
+                      }
                     />
-                    { inputLabel.name }
+
+                    { style?.radioButtonText 
+                      ? (
+                        <>
+                          <p style={ style?.radioButtonText }>
+                            { inputLabel.name }
+                          </p>
+                        </>
+                      )
+                      : <>{ inputLabel.name }</>
+                    }
                   </label>
                 </div>
               </Fragment>

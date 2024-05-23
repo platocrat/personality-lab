@@ -1,8 +1,10 @@
 // Utility functions
-import { getFacet, getSkillDomainAndWeight } from '..'
-import { BessiActivityType } from '../types'
+import { getFacet, getSkillDomainAndWeight } from '../utils'
+// Types
+import { Facet, SkillDomain } from '../enums'
 // Enums
-import { Facet, SkillDomain } from '../types/enums'
+import { BessiActivityType } from '../types'
+
 
 // Invalid characters for strings
 export const INVALID_CHARS_FOR_NUMBERS = ['-', '+', 'e', '.']
@@ -31,10 +33,10 @@ export const wellnessRatingDescriptions = [
 
 
 export const imgPaths = () => {
-  const basePath = `/icons/`
+  const basePath = `/icons`
   return {
-    svg: `${basePath}svg/`,
-    png: `${basePath}png/`,
+    svg: `${basePath}/svg/`,
+    png: `${basePath}/png/`,
   }
 }
 

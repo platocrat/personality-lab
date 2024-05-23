@@ -3,12 +3,6 @@ import {
   GetParameterCommand,
   GetParameterCommandInput, 
 } from '@aws-sdk/client-ssm'
-import { 
-  crypto_pwhash_str, 
-  crypto_pwhash_str_verify,
-  crypto_pwhash_OPSLIMIT_INTERACTIVE, 
-  crypto_pwhash_MEMLIMIT_INTERACTIVE 
-} from 'libsodium-wrappers-sumo'
 import { sign } from 'jsonwebtoken'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
@@ -16,15 +10,16 @@ import { QueryCommand, QueryCommandInput } from '@aws-sdk/lib-dynamodb'
 // Locals
 import { 
   MAX_AGE,
+  SSCrypto,
   ssmClient,
   COOKIE_NAME, 
   ddbDocClient,
-  LibsodiumUtils,
+  ACCOUNT_ADMINS,
   fetchAwsParameter, 
+  ACCOUNT__DYNAMODB,
   AWS_PARAMETER_NAMES,
   DYNAMODB_TABLE_NAMES,
  } from '@/utils'
-import { BESSI_accounts } from '../email/route'
 
 
 
@@ -33,17 +28,24 @@ export async function POST(
   res: NextResponse,
 ): Promise<NextResponse<{ message: string }> | NextResponse<{ error: any }>> {
   if (req.method === 'POST') {
-    const { email, username, password } = await req.json()     
+    const { 
+      email, 
+      username, 
+      password, // Password is already hashed
+    } = await req.json()     
+
+    const TableName = DYNAMODB_TABLE_NAMES.accounts
+    const KeyConditionExpression = 'email = :emailValue'
+    const ExpressionAttributeValues = { ':emailValue': email }
 
     const input: QueryCommandInput = {
-      TableName: DYNAMODB_TABLE_NAMES.BESSI_ACCOUNTS,
-      KeyConditionExpression: 'email = :emailValue',
-      ExpressionAttributeValues: {
-        ':emailValue': email,
-      }
+      TableName,
+      KeyConditionExpression,
+      ExpressionAttributeValues,
     }
 
     const command = new QueryCommand(input)
+
 
     /**
      * @dev 1. Verify username and password
@@ -51,14 +53,22 @@ export async function POST(
     try {
       const response = await ddbDocClient.send(command)
 
-      if (response.Items && (response.Items[0] as BESSI_accounts).password) {
-        const storedUsername = (response.Items[0] as BESSI_accounts).username
-        const hashedPassword = (response.Items[0] as BESSI_accounts).password
+      if (
+        response.Items && 
+        (response.Items[0] as ACCOUNT__DYNAMODB).password
+      ) {
+        const storedUsername = (response.Items[0] as ACCOUNT__DYNAMODB).username
+        const storedPassword = (response.Items[0] as ACCOUNT__DYNAMODB).password
 
         const verifiedUsername = storedUsername === username
-        const verifiedPassword = crypto_pwhash_str_verify(hashedPassword, password)
+        const verifiedPassword = new SSCrypto().verifyPassword(
+          password,
+          storedPassword.hash,
+          storedPassword.salt,
+        )
 
         const condition = `${ verifiedUsername }-${ verifiedPassword }`
+
 
         switch (condition) {
           // Code for when both username and password are verified
@@ -73,25 +83,29 @@ export async function POST(
               )
 
               if (typeof SECRET_KEY === 'string') {
-                const secretKeyUint8Array = LibsodiumUtils.base64ToUint8Array(
-                  SECRET_KEY
+                const secretKeyCipher = Buffer.from(SECRET_KEY, 'hex')
+
+                const encryptedEmail = new SSCrypto().encrypt(
+                  email, 
+                  secretKeyCipher
+                )
+                const encryptedUsername = new SSCrypto().encrypt(
+                  username, 
+                  secretKeyCipher
                 )
 
-                const encryptedEmail = await LibsodiumUtils.encryptData(
-                  email,
-                  secretKeyUint8Array
-                )
-                const encryptedUsername = await LibsodiumUtils.encryptData(
-                  username,
-                  secretKeyUint8Array
+                // Determine if the new user is an admin
+                const isAdmin = ACCOUNT_ADMINS.some(admin => admin.email === email)
+                const encryptedIsAdmin = new SSCrypto().encrypt(
+                  isAdmin.toString(), 
+                  secretKeyCipher
                 )
 
                 // Get timestamp after the username is validated.
                 const timestamp = new Date().getTime().toString()
-
-                const encryptedTimestamp = await LibsodiumUtils.encryptData(
-                  timestamp,
-                  secretKeyUint8Array
+                const encryptedTimestamp = new SSCrypto().encrypt(
+                  timestamp, 
+                  secretKeyCipher
                 )
 
                 /**
@@ -100,8 +114,9 @@ export async function POST(
                 const token = sign(
                   {
                     email: encryptedEmail,
+                    isAdmin: encryptedIsAdmin,
                     username: encryptedUsername,
-                    password: hashedPassword,
+                    password: storedPassword.hash,
                     timestamp: encryptedTimestamp
                   },
                   JWT_SECRET as string,
@@ -145,10 +160,16 @@ export async function POST(
                  * @dev 5. Return response
                  */
                 return NextResponse.json(
-                  { message: message },
+                  { 
+                    message: message,
+                    isAdmin,
+                  },
                   {
                     status: 200,
-                    headers: { 'Set-Cookie': cookieValue }
+                    headers: { 
+                      'Set-Cookie': cookieValue,
+                      'Content-Type': 'application/json'
+                    }
                   },
                 )
               } else {
@@ -191,7 +212,9 @@ export async function POST(
         )
       }
     } catch (error: any) {
-      if (error.message === `Cannot read properties of undefined (reading 'password')`) {
+      const errorMessage = `Cannot read properties of undefined (reading 'password')`
+
+      if (error.message === errorMessage) {
         return NextResponse.json(
           { message: 'Email not found' },
           { status: 200 },

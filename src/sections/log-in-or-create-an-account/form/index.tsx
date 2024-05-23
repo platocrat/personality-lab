@@ -5,55 +5,58 @@ import {
   useState, 
   Fragment, 
   Dispatch,
-  SetStateAction, 
+  SetStateAction,
+  useContext,
 } from 'react'
 import HCaptcha from '@hcaptcha/react-hcaptcha'
 // Locals
-import { H_CAPTCHA_SITE_KEY, debounce } from '@/utils'
 import IncorrectInput from './incorrect-input'
-import Spinner from '@/components/Suspense/Spinner'
 import PasswordValidation from './password-validation'
+// Components
+import Spinner from '@/components/Suspense/Spinner'
+// Contexts
+import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
+// Utils
+import { H_CAPTCHA_SITE_KEY, debounce } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
 
 
+
 export type FormProps = {
   buttonText: string
   state: {
-    email: string
     isSignUp: boolean
-    username: string
-    password: string
     isFirstStep: boolean
-    emailExists: boolean
     isUsernameTaken: boolean
     isEmailIncorrect: boolean
     isPasswordHashing: boolean
-    isWaitingForResponse: boolean
     isUsernameIncorrect: boolean
     isPasswordIncorrect: boolean
+    isWaitingForResponse: boolean
+    password: { hash: string, salt: string }
   }
   set: {
-    email: Dispatch<SetStateAction<string>>
-    password: Dispatch<SetStateAction<string>>
-    username: Dispatch<SetStateAction<string>>
     isUsernameTaken: Dispatch<SetStateAction<boolean>> 
     isEmailIncorrect: Dispatch<SetStateAction<boolean>>
     isPasswordHashing: Dispatch<SetStateAction<boolean>>
     isPasswordIncorrect: Dispatch<SetStateAction<boolean>>
     isUsernameIncorrect: Dispatch<SetStateAction<boolean>>
     isWaitingForResponse: Dispatch<SetStateAction<boolean>>
+    password: Dispatch<SetStateAction<{ hash: string,  salt: string }>>
   }
   handler: {
     handleLogIn: (e: any) => void
     handleSignUp: (e: any) => void
-    handleEmailExists: (e: any) => void
+    handleEmailWithPasswordExists: (e: any) => void
   }
 }
 
 
+
 const debounceTimeout = 300
+
 
 
 
@@ -63,6 +66,14 @@ const Form: FC<FormProps> = ({
   handler,
   buttonText,
 }) => {
+  // Contexts
+  const { 
+    email, 
+    username,
+    setEmail,
+    setUsername,
+  } = useContext(AuthenticatedUserContext)
+
   const [
     isHCaptchaVerificationSuccessful, 
     setIsHCaptchaVerificationSuccessful
@@ -79,25 +90,25 @@ const Form: FC<FormProps> = ({
     return state.isPasswordHashing || 
       state.isPasswordIncorrect ||
       state.isWaitingForResponse ||
-      state.isFirstStep && state.email === '' || 
-      !state.isFirstStep && state.email === '' ||
-      !state.isFirstStep && state.username === '' ||
-      !state.isFirstStep && state.password === '' ||
+      state.isFirstStep && email === '' || 
+      !state.isFirstStep && email === '' ||
+      !state.isFirstStep && username === '' ||
+      !state.isFirstStep && state.password.hash === '' ||
       state.isUsernameTaken ||
-      !state.isFirstStep && !isHCaptchaVerificationSuccessful ||
-      !state.isFirstStep  && state.isSignUp && !isValidPassword(state.password)
+      !state.isFirstStep && !isHCaptchaVerificationSuccessful
+      // || !state.isFirstStep  && state.isSignUp && !isValidPassword(state.password.hash)
         ? true
         : false
   }, [
-    state.email,
-    state.username,
+    email,
+    username,
     state.isSignUp,
-    state.password,
     state.isFirstStep,
+    state.password.hash,
     state.isUsernameTaken,
     state.isPasswordHashing,
-    state.isWaitingForResponse,
     state.isPasswordIncorrect,
+    state.isWaitingForResponse,
     isHCaptchaVerificationSuccessful,
   ])
 
@@ -139,7 +150,7 @@ const Form: FC<FormProps> = ({
     
     if (isValid) {
       set.isEmailIncorrect(false)
-      set.email(_)
+      setEmail(_)
     } else {
       set.isEmailIncorrect(true)
     }
@@ -148,7 +159,7 @@ const Form: FC<FormProps> = ({
 
   const debouncedOnEmailChange = useMemo(
     (): ((...args: any) => void) => debounce(onEmailChange, debounceTimeout),
-    [state.email]
+    [email]
   )
 
 
@@ -161,7 +172,7 @@ const Form: FC<FormProps> = ({
 
     if (isValid) {
       set.isUsernameIncorrect(false)
-      set.username(_)
+      setUsername(_)
     } else {
       set.isUsernameIncorrect(true)
     }
@@ -170,7 +181,7 @@ const Form: FC<FormProps> = ({
 
   const debouncedOnUsernameChange = useMemo(
     (): ((...args: any) => void) => debounce(onUsernameChange, debounceTimeout),
-    [state.username]
+    [username]
   )
 
 
@@ -194,8 +205,8 @@ const Form: FC<FormProps> = ({
 
       set.isPasswordHashing(true)
       // 2. Store encrypted password in database
-      hashPassword(_).then((hashedPassword: string): void => {
-        set.password(hashedPassword)
+      hashPassword(_).then((password: { hash: string, salt: string }): void => {
+        set.password(password)
         set.isPasswordHashing(false)
       })
     } else {
@@ -205,12 +216,6 @@ const Form: FC<FormProps> = ({
       set.isPasswordHashing(false)
     }
   }
-
-
-  const debouncedOnPasswordChange = useMemo(
-    (): ((...args: any) => void) => debounce(onPasswordChange, debounceTimeout),
-    [state.password]
-  )
 
 
   function isValidEmail(email: string): boolean {
@@ -298,11 +303,11 @@ const Form: FC<FormProps> = ({
         body: JSON.stringify({ password }),
       })
 
-      const { hashedPassword } = await response.json()
-      return hashedPassword
+      const { hash, salt } = await response.json()
+      return { hash, salt }
     } catch (error: any) {
       set.isPasswordHashing(false)
-      console.error(error)
+      throw new Error(error)
     }
   }
 
@@ -311,7 +316,7 @@ const Form: FC<FormProps> = ({
     e.preventDefault()
 
     if (state.isFirstStep) {
-      return handler.handleEmailExists(e)
+      return handler.handleEmailWithPasswordExists(e)
     } else if (state.isSignUp) {
       return handler.handleSignUp(e)
     } else {
@@ -359,7 +364,7 @@ const Form: FC<FormProps> = ({
     {
       name: 'password',
       placeholder: `Password`,
-      onChange: debouncedOnPasswordChange
+      onChange: onPasswordChange
     },
   ]
 
@@ -391,8 +396,8 @@ const Form: FC<FormProps> = ({
                     id={ fi.name }
                     name={ fi.name }
                     maxLength={ 28 }
-                    placeholder={ fi.placeholder }
                     type={ formInputType(i) }
+                    placeholder={ fi.placeholder }
                     onChange={ (e: any) => fi.onChange(e) }
                     style={ {
                       width: `310px`,
@@ -405,7 +410,17 @@ const Form: FC<FormProps> = ({
                     } }
                   />
                 </div>
-                <IncorrectInput i={ i } state={ state } />
+
+                <IncorrectInput 
+                  i={ i } 
+                  state={{
+                    isSignUp: state.isSignUp,
+                    isUsernameTaken: state.isUsernameTaken,
+                    isEmailIncorrect: state.isEmailIncorrect,
+                    isUsernameIncorrect: state.isUsernameIncorrect,
+                    isPasswordIncorrect: state.isPasswordIncorrect,
+                  }} 
+                />
               </Fragment>
             ))}
           </div>
@@ -421,11 +436,25 @@ const Form: FC<FormProps> = ({
 
           <div style={ { display: 'block', width: '100%' } }>
             <button
-              className={ styles.button }
+              className={ 
+                isButtonDisabled 
+                  ? '' 
+                  : styles.button
+              }
               disabled={ isButtonDisabled ? true : false }
               style={{
+                boxShadow: 
+                isButtonDisabled 
+                ? ' inset 0px 1px 6px rgba(0, 43, 68, 0.412)' 
+                : '',
                 cursor: isButtonDisabled ? 'not-allowed' : 'pointer',
-                backgroundColor: isButtonDisabled ? 'rgba(152, 152, 152, 0.30)' : ''
+                backgroundColor: isButtonDisabled ? 'rgba(152, 152, 152, 0.30)' : '',
+                borderRadius: `1rem`,
+                borderWidth: `1.2px`,
+                height: `35px`,
+                width: `100%`,
+                fontSize: `14px`,
+                color: `rgb(244, 244, 244)`,
               }}
               onClick={ (e: any) => handleSubmit(e) }
             >

@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from 'react'
 // Locals
 import Title from '../Title'
 // Constants
-import { domainToFacetMapping } from '@/utils/assessments/bessi/constants'
+import { domainToFacetMapping } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 
@@ -18,8 +18,7 @@ const TreeMap = ({
   isExample,
   data,
 }) => {
-  const d3Container = useRef(null)
-
+  const d3Container = useRef<HTMLDivElement | null>(null)
   const title = `BESSI Tree Map`
 
 

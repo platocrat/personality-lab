@@ -23,6 +23,7 @@ export async function POST(
     const parameterName = AWS_PARAMETER_NAMES.H_CAPTCHA_SECRET_KEY
     const parameter = await fetchAwsParameter(parameterName)
     
+
     try {
       const response = await fetch(VERIFY_URL, {
         method: METHOD,
@@ -32,16 +33,16 @@ export async function POST(
         body: `response=${ token }&secret=${ parameter }`
       })
 
-      const data = await response.json()
+      const json = await response.json()
 
-      if (data.success === true) {
+      if (json.success === true) {
         return NextResponse.json(
-          { success: data.success },
+          { success: json.success },
           { status: 200 }
         )
       } else {
         // Something went wrong
-        const error = data['error-codes']
+        const error = json['error-codes']
 
         return NextResponse.json(
           { error: `Something went wrong with the response: ${ error }` },

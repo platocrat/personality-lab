@@ -5,11 +5,9 @@ import InputWrapper from '@/components/Input/Wrapper'
 // Contexts
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 // Constants
-import { 
-  INVALID_CHARS_EXCEPT_NUMBERS,
-} from '@/utils/assessments/bessi/constants'
+import { INVALID_CHARS_EXCEPT_NUMBERS } from '@/utils'
 // Enums
-import { USState } from '@/utils/bessi/types/enums'
+import { USState } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 
@@ -38,12 +36,13 @@ const Input = () => {
   const selectName = `us-state`
   const inputName = 'zip-code'
 
+
   return (
     <>
       <select 
         name={ selectName }
-        onChange={ (e: any) => onUsLocationChange(e) }
         style={ { margin: '0px 0px 4px 12px' } }
+        onChange={ (e: any) => onUsLocationChange(e) }
       >
         <option value={ 'Select' }>{ `Please select` }</option>
 
@@ -57,11 +56,11 @@ const Input = () => {
 
       { inputLabel }
       <input
-        onChange={ (e: any) => onZipCodeChange(e) }
-        style={{ margin: '0px 0px 0px 12px' }}
         type='text'
         maxLength={ 5 }
         name={ inputName }
+        style={{ margin: '0px 0px 0px 12px' }}
+        onChange={ (e: any) => onZipCodeChange(e) }
         onKeyDown={ (e: any): any => {
           if (INVALID_CHARS_EXCEPT_NUMBERS.includes(e.key)) {
             e.preventDefault()

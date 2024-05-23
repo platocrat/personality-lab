@@ -4,37 +4,40 @@ import { decode } from 'jsonwebtoken'
 import { useRouter } from 'next/navigation'
 import { FC, Fragment, useContext, useEffect, useState } from 'react'
 // Locals
-import BessiQuestionnaire from './questionnaire'
 import BessiAssessmentInstructions from './instructions'
 import BessiDemographicQuestionnaire from '../demographic-questionnaire'
 // Components
+import FormButton from '@/components/Buttons/Form'
 import Spinner from '@/components/Suspense/Spinner'
+import Questionnaire from '@/components/Questionnaire'
 // Contexts
-import { UserScoresContext } from '@/contexts/UserScoresContext'
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
-// Utility functions
-import LibsodiumUtils from '@/utils/libsodium'
-import { AWS_PARAMETER_NAMES, calculateBessiScores } from '@/utils'
-// Types
-import { 
-  UserScoresType,
-  FacetFactorType,
-  SkillDomainFactorType,
-  BessiUserResults__DynamoDB,
-  BessiUserDemographics__DynamoDB,
-} from '@/utils/assessments/bessi/types'
-// Enums
+// Utilities
 import { 
   Gender, 
   YesOrNo,
   USState,
+  getFacet,
   SocialClass, 
+  UserScoresType,
+  wellnessRatings,
+  getAccessToken,
+  FacetFactorType,
   RaceOrEthnicity, 
+  bessiActivityBank,
+  AWS_PARAMETER_NAMES, 
   CurrentMaritalStatus, 
+  calculateBessiScores,
+  SkillDomainFactorType,
   HighestFormalEducation, 
+  getSkillDomainAndWeight,
   CurrentEmploymentStatus,
-} from '@/utils/bessi/types/enums'
+  BessiUserResults__DynamoDB,
+  wellnessRatingDescriptions,
+  getUsernameAndEmailFromCookie,
+  BessiUserDemographics__DynamoDB,
+} from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -42,6 +45,13 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 type BessiProps = {}
+
+
+
+const TITLE = `BESSI`
+const BUTTON_TEXT = `Submit`
+const ASSESSMENT_NAME = 'bessi'
+
 
 
 const BessiAssessment: FC<BessiProps> = ({ }) => {
@@ -56,11 +66,11 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
     usState,
     zipCode,
     isParent,
-    foreignCountry,
-    isFluentInEnglish,
-    priorCompletion,
     socialClass,
+    foreignCountry,
     raceOrEthnicity,
+    priorCompletion,
+    isFluentInEnglish,
     currentMaritalStatus,
     highestFormalEducation,
     currentEmploymentStatus,
@@ -73,13 +83,47 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
     setUserScores
   ] = useState<{ [key: string]: UserScoresType } | null>(null)
   // Booleans
+  const [ 
+    isEndOfQuestionnaire, 
+    setIsEndOfQuestionnaire 
+  ] = useState<boolean>(false)
   const [ isLoadingResults, setIsLoadingResults ] = useState<boolean>(false)
-    
+  // Numbers
+  const [ currentQuestionIndex, setCurrentQuestionIndex ] = useState<number>(0)
 
-  const title = `BESSI`
-  const buttonText = `Submit`
-  const subtitle = `Instructions.`
 
+  const questions = bessiActivityBank.map(
+    bessiActivity => bessiActivity.activity
+  )
+
+
+    //------------------------- Regular function handlers ----------------------
+  function onWellnessRatingChange(e: any, questionIndex: number) {
+    const { value } = e.target
+
+    // Use `questionIndex + 1` because `bessiActivityBank` has no value for 0.
+    const activityIndex = questionIndex + 1
+
+    const _userScore: UserScoresType = {
+      facet: getFacet(activityIndex),
+      ...getSkillDomainAndWeight(getFacet(activityIndex)),
+      response: parseInt(value)
+    }
+
+    setUserScores({
+      ...userScores,
+      [ `${ activityIndex }` ]: _userScore
+    })
+
+    // Move to the next question after a short delay
+    if (questionIndex < questions.length - 1) {
+      const timeout = 28 // 300ms delay for the transition effect
+
+      setTimeout(() => {
+        setCurrentQuestionIndex(questionIndex + 1)
+      }, timeout)
+    }
+  }
 
 
   // --------------------------- Async functions -------------------------------
@@ -90,7 +134,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
       // 1. Trigger suspense
       setIsLoadingResults(true)
       
-      console.log(`userScores: `, userScores)
+      // console.log(`userScores: `, userScores)
 
       // 2. Calculate domain and facet scores
       let finalScores: {
@@ -100,12 +144,12 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
         domainScores: SkillDomainFactorType
       } = calculateBessiScores(Object.values(userScores))
 
-      console.log('finalScores: ', finalScores)
+      // console.log('finalScores: ', finalScores)
 
       // 3. Store `userResults` in DynamoDB and generate its respective ID
       const userResultsId = await storeResultsInDynamoDB(finalScores)
       // 4. Use ID of `userResults` to generate access token
-      const accessToken = await getAccessToken(userResultsId)
+      const accessToken = await getAccessToken(ASSESSMENT_NAME, userResultsId)
 
       // 4. Create new object with final scores and access token to cache on 
       //    the client so that we can use the access token to share the user's
@@ -118,16 +162,15 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
 
       // 5. Store final scores in React state
       setBessiSkillScores(finalScores)
-      
       // 6.  Navigate to the results page
-      const href = '/bessi/assessment/results'
-      
-      // 7. End suspense
-      setIsLoadingResults(false)
-      
-      // 8. Use router to route the user the results page
+      const href = `/${ ASSESSMENT_NAME }/assessment/results`
+      // 7. Use router to route the user the results page
       router.push(href)
-      
+      // 8. End suspense after 1 second delay
+      setTimeout(() => {
+        setIsLoadingResults(false)
+      }, 1_000)
+
       /**
        * @dev Refactor `sendEmail()` function to use SendGrid instead of
        * Postmark. Reach out to Dr. Roberts to get the API key necessary for
@@ -151,11 +194,11 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
       usState: usState,
       zipCode: zipCode,
       isParent: isParent,
-      foreignCountry: foreignCountry,
-      englishFluency: isFluentInEnglish,
-      priorCompletion: priorCompletion,
       socialClass: socialClass,
+      foreignCountry: foreignCountry,
+      priorCompletion: priorCompletion,
       raceOrEthnicity: raceOrEthnicity,
+      englishFluency: isFluentInEnglish,
       currentMaritalStatus: currentMaritalStatus,
       highestFormalEducation: highestFormalEducation,
       currentEmploymentStatus: currentEmploymentStatus,
@@ -163,7 +206,8 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
 
     const CURRENT_TIMESTAMP = new Date().getTime()
     
-    const email = await getUserEmailFromCookie()
+    const { email, username } = await getUsernameAndEmailFromCookie()
+
 
     if (email === undefined) {
       /**
@@ -175,16 +219,21 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
        * @dev This is the object that we store in DynamoDB using AWS's 
        * `PutItemCommand` operation.
        */
-      const userResults: Omit<BessiUserResults__DynamoDB, "id">  = {
+      const userResults: Omit<BessiUserResults__DynamoDB, "id"> & { 
+        username: string
+        assessmentName: string
+      } = {
         email: email,
+        username: username,
         timestamp: CURRENT_TIMESTAMP,
         facetScores: finalScores.facetScores,
         domainScores: finalScores.domainScores,
+        assessmentName: ASSESSMENT_NAME,
         demographics: DEMOGRAPHICS,
       }
 
       try {
-        const response = await fetch('/bessi/assessment/api/results', {
+        const response = await fetch('/api/assessment/results', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -198,13 +247,19 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
           const userResultsId = json.data
           return userResultsId
         } else {
-          const error = `Error posting BESSI results to DynamoDB: `
+          setIsLoadingResults(false)
+          
+          const error = `Error posting ${ 
+            ASSESSMENT_NAME.toUpperCase() 
+          } results to DynamoDB: `
           /**
            * @todo Handle error UI here
            */
           throw new Error(error, json.error)
         }
       } catch (error: any) {
+        setIsLoadingResults(false)
+
         /**
          * @todo Handle error UI here
          */
@@ -214,174 +269,6 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
     }
   }
 
-
-  async function getAccessToken(userResultsId: string) {
-    if (!userResultsId) {
-      /**
-       * @todo Replace the line below by handling the error on the UI here
-       */
-      throw new Error(
-        `Error: 'userResultsId' is invalid, see 'userResultsId': ${ 
-          userResultsId 
-        }!`
-      )
-    } else {
-      try {
-        const response = await fetch('/bessi/assessment/api/access-token', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ userResultsId: userResultsId }),
-        })
-
-        const json = await response.json()
-
-        if (response.status === 200) {
-          const accessToken = json.data
-          return accessToken
-        } else {
-          const error = `Error posting BESSI results to DynamoDB: `
-          /**
-           * @todo Handle error UI here
-           */
-          throw new Error(error, json.error)
-        }
-      } catch (error: any) {
-        /**
-         * @todo Handle error UI here
-         */
-        throw new Error(`Error! `, error)
-
-      }
-    }
-  }
-
-
-  /**
-   * @dev Note that the password that is returned is a hashed password
-   */
-  async function getUserEmailFromCookie() {
-    type CookieType = { email: string,  username: string, password: string }
-    
-    try {
-      const response = await fetch('/bessi/assessment/api/aws-parameter', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          parameterName: AWS_PARAMETER_NAMES.JWT_SECRET
-         }),
-      })
-
-      const data = await response.json()
-
-      if (response.status === 200) {
-        const JWT_SECRET: string = data.secret
-        const cookies = document.cookie        
-        const token = cookies.split('=')[0]
-        
-        // Cannot use `verify()` because it is only used server-side
-        const decoded = decode(token)
-        const encryptedEmail = (decoded as CookieType).email
-
-        const SECRET_KEY = await getCookieSecretKey(encryptedEmail)
-        const email = await LibsodiumUtils.decryptData(encryptedEmail, SECRET_KEY)
-
-        return email
-      } else {
-        throw new Error(
-          `Error getting ${AWS_PARAMETER_NAMES.JWT_SECRET }: ${ data.error }`
-        )
-        /**
-         * @todo Handle error UI here
-         */
-      }
-    } catch (error: any) {
-      throw new Error(
-        `Error fetching ${ AWS_PARAMETER_NAMES.JWT_SECRET } from API route! ${ error }`
-      )
-      /**
-       * @todo Handle error UI here
-       */
-    }
-  }
-
-
-  async function getCookieSecretKey(encryptedEmail: string) {
-    try {
-      const response = await fetch('/bessi/assessment/api/aws-parameter', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          parameterName: AWS_PARAMETER_NAMES.COOKIE_ENCRYPTION_SECRET_KEY
-        }),
-      })
-
-      const data = await response.json()
-
-      if (response.status === 200) {
-        const SECRET_KEY: string = data.secret
-        return LibsodiumUtils.base64ToUint8Array(SECRET_KEY)
-      } else {
-        throw new Error(
-          `Error getting ${AWS_PARAMETER_NAMES.COOKIE_ENCRYPTION_SECRET_KEY}: ${data.error}`
-        )
-        /**
-         * @todo Handle error UI here
-         */
-      }
-    } catch (error: any) {
-      throw new Error(
-        `Error fetching ${AWS_PARAMETER_NAMES.COOKIE_ENCRYPTION_SECRET_KEY} from API route! ${error}`
-      )
-      /**
-       * @todo Handle error UI here
-       */
-    }
-  }
-  
-
-  async function sendEmail() {
-    const email = await getUserEmailFromCookie()
-
-    if (email === undefined) {
-      /**
-       * @todo Replace the line below by handling the error UI here
-       */
-      throw new Error(`Error getting email from cookie!`)
-    } else {
-      // Send email
-      try {
-        const response = await fetch('/bessi/assessment/api/email', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email }),
-        })
-
-        const data = await response.json()
-
-        if (response.status === 200) {
-          console.log(`data: `, data)
-        } else {
-          throw new Error(`Error getting JWT secret: ${data.error}`,)
-          /**
-           * @todo Handle error UI here
-           */
-        }
-      } catch (error: any) {
-        throw new Error(`Error! ${error}`)
-        /**
-         * @todo Handle error UI here
-         */
-      }
-    }
-  }
 
 
 
@@ -392,21 +279,8 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
           className={ styles.grayColor }
           onSubmit={ (e: any): Promise<void> => handleSubmit(e) }
         >
-          <h2 className={ styles.assessmentTitle }>{ title }</h2>
-          
-          <BessiAssessmentInstructions />
+          <h2 className={ styles.assessmentTitle }>{ TITLE }</h2>
 
-          <UserScoresContext.Provider
-            value={{
-              userScores,
-              setUserScores,
-            }}
-          >
-            <BessiQuestionnaire />
-          </UserScoresContext.Provider>
-
-          <BessiDemographicQuestionnaire />
-          
           { isLoadingResults ? (
             <>
               <div
@@ -416,7 +290,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
                   flexDirection: 'column',
                 } }
               >
-                <div style={{ marginBottom: '24px' }}>
+                <div style={ { marginBottom: '24px' } }>
                   <p>{ `Loading results...` }</p>
                 </div>
                 <Spinner height='40' width='40' />
@@ -424,11 +298,29 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
             </>
           ) : (
             <>
-            <div style={{ float: 'right' }}>
-              <button className={ styles.button } style={{ width: '75px' }}>
-                { buttonText }
-              </button>
-            </div>
+              <BessiAssessmentInstructions />
+
+              <Questionnaire
+                questions={ questions }
+                controls={{ valueType: 'number' }}
+                onChange={ onWellnessRatingChange }
+                choices={ wellnessRatingDescriptions }
+                currentQuestionIndex={ currentQuestionIndex }
+                setIsEndOfQuestionnaire={ setIsEndOfQuestionnaire }
+              />
+
+              { isEndOfQuestionnaire && (
+                <>
+                  <BessiDemographicQuestionnaire />
+                  <FormButton 
+                    buttonText={ BUTTON_TEXT }
+                    state={{
+                      isSubmitting: isLoadingResults,
+                      hasSubmitted: isLoadingResults,
+                    }}
+                  />
+                </>
+              ) }
             </>
           ) }
         </form>

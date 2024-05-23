@@ -5,7 +5,7 @@ import InputWrapper from '@/components/Input/Wrapper'
 // Contexts
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 // Enums
-import { YesOrNo } from '@/utils/bessi/types/enums'
+import { YesOrNo } from '@/utils'
 // CSS
 import { inputMarginStyle } from '../..'
 import styles from '@/app/page.module.css'
@@ -33,12 +33,13 @@ const Input = () => {
       { Object.values(YesOrNo).map((yesOrNo: string, i: number) => (
         <Fragment key={ `prior-completion-${i}` }>
           <input
-            required={ true }
-            onChange={ (e: any) => onPriorCompletionChange(e) }
-            style={ inputMarginStyle }
             type='radio'
-            name='prior-completion'
+            required={ true }
             value={ yesOrNo }
+            name='prior-completion'
+            style={ inputMarginStyle }
+            className={ styles.radioButtonInput }
+            onChange={ (e: any) => onPriorCompletionChange(e) }
           />
           { yesOrNo }
         </Fragment>

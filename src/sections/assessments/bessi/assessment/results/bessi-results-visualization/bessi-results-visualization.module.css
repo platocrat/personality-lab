@@ -1,0 +1,84 @@
+.dropdownButton {
+  border: none;
+  display: flex;
+  cursor: pointer;
+  padding: 2px 16px;
+  flex-direction: row;
+  border-radius: 3rem;
+  justify-content: center;
+  background-color: rgba(0, 80, 172, 0.0514);
+  outline: 0.1px outset rgba(0, 80, 172, 0.514);
+  box-shadow: 0px 4px 6px 0px rgba(0, 0, 0, 0.1);
+
+  transform: scale(1);
+
+  transition: 0.1s ease-in-out;
+}
+
+.dropdownButton:hover {
+  padding: 2px 32px;
+  border-radius: 3rem;
+  background-color: rgba(0, 80, 172, 0.114);
+  transform: scale(0.98);
+
+  transition: 0.1s ease-in-out;
+}
+
+.dropdown {
+  left: 0;
+  right: 0;
+  top: 100%;
+  z-index: 10;
+  width: 300px;
+  display: flex;
+  list-style: none;
+  text-align: left;
+  margin-left: auto;
+  margin-right: auto;
+  position: absolute;
+  text-align: center;
+  flex-direction: column;
+  background-color: white;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.1);
+}
+
+.dropdownItem {
+  /* padding: 0px 24px; */
+  background-color: #0050ac1d;
+  transition: 0.15s ease-in-out;
+  cursor: pointer;
+
+  background-color: white;
+  color: black;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.dropdownItem:hover {
+  background-color: #f0f0f0;
+    /* Light grey background on hover */
+  color: blue;
+  /* Change text color on hover */
+}
+
+.dropdownIcon {
+  margin-left: 8px;
+  transform: rotate(-90deg);
+  transition: transform 0.1s ease;
+}
+
+.dropdownButton:hover .dropdownIcon {
+  transform: rotate(-90deg) translateY(4px);
+  transition: transform 0.1s ease;
+  /* Smooth transition for translation */
+}
+
+.rotated {
+  transform: rotate(0deg);
+  transition: transform 0.1s ease;
+  /* Smooth transition for rotation */
+}
+
+.dropdownButton:hover .rotated {
+  transform: rotate(0deg) translateY(1px);
+  transition: transform 0.1s ease;
+}

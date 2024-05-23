@@ -4,10 +4,11 @@ import React, { useRef, useEffect } from 'react'
 
 
 const UVIndexChart = ({ uvValue = 1, currentHour = 0 }) => {
-  const ref = useRef<any>()
+  const d3Container = useRef<SVGSVGElement | null>(null)
+
 
   useEffect(() => {
-    const svg = d3.select(ref.current)
+    const svg = d3.select(d3Container.current)
     const width = +svg.attr('width')
     const height = +svg.attr('height')
     const outerRadius = Math.min(width, height) / 2
@@ -105,9 +106,7 @@ const UVIndexChart = ({ uvValue = 1, currentHour = 0 }) => {
   }, [uvValue, currentHour])
 
   return (
-    <svg ref={ ref } width={ 300 } height={ 300 }>
-      {/* D3 will create the UV index chart here */ }
-    </svg>
+    <svg ref={ d3Container } width={ 300 } height={ 300 } />
   )
 }
 

@@ -5,7 +5,7 @@ import InputWrapper from '@/components/Input/Wrapper'
 // Contexts
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 // Enums
-import { Gender } from '@/utils/bessi/types/enums'
+import { Gender } from '@/utils'
 // CSS
 import { inputMarginStyle } from '../..'
 import styles from '@/app/page.module.css'
@@ -30,12 +30,13 @@ const Input = () => {
       { Object.values(Gender).map((gender: string, i: number) => (
         <Fragment key={ `gender-${i}` }>
           <input
-            required={ true }
-            onChange={ (e: any) => onGenderChange(e) }
-            style={ inputMarginStyle }
-            type='radio'
             name='gender'
+            type='radio'
             value={ gender }
+            required={ true }
+            style={ inputMarginStyle }
+            className={ styles.radioButtonInput }
+            onChange={ (e: any) => onGenderChange(e) }
           />
           { gender }
         </Fragment>

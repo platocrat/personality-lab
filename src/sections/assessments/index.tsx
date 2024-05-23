@@ -7,12 +7,14 @@ import Card from '@/components/Card'
 import StellarPlot from '@/components/DataViz/StellarPlot'
 // Sections
 import BessiDescription from './bessi/description'
-import GenderAndCreativityUsDescription from './gender-and-creativity-us/description'
+import BigFiveDescription from './big-five/descriptions/entrance'
 import BessiResultsVisualization from './bessi/assessment/results/bessi-results-visualization'
-// Constants
-import { dummyVariables } from '@/utils/assessments/bessi/constants'
-// Types
-import { SkillDomainFactorType } from '@/utils/assessments/bessi/types'
+// Utils
+import { 
+  bessiActivityBank,
+  dummyVariables,
+  SkillDomainFactorType 
+} from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -47,8 +49,8 @@ const pAssessments: PersonalityAssessmentType[] = [
   {
     buttonText: `Begin`,
     title: `Big Five, Vocational Interests, and Creativity Test`,
-    description: <GenderAndCreativityUsDescription />,
-    href: `/gender-and-creativity-us`,
+    description: <BigFiveDescription />,
+    href: `/big-five`,
   },
   {
     buttonText: `Begin`,
@@ -91,7 +93,13 @@ const PersonalityAssessments = ({ }) => {
             />
             {
               i !== pAssessments.length - 1
-                ? <div className={ styles.divider } />
+                ? (
+                  <>
+                    <div style={ definitelyCenteredStyle }>
+                      <div className={ styles.divider } />
+                    </div>
+                  </>
+                )
                 : null
             }
           </Fragment>

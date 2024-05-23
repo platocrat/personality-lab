@@ -13,6 +13,9 @@ import styles from '@/components/Header/Header.module.css'
 type HeaderProps = { }
 
 
+const navTitle = `Personality Lab`
+
+
 
 const Header: FC<HeaderProps> = ({}) => {  
   // Contexts
@@ -21,7 +24,6 @@ const Header: FC<HeaderProps> = ({}) => {
   const router = useRouter()
   const pathname = usePathname()
 
-  const navTitle = `NavTitle`
 
   const links: NavLink[] = [
     { label: 'Profile', href: '/profile' },
@@ -32,9 +34,9 @@ const Header: FC<HeaderProps> = ({}) => {
   // Handle logout logic
   async function handleLogout() {
     try {
-      const logoutResponse = await fetch('/api/logout', { method: 'POST' })
+      const response = await fetch('/api/logout', { method: 'POST' })
 
-      if (logoutResponse.status === 200) {
+      if (response.status === 200) {
         // Remove authentication from user
         setIsAuthenticated(false)
         // Refresh page to show log-in view

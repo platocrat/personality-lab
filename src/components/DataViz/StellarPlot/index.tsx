@@ -12,7 +12,7 @@ const StellarPlot = ({
   isExample,
   data
 }) => {
-  const ref = useRef<any>(null)
+  const d3Container = useRef<HTMLDivElement | null>(null)
 
   const title = `BESSI Stellar Plot`
 
@@ -27,9 +27,9 @@ const StellarPlot = ({
       )
 
     // Remove any existing svg to avoid duplicates
-    d3.select(ref.current).select('svg').remove()
+    d3.select(d3Container.current).select('svg').remove()
 
-    const svg = d3.select(ref.current)
+    const svg = d3.select(d3Container.current)
       .append('svg')
       .attr('width', width)
       .attr('height', height - 60)
@@ -140,7 +140,7 @@ const StellarPlot = ({
         .attr('y1', 0)
         .attr('x2', rScale(d.value) * Math.cos(angleSlice * i - Math.PI / 2)) // Extend to the data point
         .attr('y2', rScale(d.value) * Math.sin(angleSlice * i - Math.PI / 2))
-        .attr('stroke', colorScale(`${d.value}`))
+        .attr('stroke', colorScale(`${d.axis}`))
         .attr('stroke-width', 15)
         .attr('stroke-opacity', 0.5)
 
@@ -157,7 +157,7 @@ const StellarPlot = ({
         .attr('y2', midY)
         .attr('stroke', colorScale(`${d.value}`))
         .attr('stroke-width', 1) // Make this line thinner to enhance the tapered effect
-        .attr('stroke-opacity', 0.7) // Optional: adjust opacity for stylistic effect
+        .attr('stroke-opacity', 0.65) // Optional: adjust opacity for stylistic effect
 
       const columnIndex = Math.floor(i / itemsPerColumn) // Determine which column this item belongs to
       const xPosition = (columnIndex * columnWidth) + 10 // Calculate the x position based on the column
@@ -169,7 +169,8 @@ const StellarPlot = ({
         .attr('y', yPosition)
         .attr('width', 10) // Size of the legend symbol
         .attr('height', 10)
-        .style('fill', colorScale(`${d.value}`)) // Or dynamically set based on data
+        .style('fill', colorScale(`${d.axis}`)) // Or dynamically set based on data
+        .style('opacity', '0.75') // Match the opacity of the tapered lines
 
       // Add legend text
       legend.append('text')
@@ -185,7 +186,7 @@ const StellarPlot = ({
   return (
     <>
       <Title isExample={ isExample } title={ title } />
-      <div ref={ ref } style={ definitelyCenteredStyle }></div>
+      <div ref={ d3Container } style={ definitelyCenteredStyle } />
     </>
   )
 }

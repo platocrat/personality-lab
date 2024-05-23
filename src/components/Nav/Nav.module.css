@@ -6,12 +6,12 @@
 }
 
 .navTitle:hover {
-  transform: scale(0.925);
+  transform: scale(0.96);
   transition: 0.11s;
 }
 
 .navTitle:active {
-  transform: scale(0.85);
+  transform: scale(0.91);
   transition: 0.11s;
 }
 
