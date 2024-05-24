@@ -95,7 +95,7 @@ export async function POST(
 
 
 /**
- * @dev GET aall studies for the `adminEmail` or get a single study by ID
+ * @dev GET all studies for the `adminEmail` or get a single study by ID
  * @param req 
  * @param res 
  * @returns 
@@ -172,8 +172,9 @@ export async function GET(
                 }
               )
             } else {
-              const message = `'No studies found for '${adminEmail}' in the ${TableName
-                } table`
+              const message = `'No studies found for '${
+                adminEmail
+              }' in the ${TableName} table`
 
               // Something went wrong
               return NextResponse.json(

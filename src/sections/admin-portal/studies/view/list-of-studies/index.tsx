@@ -99,7 +99,7 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
             style={ {
               ...definitelyCenteredStyle,
               position: 'relative',
-              marginTop: '24px',
+              margin: '24px 0px',
             } }
           >
             <Spinner height='40' width='40' />
@@ -114,49 +114,63 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
                 overflowX: 'auto',
               } }
             >
-              <table className={ sectionStyles.table }>
-                <thead>
-                  <tr>
-                    { TABLE_HEADERS.map((name: string, i: number) => (
-                      <Fragment key={ i }>
-                        <th
-                          style={{
-                            width: name === 'Allowed Submissions' ? '70px' : ''
-                          }}
-                        >
-                          { name }
-                        </th>
-                      </Fragment>
-                    )) }
-                  </tr>
-                </thead>
-                <tbody>
-                  { studies.map((study: STUDY__DYNAMODB, i: number) => (
-                    <Fragment key={ i }>
+              { studies ? (
+                <>
+                  <table className={ sectionStyles.table }>
+                    <thead>
                       <tr>
-                        <td>{ study.id.slice(0, 6) + '...' }</td>
-                        <td>{ study.name }</td>
-                        <td>{ study.isActive ? 'Yes' : 'No' }</td>
-                        <td>{ new Date(study.timestamp).toLocaleString() }</td>
-                        <td>{ study.adminEmails.join(', ') }</td>
-                        <td>{ study.details.description }</td>
-                        <td>{ study.details.allowedSubmissionsPerParticipant }</td>
-                        <td>
-                          <Link href={ `/view-studies/study/${study.id.toString()}` }>
-                            <button
-                              type='button'
-                              style={ { width: '100px' } }
-                              className={ appStyles.button }
+                        { TABLE_HEADERS.map((name: string, i: number) => (
+                          <Fragment key={ i }>
+                            <th
+                              style={{
+                                width: name === 'Allowed Submissions' ? '70px' : ''
+                              }}
                             >
-                              { `View Study` }
-                            </button>
-                          </Link>
-                        </td>
+                              { name }
+                            </th>
+                          </Fragment>
+                        )) }
                       </tr>
-                    </Fragment>
-                  )) }
-                </tbody>
-              </table>
+                    </thead>
+                    <tbody>
+                      { studies.map((study: STUDY__DYNAMODB, i: number) => (
+                        <Fragment key={ i }>
+                          <tr>
+                            <td>{ study.id.slice(0, 6) + '...' }</td>
+                            <td>{ study.name }</td>
+                            <td>{ study.isActive ? 'Yes' : 'No' }</td>
+                            <td>{ new Date(study.timestamp).toLocaleString() }</td>
+                            <td>{ study.adminEmails.join(', ') }</td>
+                            <td>{ study.details.description }</td>
+                            <td>{ study.details.allowedSubmissionsPerParticipant }</td>
+                            <td>
+                              <Link href={ `/view-studies/study/${study.id.toString()}` }>
+                                <button
+                                  type='button'
+                                  style={ { width: '100px' } }
+                                  className={ appStyles.button }
+                                >
+                                  { `View Study` }
+                                </button>
+                              </Link>
+                            </td>
+                          </tr>
+                        </Fragment>
+                      )) }
+                    </tbody>
+                  </table>
+                </>
+              ) : (
+                <>
+                  <div style={{ ...definitelyCenteredStyle }}>
+                    <p>
+                      <strong>
+                        { `No studies were found.` }
+                      </strong>
+                    </p>
+                  </div>
+                </>
+              ) }
             </div>
         </>
       ) }

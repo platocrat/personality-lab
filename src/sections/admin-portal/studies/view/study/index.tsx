@@ -184,6 +184,8 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
         if (response.status === 500) throw new Error(json.error)
         if (response.status === 405) throw new Error(json.error)
 
+        console.log(`json: `, json)
+
         const participants_ = json.study.participants
 
         console.log(`participants_: `, participants_)
@@ -192,6 +194,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
         setParticipantCreated(false)
         setIsWaitingForResponse(false)
       } catch (error: any) {
+        setIsWaitingForResponse(false)
         throw new Error(error.message)
       }
     }

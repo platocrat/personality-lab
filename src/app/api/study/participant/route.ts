@@ -84,6 +84,25 @@ export async function POST(
          *      the user's account entry.
          */
         const storedTimestamp = (response.Items[0] as ACCOUNT__DYNAMODB).timestamp
+        // We also need `studyNames` to merge with the study name of the new
+        // `participant` entry
+        const storedStudyNames = (response.Items[0] as ACCOUNT__DYNAMODB).studyNames
+
+        const updatedStudyNames = storedStudyNames 
+          ? [ ...storedStudyNames, participant.studyNames[0] ]
+          : [ participant.studyNames[0] ]
+
+
+        const participantWithUpdatedStudyNames = {
+          id: participantId,
+          email: participant.email,
+          username: participant.username,
+          studyNames: updatedStudyNames,
+          adminEmail: participant.adminEmail,
+          adminUsername: participant.adminUsername,
+          isNobelLaureate: participant.isNobelLaureate,
+          timestamp: participant.timestamp,
+        }
 
         // 1.2.1.2 Construct the `UpdateCommand` to send to DynamoDB
         const Key = {
@@ -92,7 +111,9 @@ export async function POST(
         }
         const UpdateExpression = 'set participant = :participant'
         
-        ExpressionAttributeValues = { ':participant': participant_ }
+        ExpressionAttributeValues = { 
+          ':participant': participantWithUpdatedStudyNames
+        }
 
         input = {
           TableName,
@@ -123,15 +144,17 @@ export async function POST(
           // 2.1 Construct `QueryCommand` to get the `ownerEmail` that we will use as
           //     the partition/primary key to then perform the `UpdateCommand` to
           //     update the same study entry's `participant` property.
-          TableName = DYNAMODB_TABLE_NAMES.studies
+          const IndexName = 'id-index'
+
           KeyConditionExpression = 'id = :idValue'
           ExpressionAttributeValues = { ':idValue': studyId }
 
           input = {
             TableName,
+            IndexName,
             KeyConditionExpression,
             ExpressionAttributeValues,
-          }
+          } as QueryCommandInput
 
           command = new QueryCommand(input)
 
@@ -144,15 +167,26 @@ export async function POST(
 
             // 2.2.1 If `ownerEmail` exists...
             if (response.Items && response.Items.length > 0) {
+              const timestamp = (response.Items as STUDY__DYNAMODB[])[0].timestamp
               const ownerEmail = (response.Items as STUDY__DYNAMODB[])[0].ownerEmail
+              const previousParticipants = (response.Items as STUDY__DYNAMODB[])[0].participants
 
+              // Update list of participants using existing participants.
+              const updatedParticipants = previousParticipants 
+                ? [ ...previousParticipants, participant_ ] 
+                : [ participant_ ]
 
               // 2.2.1.1 Construct the `UpdateCommand` to update the `participant`
               //         property of the study entry in the `studies` table. 
-              const Key = { ownerEmail: ownerEmail }
-              const UpdateExpression = 'set participant = :participant'
+              const Key = { 
+                ownerEmail,
+                timestamp
+              }
+              const UpdateExpression = 'set participants = :participants'
 
-              ExpressionAttributeValues = { ':participant': participant_ }
+              ExpressionAttributeValues = { 
+                ':participants': updatedParticipants
+              }
 
               input = {
                 TableName,
@@ -224,11 +258,11 @@ export async function POST(
               )
             }
           } catch (error: any) {
-          console.log(
-            `Error using ID '${studyId}' to perform Query operation on '${TableName
-            }' to get ownerEmail: `,
-            error
-          )
+            console.log(
+              `Error using ID '${studyId}' to perform Query operation on '${TableName
+              }' to get ownerEmail: `,
+              error
+            )
 
 
             // Error sending POST request to DynamoDB table
@@ -242,24 +276,6 @@ export async function POST(
               },
             )
           }
-
-
-
-          const message = successMessage || 'Operation successful'
-
-          // Return `participantId`
-          return NextResponse.json(
-            {
-              message: message,
-              data: participantId,
-            },
-            {
-              status: 200,
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            }
-          )
         } catch (error: any) {
           console.log(
             `Error performing Update operation on EXISTING account entry in the '${
@@ -342,92 +358,101 @@ export async function POST(
         command = new QueryCommand(input)
 
 
-        // 2.2 Attempt to perform Query operation to get `ownerEmail`
+        // 2.2 Attempt to perform Query operation to get `ownerEmail` 
+        //     partition key and `timestamp` sort key: both are required for
+        //     `UpdateCommand`
         try {
           const response = await ddbDocClient.send(command)
 
 
-          // // 2.2.1 If `ownerEmail` exists...
-          // if (response.Items && response.Items.length > 0) {
-          //   const ownerEmail = (response.Items as STUDY__DYNAMODB[])[0].ownerEmail
+          // 2.2.1 If `ownerEmail` exists...
+          if (response.Items && response.Items.length > 0) {
+            const timestamp = (response.Items as STUDY__DYNAMODB[])[0].timestamp
+            const ownerEmail = (response.Items as STUDY__DYNAMODB[])[0].ownerEmail
+            const previousParticipants = (response.Items as STUDY__DYNAMODB[])[0].participants
+
+            // Update list of participants using existing participants.
+            const updatedParticipants = previousParticipants
+              ? [ ...previousParticipants, participant_ ]
+              : [ participant_ ]
 
 
-          //   // 2.2.1.1 Construct the `UpdateCommand` to update the `participant`
-          //   //         property of the study entry in the `studies` table. 
-          //   const Key = { ownerEmail: ownerEmail }
-          //   const UpdateExpression = 'set participant = :participant'
+            // 2.2.1.1 Construct the `UpdateCommand` to update the `participant`
+            //         property of the study entry in the `studies` table. 
+            const Key = { ownerEmail, timestamp }
+            const UpdateExpression = 'set participants = :participants'
 
-          //   ExpressionAttributeValues = { ':participant': participant_ }
+            ExpressionAttributeValues = { ':participants': updatedParticipants }
 
-          //   input = {
-          //     TableName,
-          //     Key,
-          //     UpdateExpression,
-          //     ExpressionAttributeValues
-          //   }
+            input = {
+              TableName,
+              Key,
+              UpdateExpression,
+              ExpressionAttributeValues
+            }
 
-          //   command = new UpdateCommand(input)
-
-
-          //   const successMessage = `'participants' property for study ID ${studyId
-          //     } has been updated in the ${TableName} table`
+            command = new UpdateCommand(input)
 
 
-          //   /**
-          //    * @dev 2.2.1.2 Attempt to perform the `UpdateCommand` on DynamoDB to 
-          //    *              update the `participant` property on the study entry 
-          //    *              for this ID in the `studies` table
-          //    */
-          //   try {
-          //     const response = await ddbDocClient.send(command)
-
-          //     // console.log(`response: `, response)
+            const successMessage = `'participants' property for study ID ${studyId
+              } has been updated in the ${TableName} table`
 
 
-          //     const message = successMessage || 'Operation successful'
+            /**
+             * @dev 2.2.1.2 Attempt to perform the `UpdateCommand` on DynamoDB to 
+             *              update the `participant` property on the study entry 
+             *              for this ID in the `studies` table
+             */
+            try {
+              const response = await ddbDocClient.send(command)
 
-          //     // Return `participantId`
-          //     return NextResponse.json(
-          //       {
-          //         message: message,
-          //         data: participantId,
-          //       },
-          //       {
-          //         status: 200,
-          //         headers: {
-          //           'Content-Type': 'application/json',
-          //         },
-          //       }
-          //     )
-          //   } catch (error: any) {
-          //     console.log(
-          //       `Error performing Update operation on the '${TableName
-          //       }' table to update the 'participants' property: `,
-          //       error
-          //     )
+              // console.log(`response: `, response)
 
-          //     // Something went wrong
-          //     return NextResponse.json(
-          //       { error: error },
-          //       {
-          //         status: 500,
-          //         headers: {
-          //           'Content-Type': 'application/json',
-          //         },
-          //       }
-          //     )
-          //   }
-          // } else {
-          //   return NextResponse.json(
-          //     { message: 'Owner email does not exist' },
-          //     {
-          //       status: 404,
-          //       headers: {
-          //         'Content-Type': 'application/json'
-          //       }
-          //     },
-          //   )
-          // }
+
+              const message = successMessage || 'Operation successful'
+
+              // Return `participantId`
+              return NextResponse.json(
+                {
+                  message: message,
+                  data: participantId,
+                },
+                {
+                  status: 200,
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                }
+              )
+            } catch (error: any) {
+              console.log(
+                `Error performing Update operation on the '${TableName
+                }' table to update the 'participants' property: `,
+                error
+              )
+
+              // Something went wrong
+              return NextResponse.json(
+                { error: error },
+                {
+                  status: 500,
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                }
+              )
+            }
+          } else {
+            return NextResponse.json(
+              { message: 'Owner email does not exist' },
+              {
+                status: 404,
+                headers: {
+                  'Content-Type': 'application/json'
+                }
+              },
+            )
+          }
         } catch (error: any) {
           console.log(
             `Error using ID '${ studyId }' to perform Query operation on '${
@@ -452,21 +477,6 @@ export async function POST(
 
 
 
-        // const message = successMessage || 'Operation successful'
-
-        // // Return `participantId`
-        // return NextResponse.json(
-        //   {
-        //     message: message,
-        //     data: participantId,
-        //   },
-        //   {
-        //     status: 200,
-        //     headers: {
-        //       'Content-Type': 'application/json',
-        //     },
-        //   }
-        // )
       } catch (error: any) {
         console.log(
           `Error performing Update operation on the NEW account entry '${
