@@ -3,7 +3,7 @@
 // Externals
 import { FC, useLayoutEffect, useState } from 'react'
 // Locals
-import ViewStudySection from '@/sections/main-portal/studies/view/study'
+import StudyInviteSection from '@/sections/invite'
 // Components
 import Spinner from '@/components/Suspense/Spinner'
 // UTils
@@ -13,7 +13,7 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
-type ViewStudyProps = {
+type StudyInviteProps = {
   params: {
     id: string // Study ID
   }
@@ -21,20 +21,20 @@ type ViewStudyProps = {
 
 
 
-const ViewStudy: FC<ViewStudyProps> = ({
+const StudyInvite: FC<StudyInviteProps> = ({
   params
 }) => {
   // URL params
   const { id } = params
   // States
-  const [ isLoadingStudy, setIsLoadingStudy ] = useState(false)
-  const [ study, setStudy ] = useState<STUDY__DYNAMODB | null>(null)
+  const [isLoadingStudy, setIsLoadingStudy] = useState(false)
+  const [study, setStudy] = useState<STUDY__DYNAMODB | null>(null)
 
 
   // --------------------------- Async functions -------------------------------
   async function getStudy() {
     try {
-      const response = await fetch(`/api/study?id=${ id }`, {
+      const response = await fetch(`/api/study?id=${id}`, {
         method: 'GET',
       })
 
@@ -67,7 +67,7 @@ const ViewStudy: FC<ViewStudyProps> = ({
 
       Promise.all(requests)
     }
-  }, [ id ])
+  }, [id])
 
 
 
@@ -87,10 +87,7 @@ const ViewStudy: FC<ViewStudyProps> = ({
         </>
       ) : (
         <>
-          <ViewStudySection
-            studyName={ study?.name } 
-            studyDescription={ study?.details.description }
-          />
+          <StudyInviteSection study={ study } />
         </>
       ) }
     </>
@@ -98,4 +95,4 @@ const ViewStudy: FC<ViewStudyProps> = ({
 }
 
 
-export default ViewStudy
+export default StudyInvite

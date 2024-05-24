@@ -125,7 +125,7 @@ const CreateStudy: FC<CreateStudyProps> = ({
     setIsCreatingStudy(false)
 
     // Generate invite link URL
-    const inviteLinkURL = `https://example.com/invite?studyId=${study.id}`
+    const inviteLinkURL = `http://localhost:3000/invite/${study.id}`
     setInviteLink(inviteLinkURL)
   }
 
