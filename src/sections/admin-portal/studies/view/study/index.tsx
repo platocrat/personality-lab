@@ -186,6 +186,8 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
 
         const participants_ = json.study.participants
 
+        console.log(`participants_: `, participants_)
+
         setParticipants(participants_)
         setParticipantCreated(false)
         setIsWaitingForResponse(false)
@@ -245,8 +247,9 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
 
 
         if (response.status === 200) {
-          const participantId = json.participantId
-          return participantId
+          // const participantId = json.participantId
+          // return participantId
+          return json
         } else {
           setParticipantCreated(false)
 
@@ -388,11 +391,15 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
                   )) }
                 </div>
 
-                {/* Table of participants */ }
-                <ParticipantsTable
-                  participants={ participants }
-                  handleViewObserverResults={ handleViewObserverResults }
-                />
+                { participants && participants.length > 0 && (
+                  <>
+                    {/* Table of participants */ }
+                    <ParticipantsTable
+                      participants={ participants }
+                      handleViewObserverResults={ handleViewObserverResults }
+                    />
+                  </>
+                )}
 
                 {/* Modals */ }
                 <CreateParticipantModal
