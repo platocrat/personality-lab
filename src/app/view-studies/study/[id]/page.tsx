@@ -3,7 +3,7 @@
 // Externals
 import { FC, useLayoutEffect, useState } from 'react'
 // Locals
-import ViewStudySection from '@/sections/admin-portal/studies/view/study'
+import ViewStudySection from '@/sections/main-portal/studies/view/study'
 // Components
 import Spinner from '@/components/Suspense/Spinner'
 // UTils

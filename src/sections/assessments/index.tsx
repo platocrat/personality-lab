@@ -48,15 +48,15 @@ const title = `Assessments`
 const pAssessments: PersonalityAssessmentType[] = [
   {
     buttonText: `Begin`,
-    title: `Big Five, Vocational Interests, and Creativity Test`,
-    description: <BigFiveDescription />,
-    href: `/big-five`,
-  },
-  {
-    buttonText: `Begin`,
     title: `The BESSI`,
     description: <BessiDescription />,
     href: `/bessi`,
+  },
+  {
+    buttonText: `Begin`,
+    title: `Big Five, Vocational Interests, and Creativity Test`,
+    description: <BigFiveDescription />,
+    href: `/big-five`,
   },
   // {
   //   buttonText: `Begin`,
@@ -79,31 +79,33 @@ const PersonalityAssessments = ({ }) => {
 
   return (
     <Fragment key={ `personality-assessments` }>
-      <div style={{ marginBottom: '8px' }}>
-        <h1>{ title }</h1>
-      </div>
-      <div className={ styles.assessmentWrapper }>
-        { pAssessments.map((pa: PersonalityAssessmentType, i: number) => (
-          <Fragment key={ fragmentKey(pa, i) }>
-            <Card
-              href={ pa.href }
-              title={ pa.title }
-              buttonText={ pa.buttonText }
-              description={ pa.description }
-            />
-            {
-              i !== pAssessments.length - 1
+      <div className={ styles.main }>
+        <div style={{ marginBottom: '8px' }}>
+          <h1>{ title }</h1>
+        </div>
+        <div className={ styles.assessmentWrapper }>
+          { pAssessments.map((pa: PersonalityAssessmentType, i: number) => (
+            <Fragment key={ fragmentKey(pa, i) }>
+              <Card
+                href={ pa.href }
+                title={ pa.title }
+                buttonText={ pa.buttonText }
+                description={ pa.description }
+                />
+              {
+                i !== pAssessments.length - 1
                 ? (
                   <>
-                    <div style={ definitelyCenteredStyle }>
-                      <div className={ styles.divider } />
-                    </div>
-                  </>
-                )
-                : null
-            }
-          </Fragment>
-        )) }
+                      <div style={ definitelyCenteredStyle }>
+                        <div className={ styles.divider } />
+                      </div>
+                    </>
+                  )
+                  : null
+                }
+            </Fragment>
+          )) }
+        </div>
       </div>
     </Fragment>
   )

@@ -1,6 +1,6 @@
 // Locals
 // Sections
-import ViewStudies from '@/sections/admin-portal/studies/view'
+import ViewStudies from '@/sections/main-portal/studies/view'
 // CSS
 import styles from '@/app/page.module.css'
 

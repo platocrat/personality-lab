@@ -4,7 +4,7 @@
 import { useContext, useMemo } from 'react'
 // Locals
 // Sections
-import AdminPortal from '@/sections/admin-portal'
+import MainPortal from '@/sections/main-portal'
 import PersonalityAssessments from '@/sections/assessments'
 import LogInOrCreateAnAccount from '@/sections/log-in-or-create-an-account'
 // Contexts
@@ -22,15 +22,8 @@ export default function Home() {
 
   return (
     <>
-      <main className={ `${isAdmin ? '' : styles.main }` }>
-        { isAuthenticated 
-          ? (
-            <>
-              { isAdmin ? <AdminPortal /> : <PersonalityAssessments /> }
-            </>
-          )
-          : <LogInOrCreateAnAccount /> 
-        }
+      <main>
+        { isAuthenticated ? <MainPortal /> : <LogInOrCreateAnAccount /> }
       </main>
     </>
   )

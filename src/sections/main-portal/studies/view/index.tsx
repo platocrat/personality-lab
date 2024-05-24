@@ -9,7 +9,7 @@ import ListOfStudies from './list-of-studies'
 import LeftHandNav from '@/components/Nav/LeftHand'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
-import styles from '@/sections/admin-portal/studies/view/ViewStudies.module.css'
+import styles from '@/sections/main-portal/studies/view/ViewStudies.module.css'
 
 
 

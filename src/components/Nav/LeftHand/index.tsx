@@ -26,6 +26,15 @@ const BUTTONS = [
     ), 
     href: '/view-studies',
   },
+  { 
+    text: (
+      <div style={ definitelyCenteredStyle }>
+        <p style={{ marginRight: '8px' }}>{ '📝' }</p>
+        <p>{ `Assessments` }</p>
+      </div>
+    ), 
+    href: '/assessments',
+  },
 ]
 
 

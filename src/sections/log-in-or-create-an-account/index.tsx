@@ -25,6 +25,7 @@ import {
   SkillDomainFactorType 
 } from '@/utils'
 // CSS
+import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
 
 
@@ -309,22 +310,24 @@ const LogInOrCreateAnAccount = () => {
 
   return (
     <>
-      <Card
-        title={ title }
-        description={ description }
-        cssStyle={{ maxWidth: '450px' }}
-        options={{
-          hasForm: true,
-          isSignUp: isSignUp,
-          isFirstStep: isFirstStep,
-          formContent: <Form
+      <div className={ styles.main }>
+        <Card
+          title={ title }
+          description={ description }
+          cssStyle={{ maxWidth: '450px' }}
+          options={{
+            hasForm: true,
+            isSignUp: isSignUp,
+            isFirstStep: isFirstStep,
+            formContent: <Form
             set={ set } 
             state={ state } 
             handler={ handler }
             buttonText={ buttonText } 
-          />
-        }}
-      />
+            />
+          }}
+        />
+      </div>
     </>
   )
 }

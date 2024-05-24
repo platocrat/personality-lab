@@ -1,12 +1,12 @@
 // Locals
 // Sections
-import CreateStudy from '@/sections/main-portal/studies/create'
+import LeftHandNav from '@/components/Nav/LeftHand'
+import PersonalityAssessments from '@/sections/assessments'
 // CSS
 import styles from '@/app/page.module.css'
-import LeftHandNav from '@/components/Nav/LeftHand'
 
 
-const PAGE_FRAGMENT_ID = 'create-study'
+const PAGE_FRAGMENT_ID = 'view-studies'
 
 
 
@@ -15,7 +15,7 @@ export default function _() {
     <>
       <main>
         <LeftHandNav>
-          <CreateStudy />
+          <PersonalityAssessments />
         </LeftHandNav>
       </main>
     </>

@@ -44,6 +44,7 @@ const CreateStudy: FC<CreateStudyProps> = ({
     ownerEmail: '',
     isActive: false,
     adminEmails: [],
+    participants: [],
     details: {
       description: '',
       allowedSubmissionsPerParticipant: 1,
