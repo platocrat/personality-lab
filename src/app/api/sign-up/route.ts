@@ -244,7 +244,7 @@ export async function POST(
 
     /**
      * @dev 2.0 Construct the `QueryCommand` to check if the username exists in
-     *         the DynamoDB Table
+     *         the `accounts table
      */
     const IndexName = 'username-index'
 

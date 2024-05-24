@@ -63,7 +63,7 @@ const CreateParticipantModal: FC<CreateParticipantModalProps> = ({
               width: '65%',
               height: '50%',
               maxWidth: '350px',
-              maxHeight: '500px',
+              maxHeight: '350px',
               textAlign: 'center'
             }}
           >
