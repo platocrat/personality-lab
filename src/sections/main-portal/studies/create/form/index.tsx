@@ -10,8 +10,8 @@ import { useRouter } from 'next/navigation'
 import Spinner from '@/components/Suspense/Spinner'
 // Utils
 import {
-  AVAILABLE_ASSESSMENTS,
   STUDY__DYNAMODB,
+  AVAILABLE_ASSESSMENTS,
   getUsernameAndEmailFromCookie,
 } from '@/utils'
 // CSS

@@ -186,11 +186,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
         if (response.status === 500) throw new Error(json.error)
         if (response.status === 405) throw new Error(json.error)
 
-        console.log(`json: `, json)
-
         const participants_ = json.study.participants
-
-        console.log(`participants_: `, participants_)
 
         setParticipants(participants_)
         setParticipantCreated(false)
@@ -252,9 +248,8 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
 
 
         if (response.status === 200) {
-          // const participantId = json.participantId
-          // return participantId
-          return json
+          const participantId = json.participantId
+          return participantId
         } else {
           setParticipantCreated(false)
 
@@ -271,7 +266,6 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
          * @todo Handle error UI here
          */
         throw new Error(`Error! `, error)
-
       }
     }
   }
@@ -368,8 +362,8 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
                 {/* Study Description */}
                 <div
                   style={ {
-                    textAlign: 'left',
                     fontSize: '13px',
+                    textAlign: 'left',
                     margin: '12px 24px 0px 48px',
                   } }
                 >
@@ -380,9 +374,9 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
               <div
                 style={ {
                   ...definitelyCenteredStyle,
-                  flexDirection: 'column',
                   width: '100%',
                   fontSize: '13px',
+                  flexDirection: 'column',
                 } }
               >
                 {/* Page Nav */ }
@@ -397,9 +391,9 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
                     <Fragment key={ i }>
                       <div>
                         <button
-                          style={ { width: '140px' } }
-                          className={ styles.button }
                           onClick={ btn.onClick }
+                          style={{ width: '140px' }}
+                          className={ styles.button }
                         >
                           { btn.buttonText }
                         </button>
@@ -443,7 +437,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
                   selectedParticipant={ selectedParticipant }
                   onEventHandlers={ {
                     handleOnViewResults,
-                    onViewResultsChange
+                    onViewResultsChange,
                   } }
                 />
               </div>

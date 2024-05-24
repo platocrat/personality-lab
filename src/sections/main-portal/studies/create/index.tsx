@@ -27,10 +27,6 @@ type CreateStudyProps = {
 
 
 
-const VIEW_STUDIES_HREF = '/view-studies'
-
-
-
 
 const CreateStudy: FC<CreateStudyProps> = ({
 
@@ -57,6 +53,7 @@ const CreateStudy: FC<CreateStudyProps> = ({
     setInvalidEmailMessage 
   ] = useState<string | null>(null)
   const [ newAdminEmail, setNewAdminEmail ] = useState('')
+  const [ inviteLink, setInviteLink ] = useState<string | null>(null)
   const [ newStudyCreated, setNewStudyCreated ] = useState<boolean>(false)
   const [ isCreatingStudy, setIsCreatingStudy ] = useState<boolean>(false)
 
@@ -124,18 +121,17 @@ const CreateStudy: FC<CreateStudyProps> = ({
     e.preventDefault()
 
     setIsCreatingStudy(true)
-
     await storeStudyInDynamoDB()
-
-    router.push(VIEW_STUDIES_HREF)
-
     setIsCreatingStudy(false)
+
+    // Generate invite link URL
+    const inviteLinkURL = `https://example.com/invite?studyId=${study.id}`
+    setInviteLink(inviteLinkURL)
   }
 
 
   async function storeStudyInDynamoDB() {
     const { email, username } = await getUsernameAndEmailFromCookie()
-
 
     if (email === undefined) {
       /**
@@ -154,7 +150,7 @@ const CreateStudy: FC<CreateStudyProps> = ({
         adminEmails: [...study.adminEmails],
       }
 
-
+      
       try {
         const response = await fetch('/api/study', {
           method: 'POST',
@@ -197,28 +193,54 @@ const CreateStudy: FC<CreateStudyProps> = ({
   return (
     <>
       <div className={ `${sectionStyles['form-container']} ` }>
-        <div style={{ ...definitelyCenteredStyle, marginBottom: '12px' }}>
-          <h3>{ `Create a new study` }</h3>
-        </div>
-        
-        <CreateStudyForm 
-          study={ study }
-          onSubmit={ handleCreateStudy }
-          states={{
-            newAdminEmail,
-            isCreatingStudy,
-            newStudyCreated,
-            invalidEmailMessage,
-          }}
-          onClickHandlers={{
-            addAdminEmail,
-            removeAdminEmail
-          }}
-          onChangeHandlers={{
-            handleChange,
-            handleAdminEmailChange,
-          }}
-        />
+        {/* Display invite link */ }
+        { inviteLink ? (
+          <>
+            <div style={ { ...definitelyCenteredStyle, marginBottom: '24px' } }>
+              <h3>{ `Your study was created!` }</h3>
+            </div>
+
+            <div>
+              <p style={{ marginBottom: '8px' }}>
+                { `Here's your invite link:` }
+              </p>
+              <input
+                type='text'
+                value={ inviteLink }
+                readOnly
+                onClick={ (e) => {
+                  e.preventDefault()
+                  e.currentTarget.select()
+                } }
+                />
+            </div>
+          </>
+        ) : (
+          <>
+            <div style={ { ...definitelyCenteredStyle, marginBottom: '12px' } }>
+              <h3>{ `Create a new study` }</h3>
+            </div>
+
+            <CreateStudyForm
+              study={ study }
+              onSubmit={ handleCreateStudy }
+              states={ {
+                newAdminEmail,
+                isCreatingStudy,
+                newStudyCreated,
+                invalidEmailMessage,
+              } }
+              onClickHandlers={ {
+                addAdminEmail,
+                removeAdminEmail
+              } }
+              onChangeHandlers={ {
+                handleChange,
+                handleAdminEmailChange,
+              } }
+            />
+          </>
+        )}
       </div>
     </>
   )
