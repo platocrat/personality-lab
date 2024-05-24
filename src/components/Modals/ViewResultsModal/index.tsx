@@ -44,7 +44,7 @@ export type AssessmentToViewType = {
 
 const BUTTON_TEXT = `View Results`
 
-const title = (name: string) => `For ${ name }, which assessment you would like to see results for?`
+const TITLE = (name: string) => `For ${ name }, which assessment you would like to see results for?`
 const NO_RESULTS_TITLE = 'There are no results for this participant to view'
 
 
@@ -169,7 +169,7 @@ const ViewResultsModal: FC<ViewResultsModalProps> = ({
                 {/* Title */ }
                 <div style={ { width: '300px', marginBottom: '12px' } }>
                   <h3>
-                      { title(
+                      { TITLE(
                           selectedParticipant 
                             ? selectedParticipant.username 
                             : ''
@@ -185,6 +185,7 @@ const ViewResultsModal: FC<ViewResultsModalProps> = ({
                       style={ {
                         ...definitelyCenteredStyle,
                         position: 'relative',
+                        margin: '48px 0px'
                       } }
                     >
                       <Spinner height='40' width='40' />
