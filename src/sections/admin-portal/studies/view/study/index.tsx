@@ -11,6 +11,8 @@ import { usePathname } from 'next/navigation'
 // Locals
 import ParticipantsTable from './participants-table'
 // Components
+import LeftHandNav from '@/components/Nav/LeftHand'
+import Spinner from '@/components/Suspense/Spinner'
 import ViewResultsModal from '@/components/Modals/ViewResultsModal'
 import DownloadDataModal from '@/components/Modals/AdminPortal/DownloadData'
 import CreateParticipantModal from '@/components/Modals/AdminPortal/CreateParticipant'
@@ -25,14 +27,12 @@ import {
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
-import LeftHandNav from '@/components/Nav/LeftHand'
-import Spinner from '@/components/Suspense/Spinner'
 
 
 
 
 type ViewStudySectionProps = {
-  studyName
+  studyName: string | undefined
 }
 
 
@@ -150,7 +150,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
     const participant: ParticipantType = {
       email: participantEmail,
       username: participantUsername,
-      studyNames: [ studyName ],
+      studyNames: [ studyName ?? '' ],
       isNobelLaureate: isNobelLaureate,
     }
 
@@ -171,35 +171,36 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
    *      the `participants` property from the `study` object
    */
   async function getParticipants() {
-    setIsWaitingForResponse(true)
+    if (studyId !== '') {
+      setIsWaitingForResponse(true)
 
-    try {
-      const response = await fetch(`/api/study?id=${ studyId }`, {
-        method: 'GET',
-      })
-      
-      const json = await response.json()
+      try {
+        const response = await fetch(`/api/study?id=${ studyId }`, {
+          method: 'GET',
+        })
+        
+        const json = await response.json()
 
-      if (response.status === 500) throw new Error(json.error)
-      if (response.status === 405) throw new Error(json.error)
+        if (response.status === 500) throw new Error(json.error)
+        if (response.status === 405) throw new Error(json.error)
 
-      const participants_ = json.study.participants
+        const participants_ = json.study.participants
 
-      setParticipants(participants_)
-      setParticipantCreated(false)
-      setIsWaitingForResponse(false)
-    } catch (error: any) {
-      throw new Error(error.message)
+        setParticipants(participants_)
+        setParticipantCreated(false)
+        setIsWaitingForResponse(false)
+      } catch (error: any) {
+        throw new Error(error.message)
+      }
     }
   }
 
 
   async function getStudyId() {
-    setStudyId(
-      pathname.slice(
-        pathname.indexOf('/study/') + '/study/'.length
-      )
+    const _ = pathname.slice(
+      pathname.indexOf('/study/') + '/study/'.length
     )
+    setStudyId(_)
   }
 
 
@@ -320,14 +321,14 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
         >
           { isWaitingForResponse ? (
             <>
-            <div
-              style={ {
-                ...definitelyCenteredStyle,
-                position: 'relative',
-              } }
-            >
-              <Spinner height='40' width='40' />
-            </div>
+              <div
+                style={ {
+                  ...definitelyCenteredStyle,
+                  position: 'relative',
+                } }
+              >
+                <Spinner height='40' width='40' />
+              </div>
             </>
           ) : (
             <>
