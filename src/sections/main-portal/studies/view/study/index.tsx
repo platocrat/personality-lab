@@ -33,6 +33,7 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 
 type ViewStudySectionProps = {
   studyName: string | undefined
+  studyDescription: string | undefined
 }
 
 
@@ -40,7 +41,8 @@ type ViewStudySectionProps = {
 
 
 const ViewStudySection: FC<ViewStudySectionProps> = ({
-  studyName
+  studyName,
+  studyDescription,
 }) => {
   // Hooks
   const pathname = usePathname()
@@ -344,9 +346,11 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
                   flexDirection: 'column'
                 } }
               >
+                {/* Study Name */}
                 <h3 style={ { marginBottom: '4px' } }>
                   { `${ studyName }` }
                 </h3>
+                {/* Study ID */}
                 <div
                   style={ {
                     ...definitelyCenteredStyle,
@@ -360,6 +364,16 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
                   <p>
                     { studyId }
                   </p>
+                </div>
+                {/* Study Description */}
+                <div
+                  style={ {
+                    textAlign: 'left',
+                    fontSize: '13px',
+                    margin: '12px 24px 0px 48px',
+                  } }
+                >
+                  <p>{ studyDescription }</p>
                 </div>
               </div>
 

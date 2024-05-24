@@ -32,14 +32,13 @@ type ListOfStudiesProps = {
 
 
 const TABLE_HEADERS = [
-  `ID`,
+  // `ID`,
   `Name`,
-  `Active?`,
+  `Assessment ID`,
+  `Status`,
   `Date`,
   `Admin Emails`,
-  `Description`,
   `Allowed Submissions`,
-  ``,
 ]
 
 
@@ -86,7 +85,7 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
     ]
 
     Promise.all(requests)
-  }, [  ])
+  }, [ email ])
 
 
 
@@ -136,12 +135,12 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
                       { studies.map((study: STUDY__DYNAMODB, i: number) => (
                         <Fragment key={ i }>
                           <tr>
-                            <td>{ study.id.slice(0, 6) + '...' }</td>
+                            {/* <td>{ study.id.slice(0, 6) + '...' }</td> */}
                             <td>{ study.name }</td>
-                            <td>{ study.isActive ? 'Yes' : 'No' }</td>
+                            <td>{ study.details.assessmentId }</td>
+                            <td>{ study.isActive ? 'ACTIVE' : 'INACTIVE' }</td>
                             <td>{ new Date(study.timestamp).toLocaleString() }</td>
                             <td>{ study.adminEmails.join(', ') }</td>
-                            <td>{ study.details.description }</td>
                             <td>{ study.details.allowedSubmissionsPerParticipant }</td>
                             <td>
                               <Link href={ `/view-studies/study/${study.id.toString()}` }>

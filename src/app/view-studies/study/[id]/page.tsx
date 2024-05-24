@@ -88,7 +88,10 @@ const ViewStudy: FC<ViewStudyProps> = ({
         </>
       ) : (
         <>
-          <ViewStudySection studyName={ study?.name } />
+          <ViewStudySection 
+            studyName={ study?.name } 
+            studyDescription={ study?.details.description }
+          />
         </>
       ) }
     </>

@@ -8,3 +8,15 @@ export const ACCOUNT_ADMINS = [
     name: 'Jack Winfield',
   },
 ]
+
+
+export const AVAILABLE_ASSESSMENTS = [
+  {
+    id: 'bessi',
+    name: 'BESSI'
+  },
+  {
+    id: 'big-five',
+    name: 'Big Five'
+  },
+]

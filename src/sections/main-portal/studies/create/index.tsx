@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation'
 import Spinner from '@/components/Suspense/Spinner'
 // Utils
 import { 
+  AVAILABLE_ASSESSMENTS,
   STUDY__DYNAMODB, 
   getUsernameAndEmailFromCookie,
 } from '@/utils'
@@ -47,6 +48,7 @@ const CreateStudy: FC<CreateStudyProps> = ({
     participants: [],
     details: {
       description: '',
+      assessmentId: '',
       allowedSubmissionsPerParticipant: 1,
     },
   })
@@ -59,11 +61,21 @@ const CreateStudy: FC<CreateStudyProps> = ({
   const [ isCreatingStudy, setIsCreatingStudy ] = useState<boolean>(false)
 
 
+
   // ---------------------------- Regular functions ----------------------------
   const handleChange = (e: any) => {
     const { name, value, type, checked } = e.target
 
-    if (name in study.details) {
+
+    if (name === 'assessmentId') {
+      setStudy((prevData) => ({
+        ...prevData,
+        details: {
+          ...prevData.details,
+          assessmentId: value,
+        },
+      }))
+    } else if (name in study.details) {
       setStudy((prevData) => ({
         ...prevData,
         details: {
@@ -189,6 +201,7 @@ const CreateStudy: FC<CreateStudyProps> = ({
           <h3>{ `Create a new study` }</h3>
         </div>
         <form onSubmit={ handleCreateStudy }>
+          {/* Name of study */}
           <div>
             <label>
               { `What is the name of your study?` }
@@ -202,6 +215,7 @@ const CreateStudy: FC<CreateStudyProps> = ({
               placeholder={ `My Personality Research Study #459` }
             />
           </div>
+          {/* Description */}
           <div>
             <label>
               { `Description:` }
@@ -216,6 +230,7 @@ const CreateStudy: FC<CreateStudyProps> = ({
               }
             />
           </div>
+          {/* Allowed Submissions per Participant */}
           <div>
             <label>
               { `Allowed Submissions per Participant:` }
@@ -229,6 +244,34 @@ const CreateStudy: FC<CreateStudyProps> = ({
               value={ study.details.allowedSubmissionsPerParticipant }
             />
           </div>
+          {/* Select an assessment */}
+          <div 
+            style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between',
+              margin: '12px 0px 24px 0px'
+            }}
+          >
+            <label>
+              { `Select an Assessment:` }
+            </label>
+            <select
+              required
+              name='assessmentId'
+              onChange={ handleChange }
+              value={ study.details.assessmentId }
+            >
+              <option value=''>
+                { `Select an assessment` }
+              </option>
+              { AVAILABLE_ASSESSMENTS.map((assessment, i: number) => (
+                <option key={ i } value={ assessment.name }>
+                  { assessment.name }
+                </option>
+              )) }
+            </select>
+          </div>
+          {/* Add admin emails */}
           <div className='form-group'>
             <label>
               { `Add Admin Emails:` }
@@ -300,7 +343,7 @@ const CreateStudy: FC<CreateStudyProps> = ({
             )}
           </div>
 
-
+          {/* Create study button */}
           { isCreatingStudy || newStudyCreated  ? (
             <>  
               <div
