@@ -2,13 +2,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { 
   PutCommand, 
+  GetCommand,
   ScanCommand,
   QueryCommand,
+  GetCommandInput,
   PutCommandInput,
   ScanCommandInput,
   QueryCommandInput,
-  GetCommand,
-  GetCommandInput,
 } from '@aws-sdk/lib-dynamodb'
 // Locals
 import { 
@@ -17,8 +17,6 @@ import {
   STUDY__DYNAMODB, 
   DYNAMODB_TABLE_NAMES,
 } from '@/utils'
-import study from '@/sections/admin-portal/studies/view/study'
-import error from 'next/error'
 
 
 
@@ -55,7 +53,6 @@ export async function POST(
     try {
       const response = await ddbDocClient.send(command)
 
-
       const message = successMessage || 'Operation successful'
 
 
@@ -72,8 +69,6 @@ export async function POST(
         }
       )
     } catch (error: any) {
-      // console.error(error)
-
       // Something went wrong
       return NextResponse.json(
         { error: error },
@@ -234,22 +229,31 @@ export async function GET(
           }
         )
       }
-    // 2.0 Handle the case where `adminEmail` does not exist and id is 
-    //     retrieved
+    // 2.0 Handle the case where `adminEmail` does not exist and `id` is used 
+    //     as a GSI
     } else {
       const id = req.nextUrl.searchParams.get('id')
 
-      const TableName = DYNAMODB_TABLE_NAMES.studies
-      const Key = { id: id }
 
-      const input: GetCommandInput = { TableName, Key }
-      const command = new GetCommand(input)
+      const TableName = DYNAMODB_TABLE_NAMES.studies
+      const IndexName = 'id-index'
+      const KeyConditionExpression = 'id = :idValue'
+      const ExpressionAttributeValues = { ':idValue': id }
+
+      const input: QueryCommandInput = { 
+        TableName, 
+        IndexName,
+        KeyConditionExpression,
+        ExpressionAttributeValues,
+      }
+
+      const command: QueryCommand = new QueryCommand(input)
 
 
       try {
         const response = await ddbDocClient.send(command)
 
-        if (!(response.Item as STUDY__DYNAMODB)) {
+        if (!(response.Items as STUDY__DYNAMODB[])) {
           const message = `No ID found in ${TableName} table`
 
           return NextResponse.json(
@@ -262,7 +266,8 @@ export async function GET(
             },
           )
         } else {
-          const study = response.Item as STUDY__DYNAMODB
+          const study = (response.Items as STUDY__DYNAMODB[])[0]
+
 
           return NextResponse.json(
             { 
@@ -277,9 +282,11 @@ export async function GET(
           )
         }
       } catch (error: any) {
+        console.log(`Error fetching study ID '${id}': `, error)
+
         // Something went wrong
         return NextResponse.json(
-          { error: error },
+          { error: `Error fetching study ID '${id}': ${error.message}` },
           {
             status: 500,
             headers: {

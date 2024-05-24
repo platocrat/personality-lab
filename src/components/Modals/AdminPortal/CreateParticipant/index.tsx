@@ -44,10 +44,10 @@ const inputs = [
 
 
 const CreateParticipantModal: FC<CreateParticipantModalProps> = ({
+  state,
   onClick,
   onChange,
   modalRef,
-  state,
 }) => {
   return (
     <>

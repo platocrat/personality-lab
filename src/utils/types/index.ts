@@ -18,6 +18,7 @@ export type STUDY__DYNAMODB = {
     description: string
     allowedSubmissionsPerParticipant: number
   }
+  participants: PARTICIPANT__DYNAMODB[]
 }
 
 

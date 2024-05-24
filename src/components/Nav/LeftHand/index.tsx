@@ -4,6 +4,7 @@ import { FC, Fragment, ReactNode } from 'react'
 // Locals
 // CSS
 import styles from '@/components/Nav/LeftHand/LeftHandNav.module.css'
+import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 type LeftHandNavProps = {
@@ -12,8 +13,19 @@ type LeftHandNavProps = {
 
 
 const BUTTONS = [
-  { text: 'Create Study', href: '/create-study' },
-  { text: 'View Studies', href: '/view-studies' },
+  { 
+    text: '+ New Study', 
+    href: '/create-study',
+  },
+  { 
+    text: (
+      <div style={ definitelyCenteredStyle }>
+        <p style={{ marginRight: '8px' }}>{ '🔍' }</p>
+        <p>{ `Studies` }</p>
+      </div>
+    ), 
+    href: '/view-studies',
+  },
 ]
 
 

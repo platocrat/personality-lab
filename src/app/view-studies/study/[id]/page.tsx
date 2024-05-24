@@ -33,7 +33,7 @@ const ViewStudy: FC<ViewStudyProps> = ({
 
 
   // --------------------------- Async functions -------------------------------
-  async function getUserResults() {
+  async function getStudy() {
     try {
       const response = await fetch(`/api/study?id=${ id }`, {
         method: 'GET',
@@ -43,8 +43,6 @@ const ViewStudy: FC<ViewStudyProps> = ({
 
       if (response.status === 500) throw new Error(json.error)
       if (response.status === 405) throw new Error(json.error)
-
-      console.log(`json: `, json)
 
       setStudy(json.study)
       setIsLoadingStudy(false)
@@ -65,7 +63,7 @@ const ViewStudy: FC<ViewStudyProps> = ({
       throw new Error(`Error: 'id' is invalid , see ${id}`)
     } else {
       const requests = [
-        getUserResults()
+        getStudy()
       ]
 
       Promise.all(requests)
@@ -90,7 +88,7 @@ const ViewStudy: FC<ViewStudyProps> = ({
         </>
       ) : (
         <>
-          <ViewStudySection />
+          <ViewStudySection studyName={ study?.name } />
         </>
       ) }
     </>

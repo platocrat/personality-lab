@@ -26,12 +26,13 @@ import {
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
 import LeftHandNav from '@/components/Nav/LeftHand'
+import Spinner from '@/components/Suspense/Spinner'
 
 
 
 
 type ViewStudySectionProps = {
-
+  studyName
 }
 
 
@@ -39,7 +40,7 @@ type ViewStudySectionProps = {
 
 
 const ViewStudySection: FC<ViewStudySectionProps> = ({
-
+  studyName
 }) => {
   // Hooks
   const pathname = usePathname()
@@ -50,7 +51,6 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
   // States
   // Strings
   const [studyId, setStudyId] = useState<string>('')
-  const [studyNames, setStudyNames] = useState<string[]>([''])
   const [participantEmail, setParticipantEmail] = useState<string>('')
   const [participantUsername, setParticipantUsername] = useState<string>('')
   // Booleans
@@ -150,7 +150,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
     const participant: ParticipantType = {
       email: participantEmail,
       username: participantUsername,
-      studyNames: studyNames,
+      studyNames: [ studyName ],
       isNobelLaureate: isNobelLaureate,
     }
 
@@ -166,19 +166,26 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
   }
 
 
+  /**
+   * @dev Makes a `GET` request to get the `study` from the given ID to index
+   *      the `participants` property from the `study` object
+   */
   async function getParticipants() {
     setIsWaitingForResponse(true)
 
     try {
-      const response = await fetch('/api/study/participants', {
+      const response = await fetch(`/api/study?id=${ studyId }`, {
         method: 'GET',
       })
+      
       const json = await response.json()
 
       if (response.status === 500) throw new Error(json.error)
       if (response.status === 405) throw new Error(json.error)
 
-      setParticipants(json.participants)
+      const participants_ = json.study.participants
+
+      setParticipants(participants_)
       setParticipantCreated(false)
       setIsWaitingForResponse(false)
     } catch (error: any) {
@@ -230,7 +237,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ participant }),
+          body: JSON.stringify({ participant, studyId: studyId }),
         })
 
         const json = await response.json()
@@ -297,7 +304,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
     ]
 
     Promise.all(requests)
-  }, [ participantCreated ])
+  }, [ studyId, participantCreated ])
 
 
 
@@ -311,98 +318,112 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
             flexDirection: 'column' 
           }}
         >
-          <div 
-            style={{ 
-              ...definitelyCenteredStyle,
-              flexDirection: 'column'
-            }}
-          >
-            <h3 style={{ marginBottom: '4px' }}>
-              { `Viewing study ${ '<STUDY_NAME>' }` }
-            </h3>
-            <div
-              style={{ 
-                ...definitelyCenteredStyle,
-                fontSize: '12px', 
-                color: 'gray',
-              }}
-            >
-              <p style={{ marginRight: '8px' }}>
-                { `ID: ` }
-              </p>
-              <p>
-                { studyId }
-              </p>
-            </div>
-          </div>
-
-          <div
-            style={ {
-              ...definitelyCenteredStyle,
-              flexDirection: 'column',
-              width: '100%',
-              fontSize: '13px',
-            } }
-          >
-            {/* Page Nav */ }
+          { isWaitingForResponse ? (
+            <>
             <div
               style={ {
-                gap: '18px',
-                display: 'flex',
-                margin: '24px 0px'
+                ...definitelyCenteredStyle,
+                position: 'relative',
               } }
             >
-              { pageNavButtons.map((btn, i: number) => (
-                <Fragment key={ i }>
-                  <div>
-                    <button
-                      style={ { width: '140px' } }
-                      className={ styles.button }
-                      onClick={ btn.onClick }
-                    >
-                      { btn.buttonText }
-                    </button>
-                  </div>
-                </Fragment>
-              )) }
+              <Spinner height='40' width='40' />
             </div>
+            </>
+          ) : (
+            <>
+              <div
+                style={ {
+                  ...definitelyCenteredStyle,
+                  flexDirection: 'column'
+                } }
+              >
+                <h3 style={ { marginBottom: '4px' } }>
+                  { `${ studyName }` }
+                </h3>
+                <div
+                  style={ {
+                    ...definitelyCenteredStyle,
+                    fontSize: '12px',
+                    color: 'gray',
+                  } }
+                >
+                  <p style={ { marginRight: '8px' } }>
+                    { `ID: ` }
+                  </p>
+                  <p>
+                    { studyId }
+                  </p>
+                </div>
+              </div>
 
-            {/* Table of participants */ }
-            <ParticipantsTable
-              participants={ participants }
-              isWaitingForResponse={ isWaitingForResponse }
-              handleViewObserverResults={ handleViewObserverResults }
-            />
+              <div
+                style={ {
+                  ...definitelyCenteredStyle,
+                  flexDirection: 'column',
+                  width: '100%',
+                  fontSize: '13px',
+                } }
+              >
+                {/* Page Nav */ }
+                <div
+                  style={ {
+                    gap: '18px',
+                    display: 'flex',
+                    margin: '24px 0px'
+                  } }
+                >
+                  { pageNavButtons.map((btn, i: number) => (
+                    <Fragment key={ i }>
+                      <div>
+                        <button
+                          style={ { width: '140px' } }
+                          className={ styles.button }
+                          onClick={ btn.onClick }
+                        >
+                          { btn.buttonText }
+                        </button>
+                      </div>
+                    </Fragment>
+                  )) }
+                </div>
 
-            {/* Modals */ }
-            <CreateParticipantModal
-              onClick={ handleOnCreateParticipant }
-              modalRef={ createParticipantModalRef }
-              state={ {
-                isCreatingParticipant,
-                isModalVisible: showCreateParticipantModal,
-              } }
-              onChange={ {
-                onEmailChange,
-                onUsernameChange,
-                onNobelLaureateChange,
-              } }
-            />
+                {/* Table of participants */ }
+                <ParticipantsTable
+                  participants={ participants }
+                  handleViewObserverResults={ handleViewObserverResults }
+                />
 
-            <DownloadDataModal
-              modalRef={ downloadDataModalRef }
-            />
+                {/* Modals */ }
+                <CreateParticipantModal
+                  onClick={ handleOnCreateParticipant }
+                  modalRef={ createParticipantModalRef }
+                  state={ {
+                    isCreatingParticipant,
+                    isModalVisible: showCreateParticipantModal,
+                  } }
+                  onChange={ {
+                    onEmailChange,
+                    onUsernameChange,
+                    onNobelLaureateChange,
+                  } }
+                />
 
-            <ViewResultsModal
-              modalRef={ viewResultsModalRef }
-              isModalVisible={ showViewResultsModal }
-              selectedParticipant={ selectedParticipant }
-              onEventHandlers={ {
-                handleOnViewResults,
-                onViewResultsChange
-              } }
-            />
-          </div>
+                <DownloadDataModal
+                  modalRef={ downloadDataModalRef }
+                />
+
+                <ViewResultsModal
+                  modalRef={ viewResultsModalRef }
+                  isModalVisible={ showViewResultsModal }
+                  selectedParticipant={ selectedParticipant }
+                  onEventHandlers={ {
+                    handleOnViewResults,
+                    onViewResultsChange
+                  } }
+                />
+              </div>
+            </>
+          )}
         </div>
       </LeftHandNav>
     </>
