@@ -7,6 +7,7 @@ import {
 } from 'react'
 import { useRouter } from 'next/navigation'
 // Locals
+import CreateStudyForm from './form'
 import Spinner from '@/components/Suspense/Spinner'
 // Utils
 import { 
@@ -15,7 +16,6 @@ import {
   getUsernameAndEmailFromCookie,
 } from '@/utils'
 // CSS
-import appStyles from '@/app/page.module.css'
 import sectionStyles from './CreateStudy.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
 
@@ -200,176 +200,25 @@ const CreateStudy: FC<CreateStudyProps> = ({
         <div style={{ ...definitelyCenteredStyle, marginBottom: '12px' }}>
           <h3>{ `Create a new study` }</h3>
         </div>
-        <form onSubmit={ handleCreateStudy }>
-          {/* Name of study */}
-          <div>
-            <label>
-              { `What is the name of your study?` }
-            </label>
-            <input
-              required
-              type='text'
-              name='name'
-              value={ study.name }
-              onChange={ handleChange }
-              placeholder={ `My Personality Research Study #459` }
-            />
-          </div>
-          {/* Description */}
-          <div>
-            <label>
-              { `Description:` }
-            </label>
-            <textarea
-              required
-              name='description'
-              onChange={ handleChange }
-              value={ study.details.description }
-              placeholder={ 
-                `A study conducting research on personality behaviors.`
-              }
-            />
-          </div>
-          {/* Allowed Submissions per Participant */}
-          <div>
-            <label>
-              { `Allowed Submissions per Participant:` }
-            </label>
-            <input
-              required
-              min={ 1 }
-              type='number'
-              onChange={ handleChange }
-              name='allowedSubmissionsPerParticipant'
-              value={ study.details.allowedSubmissionsPerParticipant }
-            />
-          </div>
-          {/* Select an assessment */}
-          <div 
-            style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between',
-              margin: '12px 0px 24px 0px'
-            }}
-          >
-            <label>
-              { `Select an Assessment:` }
-            </label>
-            <select
-              required
-              name='assessmentId'
-              onChange={ handleChange }
-              value={ study.details.assessmentId }
-            >
-              <option value=''>
-                { `Select an assessment` }
-              </option>
-              { AVAILABLE_ASSESSMENTS.map((assessment, i: number) => (
-                <option key={ i } value={ assessment.name }>
-                  { assessment.name }
-                </option>
-              )) }
-            </select>
-          </div>
-          {/* Add admin emails */}
-          <div className='form-group'>
-            <label>
-              { `Add Admin Emails:` }
-            </label>
-            <input
-              type='email'
-              value={ newAdminEmail }
-              onChange={ handleAdminEmailChange }
-              placeholder='johndoe@gmail.com'
-            />
-            { invalidEmailMessage &&
-              <div className={ sectionStyles['error-message'] }>
-                { invalidEmailMessage }
-              </div>
-            }
-            <button
-              type='button' 
-              onClick={ addAdminEmail }
-              className={ sectionStyles['add-button'] }
-              style={{ 
-                marginTop: '-18px'
-              }}
-            >
-              { `Add` }
-            </button>
-
-            { study.adminEmails.length !== 0 && (
-              <div 
-                style={{ 
-                  marginTop: '12px', 
-                  padding: '0px 24px',
-                }}
-              >
-                <p 
-                  style={{ 
-                    ...definitelyCenteredStyle,
-                    textDecoration: 'underline',
-                  }}
-                >
-                  { `Emails to add as admins:` }
-                </p>
-                <ul>
-                  { study.adminEmails.map((email, index) => (
-                    <Fragment key={ index }>
-                      <ul
-                        key={ index }
-                        style={ {
-                          display: 'flex',
-                          padding: '5px 0',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                        } }
-                      >
-                        <p>
-                          { email }{ ' ' }
-                        </p>
-                        <button
-                          type='button'
-                          className={ sectionStyles['remove-button'] }
-                          onClick={ () => removeAdminEmail(email) }
-                        >
-                          { `Remove` }
-                        </button>
-                      </ul>
-                    </Fragment>
-                  )) }
-                </ul>
-              </div>
-            )}
-          </div>
-
-          {/* Create study button */}
-          { isCreatingStudy || newStudyCreated  ? (
-            <>  
-              <div
-                style={ {
-                  ...definitelyCenteredStyle,
-                  position: 'relative',
-                  marginTop: '24px',
-                } }
-              >
-                <Spinner height='40' width='40' />
-              </div>
-            </>
-          ) : (
-            <>
-              <div style={ { ...definitelyCenteredStyle } }>
-                <button
-                  type='submit'
-                  style={ { width: '125px', marginTop: '24px' } }
-                  className={ appStyles.button }
-                >
-                  { `Create Study` }
-                </button>
-              </div>
-            </>
-          )}
-        </form>
+        
+        <CreateStudyForm 
+          study={ study }
+          onSubmit={ handleCreateStudy }
+          states={{
+            newAdminEmail,
+            isCreatingStudy,
+            newStudyCreated,
+            invalidEmailMessage,
+          }}
+          onClickHandlers={{
+            addAdminEmail,
+            removeAdminEmail
+          }}
+          onChangeHandlers={{
+            handleChange,
+            handleAdminEmailChange,
+          }}
+        />
       </div>
     </>
   )
