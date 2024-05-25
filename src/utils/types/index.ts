@@ -15,6 +15,7 @@ export type STUDY__DYNAMODB = {
   ownerEmail: string
   adminEmails: string[]
   details: {
+    inviteUrl: string
     description: string
     assessmentId: string
     allowedSubmissionsPerParticipant: number

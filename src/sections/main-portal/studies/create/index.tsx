@@ -3,9 +3,10 @@
 import { 
   FC, 
   Fragment, 
+  useLayoutEffect, 
   useState,
 } from 'react'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 // Locals
 import CreateStudyForm from './form'
 import Spinner from '@/components/Suspense/Spinner'
@@ -33,6 +34,7 @@ const CreateStudy: FC<CreateStudyProps> = ({
 }) => {
   // Hooks
   const router = useRouter()
+  const pathname = usePathname()
   // States
   const [ study, setStudy ] = useState<STUDY__DYNAMODB>({
     id: '',
@@ -43,6 +45,7 @@ const CreateStudy: FC<CreateStudyProps> = ({
     adminEmails: [],
     participants: [],
     details: {
+      inviteUrl: '',
       description: '',
       assessmentId: '',
       allowedSubmissionsPerParticipant: 1,
@@ -121,11 +124,10 @@ const CreateStudy: FC<CreateStudyProps> = ({
     e.preventDefault()
 
     setIsCreatingStudy(true)
-    await storeStudyInDynamoDB()
+    const studyId = await storeStudyInDynamoDB()
     setIsCreatingStudy(false)
-
     // Generate invite link URL
-    const inviteLinkURL = `http://localhost:3000/invite/${study.id}`
+    const inviteLinkURL = `${ window.location.origin }/invite/${ studyId }`
     setInviteLink(inviteLinkURL)
   }
 
@@ -192,7 +194,7 @@ const CreateStudy: FC<CreateStudyProps> = ({
 
   return (
     <>
-      <div className={ `${sectionStyles['form-container']} ` }>
+      <div className={ sectionStyles['form-container'] }>
         {/* Display invite link */ }
         { inviteLink ? (
           <>
@@ -212,7 +214,7 @@ const CreateStudy: FC<CreateStudyProps> = ({
                   e.preventDefault()
                   e.currentTarget.select()
                 } }
-                />
+              />
             </div>
           </>
         ) : (

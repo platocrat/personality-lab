@@ -53,6 +53,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
   // States
   // Strings
   const [studyId, setStudyId] = useState<string>('')
+  const [inviteUrl, setInviteUrl] = useState<string>('')
   const [participantEmail, setParticipantEmail] = useState<string>('')
   const [participantUsername, setParticipantUsername] = useState<string>('')
   // Booleans
@@ -199,11 +200,14 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
   }
 
 
-  async function getStudyId() {
-    const _ = pathname.slice(
+  async function getStudyIdAndInviteUrl() {
+    const studyId_ = pathname.slice(
       pathname.indexOf('/study/') + '/study/'.length
     )
-    setStudyId(_)
+    const inviteUrl_ = `${ window.location.origin }/invite/${studyId_}`
+
+    setStudyId(studyId_)
+    setInviteUrl(inviteUrl_)
   }
 
 
@@ -302,7 +306,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
 
   useLayoutEffect(() => {
     const requests = [
-      getStudyId(),
+      getStudyIdAndInviteUrl(),
       getParticipants(),
     ]
 
@@ -358,6 +362,27 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
                   <p>
                     { studyId }
                   </p>
+                </div>
+                {/* Study ID */}
+                <div
+                  style={ {
+                    ...definitelyCenteredStyle,
+                    fontSize: '13px',
+                  } }
+                >
+                  <p style={ { marginRight: '8px' } }>
+                    { `Invite Link: ` }
+                  </p>
+                  <input
+                    readOnly
+                    type='text'
+                    value={ inviteUrl }
+                    style={{ fontSize: '13px' }}
+                    onClick={ (e) => {
+                      e.preventDefault()
+                      e.currentTarget.select()
+                    } }
+                  />
                 </div>
                 {/* Study Description */}
                 <div
