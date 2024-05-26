@@ -10,7 +10,13 @@ import styles from '@/app/page.module.css'
 
 type ViewResultsModalTableBodyProps = {
   assessments: AssessmentToViewType[]
-  onViewResultsChange: (e: any, id: string, name: string) => void
+  onViewResultsChange: (
+    e: any, 
+    study: { 
+      name: string
+      assessmentId: string 
+    }
+  ) => void
 }
 
 
@@ -42,7 +48,7 @@ const ViewResultsModalTableBody: FC<ViewResultsModalTableBodyProps> = ({
 
                     // Call `onChange` handler to select the 
                     // results to view
-                    onViewResultsChange(e, _.id, _.name)
+                    onViewResultsChange(e, _.study)
                   }
                 }
               }
@@ -58,7 +64,9 @@ const ViewResultsModalTableBody: FC<ViewResultsModalTableBodyProps> = ({
                   width: '125px',
                   padding: '4px 0px',
                 } }
-              >{ _.name }</td>
+              >
+                { _.study.name }
+              </td>
               <td
                 style={ {
                   width: '125px',
@@ -87,7 +95,7 @@ const ViewResultsModalTableBody: FC<ViewResultsModalTableBodyProps> = ({
                   onChange={
                     (e: any) => {
                       e.stopPropagation()
-                      onViewResultsChange(e, _.id, _.name)
+                      onViewResultsChange(e, _.study)
                     }
                   }
                 />

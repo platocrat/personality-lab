@@ -35,7 +35,7 @@ export async function POST(
       vizName: userVizRating.vizName,
       username: userVizRating.username,
       timestamp: userVizRating.timestamp,
-      studyName: userVizRating.studyName,
+      study: userVizRating.study,
     }
 
     const input: PutCommandInput = { TableName, Item }

@@ -130,15 +130,18 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
     setIsNobelLaureate(checked)
   }
 
-  function onViewResultsChange(e: any, id: string, name: string) {
+  function onViewResultsChange(
+    e: any,
+    study: {
+      name: string
+      assessmentId: string
+    }
+  ) {
     const { checked } = e.target
 
     setResultsToView({
       ...resultsToView,
-      assessment: {
-        id,
-        name,
-      },
+      study,
     })
   }
 

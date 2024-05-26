@@ -36,11 +36,11 @@ export async function POST(
     const Item = {
       id: userResultsId,
       email: userResults.email,
-      timestamp: userResults.timestamp,
+      study: userResults.study,
       facetScores: userResults.facetScores,
       domainScores: userResults.domainScores,
       demographics: userResults.demographics,
-      studyName: userResults.studyName,
+      timestamp: userResults.timestamp,
     }
 
     const input: PutCommandInput = { TableName, Item }

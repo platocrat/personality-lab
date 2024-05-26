@@ -29,15 +29,24 @@ type ViewResultsModalProps = {
   selectedParticipant: ParticipantType | null
   onEventHandlers: {
     handleOnViewResults: (e: any) => void
-    onViewResultsChange: (e: any, id: string, name: string) => void
+    onViewResultsChange: (
+      e: any, 
+      study: {
+        name: string
+        assessmentId: string
+      }
+    ) => void
   }
 }
 
 
 export type AssessmentToViewType = { 
   id: string
-  name: string 
   timestamp: string
+  study: {
+    name: string
+    assessmentId: string
+  }
 }
 
 
@@ -99,7 +108,7 @@ const ViewResultsModal: FC<ViewResultsModalProps> = ({
         ): AssessmentToViewType => {
           return {
             id: results.id,
-            name: results.studyName,
+            study: results.study,
             timestamp: new Date(results.timestamp).toDateString()
           }
         })
