@@ -1,6 +1,6 @@
 // Externals
 import Link from 'next/link'
-import { FC, Fragment, JSX, ReactNode, useState } from 'react'
+import { FC, Fragment, JSX, ReactNode, useContext, useLayoutEffect, useState } from 'react'
 // Locals
 // Components
 import Card from '@/components/Card'
@@ -9,11 +9,15 @@ import StellarPlot from '@/components/DataViz/StellarPlot'
 import BessiDescription from './bessi/description'
 import BigFiveDescription from './big-five/descriptions/entrance'
 import BessiResultsVisualization from './bessi/assessment/results/bessi-results-visualization'
+// Contexts
+import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // Utils
 import { 
-  bessiActivityBank,
   dummyVariables,
-  SkillDomainFactorType 
+  bessiActivityBank,
+  SkillDomainFactorType, 
+  PARTICIPANT__DYNAMODB,
+  ACCOUNT__DYNAMODB
 } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
@@ -22,10 +26,11 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 type PersonalityAssessmentType = {
+  href: string
   title: string
   buttonText: string
+  assessmentId: string
   description: string | ReactNode
-  href: string
 }
 
 
@@ -47,16 +52,18 @@ const title = `Assessments`
 
 const pAssessments: PersonalityAssessmentType[] = [
   {
-    buttonText: `Begin`,
-    title: `The BESSI`,
-    description: <BessiDescription />,
     href: `/bessi`,
+    title: `The BESSI`,
+    buttonText: `Begin`,
+    assessmentId: 'bessi',
+    description: <BessiDescription />,
   },
   {
-    buttonText: `Begin`,
-    title: `Big Five, Vocational Interests, and Creativity Test`,
-    description: <BigFiveDescription />,
     href: `/big-five`,
+    title: `Big Five, Vocational Interests, and Creativity Test`,
+    buttonText: `Begin`,
+    assessmentId: 'big-five',
+    description: <BigFiveDescription />,
   },
   // {
   //   buttonText: `Begin`,
@@ -70,11 +77,71 @@ const pAssessments: PersonalityAssessmentType[] = [
 
 
 const PersonalityAssessments = ({ }) => {
+  // Contexts
+  const { email } = useContext(AuthenticatedUserContext)
+  // States
+  const [ 
+    isGettingParticipant, 
+    setIsGettingParticipant
+  ] = useState<boolean>(false)
+  const [ 
+    participant, 
+    setParticipant 
+  ] = useState<PARTICIPANT__DYNAMODB | null>(null)
+
+
   function fragmentKey(pa: PersonalityAssessmentType, i: number): string {
     const fragmentKeyBasePrefix = `personality-assessment-`
     const fragmentKeySuffix = `${pa.buttonText}-${pa.href}-${pa.title}-${i}`
     return fragmentKeyBasePrefix + fragmentKeySuffix
   }
+
+
+  // ---------------------------- Async functions ------------------------------
+  /**
+   * @dev Request account entry from `accounts` table which has a `participant`
+   *      property.
+   */
+  async function getParticipant() {
+    setIsGettingParticipant(true)
+
+    try {
+      const API_ENDPOINT = `/api/account?email=${email}`
+      const response = await fetch(API_ENDPOINT, { method: 'GET' })
+
+      const json = await response.json()
+
+
+      if (response.status === 200) {
+        const account: ACCOUNT__DYNAMODB = json.account
+        const _ = account?.participant ?? null
+        
+        setParticipant(_)
+        setIsGettingParticipant(false)
+      } else if (response.status === 404) {
+        setIsGettingParticipant(false)
+      } else if (response.status === 500) {
+        setIsGettingParticipant(false)
+        throw new Error(json.error)
+      }
+    } catch (error: any) {
+      setIsGettingParticipant(false)
+      throw new Error(error)
+    }
+  }
+
+  // ---------------------------- `useLayoutEffect`s ---------------------------
+  useLayoutEffect(() => {
+    if (email) {
+      const requests = [
+        getParticipant(),
+      ]
+  
+      Promise.all(requests)
+    }
+  }, [ email ])
+
+
 
 
   return (

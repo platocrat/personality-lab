@@ -48,7 +48,6 @@ const CreateStudy: FC<CreateStudyProps> = ({
       inviteUrl: '',
       description: '',
       assessmentId: '',
-      allowedSubmissionsPerParticipant: 1,
     },
   })
   const [ 

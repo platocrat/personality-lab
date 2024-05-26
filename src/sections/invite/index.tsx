@@ -4,8 +4,13 @@ import {
   useState,
   CSSProperties,
 } from 'react'
+import { useRouter } from 'next/navigation'
 // Locals
-import { PARTICIPANT__DYNAMODB, STUDY__DYNAMODB } from '@/utils'
+import { 
+  STUDY__DYNAMODB,
+  PARTICIPANT__DYNAMODB, 
+  AVAILABLE_ASSESSMENTS, 
+} from '@/utils'
 // CSS
 import sectionStyles from '@/sections/invite/StudyInviteSection.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -27,39 +32,78 @@ const pStyle: CSSProperties = {
 
 
 const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
+  // Hooks
+  const router = useRouter()
+  // States
+  const [ 
+    participantRegistered, 
+    setParticipantRegistered
+  ] = useState<boolean>(false)
+  const [ 
+    isParticipantRegistering, 
+    setIsParticipantRegistering
+  ] = useState<boolean>(false)
   const [redirectUrl, setRedirectUrl] = useState('')
   const [participantEmail, setParticipantEmail] = useState('')
   const [participantUsername, setParticipantUsername] = useState('')
 
 
+  const studyAssessmentName = AVAILABLE_ASSESSMENTS.find((
+    availableAssessment: { id: string, name: string }
+  ): boolean => availableAssessment.id === study?.details.assessmentId
+  )?.name
+
+
   // ---------------------------- Async functions ------------------------------
-  async function handleSubmit (e: React.FormEvent<HTMLFormElement>) {
+  async function handleOnRegisterForAssessment (
+    e: React.FormEvent<HTMLFormElement>
+  ) {
     e.preventDefault()
 
+    // 1. Start loading spinner
+    setIsParticipantRegistering(true)
+
+    // 2. Construct new `participant` to store in DynamoDB
     const participant: Omit<PARTICIPANT__DYNAMODB, "id"> = {
       email: participantEmail,
       username: participantUsername,
       /**
-       * @todo Merge pre-existing `studyNames` if the user is already a 
-       *      participant in other studies.
+       * @dev Update `studyNames` with pre-existing `studyNames` when updating
+       *      the user's account entry in the `/api/study/participant` API 
+       *      endpoint, i.e. when fetching the user's account entry from the 
+       *      `account` table, use the account entry's 
+       *      `account.participant.studyNames` property to update `studyNames`
+       *      for the participant.
        */
-      studyNames: [ study ? study.name : '' ],
+      studies: [
+        {
+          name: study ? study.name : '',
+          assessmentId: study ? study.details.assessmentId : '',
+        }
+      ],
       adminEmail: study ? study.ownerEmail : '',
       adminUsername: '',
       isNobelLaureate: false,
-      timestamp: Date.now(),
+      timestamp: 0,
     }
     
-    await handleFormSubmit(
-      participant,
-      study ? study.id : ''
-    )
+    // 3. `Put` and/or `Update` the new `participant` object in the appropriate
+    //     DynamoDB tables.
+    await storeParticipantInDynamoDB(participant)
+
+    // 4. Stop loading spinner
+    setIsParticipantRegistering(false)
+    setParticipantRegistered(true)
+
+    // 5. Redirect the participant to the home page to login or create an 
+    // account. The client will authenticate and display which assessments
+    // the participant may complete
+    router.push('/')
   }
 
 
-  async function handleFormSubmit(
-    participant,
-    studyId: string,
+  async function storeParticipantInDynamoDB(
+    participant: Omit<PARTICIPANT__DYNAMODB, "id">
   ) {
     try {
       // Send a request to add the `participant` to the `study` entry and to
@@ -70,26 +114,38 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
           'Content-Type': 'application/json',
         },
         /**
-         * @todo Pass the `studyId` to update the study entry the appropriate 
-         *       study entry with the new `participant`.
+         * @dev Pass the `studyId` to update the study entry the appropriate 
+         *      study entry with the new `participant`.
          */
-        body: JSON.stringify({ participant, studyId }),
+        body: JSON.stringify({ 
+          participant, 
+          studyId: study?.id
+        }),
       })
 
-      /**
-       * @todo Finish the logic to redirect the user to appropriate assessment
-       *       page
-       */
-      if (response.ok) {
-        // Assume the backend returns a URL to redirect the user to
-        const { redirectUrl } = await response.json()
-        window.location.href = redirectUrl
+      const json = await response.json()
+
+
+      if (response.status === 200) {
+        const participantId = json.participantId
+        return participantId
       } else {
         // Handle error response from the backend
-        console.error('Failed to register participant')
+        setParticipantRegistered(false)
+
+        const error = `Error posting ${'new participant'} to DynamoDB: `
+        /**
+         * @todo Handle error UI here
+         */
+        throw new Error(error, json.error)
       }
-    } catch (error) {
-      console.error('Error registering participant:', error)
+    } catch (error: any) {
+      setParticipantRegistered(false)
+
+      /**
+       * @todo Handle error UI here
+       */
+      throw new Error(`Error registering participant:  `, error)
     }
   }
 
@@ -116,22 +172,18 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
             <span>{ `Description:` }</span>
             { study?.details.description }
           </p>
-          <p style={ pStyle }>
-            <span>{ `Assessment ID:` }</span>
-            { study?.details.assessmentId }
-          </p>
           <p 
-            className={ sectionStyles.last } 
             style={ pStyle }
+            className={ sectionStyles.last }
           >
-            <span>{ `Allowed Submissions per Participant:` }</span>
-            { study?.details.allowedSubmissionsPerParticipant }
+            <span>{ `Assessment ID:` }</span>
+            { studyAssessmentName }
           </p>
         </div>
 
         <div style={{ marginBottom: '48px' }}/>
 
-        <form onSubmit={ handleSubmit }>
+        <form onSubmit={ handleOnRegisterForAssessment }>
           <label>
             { `Enter your username and email to register as a participant:` }
             <input

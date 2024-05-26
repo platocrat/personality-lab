@@ -18,7 +18,6 @@ export type STUDY__DYNAMODB = {
     inviteUrl: string
     description: string
     assessmentId: string
-    allowedSubmissionsPerParticipant: number
   }
   participants: PARTICIPANT__DYNAMODB[]
 }
@@ -54,10 +53,13 @@ export type PARTICIPANT__DYNAMODB = {
   email: string
   username: string
   adminEmail: string
-  studyNames: string[]
   adminUsername: string
   isNobelLaureate: boolean
   timestamp: number
+  studies: {
+    name: string
+    assessmentId: string
+  }[]
 }
 
 

@@ -20,8 +20,11 @@ import {
 
 
 /**
- * @dev POST: Update an `account` entry with the `participant` object as an 
- *      additional property.
+ * @dev POST: 
+ *      1. `Update` an account entry's `participant` attribute in the 
+ *         `accounts` table with the new `participant` object.
+ *      2. `Update` a study entry's `participants` attribute in the `studies` 
+ *         table with the new `participant` object.
  * @param req 
  * @param res
  * @returns 
@@ -46,12 +49,12 @@ export async function POST(
       adminEmail: participant.adminEmail,
       adminUsername: participant.adminUsername,
       isNobelLaureate: participant.isNobelLaureate,
-      timestamp: participant.timestamp,
+      timestamp: Date.now(),
     }
 
     /**
-     * @dev 1.1 Construct `QueryCommand` to fetch the user's account entry from 
-     *         the `accounts` table.
+     * @dev 1.1 Construct `QueryCommand` to fetch the participant's account 
+     *          entry from the `accounts` table.
      */
     let TableName = DYNAMODB_TABLE_NAMES.accounts,
       KeyConditionExpression: string = 'email = :emailValue',
@@ -104,7 +107,9 @@ export async function POST(
           timestamp: participant.timestamp,
         }
 
-        // 1.2.1.2 Construct the `UpdateCommand` to send to DynamoDB
+        // 1.2.1.2 Construct the `UpdateCommand` to send to DynamoDB to update
+        //         the `participant` attribute of the account entry in the
+        //         `accounts` table.
         const Key = {
           email: participant.email,
           timestamp: storedTimestamp
@@ -130,20 +135,21 @@ export async function POST(
         } has been updated in the ${TableName} table`
 
 
-        // 1.2.1.3 Attempt to perform the `UpdateCommand` on DynamoDB
+        // 1.2.1.3 Attempt to perform the `UpdateCommand` on DynamoDB to update
+        //         the `participant` attribute of the account entry in the
+        //         `accounts` table.
         try {
           const response = await ddbDocClient.send(command)
 
 
           /**
-           * @dev 2.0 Update the `participants` property of the study entry in the 
-           *          `studies` table.
+           * @dev 2.0 Construct the `QueryCommand` to get the `ownerEmail` that we 
+           *     will use as the partition, or primary, key to perform the 
+           *     `UpdateCommand` to update the study entry's `participant`
+           *      attribute in the `studies` table.
            */
           TableName = DYNAMODB_TABLE_NAMES.studies
 
-          // 2.1 Construct `QueryCommand` to get the `ownerEmail` that we will use as
-          //     the partition/primary key to then perform the `UpdateCommand` to
-          //     update the same study entry's `participant` property.
           const IndexName = 'id-index'
 
           KeyConditionExpression = 'id = :idValue'
@@ -159,13 +165,12 @@ export async function POST(
           command = new QueryCommand(input)
 
 
-          // 2.2 Attempt to perform Query operation to get `ownerEmail`
+          // 2.1 Attempt to perform Query operation to get `ownerEmail`
           try {
             const response = await ddbDocClient.send(command)
 
 
-
-            // 2.2.1 If `ownerEmail` exists...
+            // 2.1.1 If `ownerEmail` exists...
             if (response.Items && response.Items.length > 0) {
               const timestamp = (response.Items as STUDY__DYNAMODB[])[0].timestamp
               const ownerEmail = (response.Items as STUDY__DYNAMODB[])[0].ownerEmail
@@ -176,7 +181,7 @@ export async function POST(
                 ? [ ...previousParticipants, participant_ ] 
                 : [ participant_ ]
 
-              // 2.2.1.1 Construct the `UpdateCommand` to update the `participant`
+              // 2.1.1.1 Construct the `UpdateCommand` to update the `participant`
               //         property of the study entry in the `studies` table. 
               const Key = { 
                 ownerEmail,
@@ -203,9 +208,9 @@ export async function POST(
 
 
               /**
-               * @dev 2.2.1.2 Attempt to perform the `UpdateCommand` on DynamoDB to 
-               *              update the `participant` property on the study entry 
-               *              for this ID in the `studies` table
+               * @dev 2.1.1.2 Attempt to perform the `UpdateCommand` on 
+               *              DynamoDB to update the `participant` property on 
+               *              the study entry for this ID in the `studies` table
                */
               try {
                 const response = await ddbDocClient.send(command)

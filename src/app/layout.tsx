@@ -68,6 +68,7 @@ export default function RootLayout({
   const [ username, setUsername ] = useState<string>('')
   const [ isAdmin, setIsAdmin ] = useState<boolean>(false)
   // Booleans for user authentication
+  const [ isInviteUrl, setIsInviteUrl] = useState<boolean>(false)
   const [ isFetchingUser, setIsFetchingUser ] = useState<boolean>(true)
   const [ isAuthenticated, setIsAuthenticated ] = useState<boolean>(false)
   // State variables UserDemographicsContext
@@ -261,6 +262,13 @@ export default function RootLayout({
       const timeout = 200 // 100 ms
 
       if (pathname !== undefined) {
+        if (pathname.startsWith('/invite/')) {
+          setIsInviteUrl(true)
+          setIsFetchingUser(false)
+          // End the if/else control statement here
+          return 
+        }
+
         pathname === '/' ? router.refresh() : router.push('/')
   
         setIsAuthenticated(false)
@@ -269,6 +277,8 @@ export default function RootLayout({
         setTimeout(() => {
           setIsFetchingUser(false)
         }, timeout)
+
+        return
       }
     } else {
       // Show the dashboard

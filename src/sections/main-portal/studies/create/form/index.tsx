@@ -75,25 +75,11 @@ const CreateStudyForm: FC<CreateStudyFormProps> = ({
           <textarea
             required
             name='description'
-            onChange={ onChangeHandlers.handleChange }
             value={ study.details.description }
+            onChange={ onChangeHandlers.handleChange }
             placeholder={
               `A study conducting research on personality behaviors.`
             }
-          />
-        </div>
-        {/* Allowed Submissions per Participant */ }
-        <div>
-          <label>
-            { `Allowed Submissions per Participant:` }
-          </label>
-          <input
-            required
-            min={ 1 }
-            type='number'
-            onChange={ onChangeHandlers.handleChange }
-            name='allowedSubmissionsPerParticipant'
-            value={ study.details.allowedSubmissionsPerParticipant }
           />
         </div>
         {/* Select an assessment */ }
@@ -110,14 +96,14 @@ const CreateStudyForm: FC<CreateStudyFormProps> = ({
           <select
             required
             name='assessmentId'
-            onChange={ onChangeHandlers.handleChange }
             value={ study.details.assessmentId }
+            onChange={ onChangeHandlers.handleChange }
           >
             <option value=''>
               { `Select an assessment` }
             </option>
             { AVAILABLE_ASSESSMENTS.map((assessment, i: number) => (
-              <option key={ i } value={ assessment.name }>
+              <option key={ i } value={ assessment.id }>
                 { assessment.name }
               </option>
             )) }

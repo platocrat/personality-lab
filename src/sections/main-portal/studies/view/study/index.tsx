@@ -245,7 +245,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ participant, studyId: studyId }),
+          body: JSON.stringify({ participant, studyId }),
         })
 
         const json = await response.json()

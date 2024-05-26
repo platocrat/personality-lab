@@ -128,7 +128,7 @@ export async function GET(
 
       if (!response.Item) {
         const message = `No access token found in ${
-          DYNAMODB_TABLE_NAMES.userResultsAccessTokens
+          TableName
         } table`
 
         return NextResponse.json(

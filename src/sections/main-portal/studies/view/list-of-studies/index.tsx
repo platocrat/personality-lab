@@ -141,7 +141,6 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
                             <td>{ study.isActive ? 'ACTIVE' : 'INACTIVE' }</td>
                             <td>{ new Date(study.timestamp).toLocaleString() }</td>
                             <td>{ study.adminEmails.join(', ') }</td>
-                            <td>{ study.details.allowedSubmissionsPerParticipant }</td>
                             <td>
                               <Link href={ `/view-studies/study/${study.id.toString()}` }>
                                 <button
