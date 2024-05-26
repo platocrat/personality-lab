@@ -1,3 +1,5 @@
+'use client'
+
 // Externals
 import Link from 'next/link'
 import { FC, Fragment, JSX, ReactNode, useContext, useLayoutEffect, useState } from 'react'
@@ -105,24 +107,24 @@ const PersonalityAssessments = ({ }) => {
   async function getParticipant() {
     setIsGettingParticipant(true)
 
+    console.log(`email: `, email)
+
     try {
-      const API_ENDPOINT = `/api/account?email=${email}`
-      const response = await fetch(API_ENDPOINT, { method: 'GET' })
+      const response = await fetch(`/api/account?email=${ email }`, { method: 'GET' })
 
       const json = await response.json()
 
+      if (response.status === 404) throw new Error(json.error)
+      if (response.status === 400) throw new Error(json.error)
+      if (response.status === 405) throw new Error(json.error)
+      if (response.status === 500) throw new Error(json.error)
 
       if (response.status === 200) {
         const account: ACCOUNT__DYNAMODB = json.account
         const _ = account?.participant ?? null
-        
+          
         setParticipant(_)
         setIsGettingParticipant(false)
-      } else if (response.status === 404) {
-        setIsGettingParticipant(false)
-      } else if (response.status === 500) {
-        setIsGettingParticipant(false)
-        throw new Error(json.error)
       }
     } catch (error: any) {
       setIsGettingParticipant(false)

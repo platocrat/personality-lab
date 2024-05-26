@@ -1,0 +1,54 @@
+/* ViewStudy.module.css */
+.copyInviteLink {
+  background-color: rgb(0, 123, 194);
+  /* Primary color */
+  box-shadow: 0px 2.5px 3px rgba(0, 43, 68, 0.612);
+  /* Text color */
+  color: white;
+  /* Padding */
+  padding: 4px 8px;
+  /* No border */
+  border: none;
+  /* Rounded corners */
+  border-radius: 3rem;
+  /* Pointer cursor on hover */
+  cursor: pointer;
+  /* Font size */
+  font-size: 13px;
+  /* Transform scale */
+  transform: scale(1);
+  /* Smooth transition for background color */
+  transition: background-color 0.1s ease-in-out;
+}
+
+.copyInviteLink:hover {
+  /* Darker shade on hover */
+  background-color: #0056b3;
+  transform: scale(0.98);
+  transition: 0.1s ease-in-out;
+}
+
+.copyInviteLink:active {
+  transform: scale(0.955);
+  transition: 0.1s ease-in-out;
+  background-color: #004085;
+  /* Even darker shade on click */
+}
+
+.copied {
+  background-color: #28a745;
+  /* Green background for copied state */
+  color: white;
+  /* Text color */
+  cursor: default;
+  box-shadow: none;
+  transform: scale(1);
+  /* Default cursor */
+}
+
+.copied:hover {
+  transform: scale(1);
+  background-color: #28a745;
+  box-shadow: none;
+  /* Same background color on hover */
+}

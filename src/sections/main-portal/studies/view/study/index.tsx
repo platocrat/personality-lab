@@ -7,7 +7,6 @@ import {
   useState,
   useLayoutEffect, 
 } from 'react'
-import { usePathname } from 'next/navigation'
 // Locals
 import ParticipantsTable from './participants-table'
 // Components
@@ -15,25 +14,26 @@ import LeftHandNav from '@/components/Nav/LeftHand'
 import Spinner from '@/components/Suspense/Spinner'
 import ViewResultsModal from '@/components/Modals/ViewResultsModal'
 import DownloadDataModal from '@/components/Modals/AdminPortal/DownloadData'
-import CreateParticipantModal from '@/components/Modals/AdminPortal/CreateParticipant'
+// import CreateParticipantModal from '@/components/Modals/AdminPortal/CreateParticipant'
 // Hooks
 import useClickOutside from '@/hooks/useClickOutside'
 // Utils
 import { 
+  STUDY__DYNAMODB,
   ParticipantType, 
   PARTICIPANT__DYNAMODB,
   getUsernameAndEmailFromCookie,
 } from '@/utils'
 // CSS
-import styles from '@/app/page.module.css'
+import appStyles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+import sectionStyles from '@/sections/main-portal/studies/view/study/ViewStudy.module.css'
 
 
 
 
 type ViewStudySectionProps = {
-  studyName: string | undefined
-  studyDescription: string | undefined
+  study?: STUDY__DYNAMODB
 }
 
 
@@ -41,18 +41,14 @@ type ViewStudySectionProps = {
 
 
 const ViewStudySection: FC<ViewStudySectionProps> = ({
-  studyName,
-  studyDescription,
+  study
 }) => {
-  // Hooks
-  const pathname = usePathname()
   // Refs
   const viewResultsModalRef = useRef<any>(null)
   const downloadDataModalRef = useRef<any>(null)
   const createParticipantModalRef = useRef<any>(null)
   // States
   // Strings
-  const [studyId, setStudyId] = useState<string>('')
   const [inviteUrl, setInviteUrl] = useState<string>('')
   const [participantEmail, setParticipantEmail] = useState<string>('')
   const [participantUsername, setParticipantUsername] = useState<string>('')
@@ -77,10 +73,11 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
     showDownloadDataModal,
     setShowDownloadDataModal
   ] = useState<boolean>(false)
-  const [
-    showCreateParticipantModal,
-    setShowCreateParticipantModal
-  ] = useState<boolean>(false)
+  // const [
+  //   showCreateParticipantModal,
+  //   setShowCreateParticipantModal
+  // ] = useState<boolean>(false)
+  const [isCopied, setIsCopied] = useState(false)
   const [isNobelLaureate, setIsNobelLaureate] = useState<boolean>(false)
   const [participantCreated, setParticipantCreated] = useState<boolean>(false)
   // Custom
@@ -102,12 +99,19 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
     setShowViewResultsModal(true)
   }
 
-  function handleOpenCreateParticipantModal(e: any) {
-    setShowCreateParticipantModal(true)
-  }
+  // function handleOpenCreateParticipantModal(e: any) {
+  //   setShowCreateParticipantModal(true)
+  // }
 
   function handleOpenDownloadDataModal(e: any) {
     setShowDownloadDataModal(true)
+  }
+
+  // ~~~~~~ Button handlers ~~~~~~
+  function handleCopyInviteLink ()  {
+    navigator.clipboard.writeText(inviteUrl)
+    setIsCopied(true)
+    setTimeout(() => setIsCopied(false), 2000)
   }
 
   // ~~~~~~ Input handlers ~~~~~~
@@ -144,29 +148,34 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
   }
 
 
-  async function handleOnCreateParticipant(e: any) {
-    e.preventDefault()
+  // async function handleOnCreateParticipant(e: any) {
+  //   e.preventDefault()
 
-    setIsCreatingParticipant(true)
+  //   setIsCreatingParticipant(true)
 
-    // 1. Create a new `participant` object
-    const participant: ParticipantType = {
-      email: participantEmail,
-      username: participantUsername,
-      studyNames: [ studyName ?? '' ],
-      isNobelLaureate: isNobelLaureate,
-    }
+  //   // 1. Create a new `participant` object
+  //   const participant: ParticipantType = {
+  //     email: participantEmail,
+  //     username: participantUsername,
+  //     studies: [
+  //       {
+  //         name: study ? study.name : '',
+  //         assessmentId: study ? study.details.assessmentId : '',
+  //       }
+  //     ],
+  //     isNobelLaureate: isNobelLaureate,
+  //   }
 
-    // 2. Store the new `participant` object in DynamoDB
-    await storeParticipantInDynamoDB(participant)
+  //   // 2. Store the new `participant` object in DynamoDB
+  //   await storeParticipantInDynamoDB(participant)
 
-    // 3. Stop loading spinner
-    setIsCreatingParticipant(false)
-    // 4. Close Modal
-    setShowCreateParticipantModal(false)
-    // 5. Update state to refetch `participants` from DynamoDB
-    setParticipantCreated(true)
-  }
+  //   // 3. Stop loading spinner
+  //   setIsCreatingParticipant(false)
+  //   // 4. Close Modal
+  //   setShowCreateParticipantModal(false)
+  //   // 5. Update state to refetch `participants` from DynamoDB
+  //   setParticipantCreated(true)
+  // }
 
 
   /**
@@ -174,11 +183,14 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
    *      the `participants` property from the `study` object
    */
   async function getParticipants() {
-    if (studyId !== '') {
+    if (
+      study && 
+      (study?.id !== '' || study?.id !== undefined)
+    ) {
       setIsWaitingForResponse(true)
 
       try {
-        const response = await fetch(`/api/study?id=${ studyId }`, {
+        const response = await fetch(`/api/study?id=${ study.id }`, {
           method: 'GET',
         })
         
@@ -201,12 +213,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
 
 
   async function getStudyIdAndInviteUrl() {
-    const studyId_ = pathname.slice(
-      pathname.indexOf('/study/') + '/study/'.length
-    )
-    const inviteUrl_ = `${ window.location.origin }/invite/${studyId_}`
-
-    setStudyId(studyId_)
+    const inviteUrl_ = `${ window.location.origin }/invite/${ study?.id }`
     setInviteUrl(inviteUrl_)
   }
 
@@ -214,8 +221,6 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
   async function storeParticipantInDynamoDB(
     _participant: ParticipantType
   ) {
-    const CURRENT_TIMESTAMP = new Date().getTime()
-
     const { email, username } = await getUsernameAndEmailFromCookie()
 
 
@@ -234,13 +239,9 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
         adminUsername: username,
         email: _participant.email,
         username: _participant.username,
-        studies: [
-          { 
-            _participant.studyNames 
-          }
-        ],
+        studies: _participant.studies,
         isNobelLaureate: _participant.isNobelLaureate,
-        timestamp: CURRENT_TIMESTAMP,
+        timestamp: 0,
       }
 
       try {
@@ -249,7 +250,10 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ participant, studyId }),
+          body: JSON.stringify({ 
+            participant,
+            studyId: study?.id
+          }),
         })
 
         const json = await response.json()
@@ -281,10 +285,10 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
 
   // -------------------------------- Mappings ---------------------------------
   const pageNavButtons = [
-    {
-      buttonText: `Create Participant`,
-      onClick: handleOpenCreateParticipantModal
-    },
+    // {
+    //   buttonText: `Create Participant`,
+    //   onClick: handleOpenCreateParticipantModal
+    // },
     {
       buttonText: `Download Data`,
       onClick: handleOpenDownloadDataModal
@@ -293,10 +297,10 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
 
 
   // ---------------------------------- Hooks ----------------------------------
-  useClickOutside(
-    createParticipantModalRef,
-    () => setShowCreateParticipantModal(false)
-  )
+  // useClickOutside(
+  //   createParticipantModalRef,
+  //   () => setShowCreateParticipantModal(false)
+  // )
   useClickOutside(
     downloadDataModalRef,
     () => setShowDownloadDataModal(false)
@@ -315,7 +319,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
     ]
 
     Promise.all(requests)
-  }, [ studyId, participantCreated ])
+  }, [ study?.id, participantCreated ])
 
 
 
@@ -350,7 +354,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
               >
                 {/* Study Name */}
                 <h3 style={ { marginBottom: '4px' } }>
-                  { `${ studyName }` }
+                  { `${ study?.name }` }
                 </h3>
                 {/* Study ID */}
                 <div
@@ -360,43 +364,44 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
                     color: 'gray',
                   } }
                 >
-                  <p style={ { marginRight: '8px' } }>
-                    { `ID: ` }
-                  </p>
-                  <p>
-                    { studyId }
-                  </p>
-                </div>
-                {/* Study ID */}
-                <div
-                  style={ {
-                    ...definitelyCenteredStyle,
-                    fontSize: '13px',
-                  } }
-                >
-                  <p style={ { marginRight: '8px' } }>
-                    { `Invite Link: ` }
-                  </p>
-                  <input
-                    readOnly
-                    type='text'
-                    value={ inviteUrl }
-                    style={{ fontSize: '13px' }}
-                    onClick={ (e) => {
-                      e.preventDefault()
-                      e.currentTarget.select()
-                    } }
-                  />
+                  <div 
+                    style={{ 
+                      ...definitelyCenteredStyle,
+                      marginRight: '12px',
+                    }}
+                  >
+                    <p style={ { marginRight: '8px' } }>
+                      { `ID: ` }
+                    </p>
+                    <p>
+                      { `${ study?.id }` }
+                    </p>
+                  </div>
+                  {/* Study Invite Link */}
+                  <div>
+                    <button
+                      onClick={ handleCopyInviteLink }
+                      className={ 
+                        `${ sectionStyles.copyInviteLink } ${ 
+                          isCopied 
+                            ? sectionStyles.copied 
+                            : ''
+                          }`
+                      }
+                    >
+                      { isCopied ? 'Copied!' : 'Copy Invite Link' }
+                    </button>
+                  </div>
                 </div>
                 {/* Study Description */}
                 <div
                   style={ {
                     fontSize: '13px',
                     textAlign: 'left',
-                    margin: '12px 24px 0px 48px',
+                    margin: '12px 48px 0px 48px',
                   } }
                 >
-                  <p>{ studyDescription }</p>
+                  <p>{ `${ study?.details.description }` }</p>
                 </div>
               </div>
 
@@ -422,7 +427,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
                         <button
                           onClick={ btn.onClick }
                           style={{ width: '140px' }}
-                          className={ styles.button }
+                          className={ appStyles.button }
                         >
                           { btn.buttonText }
                         </button>
@@ -442,7 +447,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
                 )}
 
                 {/* Modals */ }
-                <CreateParticipantModal
+                {/* <CreateParticipantModal
                   onClick={ handleOnCreateParticipant }
                   modalRef={ createParticipantModalRef }
                   state={ {
@@ -454,7 +459,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
                     onUsernameChange,
                     onNobelLaureateChange,
                   } }
-                />
+                /> */}
 
                 <DownloadDataModal
                   modalRef={ downloadDataModalRef }

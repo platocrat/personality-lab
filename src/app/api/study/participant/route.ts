@@ -45,7 +45,7 @@ export async function POST(
       id: participantId,
       email: participant.email,
       username: participant.username,
-      studyNames: participant.studyNames,
+      studies: participant.studies,
       adminEmail: participant.adminEmail,
       adminUsername: participant.adminUsername,
       isNobelLaureate: participant.isNobelLaureate,
@@ -87,24 +87,22 @@ export async function POST(
          *      the user's account entry.
          */
         const storedTimestamp = (response.Items[0] as ACCOUNT__DYNAMODB).timestamp
-        // We also need `studyNames` to merge with the study name of the new
+        // We also need `account.studies` to merge with the study of the new
         // `participant` entry
-        const storedStudyNames = (response.Items[0] as ACCOUNT__DYNAMODB).studyNames
+        const storedStudies = (response.Items[0] as ACCOUNT__DYNAMODB).studies
 
-        const updatedStudyNames = storedStudyNames 
-          ? [ ...storedStudyNames, participant.studyNames[0] ]
-          : [ participant.studyNames[0] ]
+        const updatedStudies: {
+          name: string
+          assessmentId: string
+        }[] = storedStudies
+          ? [ ...storedStudies, participant.studies[0] ]
+          : [ participant.studies[0] ]
 
 
-        const participantWithUpdatedStudyNames = {
-          id: participantId,
-          email: participant.email,
-          username: participant.username,
-          studyNames: updatedStudyNames,
-          adminEmail: participant.adminEmail,
-          adminUsername: participant.adminUsername,
-          isNobelLaureate: participant.isNobelLaureate,
-          timestamp: participant.timestamp,
+        const participantWithUpdatedStudies: PARTICIPANT__DYNAMODB = {
+          ...participant_,
+          studies: updatedStudies,
+          timestamp: Date.now(),
         }
 
         // 1.2.1.2 Construct the `UpdateCommand` to send to DynamoDB to update
@@ -117,7 +115,7 @@ export async function POST(
         const UpdateExpression = 'set participant = :participant'
         
         ExpressionAttributeValues = { 
-          ':participant': participantWithUpdatedStudyNames
+          ':participant': participantWithUpdatedStudies
         }
 
         input = {
@@ -377,7 +375,7 @@ export async function POST(
             const previousParticipants = (response.Items as STUDY__DYNAMODB[])[0].participants
 
             // Update list of participants using existing participants.
-            const updatedParticipants = previousParticipants
+            const updatedParticipants: PARTICIPANT__DYNAMODB[] = previousParticipants
               ? [ ...previousParticipants, participant_ ]
               : [ participant_ ]
 

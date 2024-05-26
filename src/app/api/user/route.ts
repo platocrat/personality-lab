@@ -107,7 +107,7 @@ export async function GET(
         return NextResponse.json(
           { error: error, },
           { 
-            status: 400, 
+            status: 500, 
             headers: {
               'Content-Type': 'application/json',
             },

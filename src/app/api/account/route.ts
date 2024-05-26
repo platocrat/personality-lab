@@ -32,6 +32,18 @@ export async function GET(
   if (req.method === 'GET') {
     const email = req.nextUrl.searchParams.get('email')
 
+    if (!email) {
+      return NextResponse.json(
+        { error: 'Email query parameter is required!' },
+        {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+    }
+
     /**
      * @dev 1.0 Construct `QueryCommand` to fetch the user's account 
      *          entry from the `accounts` table.
@@ -50,7 +62,6 @@ export async function GET(
     const successMessage = `Found account entry for '${
       email
     }' in the ${TableName} table`
-
 
 
     try {

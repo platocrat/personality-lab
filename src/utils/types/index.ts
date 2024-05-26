@@ -44,10 +44,18 @@ export type RESULTS__DYNAMODB = {
   id: string
   email: string
   timestamp: number
-  studyName: string
+  study: {
+    name: string
+    assessmentId: string
+  }
   facetScores: FacetFactorType
   domainScores: SkillDomainFactorType
   demographics: BessiUserDemographics__DynamoDB
+  // results: any | {
+  //   facetScores: FacetFactorType
+  //   domainScores: SkillDomainFactorType
+  //   demographics: BessiUserDemographics__DynamoDB
+  // }
 }
 
 
@@ -84,5 +92,8 @@ export type ParticipantType = {
   email: string
   username: string
   isNobelLaureate: boolean
-  studyNames: string[]
+  studies: {
+    name: string
+    assessmentId: string
+  }[]
 }

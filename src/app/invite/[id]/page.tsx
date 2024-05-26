@@ -53,8 +53,6 @@ const StudyInvite: FC<StudyInviteProps> = ({
 
   // ----------------------------- `useLayoutEffect`s --------------------------
   useLayoutEffect(() => {
-    console.log(`id: `, id)
-
     if (!id) {
       setIsLoadingStudy(true)
 

@@ -68,11 +68,11 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
       email: participantEmail,
       username: participantUsername,
       /**
-       * @dev Update `studyNames` with pre-existing `studyNames` when updating
+       * @dev Update `studies` with pre-existing `studies` when updating
        *      the user's account entry in the `/api/study/participant` API 
        *      endpoint, i.e. when fetching the user's account entry from the 
        *      `account` table, use the account entry's 
-       *      `account.participant.studyNames` property to update `studyNames`
+       *      `account.participant.studies` property to update `studies`
        *      for the participant.
        */
       studies: [

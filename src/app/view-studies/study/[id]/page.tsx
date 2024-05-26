@@ -28,7 +28,7 @@ const ViewStudy: FC<ViewStudyProps> = ({
   const { id } = params
   // States
   const [ isLoadingStudy, setIsLoadingStudy ] = useState(false)
-  const [ study, setStudy ] = useState<STUDY__DYNAMODB | null>(null)
+  const [ study, setStudy ] = useState<STUDY__DYNAMODB | undefined>(undefined)
 
 
   // --------------------------- Async functions -------------------------------
@@ -87,10 +87,7 @@ const ViewStudy: FC<ViewStudyProps> = ({
         </>
       ) : (
         <>
-          <ViewStudySection
-            studyName={ study?.name } 
-            studyDescription={ study?.details.description }
-          />
+          <ViewStudySection study={ study } />
         </>
       ) }
     </>
