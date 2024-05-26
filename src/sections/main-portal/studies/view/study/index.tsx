@@ -234,7 +234,11 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
         adminUsername: username,
         email: _participant.email,
         username: _participant.username,
-        studyNames: _participant.studyNames,
+        studies: [
+          { 
+            _participant.studyNames 
+          }
+        ],
         isNobelLaureate: _participant.isNobelLaureate,
         timestamp: CURRENT_TIMESTAMP,
       }

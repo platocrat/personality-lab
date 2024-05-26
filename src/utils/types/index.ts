@@ -28,11 +28,14 @@ export type ACCOUNT__DYNAMODB = {
   username: string
   timestamp: number
   isAdmin: boolean
-  studyNames: string[]
   password: { 
     hash: string
     salt: string
   }
+  studies: {
+    name: string
+    assessmentId: string
+  }[]
   participant?: PARTICIPANT__DYNAMODB
 }
 
