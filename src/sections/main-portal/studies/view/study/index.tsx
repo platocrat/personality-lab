@@ -186,31 +186,22 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
    *      the `participants` property from the `study` object
    */
   async function getParticipants() {
-    if (
-      study && 
-      (study?.id !== '' || study?.id !== undefined)
-    ) {
-      setIsWaitingForResponse(true)
+    try {
+      const response = await fetch(`/api/study?id=${ study?.id }`, {
+        method: 'GET',
+      })
+      
+      const json = await response.json()
 
-      try {
-        const response = await fetch(`/api/study?id=${ study.id }`, {
-          method: 'GET',
-        })
-        
-        const json = await response.json()
+      if (response.status === 500) throw new Error(json.error)
+      if (response.status === 405) throw new Error(json.error)
 
-        if (response.status === 500) throw new Error(json.error)
-        if (response.status === 405) throw new Error(json.error)
+      const participants_ = json.study.participants
 
-        const participants_ = json.study.participants
-
-        setParticipants(participants_)
-        setParticipantCreated(false)
-        setIsWaitingForResponse(false)
-      } catch (error: any) {
-        setIsWaitingForResponse(false)
-        throw new Error(error.message)
-      }
+      setParticipants(participants_)
+      setParticipantCreated(false)
+    } catch (error: any) {
+      throw new Error(error.message)
     }
   }
 
@@ -316,12 +307,21 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
 
 
   useLayoutEffect(() => {
-    const requests = [
-      getStudyIdAndInviteUrl(),
-      getParticipants(),
-    ]
+    if (
+      study &&
+      (study?.id !== '' || study?.id !== undefined)
+    ) {
+      setIsWaitingForResponse(true)
 
-    Promise.all(requests)
+      const requests = [
+        getStudyIdAndInviteUrl(),
+        getParticipants(),
+      ]
+
+      Promise.all(requests).then((response: any) => {
+        setIsWaitingForResponse(false)
+      })
+    }
   }, [ study?.id, participantCreated ])
 
 
@@ -356,14 +356,14 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
                 } }
               >
                 {/* Study Name */}
-                <h3 style={ { marginBottom: '4px' } }>
+                <h2 style={ { marginBottom: '4px' } }>
                   { `${ study?.name }` }
-                </h3>
+                </h2>
                 {/* Study ID */}
                 <div
                   style={ {
                     ...definitelyCenteredStyle,
-                    fontSize: '12px',
+                    fontSize: '13px',
                     color: 'gray',
                   } }
                 >
@@ -399,7 +399,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
                 {/* Study Description */}
                 <div
                   style={ {
-                    fontSize: '13px',
+                    fontSize: '14px',
                     textAlign: 'left',
                     margin: '12px 48px 0px 48px',
                   } }
@@ -417,27 +417,29 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
                 } }
               >
                 {/* Page Nav */ }
-                <div
-                  style={ {
-                    gap: '18px',
-                    display: 'flex',
-                    margin: '24px 0px'
-                  } }
-                >
-                  { pageNavButtons.map((btn, i: number) => (
-                    <Fragment key={ i }>
-                      <div>
-                        <button
-                          onClick={ btn.onClick }
-                          style={{ width: '140px' }}
-                          className={ appStyles.button }
-                        >
-                          { btn.buttonText }
-                        </button>
-                      </div>
-                    </Fragment>
-                  )) }
-                </div>
+                { participants && participants.length > 0 && (
+                  <div
+                    style={ {
+                      gap: '18px',
+                      display: 'flex',
+                      margin: '24px 0px'
+                    } }
+                  >
+                    { pageNavButtons.map((btn, i: number) => (
+                      <Fragment key={ i }>
+                        <div>
+                          <button
+                            onClick={ btn.onClick }
+                            style={{ width: '140px' }}
+                            className={ appStyles.button }
+                          >
+                            { btn.buttonText }
+                          </button>
+                        </div>
+                      </Fragment>
+                    )) }
+                  </div>
+                  )}
 
                 { participants && participants.length > 0 && (
                   <>

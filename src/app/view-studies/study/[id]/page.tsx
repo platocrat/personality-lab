@@ -44,7 +44,6 @@ const ViewStudy: FC<ViewStudyProps> = ({
       if (response.status === 405) throw new Error(json.error)
 
       setStudy(json.study)
-      setIsLoadingStudy(false)
     } catch (error: any) {
       throw new Error(error.message)
     }
@@ -54,18 +53,20 @@ const ViewStudy: FC<ViewStudyProps> = ({
   // ----------------------------- `useLayoutEffect`s --------------------------
   useLayoutEffect(() => {
     if (!id) {
-      setIsLoadingStudy(true)
-
       /**
        * @todo Replace the line below by handling the error on the UI here
        */
       throw new Error(`Error: 'id' is invalid , see ${id}`)
     } else {
+      setIsLoadingStudy(true)
+
       const requests = [
         getStudy()
       ]
 
-      Promise.all(requests)
+      Promise.all(requests).then((response: any) => {
+        setIsLoadingStudy(false)
+      })
     }
   }, [ id ])
 
