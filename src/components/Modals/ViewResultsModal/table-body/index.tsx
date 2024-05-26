@@ -1,7 +1,6 @@
 // Externals
 import { FC, Fragment } from 'react'
 // Locals
-import assessments from '@/sections/assessments'
 // Types
 import { AssessmentToViewType } from '..'
 // CSS

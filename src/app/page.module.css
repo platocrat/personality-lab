@@ -185,7 +185,7 @@
 
 @media only screen and (min-width: 650px) {
   .assessmentWrapper {
-    max-width: 720px;
+    max-width: 900px;
   }
 }
 
@@ -301,7 +301,7 @@
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 6rem 6rem 6rem;
+  padding: 0.5rem 1rem 1rem 1rem;
 }
 
 @media only screen and (max-width: 650px) {

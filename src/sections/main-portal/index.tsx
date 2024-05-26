@@ -1,13 +1,12 @@
 // Externals
 import Link from 'next/link'
-import { FC, Fragment, useContext } from 'react'
+import { FC, useContext } from 'react'
 // Locals
-// Sections
-import PersonalityAssessments from '../assessments'
 // Components
 import LeftHandNav from '@/components/Nav/LeftHand'
 // Contexts
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
+// Contexts
 import { definitelyCenteredStyle } from '@/theme/styles'
 
 

@@ -45,7 +45,7 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
 
     const svgWidth = 600
     const svgHeight = 400
-    const margin = { top: 20, right: 120, bottom: 90, left: 50 }
+    const margin = { top: 20, right: 83, bottom: 90, left: 50 }
     const width = svgWidth - margin.left - margin.right
     const height = svgHeight - margin.top - margin.bottom
 

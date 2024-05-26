@@ -5,7 +5,6 @@ import { useContext, useMemo } from 'react'
 // Locals
 // Sections
 import MainPortal from '@/sections/main-portal'
-import PersonalityAssessments from '@/sections/assessments'
 import LogInOrCreateAnAccount from '@/sections/log-in-or-create-an-account'
 // Contexts
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
