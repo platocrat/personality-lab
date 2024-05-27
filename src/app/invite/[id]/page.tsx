@@ -1,12 +1,15 @@
 'use client'
 
 // Externals
-import { FC, useLayoutEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { FC, useContext, useLayoutEffect, useState } from 'react'
 // Locals
 import StudyInviteSection from '@/sections/invite'
 // Components
 import Spinner from '@/components/Suspense/Spinner'
-// UTils
+// Contexts
+import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
+// Utils
 import { STUDY__DYNAMODB } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -26,6 +29,10 @@ const StudyInvite: FC<StudyInviteProps> = ({
 }) => {
   // URL params
   const { id } = params
+  // Contexts
+  const { isAdmin, isParticipant } = useContext(AuthenticatedUserContext)
+  // Hooks
+  const router = useRouter()
   // States
   const [isLoadingStudy, setIsLoadingStudy] = useState(false)
   const [study, setStudy] = useState<STUDY__DYNAMODB | null>(null)
@@ -44,7 +51,6 @@ const StudyInvite: FC<StudyInviteProps> = ({
       if (response.status === 405) throw new Error(json.error)
 
       setStudy(json.study)
-      setIsLoadingStudy(false)
     } catch (error: any) {
       throw new Error(error.message)
     }
@@ -53,21 +59,30 @@ const StudyInvite: FC<StudyInviteProps> = ({
 
   // ----------------------------- `useLayoutEffect`s --------------------------
   useLayoutEffect(() => {
-    if (!id) {
-      setIsLoadingStudy(true)
+    setIsLoadingStudy(true)
 
-      /**
-       * @todo Replace the line below by handling the error on the UI here
-       */
-      throw new Error(`Error: 'id' is invalid , see ${id}`)
+    if (
+      isAdmin || 
+      (!isAdmin && isParticipant)
+    ) {
+      router.push('/')
     } else {
-      const requests = [
-        getStudy()
-      ]
+      if (!id) {
+        /**
+         * @todo Replace the line below by handling the error on the UI here
+         */
+        throw new Error(`Error: 'id' is invalid , see ${id}`)
+      } else {
+        const requests = [
+          getStudy()
+        ]
 
-      Promise.all(requests)
+        Promise.all(requests).then((response: any) => {
+          setIsLoadingStudy(false)
+        })
+      }
     }
-  }, [id])
+  }, [ isAdmin, isParticipant, id, ])
 
 
 

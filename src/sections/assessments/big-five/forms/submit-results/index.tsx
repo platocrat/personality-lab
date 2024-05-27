@@ -75,7 +75,7 @@ const SubmitResultsForm: FC<SubmitResultsFormProps> = ({
   // async function storeResultsInDynamoDB(
   //   _userResults
   // ) {
-  //   const CURRENT_TIMESTAMP = new Date().getTime()
+  //   const CURRENT_TIMESTAMP = Date.now()
 
   //   const email = await getUserEmailFromCookie()
 

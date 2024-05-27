@@ -40,7 +40,8 @@ const LogInOrCreateAnAccount = () => {
     setEmail,
     setIsAdmin,
     setUsername,
-    setIsAuthenticated 
+    setIsParticipant,
+    setIsAuthenticated,
   } = useContext(AuthenticatedUserContext)
 
   // Strings
@@ -113,20 +114,23 @@ const LogInOrCreateAnAccount = () => {
 
       
       if (response.status === 200) {
-        const { message, isAdmin } = json
+        const { message, isAdmin, isParticipant } = json
 
 
         switch (message) {
           case 'Verified email, username, and password':
-            setIsWaitingForResponse(false)
             setIsEmailIncorrect(false)
             setIsUsernameIncorrect(false)
             setIsPasswordIncorrect(false)
             
             // Authenticate user
+            setIsParticipant(isParticipant)
             setIsAdmin(isAdmin)
             setIsAuthenticated(true)
+            
             router.refresh()
+
+            setIsWaitingForResponse(false)
             break
 
           case 'Incorrect password':
@@ -201,21 +205,24 @@ const LogInOrCreateAnAccount = () => {
       const json = await response.json()
 
       if (response.status === 200) {
-        const { message, isAdmin } = json
-
-        setIsWaitingForResponse(false)
+        const { message, isAdmin, isParticipant } = json
 
  
         switch (message) {
           case 'Username exists':
             setIsUsernameTaken(true)
+            setIsWaitingForResponse(false)
             break
 
           case 'User has successfully signed up':
             // Authenticate user
+            setIsParticipant(isParticipant)
             setIsAdmin(isAdmin)
             setIsAuthenticated(true)
+            
             router.refresh()
+
+            setIsWaitingForResponse(false)
             break
         }
       } else {
@@ -310,7 +317,10 @@ const LogInOrCreateAnAccount = () => {
 
   return (
     <>
-      <div className={ styles.main }>
+      <div 
+        style={{ top: 0 }}
+        className={ styles.main }
+      >
         <Card
           title={ title }
           description={ description }

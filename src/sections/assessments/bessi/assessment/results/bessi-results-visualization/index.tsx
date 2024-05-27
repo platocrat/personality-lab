@@ -289,8 +289,6 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
     rating: number, 
     vizName: string
   ) {
-      const CURRENT_TIMESTAMP = new Date().getTime()
-
       const { email, username } = await getUsernameAndEmailFromCookie()
 
 
@@ -307,7 +305,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         const userVizRating/*: BESSI__VisualizationRating__DynamoDB */ = {
           email: email,
           username: username,
-          timestamp: CURRENT_TIMESTAMP,
+          timestamp: 0,
           vizName: vizName,
           rating: rating,
           assessmentName: 'bessi'

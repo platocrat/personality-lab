@@ -131,6 +131,7 @@ const PersonalityAssessments = ({ }) => {
   const { 
     email,
     isAdmin,
+    isParticipant,
   } = useContext(AuthenticatedUserContext)
   // States
   const [ 
@@ -209,14 +210,17 @@ const PersonalityAssessments = ({ }) => {
   
       Promise.all(requests)
     }
-  }, [ email ])
+  }, [ email, isAdmin, isParticipant ])
 
 
 
 
   return (
     <Fragment key={ `personality-assessments` }>
-      <div className={ styles.main }>
+      <div 
+        className={ styles.main }
+        style={{ top: isParticipant || isAdmin ? '0' : '' }}
+      >
         
         <div style={{ marginBottom: '8px' }}>
           <h1>{ title }</h1>

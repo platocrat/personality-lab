@@ -34,7 +34,7 @@ export async function POST(
       rating: userVizRating.rating,
       vizName: userVizRating.vizName,
       username: userVizRating.username,
-      timestamp: userVizRating.timestamp,
+      timestamp: Date.now(),
       study: userVizRating.study,
     }
 

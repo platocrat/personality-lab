@@ -59,6 +59,7 @@ export async function POST(
       ) {
         const storedUsername = (response.Items[0] as ACCOUNT__DYNAMODB).username
         const storedPassword = (response.Items[0] as ACCOUNT__DYNAMODB).password
+        const storedParticipant = (response.Items[0] as ACCOUNT__DYNAMODB).participant
 
         const verifiedUsername = storedUsername === username
         const verifiedPassword = new SSCrypto().verifyPassword(
@@ -93,16 +94,20 @@ export async function POST(
                   username, 
                   secretKeyCipher
                 )
-
                 // Determine if the new user is an admin
                 const isAdmin = ACCOUNT_ADMINS.some(admin => admin.email === email)
                 const encryptedIsAdmin = new SSCrypto().encrypt(
                   isAdmin.toString(), 
                   secretKeyCipher
                 )
-
-                // Get timestamp after the username is validated.
-                const timestamp = new Date().getTime().toString()
+                // Determine if the new user is a participant
+                const isParticipant = storedParticipant?.id !== undefined ? true : false
+                const encryptedIsParticipant = new SSCrypto().encrypt(
+                  isParticipant.toString(), 
+                  secretKeyCipher
+                )
+                // Get timestamp.
+                const timestamp = Date.now().toString()
                 const encryptedTimestamp = new SSCrypto().encrypt(
                   timestamp, 
                   secretKeyCipher
@@ -114,9 +119,10 @@ export async function POST(
                 const token = sign(
                   {
                     email: encryptedEmail,
-                    isAdmin: encryptedIsAdmin,
                     username: encryptedUsername,
                     password: storedPassword.hash,
+                    isAdmin: encryptedIsAdmin,
+                    isParticipant: encryptedIsParticipant,
                     timestamp: encryptedTimestamp
                   },
                   JWT_SECRET as string,
@@ -161,8 +167,9 @@ export async function POST(
                  */
                 return NextResponse.json(
                   { 
-                    message: message,
+                    message,
                     isAdmin,
+                    isParticipant,
                   },
                   {
                     status: 200,

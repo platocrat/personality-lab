@@ -3,18 +3,18 @@ import {
   GetParameterCommand, 
   GetParameterCommandInput, 
 } from '@aws-sdk/client-ssm'
-import { decode, verify } from 'jsonwebtoken'
 import { cookies } from 'next/headers'
+import { decode, verify } from 'jsonwebtoken'
 import { NextRequest, NextResponse } from 'next/server'
 // Locals
 import { 
+  SSCrypto,
   ssmClient,
   CookieType,
   COOKIE_NAME,
   fetchAwsParameter, 
-  AWS_PARAMETER_NAMES,
   getCookieSecretKey,
-  SSCrypto,
+  AWS_PARAMETER_NAMES,
  } from '@/utils'
 
 
@@ -62,6 +62,8 @@ export async function GET(
         const encryptedEmail = (decoded as CookieType).email
         const encryptedUsername = (decoded as CookieType).username
         const encryptedIsAdmin = (decoded as CookieType).isAdmin
+        const encryptedIsParticipant = (decoded as CookieType).isParticipant
+        const encryptedTimestamp = (decoded as CookieType).timestamp
 
         const SECRET_KEY = await fetchAwsParameter(
           AWS_PARAMETER_NAMES.COOKIE_ENCRYPTION_SECRET_KEY
@@ -85,8 +87,26 @@ export async function GET(
             secretKeyCipher,
             encryptedIsAdmin.iv
           ) === 'true' ? true : false
+          const isParticipant = new SSCrypto().decrypt(
+            encryptedIsParticipant.encryptedData,
+            secretKeyCipher,
+            encryptedIsParticipant.iv
+          ) === 'true' ? true : false
 
-          const user = { email, username, isAdmin }
+          const timestamp = new SSCrypto().decrypt(
+            encryptedTimestamp.encryptedData,
+            secretKeyCipher,
+            encryptedTimestamp.iv
+          )
+
+
+          const user = { 
+            email, 
+            username, 
+            isAdmin,
+            isParticipant,
+            timestamp,
+          }
 
 
           return NextResponse.json(

@@ -204,8 +204,6 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
       currentEmploymentStatus: currentEmploymentStatus,
     }
 
-    const CURRENT_TIMESTAMP = new Date().getTime()
-    
     const { email, username } = await getUsernameAndEmailFromCookie()
 
 
@@ -225,7 +223,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
       } = {
         email: email,
         username: username,
-        timestamp: CURRENT_TIMESTAMP,
+        timestamp: 0,
         facetScores: finalScores.facetScores,
         domainScores: finalScores.domainScores,
         assessmentName: ASSESSMENT_NAME,

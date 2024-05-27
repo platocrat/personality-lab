@@ -16,7 +16,7 @@ import styles from '@/app/page.module.css'
 
 
 export default function Home() {
-  const { isAdmin, isAuthenticated } = useContext(AuthenticatedUserContext)
+  const { isAuthenticated } = useContext(AuthenticatedUserContext)
 
 
   return (

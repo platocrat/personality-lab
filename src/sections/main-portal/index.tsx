@@ -8,14 +8,32 @@ import LeftHandNav from '@/components/Nav/LeftHand'
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // Contexts
 import { definitelyCenteredStyle } from '@/theme/styles'
+import PersonalityAssessments from '../assessments'
 
 
 type MainPortalProps = {}
 
 
 
+const PageTitle = ({ pageTitle }) => {
+  return (
+    <>
+      <div style={ definitelyCenteredStyle }>
+        {/* Title */ }
+        <h1>{ pageTitle }</h1>
+      </div>
+    </>
+  )
+}
+
+
+
 const MainPortal: FC<MainPortalProps> = ({ }) => {
-  const { username } = useContext(AuthenticatedUserContext)
+  const { 
+    isAdmin,
+    username,
+    isParticipant, 
+  } = useContext(AuthenticatedUserContext)
 
   const PAGE_TITLE = `Welcome, ${username}!`
 
@@ -23,17 +41,24 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
 
   return (
     <>
-      <LeftHandNav>
-        <div style={ definitelyCenteredStyle }>
-          {/* Title */ }
-          <h1>{ PAGE_TITLE }</h1>
-        </div>
-
-        {/* Main content goes here */ }
-        <div style={{ ...definitelyCenteredStyle, margin: '48px' }}>
-          { 'Notifications and other important updates go here.' }
-        </div>
-      </LeftHandNav>
+      { isParticipant ? (
+        <>
+          <div style={{ position: 'relative', top: '85px' }}>
+            <PageTitle pageTitle={ PAGE_TITLE }/>
+            <PersonalityAssessments />
+          </div>
+        </>
+      ) : (
+        <>
+          <LeftHandNav>
+            <PageTitle pageTitle={ PAGE_TITLE } />
+            {/* Main content goes here */ }
+            <div style={{ ...definitelyCenteredStyle, margin: '48px' }}>
+              { 'Notifications and other important updates go here.' }
+            </div>
+          </LeftHandNav>
+        </>
+      )}
     </>
   )
 }

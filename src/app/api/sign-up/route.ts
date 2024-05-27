@@ -20,9 +20,11 @@ import {
   MAX_AGE, 
   SSCrypto,
   ssmClient,
+  CookieType,
   COOKIE_NAME,
   ddbDocClient,
   ACCOUNT_ADMINS,
+  CookieInputType,
   ACCOUNT__DYNAMODB,
   fetchAwsParameter, 
   AWS_PARAMETER_NAMES, 
@@ -87,12 +89,18 @@ export async function POST(
           const timestamp = (response.Items[0] as ACCOUNT__DYNAMODB).timestamp
 
           /**
-           * @dev 1.1.3 Determine if the new user is an admin.
+           * @dev 1.1.3 Since the email exists, the user is an unregistered 
+           *            participant, so we set `isParticipant` to `true`
+           */
+          const isParticipant = true
+
+          /**
+           * @dev 1.1.4 Determine if the new user is an admin.
            */
           const isAdmin = ACCOUNT_ADMINS.some(admin => admin.email === email)
 
           /**
-           * @dev 1.1.4 Construct `UpdateCommand` arguments
+           * @dev 1.1.5 Construct `UpdateCommand` arguments
            */
           const Key = {
             email: email,
@@ -117,7 +125,7 @@ export async function POST(
           command = new UpdateCommand(input)
 
           /**
-           * @dev 1.1.5 Attempt to perform `Update` operation on DynamoDB table
+           * @dev 1.1.6 Attempt to perform `Update` operation on DynamoDB table
            */
           try {
             const response = await ddbDocClient.send(command)
@@ -132,9 +140,10 @@ export async function POST(
               if (typeof SECRET_KEY === 'string') {
                 const secretKeyCipher = Buffer.from(SECRET_KEY, 'hex')
 
+
                 const encryptedEmail = new SSCrypto().encrypt(
                   email,
-                  secretKeyCipher
+                  secretKeyCipher,
                 )
                 const encryptedUsername = new SSCrypto().encrypt(
                   username,
@@ -144,29 +153,34 @@ export async function POST(
                   isAdmin.toString(),
                   secretKeyCipher
                 )
+                const encryptedIsParticipant = new SSCrypto().encrypt(
+                  isParticipant.toString(),
+                  secretKeyCipher
+                )
                 const encryptedTimestamp = new SSCrypto().encrypt(
                   timestamp.toString(),
                   secretKeyCipher
                 )
 
                 /**
-                 * @dev 1.1.6 Make sure the password that is stored in the 
+                 * @dev 1.1.7 Make sure the password that is stored in the 
                  *            cookie is hashed!
                  */
                 const token = sign(
                   {
-                    email: encryptedEmail,
-                    isAdmin: encryptedIsAdmin,
-                    username: encryptedUsername,
-                    password: password.hash,
-                    timestamp: encryptedTimestamp
+                    email,
+                    username,
+                    password: password.hash, // Hashed password
+                    isAdmin,
+                    isParticipant,
+                    timestamp,
                   },
                   JWT_SECRET as string,
                   { expiresIn: MAX_AGE.SESSION }
                 )
 
                 /**
-                 * @dev 1.1.7 Store the cookie
+                 * @dev 1.1.8 Store the cookie
                 */
                 cookies().set(COOKIE_NAME, token, {
                   /**
@@ -203,13 +217,14 @@ export async function POST(
                 const cookieValue: string = cookies().get(COOKIE_NAME)?.value ?? 'null'
 
                 /**
-                 * @dev 1.1.8 Return the cookie value and `isAdmin` in the 
+                 * @dev 1.1.9 Return the cookie value and `isAdmin` in the 
                  *            response
                  */
                 return NextResponse.json(
                   {
                     message: 'User has successfully signed up',
-                    isAdmin
+                    isAdmin,
+                    isParticipant,
                   },
                   {
                     status: 200,
@@ -292,22 +307,30 @@ export async function POST(
      * @dev 3.0 Store the new user's sign-up data
      */
     // Get timestamp after the username is validated.
-    const timestamp = new Date().getTime()
+    const timestamp = Date.now()
 
     /**
      * @dev 3.1 Determine if the new user is an admin
      */
     const isAdmin = ACCOUNT_ADMINS.some(admin => admin.email === email)
 
+    /**
+     * @dev 3.2 The new user has no pre-existing account entry in the `accounts`
+     *          table, so `isParticipant` is set to `false`.
+     */
+    const isParticipant = false
+
+    const Item = {
+      email,
+      username,
+      password, // Contains a password that is already hashed
+      isAdmin,
+      timestamp,
+    }
+
     input = {
       TableName,
-      Item: { 
-        email,
-        isAdmin,
-        username, 
-        password, // Contains a password that is already hashed
-        timestamp
-      },
+      Item,
     }
 
     command = new PutCommand(input)
@@ -328,22 +351,28 @@ export async function POST(
         if (typeof SECRET_KEY === 'string') {
           const secretKeyCipher = Buffer.from(SECRET_KEY, 'hex')
 
+
           const encryptedEmail = new SSCrypto().encrypt(
-            email, 
-            secretKeyCipher
+            email,
+            secretKeyCipher,
           )
           const encryptedUsername = new SSCrypto().encrypt(
-            username, 
+            username,
             secretKeyCipher
           )
           const encryptedIsAdmin = new SSCrypto().encrypt(
-            isAdmin.toString(), 
+            isAdmin.toString(),
+            secretKeyCipher
+          )
+          const encryptedIsParticipant = new SSCrypto().encrypt(
+            isParticipant.toString(),
             secretKeyCipher
           )
           const encryptedTimestamp = new SSCrypto().encrypt(
-            timestamp.toString(), 
+            timestamp.toString(),
             secretKeyCipher
           )
+
 
           /**
            * @dev 3.3.1 Make sure the password that is stored in the cookie is 
@@ -351,11 +380,12 @@ export async function POST(
            */
           const token = sign(
             {
-              email: encryptedEmail,
-              isAdmin: encryptedIsAdmin,
-              username: encryptedUsername,
-              password: password.hash,
-              timestamp: encryptedTimestamp
+              email,
+              username,
+              password: password.hash, // Hashed password
+              isAdmin,
+              isParticipant,
+              timestamp,
             },
             JWT_SECRET as string,
             { expiresIn: MAX_AGE.SESSION }
@@ -405,7 +435,8 @@ export async function POST(
           return NextResponse.json(
             { 
               message: 'User has successfully signed up',
-              isAdmin
+              isAdmin,
+              isParticipant,
             },
             {
               status: 200,

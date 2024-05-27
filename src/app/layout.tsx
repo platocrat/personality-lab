@@ -30,7 +30,12 @@ import {
 
 
 
-type UserType = { email: string, username: string, isAdmin: boolean }
+type UserType = { 
+  email: string
+  username: string 
+  isAdmin: boolean
+  isParticipant: boolean
+}
 
 
 export type UserResponse = {
@@ -67,6 +72,7 @@ export default function RootLayout({
   const [ email, setEmail ] = useState<string>('')
   const [ username, setUsername ] = useState<string>('')
   const [ isAdmin, setIsAdmin ] = useState<boolean>(false)
+  const [isParticipant, setIsParticipant ] = useState<boolean>(false)
   // Booleans for user authentication
   const [ isInviteUrl, setIsInviteUrl] = useState<boolean>(false)
   const [ isFetchingUser, setIsFetchingUser ] = useState<boolean>(true)
@@ -281,10 +287,13 @@ export default function RootLayout({
         return
       }
     } else {
-      // Show the dashboard
+      // Update state of the user
       setEmail((user as UserType).email)
       setUsername((user as UserType).username)
+      // Update state of the kind of user
+      setIsParticipant((user as UserType).isParticipant)
       setIsAdmin((user as UserType).isAdmin)
+      // Show the dashboard
       setIsAuthenticated(true)
       setIsFetchingUser(false)
     }
@@ -332,60 +341,62 @@ export default function RootLayout({
                   setEmail,
                   setIsAdmin,
                   setUsername,
+                  isParticipant,
                   isAuthenticated,
+                  setIsParticipant,
                   setIsAuthenticated,
                 } }
               >
-                  <UserDemographicContext.Provider
+                <UserDemographicContext.Provider
+                  value={ {
+                    // State variables
+                    age,
+                    gender,
+                    usState,
+                    zipCode,
+                    religion,
+                    isParent,
+                    familySize,
+                    socialClass,
+                    foreignCountry,
+                    raceOrEthnicity,
+                    priorCompletion,
+                    isFluentInEnglish,
+                    currentMaritalStatus,
+                    areaOfScienceTraining,
+                    annualHouseholdIncome,
+                    highestFormalEducation,
+                    currentEmploymentStatus,
+                    // Form input handlers
+                    onAgeChange,
+                    onGenderChange,
+                    onZipCodeChange,
+                    onReligionChange,
+                    onIsParentChange,
+                    onUsLocationChange,
+                    onFamilySizeChange,
+                    onSocialClassChange,
+                    onEnglishFluencyChange,
+                    onRaceOrEthnicityChange,
+                    onPriorCompletionChange,
+                    onForeignLocationChange,
+                    onCurrentMaritalStatusChange,
+                    onAreaOfScienceTrainingChange,
+                    onHighestEducationLevelChange,
+                    onAnnualHouseholdIncomeChange,
+                    onCurrentEmploymentStatusChange,
+                  } }
+                >
+                  <BessiSkillScoresContext.Provider
                     value={ {
-                      // State variables
-                      age,
-                      gender,
-                      usState,
-                      zipCode,
-                      religion,
-                      isParent,
-                      familySize,
-                      socialClass,
-                      foreignCountry,
-                      raceOrEthnicity,
-                      priorCompletion,
-                      isFluentInEnglish,
-                      currentMaritalStatus,
-                      areaOfScienceTraining,
-                      annualHouseholdIncome,
-                      highestFormalEducation,
-                      currentEmploymentStatus,
-                      // Form input handlers
-                      onAgeChange,
-                      onGenderChange,
-                      onZipCodeChange,
-                      onReligionChange,
-                      onIsParentChange,
-                      onUsLocationChange,
-                      onFamilySizeChange,
-                      onSocialClassChange,
-                      onEnglishFluencyChange,
-                      onRaceOrEthnicityChange,
-                      onPriorCompletionChange,
-                      onForeignLocationChange,
-                      onCurrentMaritalStatusChange,
-                      onAreaOfScienceTrainingChange,
-                      onHighestEducationLevelChange,
-                      onAnnualHouseholdIncomeChange,
-                      onCurrentEmploymentStatusChange,
+                      bessiSkillScores,
+                      setBessiSkillScores,
                     } }
                   >
-                    <BessiSkillScoresContext.Provider
-                      value={ {
-                        bessiSkillScores,
-                        setBessiSkillScores,
-                      } }
-                    >
-                      { isAuthenticated && <Header/> }
-                      { children }
-                    </BessiSkillScoresContext.Provider>
-                  </UserDemographicContext.Provider>
+                    { isAuthenticated && <Header/> }
+                    { children }
+                  </BessiSkillScoresContext.Provider>
+                </UserDemographicContext.Provider>
               </AuthenticatedUserContext.Provider>
             </body>
           </html>

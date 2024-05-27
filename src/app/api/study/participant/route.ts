@@ -11,10 +11,10 @@ import { verify } from 'jsonwebtoken'
 import {
   getEntryId,
   ddbDocClient,
+  STUDY__DYNAMODB,
   ACCOUNT__DYNAMODB,
   DYNAMODB_TABLE_NAMES,
   PARTICIPANT__DYNAMODB,
-  STUDY__DYNAMODB,
 } from '@/utils'
 
 
@@ -112,17 +112,23 @@ export async function POST(
           email: participant.email,
           timestamp: storedTimestamp
         }
-        const UpdateExpression = 'set participant = :participant'
+        const UpdateExpression = 'set participant = :participant, #ts = :timestamp'
         
         ExpressionAttributeValues = { 
-          ':participant': participantWithUpdatedStudies
+          ':participant': participantWithUpdatedStudies,
+          ':timestamp': Date.now()
+        }
+
+        const ExpressionAttributeNames = {
+          '#ts': 'timestamp'
         }
 
         input = {
           TableName,
           Key,
           UpdateExpression,
-          ExpressionAttributeValues
+          ExpressionAttributeNames,
+          ExpressionAttributeValues,
         }
         
         command = new UpdateCommand(input)
@@ -201,8 +207,9 @@ export async function POST(
               command = new UpdateCommand(input)
 
 
-              const successMessage = `'participants' property for study ID ${studyId
-                } has been updated in the ${TableName} table`
+              const successMessage = `'participants' property for study ID ${
+                studyId
+              } has been updated in the ${TableName} table`
 
 
               /**
@@ -233,7 +240,8 @@ export async function POST(
                 )
               } catch (error: any) {
                 console.log(
-                  `Error performing Update operation on the '${TableName
+                  `Error performing Update operation on the '${
+                    TableName
                   }' table to update the 'participants' property: `,
                   error
                 )
@@ -262,7 +270,8 @@ export async function POST(
             }
           } catch (error: any) {
             console.log(
-              `Error using ID '${studyId}' to perform Query operation on '${TableName
+              `Error using ID '${studyId}' to perform Query operation on '${
+                TableName
               }' to get ownerEmail: `,
               error
             )
@@ -310,9 +319,9 @@ export async function POST(
       //         send to DynamoDB
       const Key = {
         email: participant.email,
-        timestamp: participant.timestamp // Current timestamp
+        timestamp: Date.now() // Current timestamp
       }
-      const UpdateExpression = 'set participant = :participant'
+      const UpdateExpression = 'set participant = :participant, isParticipant = :isParticipant'
       
       ExpressionAttributeValues = { ':participant': participant_ }
 

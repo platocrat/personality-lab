@@ -40,7 +40,7 @@ export async function POST(
       facetScores: userResults.facetScores,
       domainScores: userResults.domainScores,
       demographics: userResults.demographics,
-      timestamp: userResults.timestamp,
+      timestamp: Date.now(),
     }
 
     const input: PutCommandInput = { TableName, Item }
