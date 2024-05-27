@@ -22,7 +22,11 @@ import BessiResultsSkillsScoresAndDefinitions from '@/sections/assessments/bessi
 // Contexts
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // Utils
-import { jwtErrorMessages } from '@/utils'
+import { 
+  jwtErrorMessages,
+  RESULTS__DYNAMODB, 
+  BessiUserResults__DynamoDB, 
+} from '@/utils'
 // Types
 import { 
   FacetFactorType, 
@@ -102,13 +106,17 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
       const json = await response.json()
 
       if (response.status === 200) {
-        const userResults = json.userResults
+        const userResults: RESULTS__DYNAMODB = json.userResults
+        
+        const { facetScores, domainScores } = (
+          userResults.results as BessiUserResults__DynamoDB
+        )
 
         const bessiSkillScores_: BessiSkillScoresType = {
-          id: id,
-          accessToken: accessToken,
-          facetScores: userResults.facetScores,
-          domainScores: userResults.domainScores,
+          id,
+          accessToken,
+          facetScores,
+          domainScores,
         }
 
         setBessiSkillScores(bessiSkillScores_)

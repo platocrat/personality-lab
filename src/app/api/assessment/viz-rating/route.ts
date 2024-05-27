@@ -8,8 +8,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import {
   getEntryId,
   ddbDocClient,
-  DYNAMODB_TABLE_NAMES,
   RATINGS__DYNAMODB,
+  DYNAMODB_TABLE_NAMES,
+  StudySimple__DynamoDB,
 } from '@/utils'
 
 
@@ -31,11 +32,11 @@ export async function POST(
     const TableName = DYNAMODB_TABLE_NAMES.vizRating
     const Item: RATINGS__DYNAMODB = {
       id: userVizRatingId,
-      email: userVizRating.email,
-      username: userVizRating.username,
-      study: userVizRating.study,
-      rating: userVizRating.rating,
-      vizName: userVizRating.vizName,
+      email: userVizRating.email as string,
+      username: userVizRating.username as string,
+      study: userVizRating.study as StudySimple__DynamoDB,
+      rating: userVizRating.rating as number,
+      vizName: userVizRating.vizName as string,
       timestamp: Date.now(),
     }
 

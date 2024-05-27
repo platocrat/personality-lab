@@ -13,6 +13,8 @@ import {
   ddbDocClient,
   RESULTS__DYNAMODB,
   DYNAMODB_TABLE_NAMES,
+  StudySimple__DynamoDB,
+  BessiUserResults__DynamoDB,
 } from '@/utils'
 
 
@@ -33,16 +35,12 @@ export async function POST(
     const userResultsId = await getEntryId(userResults)
 
     const TableName = DYNAMODB_TABLE_NAMES.results
-    const Item = {
+    const Item: RESULTS__DYNAMODB = {
       id: userResultsId,
-      email: userResults.email,
-      username: userResults.username,
-      study: userResults.study,
-      results: {
-        facetScores: userResults.facetScores,
-        domainScores: userResults.domainScores,
-        demographics: userResults.demographics,
-      },
+      email: userResults.email as string,
+      username: userResults.username as string,
+      study: userResults.study as StudySimple__DynamoDB,
+      results: userResults.results as BessiUserResults__DynamoDB,
       timestamp: Date.now(),
     }
 
