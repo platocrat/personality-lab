@@ -40,7 +40,7 @@ type ViewResultsModalProps = {
 }
 
 
-export type AssessmentToViewType = { 
+export type ResultsToViewType = { 
   id: string
   timestamp: string
   study: {
@@ -78,20 +78,23 @@ const ViewResultsModal: FC<ViewResultsModalProps> = ({
 }) => {
   // States
   const [ 
-    isWaitingForAssessments, 
-    setIsWaitingForAssessments 
+    isWaitingForAllUserResults, 
+    setIsWaitingForAllUserResults 
   ] = useState<boolean>(false)
   const [ 
     areNoObserverResultsToView, 
     setAreNoObserverResultsToView 
   ] = useState<boolean>(false)
   // Custom
-  const [ assessments, setAssessments] = useState<AssessmentToViewType[]>([])
+  const [ 
+    allUserResults, 
+    setAllUserResults
+] = useState<ResultsToViewType[]>([])
 
 
   // ---------------------------- Async functions ------------------------------
-  async function getAssessments() {
-    setIsWaitingForAssessments(true)
+  async function getAllUserResults() {
+    setIsWaitingForAllUserResults(true)
 
     try {
       const response = await fetch(
@@ -103,9 +106,9 @@ const ViewResultsModal: FC<ViewResultsModalProps> = ({
 
 
       if (response.status === 200) {
-        const _: AssessmentToViewType[] = json.data.map((
+        const _: ResultsToViewType[] = json.allUserResults.map((
           results: RESULTS__DYNAMODB
-        ): AssessmentToViewType => {
+        ): ResultsToViewType => {
           return {
             id: results.id,
             study: results.study,
@@ -113,24 +116,16 @@ const ViewResultsModal: FC<ViewResultsModalProps> = ({
           }
         })
 
-        setAssessments(_)
-        // Update suspense state
-        setIsWaitingForAssessments(false)
+        setAllUserResults(_)
         // Update state that hides the table
         setAreNoObserverResultsToView(false)
       }  else if (response.status === 404) {
-        // Update suspense state
-        setIsWaitingForAssessments(false)
         // Update state that hides the table
         setAreNoObserverResultsToView(true)
       } else if (response.status === 500) {
-        // Update suspense state
-        setIsWaitingForAssessments(false)
         throw new Error(json.error)
       }
     } catch (error: any) {
-      // Update suspense state
-      setIsWaitingForAssessments(false)
       throw new Error(error)
     }
   }
@@ -138,11 +133,15 @@ const ViewResultsModal: FC<ViewResultsModalProps> = ({
 
   useLayoutEffect(() => {
     if (isModalVisible) {
+      setIsWaitingForAllUserResults(true)
+
       const requests = [
-        getAssessments()
+        getAllUserResults()
       ]
       
-      Promise.all(requests)
+      Promise.all(requests).then((response: any) => {
+        setIsWaitingForAllUserResults(false)
+      })
     }
     }, [ isModalVisible ])
   
@@ -188,7 +187,7 @@ const ViewResultsModal: FC<ViewResultsModalProps> = ({
                 </div>
 
                 {/* Check box */ }
-                { isWaitingForAssessments ? (
+                { isWaitingForAllUserResults ? (
                   <>
                     <div
                       style={ {
@@ -209,7 +208,7 @@ const ViewResultsModal: FC<ViewResultsModalProps> = ({
                         overflowX: 'auto',
                       }}
                     >
-                      { assessments.length !== 0 ? (
+                      { allUserResults.length !== 0 ? (
                         <table 
                           style={{ 
                             border: '2px solid #f4f4f4',
@@ -217,7 +216,7 @@ const ViewResultsModal: FC<ViewResultsModalProps> = ({
                         >
                           <ViewResultsModalTableHead />
                           <ViewResultsModalTableBody 
-                            assessments={ assessments }
+                            allUserResults={ allUserResults }
                             onViewResultsChange={ 
                               onEventHandlers.onViewResultsChange 
                             }

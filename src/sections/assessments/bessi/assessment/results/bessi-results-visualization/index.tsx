@@ -11,6 +11,7 @@ import {
   useContext,
   SetStateAction,
 } from 'react'
+import html2canvas from 'html2canvas'
 // Locals
 // Sections
 import TitleDropdown from './title-dropdown'
@@ -20,8 +21,10 @@ import Title from '@/components/DataViz/Title'
 import TreeMap from '@/components/DataViz/TreeMap'
 import StellarPlot from '@/components/DataViz/StellarPlot'
 import ShareResults from '@/components/DataViz/ShareResults'
+import RadialBarChart from '@/components/DataViz/BarChart/Radial'
 import RateUserResults from '@/components/Forms/BESSI/RateUserResults'
 import BarChartPerDomain from '@/components/DataViz/BarChart/PerDomain'
+import BessiRateUserResults from '@/components/Forms/BESSI/RateUserResults'
 import NormalDistributionChart from '@/components/DataViz/Distributions/Normal'
 import PersonalityVisualization from '@/components/DataViz/PersonalityVisualization'
 import ResultsVisualizationModal from '@/components/Modals/BESSI/ResultsVisualization'
@@ -40,13 +43,12 @@ import {
   getRandomValueInRange,
   SkillDomainFactorType,
   getUsernameAndEmailFromCookie,
+  RATINGS__DYNAMODB,
+  AVAILABLE_ASSESSMENTS,
+  StudySimple__DynamoDB,
 } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
-import BessiRateUserResults from '@/components/Forms/BESSI/RateUserResults'
-import RadialBarChart from '@/components/DataViz/BarChart/Radial'
-import { style } from 'd3'
-import html2canvas from 'html2canvas'
 
 
 
@@ -298,17 +300,29 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
          */
         throw new Error(`Error getting email from cookie!`)
       } else {
+        let study: {
+          id: string
+          name: string
+        } | StudySimple__DynamoDB = AVAILABLE_ASSESSMENTS.filter(
+          item => item.id === 'bessi'
+        )[0]
+
+        study = {
+          name: study.name,
+          assessmentId: study.id
+        } as StudySimple__DynamoDB
+
         /**
          * @dev This is the object that we store in DynamoDB using AWS's
          * `PutItemCommand` operation.
          */
-        const userVizRating/*: BESSI__VisualizationRating__DynamoDB */ = {
-          email: email,
-          username: username,
+        const userVizRating: Omit<RATINGS__DYNAMODB, "id"> = {
+          email,
+          username,
+          study,
+          rating,
+          vizName,
           timestamp: 0,
-          vizName: vizName,
-          rating: rating,
-          assessmentName: 'bessi'
         }
 
         try {
@@ -323,7 +337,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
           const json = await response.json()
 
           if (response.status === 200) {
-            const userVizRatingId = json.data
+            const userVizRatingId = json.userVizRatingId
             return userVizRatingId
           } else {
             setIsRating(false)

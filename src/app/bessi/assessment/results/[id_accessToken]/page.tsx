@@ -102,7 +102,7 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
       const json = await response.json()
 
       if (response.status === 200) {
-        const userResults = json.data
+        const userResults = json.userResults
 
         const bessiSkillScores_: BessiSkillScoresType = {
           id: id,
@@ -134,8 +134,6 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
   // ----------------------------- `useLayoutEffect`s --------------------------
   useLayoutEffect(() => {
     if (!id || !accessToken) {
-      setIsDataLoading(true)
-
       /**
        * @todo Replace the line below by handling the error on the UI here
        */
@@ -145,11 +143,15 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
         } and ${ id }!`
       )
     } else {
+      setIsDataLoading(true)
+
       const requests = [
         getUserResults()
       ]
 
-      Promise.all(requests)
+      Promise.all(requests).then((response: any) => {
+        setIsDataLoading(false)
+      })
     }
   }, [id, accessToken])
 

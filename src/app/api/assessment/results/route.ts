@@ -36,10 +36,13 @@ export async function POST(
     const Item = {
       id: userResultsId,
       email: userResults.email,
+      username: userResults.username,
       study: userResults.study,
-      facetScores: userResults.facetScores,
-      domainScores: userResults.domainScores,
-      demographics: userResults.demographics,
+      results: {
+        facetScores: userResults.facetScores,
+        domainScores: userResults.domainScores,
+        demographics: userResults.demographics,
+      },
       timestamp: Date.now(),
     }
 
@@ -166,7 +169,7 @@ export async function GET(
         return NextResponse.json(
           {
             message: successMessage,
-            data: allUserResults,
+            allUserResults,
           },
           {
             status: 200,

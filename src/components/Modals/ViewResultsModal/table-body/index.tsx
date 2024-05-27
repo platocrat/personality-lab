@@ -2,14 +2,14 @@
 import { FC, Fragment } from 'react'
 // Locals
 // Types
-import { AssessmentToViewType } from '..'
+import { ResultsToViewType } from '..'
 // CSS
 import styles from '@/app/page.module.css'
 
 
 
 type ViewResultsModalTableBodyProps = {
-  assessments: AssessmentToViewType[]
+  allUserResults: ResultsToViewType[]
   onViewResultsChange: (
     e: any, 
     study: { 
@@ -22,13 +22,13 @@ type ViewResultsModalTableBodyProps = {
 
 
 const ViewResultsModalTableBody: FC<ViewResultsModalTableBodyProps> = ({
-  assessments,
+  allUserResults,
   onViewResultsChange,
 }) => {
   return (
     <>
       <tbody>
-        { assessments.map((_: AssessmentToViewType, i: number) => (
+        { allUserResults.map((_: ResultsToViewType, i: number) => (
           <Fragment key={ i }>
             <tr
               key={ i }

@@ -1,10 +1,23 @@
 import { 
   FacetFactorType, 
   SkillDomainFactorType, 
-  BessiUserDemographics__DynamoDB 
+  BessiUserDemographics__DynamoDB, 
+  BessiUserResults__DynamoDB
 } from '../assessments'
 
 
+
+export type StudySimple__DynamoDB = {
+  name: string
+  assessmentId: string
+}
+
+
+type StudyDetails__DynamoDB = {
+  inviteUrl: string
+  description: string
+  assessmentId: string
+}
 
 
 export type STUDY__DYNAMODB = {
@@ -14,12 +27,14 @@ export type STUDY__DYNAMODB = {
   timestamp: number
   ownerEmail: string
   adminEmails: string[]
-  details: {
-    inviteUrl: string
-    description: string
-    assessmentId: string
-  }
+  details: StudyDetails__DynamoDB
   participants: PARTICIPANT__DYNAMODB[]
+}
+
+
+type HashedPassword = {
+  hash: string
+  salt: string
 }
 
 
@@ -28,34 +43,9 @@ export type ACCOUNT__DYNAMODB = {
   username: string
   timestamp: number
   isAdmin: boolean
-  password: { 
-    hash: string
-    salt: string
-  }
-  studies: {
-    name: string
-    assessmentId: string
-  }[]
+  password: HashedPassword
+  studies: StudySimple__DynamoDB[]
   participant?: PARTICIPANT__DYNAMODB
-}
-
-
-export type RESULTS__DYNAMODB = {
-  id: string
-  email: string
-  timestamp: number
-  study: {
-    name: string
-    assessmentId: string
-  }
-  facetScores: FacetFactorType
-  domainScores: SkillDomainFactorType
-  demographics: BessiUserDemographics__DynamoDB
-  // results: any | {
-  //   facetScores: FacetFactorType
-  //   domainScores: SkillDomainFactorType
-  //   demographics: BessiUserDemographics__DynamoDB
-  // }
 }
 
 
@@ -67,12 +57,29 @@ export type PARTICIPANT__DYNAMODB = {
   adminUsername: string
   isNobelLaureate: boolean
   timestamp: number
-  studies: {
-    name: string
-    assessmentId: string
-  }[]
+  studies: StudySimple__DynamoDB[]
 }
 
+
+export type RESULTS__DYNAMODB = {
+  id: string
+  email: string
+  username: string
+  timestamp: number
+  study: StudySimple__DynamoDB
+  results: any | BessiUserResults__DynamoDB
+}
+
+
+export type RATINGS__DYNAMODB = {
+  id: string
+  email: string
+  username: string
+  study: StudySimple__DynamoDB
+  rating: number
+  vizName: string
+  timestamp: number
+}
 
 
 export type CookieInputType = {
@@ -105,8 +112,5 @@ export type ParticipantType = {
   email: string
   username: string
   isNobelLaureate: boolean
-  studies: {
-    name: string
-    assessmentId: string
-  }[]
+  studies: StudySimple__DynamoDB[]
 }

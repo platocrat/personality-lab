@@ -9,6 +9,7 @@ import {
   getEntryId,
   ddbDocClient,
   DYNAMODB_TABLE_NAMES,
+  RATINGS__DYNAMODB,
 } from '@/utils'
 
 
@@ -28,14 +29,14 @@ export async function POST(
     const userVizRatingId = await getEntryId(userVizRating)
 
     const TableName = DYNAMODB_TABLE_NAMES.vizRating
-    const Item = {
+    const Item: RATINGS__DYNAMODB = {
       id: userVizRatingId,
       email: userVizRating.email,
+      username: userVizRating.username,
+      study: userVizRating.study,
       rating: userVizRating.rating,
       vizName: userVizRating.vizName,
-      username: userVizRating.username,
       timestamp: Date.now(),
-      study: userVizRating.study,
     }
 
     const input: PutCommandInput = { TableName, Item }
@@ -55,7 +56,7 @@ export async function POST(
       return NextResponse.json(
         {
           message: message,
-          data: userVizRatingId,
+          userVizRatingId,
         },
         {
           status: 200,

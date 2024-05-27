@@ -11,6 +11,7 @@ import {
 import {
   ddbDocClient,
   jwtErrorMessages,
+  RESULTS__DYNAMODB,
   DYNAMODB_TABLE_NAMES,
   BessiUserResults__DynamoDB,
 } from '@/utils'
@@ -20,7 +21,6 @@ import {
 /**
  * @dev Verifies the user's `accessToken` and tries to fetch the `userResults`
  *      that is mapped to the given `id`.
- * @param assessmentName
  * @param id
  * @param accessToken 
  * @param JWT_SECRET 
@@ -42,7 +42,7 @@ export async function verfiyAccessTokenAndFetchUserResults(
     const TableName = DYNAMODB_TABLE_NAMES.userResultsAccessTokens
     const Key = { id: id, accessToken: accessToken }
 
-    const input: GetCommandInput = { TableName, Key}
+    const input: GetCommandInput = { TableName, Key }
     const command = new GetCommand(input)
 
     // 4. Try to fetch `userResults` from DynamoDB table
@@ -162,13 +162,13 @@ export async function fetchUserResults(
 
 
     if (response.Items && response.Items.length > 0) {
-      if ((response.Items[0] as BessiUserResults__DynamoDB).id) {
-        const userResults = response.Items[0] as BessiUserResults__DynamoDB
+      if ((response.Items[0] as RESULTS__DYNAMODB)) {
+        const userResults = response.Items[0] as RESULTS__DYNAMODB
 
         return NextResponse.json(
           {
             message: 'id exists',
-            data: userResults
+            userResults,
           },
           {
             status: 200,

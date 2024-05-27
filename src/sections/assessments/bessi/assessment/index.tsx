@@ -21,14 +21,17 @@ import {
   getFacet,
   SocialClass, 
   UserScoresType,
-  wellnessRatings,
   getAccessToken,
   FacetFactorType,
+  wellnessRatings,
   RaceOrEthnicity, 
+  RESULTS__DYNAMODB,
   bessiActivityBank,
   AWS_PARAMETER_NAMES, 
   CurrentMaritalStatus, 
   calculateBessiScores,
+  AVAILABLE_ASSESSMENTS,
+  StudySimple__DynamoDB,
   SkillDomainFactorType,
   HighestFormalEducation, 
   getSkillDomainAndWeight,
@@ -217,17 +220,34 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
        * @dev This is the object that we store in DynamoDB using AWS's 
        * `PutItemCommand` operation.
        */
-      const userResults: Omit<BessiUserResults__DynamoDB, "id"> & { 
-        username: string
-        assessmentName: string
-      } = {
-        email: email,
-        username: username,
-        timestamp: 0,
+      const bessiUserResults: BessiUserResults__DynamoDB = {
         facetScores: finalScores.facetScores,
         domainScores: finalScores.domainScores,
-        assessmentName: ASSESSMENT_NAME,
         demographics: DEMOGRAPHICS,
+      }
+
+      let study: {
+        id: string
+        name: string
+      } | StudySimple__DynamoDB = AVAILABLE_ASSESSMENTS.filter(
+        item => item.id === 'bessi'
+      )[0]
+      
+      study = { 
+        name: study.name, 
+        assessmentId: study.id 
+      } as StudySimple__DynamoDB
+
+      /**
+       * @dev This is the object that we store in DynamoDB using AWS's 
+       * `PutItemCommand` operation.
+       */
+      const userResults: Omit<RESULTS__DYNAMODB, "id"> = {
+        email,
+        username,
+        study,
+        timestamp: 0,
+        results: bessiUserResults
       }
 
       try {
@@ -242,7 +262,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
         const json = await response.json()
 
         if (response.status === 200 ) {
-          const userResultsId = json.data
+          const userResultsId = json.userResultsId
           return userResultsId
         } else {
           setIsLoadingResults(false)
