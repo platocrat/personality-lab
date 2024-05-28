@@ -50,7 +50,12 @@ const StudyInvite: FC<StudyInviteProps> = ({
       if (response.status === 500) throw new Error(json.error)
       if (response.status === 405) throw new Error(json.error)
 
-      setStudy(json.study)
+      if (!json.study) {
+        router.push('/')
+      } else {
+        setStudy(json.study)
+        setIsLoadingStudy(false)
+      }
     } catch (error: any) {
       throw new Error(error.message)
     }
@@ -77,9 +82,7 @@ const StudyInvite: FC<StudyInviteProps> = ({
           getStudy()
         ]
 
-        Promise.all(requests).then((response: any) => {
-          setIsLoadingStudy(false)
-        })
+        Promise.all(requests).then((response: any) => {})
       }
     }
   }, [ isAdmin, isParticipant, id, ])

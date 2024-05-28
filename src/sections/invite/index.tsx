@@ -40,10 +40,17 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
     setParticipantRegistered
   ] = useState<boolean>(false)
   const [ 
+    isDuplicateRegistration, 
+    setIsDuplicateRegistration
+  ] = useState<boolean>(false)
+  const [ 
     isParticipantRegistering, 
     setIsParticipantRegistering
   ] = useState<boolean>(false)
-  const [redirectUrl, setRedirectUrl] = useState('')
+  const [
+    isDuplicateRegistrationMessage, 
+    setIsDuplicateRegistrationMessage 
+  ] = useState<string>('')
   const [participantEmail, setParticipantEmail] = useState('')
   const [participantUsername, setParticipantUsername] = useState('')
 
@@ -90,15 +97,6 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
     // 3. `Put` and/or `Update` the new `participant` object in the appropriate
     //     DynamoDB tables.
     await storeParticipantInDynamoDB(participant)
-
-    // 4. Stop loading spinner
-    setIsParticipantRegistering(false)
-    setParticipantRegistered(true)
-
-    // 5. Redirect the participant to the home page to login or create an 
-    // account. The client will authenticate and display which assessments
-    // the participant may complete
-    router.push('/')
   }
 
 
@@ -125,10 +123,26 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
 
       const json = await response.json()
 
+      console.log(`response: `, response)
+      // console.log(`json: `, json)
+
 
       if (response.status === 200) {
         const participantId = json.participantId
+        
+        setParticipantRegistered(true)
+        // 4. Stop loading spinner
+        setIsParticipantRegistering(false)
+        // 5. Redirect the participant to the home page to login or create an 
+        // account. The client will authenticate and display which assessments
+        // the participant may complete
+        router.push('/')
+
         return participantId
+      } else if (response.status === 400) {
+        setParticipantRegistered(false)
+        setIsDuplicateRegistration(true)
+        setIsDuplicateRegistrationMessage(json.message)
       } else {
         // Handle error response from the backend
         setParticipantRegistered(false)
@@ -183,34 +197,46 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
 
         <div style={{ marginBottom: '48px' }}/>
 
-        <form onSubmit={ handleOnRegisterForAssessment }>
-          <label>
-            { `Enter your username and email to register as a participant:` }
-            <input
-              required
-              type='email'
-              value={ participantEmail }
-              className={ sectionStyles.first }
-              placeholder={ 'janedoe@gmail.com' }
-              onChange={ (e) => setParticipantEmail(e.target.value) }
-            />
-          </label>
-          <label>
-            <input
-              required
-              type="text"
-              placeholder={ 'janedoe' }
-              value={ participantUsername }
-              className={ sectionStyles.last }
-              onChange={ (e) => setParticipantUsername(e.target.value) }
-            />
-          </label>
-          <button type='submit'>
-            { `Register and Take Assessment` }
-          </button>
-        </form>
+        { isDuplicateRegistration ? (
+          <>
+            <div style={ definitelyCenteredStyle }>
+              <h4 style={{ color: 'red' }}>
+                { isDuplicateRegistrationMessage }
+              </h4>
+            </div>
+          </>
+        ) : (
+          <>
+            <form onSubmit={ handleOnRegisterForAssessment }>
+              <label>
+                { `Enter your username and email to register as a participant:` }
+                <input
+                  required
+                  type='email'
+                  value={ participantEmail }
+                  className={ sectionStyles.first }
+                  placeholder={ 'janedoe@gmail.com' }
+                  onChange={ (e) => setParticipantEmail(e.target.value) }
+                />
+              </label>
+              <label>
+                <input
+                  required
+                  type="text"
+                  placeholder={ 'janedoe' }
+                  value={ participantUsername }
+                  className={ sectionStyles.last }
+                  onChange={ (e) => setParticipantUsername(e.target.value) }
+                />
+              </label>
+              <button type='submit'>
+                { `Register and Take Assessment` }
+              </button>
+            </form>
+          </>
+        ) }
         
-        { redirectUrl && <p>{ `Redirecting...` }</p> }
+        { participantRegistered && <p>{ `Redirecting...` }</p> }
       </div>
     </>
   )
