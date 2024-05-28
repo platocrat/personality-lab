@@ -12,8 +12,9 @@ import {
   AVAILABLE_ASSESSMENTS, 
 } from '@/utils'
 // CSS
-import sectionStyles from '@/sections/invite/StudyInviteSection.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+import InviteRegistrationForm from './registration-form'
+import sectionStyles from '@/sections/invite/StudyInviteSection.module.css'
 
 
 
@@ -43,6 +44,10 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
     isDuplicateRegistration, 
     setIsDuplicateRegistration
   ] = useState<boolean>(false)
+  const [
+    redirectingToSigUpPage,
+    setRedirectingToSignUpPage
+  ] = useState<boolean>(false)
   const [ 
     isParticipantRegistering, 
     setIsParticipantRegistering
@@ -51,8 +56,9 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
     isDuplicateRegistrationMessage, 
     setIsDuplicateRegistrationMessage 
   ] = useState<string>('')
-  const [participantEmail, setParticipantEmail] = useState('')
-  const [participantUsername, setParticipantUsername] = useState('')
+  const [ participantId, setParticipantId ] = useState<string>('')
+  const [ participantEmail, setParticipantEmail ] = useState<string>('')
+  const [ participantUsername, setParticipantUsername ] = useState<string>('')
 
 
   const studyAssessmentName = AVAILABLE_ASSESSMENTS.find((
@@ -123,22 +129,23 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
 
       const json = await response.json()
 
-      console.log(`response: `, response)
-      // console.log(`json: `, json)
-
 
       if (response.status === 200) {
-        const participantId = json.participantId
+        const participantId_ = json.participantId
         
         setParticipantRegistered(true)
         // 4. Stop loading spinner
         setIsParticipantRegistering(false)
-        // 5. Redirect the participant to the home page to login or create an 
+        // 5. Show notification message informing the participant that they are
+        //    now being redirected to the sign-up page.
+        setParticipantId(participantId_)
+        setRedirectingToSignUpPage(true)
+        // 6. Redirect the participant to the home page to login or create an 
         // account. The client will authenticate and display which assessments
         // the participant may complete
-        router.push('/')
-
-        return participantId
+        setTimeout(() => {
+          router.push('/')
+        }, 2_500)
       } else if (response.status === 400) {
         setParticipantRegistered(false)
         setIsDuplicateRegistration(true)
@@ -173,70 +180,70 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
         style={{ marginTop: '24px' }}
         className={ sectionStyles['form-container'] }
       >
-        <h3 style={{ ...definitelyCenteredStyle, marginBottom: '36px' }}>
-          { `You've been invited to the following study` }
-        </h3>
-
-        <div>
-          <p style={ pStyle }>
-            <span>{ `Study Name:` }</span>
-            { study?.name }
-          </p>
-          <p style={ pStyle }>
-            <span>{ `Description:` }</span>
-            { study?.details.description }
-          </p>
-          <p 
-            style={ pStyle }
-            className={ sectionStyles.last }
+        <div style={{ ...definitelyCenteredStyle, marginBottom: '36px' }}>
+          <h3
+            style={{ 
+              color: isDuplicateRegistration ? 'red' : '',
+            }}
           >
-            <span>{ `Assessment ID:` }</span>
-            { studyAssessmentName }
-          </p>
+            { participantRegistered
+              ? `Thank you for registering for ${study?.name}!`
+              : isDuplicateRegistration 
+                ? isDuplicateRegistrationMessage 
+                : `You've been invited to the following study`
+            }
+          </h3>
         </div>
 
-        <div style={{ marginBottom: '48px' }}/>
-
-        { isDuplicateRegistration ? (
+        { participantRegistered ? ( 
           <>
-            <div style={ definitelyCenteredStyle }>
-              <h4 style={{ color: 'red' }}>
-                { isDuplicateRegistrationMessage }
-              </h4>
+            <div 
+              style={{ 
+                ...definitelyCenteredStyle,
+                flexDirection: 'column',
+              }}
+            >
+              <p>{ `You are being redirected to the sign-up page...` }</p>
+              <p>{` Your participant ID is ${participantId}`}</p>
             </div>
           </>
-        ) : (
+         ) : (
           <>
-            <form onSubmit={ handleOnRegisterForAssessment }>
-              <label>
-                { `Enter your username and email to register as a participant:` }
-                <input
-                  required
-                  type='email'
-                  value={ participantEmail }
-                  className={ sectionStyles.first }
-                  placeholder={ 'janedoe@gmail.com' }
-                  onChange={ (e) => setParticipantEmail(e.target.value) }
+            <div>
+              <p style={ pStyle }>
+                <span>{ `Study Name:` }</span>
+                { study?.name }
+              </p>
+              <p style={ pStyle }>
+                <span>{ `Description:` }</span>
+                { study?.details.description }
+              </p>
+              <p
+                style={ pStyle }
+                className={ sectionStyles.last }
+              >
+                <span>{ `Assessment ID:` }</span>
+                { studyAssessmentName }
+              </p>
+            </div>
+
+            { !isDuplicateRegistration && (
+              <>
+                <div style={ { marginBottom: '48px' } } />
+
+                <InviteRegistrationForm 
+                  onSubmit={ handleOnRegisterForAssessment }
+                  state={{
+                    participantEmail,
+                    participantUsername,
+                    setParticipantEmail,
+                    setParticipantUsername,
+                  }}
                 />
-              </label>
-              <label>
-                <input
-                  required
-                  type="text"
-                  placeholder={ 'janedoe' }
-                  value={ participantUsername }
-                  className={ sectionStyles.last }
-                  onChange={ (e) => setParticipantUsername(e.target.value) }
-                />
-              </label>
-              <button type='submit'>
-                { `Register and Take Assessment` }
-              </button>
-            </form>
+              </>
+            )}
           </>
-        ) }
-        
-        { participantRegistered && <p>{ `Redirecting...` }</p> }
+        )}
       </div>
     </>
   )

@@ -100,17 +100,13 @@ const AssessmentCards: FC<{
             buttonText={ pa.buttonText }
             description={ pa.description }
           />
-          {
-            i !== pAssessments.length - 1
-              ? (
-                <>
-                  <div style={ definitelyCenteredStyle }>
-                    <div className={ styles.divider } />
-                  </div>
-                </>
-              )
-              : null
-          }
+          { PAs.length !== 1 && i !== pAssessments.length - 1 && (
+            <>
+              <div style={ definitelyCenteredStyle }>
+                <div className={ styles.divider } />
+              </div>
+            </>
+          )}
         </Fragment>
       )) }
     </>

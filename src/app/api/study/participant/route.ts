@@ -204,7 +204,7 @@ export async function POST(
         if (isDuplicateRegistration) {
           // Return a 400 status and a message to display on the
           // form below the register button.
-          const message = `You've already registered for this study!`
+          const message = `You have already registered for this study!`
 
           return NextResponse.json(
             { message },
@@ -377,7 +377,7 @@ export async function POST(
                   return NextResponse.json(
                     {
                       message: message,
-                      data: participantId,
+                      participantId,
                     },
                     {
                       status: 200,
@@ -581,7 +581,7 @@ export async function POST(
               return NextResponse.json(
                 {
                   message: message,
-                  data: participantId,
+                  participantId,
                 },
                 {
                   status: 200,
