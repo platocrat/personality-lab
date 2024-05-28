@@ -1,12 +1,9 @@
 // Externals
 import {
-  FC,
-  Fragment,
-  useContext,
+  FC
 } from 'react'
 // Locals
 import BessiDemographicQuestions from './questions'
-import BessiRaceOrEthnicityQuestion from './questions/raceOrEthnicity'
 // Contexts
 // CSS
 import styles from '@/app/page.module.css'

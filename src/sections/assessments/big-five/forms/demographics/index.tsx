@@ -13,6 +13,7 @@ import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 // Utils
 import {
   Religion,
+  BIG_FIVE_PATH,
   getInputLabels,
   RaceOrEthnicity,
   Gender__BigFive,
@@ -22,11 +23,9 @@ import {
   INIT__BIG_FIVE_DEMOGRAPHICS,
   CurrentEmploymentStatus__BigFive,
   HighestLevelOfEducation__BigFive,
-  BIG_FIVE_PATH,
 } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
-import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 

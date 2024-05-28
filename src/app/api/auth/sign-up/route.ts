@@ -1,34 +1,29 @@
 // Externals
-import { 
-  GetParameterCommand, 
-  GetParameterCommandInput, 
+import {
+  GetParameterCommand,
+  GetParameterCommandInput,
 } from '@aws-sdk/client-ssm'
-import { 
-  PutCommand, 
-  QueryCommand, 
+import {
+  PutCommand,
+  QueryCommand,
   UpdateCommand,
-  PutCommandInput, 
   QueryCommandInput,
+  PutCommandInput,
   UpdateCommandInput,
-  NativeAttributeValue, 
+  NativeAttributeValue,
 } from '@aws-sdk/lib-dynamodb'
-import { sign } from 'jsonwebtoken'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 // Locals
-import { 
-  MAX_AGE, 
-  SSCrypto,
-  ssmClient,
-  CookieType,
-  COOKIE_NAME,
+import {
   ddbDocClient,
   ACCOUNT_ADMINS,
-  CookieInputType,
+  fetchAwsParameter,
+  getEncryptedItems,
   ACCOUNT__DYNAMODB,
-  fetchAwsParameter, 
-  AWS_PARAMETER_NAMES, 
+  AWS_PARAMETER_NAMES,
   DYNAMODB_TABLE_NAMES,
+  setJwtCookieAndGetCookieValue,
 } from '@/utils'
 
 
@@ -84,9 +79,11 @@ export async function POST(
           !(response.Items[0] as ACCOUNT__DYNAMODB).password
         ) {
           /**
-           * @dev 1.1.2 Get the timestamp from the database entry
+           * @dev 1.1.2 Get the createdAt from the database entry
            */
-          const timestamp = (response.Items[0] as ACCOUNT__DYNAMODB).timestamp
+          const createdAtTimestamp = (
+            response.Items[0] as ACCOUNT__DYNAMODB
+          ).createdAtTimestamp
 
           /**
            * @dev 1.1.3 Since the email exists, the user is an unregistered 
@@ -100,19 +97,25 @@ export async function POST(
           const isAdmin = ACCOUNT_ADMINS.some(admin => admin.email === email)
 
           /**
-           * @dev 1.1.5 Construct `UpdateCommand` arguments
+           * @dev 1.1.5 Set the current timestamp that the account entry is 
+           *            updated at.
+           */
+          const updatedAtTimestamp = Date.now()
+
+          /**
+           * @dev 1.1.6 Construct `UpdateCommand` arguments
            */
           const Key = {
-            email: email,
-            // Timestamp that the participant attribute was added
-            timestamp: timestamp
+            email,
+            createdAtTimestamp
           }
           const UpdateExpression =
-            'set isAdmin = :isAdmin, username = :username, password = :password'
+            'set isAdmin = :isAdmin, username = :username, password = :password, updatedAtTimestamp = :updatedAtTimestamp'
           const ExpressionAttributeValues = {
             ':isAdmin': isAdmin,
             ':username': username,
-            ':password': password // Assuming password is already hashed
+            ':password': password, // Assuming password is already hashed
+            ':updatedAtTimestamp': updatedAtTimestamp
           }
 
           input = {
@@ -125,7 +128,7 @@ export async function POST(
           command = new UpdateCommand(input)
 
           /**
-           * @dev 1.1.6 Attempt to perform `Update` operation on DynamoDB table
+           * @dev 1.1.7 Attempt to perform `Update` operation on DynamoDB table
            */
           try {
             const response = await ddbDocClient.send(command)
@@ -140,84 +143,28 @@ export async function POST(
               if (typeof SECRET_KEY === 'string') {
                 const secretKeyCipher = Buffer.from(SECRET_KEY, 'hex')
 
+                const toEncrypt: { [key: string]: string }[] = [
+                  { email: email as string },
+                  { username: username as string },
+                  { isAdmin: isAdmin.toString() },
+                  { isParticipant: isParticipant.toString() },
+                  { timestamp: updatedAtTimestamp.toString() },
+                ]
 
-                const encryptedEmail = new SSCrypto().encrypt(
-                  email,
-                  secretKeyCipher,
-                )
-                const encryptedUsername = new SSCrypto().encrypt(
-                  username,
+                const encryptedItems = getEncryptedItems(
+                  toEncrypt, 
                   secretKeyCipher
                 )
-                const encryptedIsAdmin = new SSCrypto().encrypt(
-                  isAdmin.toString(),
-                  secretKeyCipher
-                )
-                const encryptedIsParticipant = new SSCrypto().encrypt(
-                  isParticipant.toString(),
-                  secretKeyCipher
-                )
-                const encryptedTimestamp = new SSCrypto().encrypt(
-                  timestamp.toString(),
-                  secretKeyCipher
+
+                const cookieValue = setJwtCookieAndGetCookieValue(
+                  cookies,
+                  encryptedItems,
+                  password.hash,
+                  JWT_SECRET,
                 )
 
                 /**
-                 * @dev 1.1.7 Make sure the password that is stored in the 
-                 *            cookie is hashed!
-                 */
-                const token = sign(
-                  {
-                    email,
-                    username,
-                    password: password.hash, // Hashed password
-                    isAdmin,
-                    isParticipant,
-                    timestamp,
-                  },
-                  JWT_SECRET as string,
-                  { expiresIn: MAX_AGE.SESSION }
-                )
-
-                /**
-                 * @dev 1.1.8 Store the cookie
-                */
-                cookies().set(COOKIE_NAME, token, {
-                  /**
-                   * @dev A cookie with the `HttpOnly` attribute can't be modified by 
-                   * JavaScript, for example using `Document.cookie`; it can only be
-                   * modified when it reaches the server. Cookies that persist user 
-                   * sessions for example should have the `HttpOnly` attribute set — 
-                   * it would be really insecure to make them available to JavaScript. 
-                   * This precaution helps mitigate cross-site scripting (`XSS`) 
-                   * attacks.
-                   * 
-                   * See Mozilla docs for more info: https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies#block_access_to_your_cookies
-                   */
-                  httpOnly: true,
-                  /**
-                   * @todo Change to `true` to ensure cookie is only sent to 
-                   * the server with an encrypted request over the HTTPS 
-                   * protocol (except on localhost), which means MITM attackers
-                   * can't access it easily. Insecure sites (with `http`: in 
-                   * the URL) can't set cookies with the `Secure` attribute. 
-                   * However, don't assume that `Secure` prevents all access to
-                   * sensitive information in cookies. For example, someone with
-                   * access to the client's hard disk (or JavaScript if the 
-                   * `HttpOnly` attribute isn't set) can read and modify the
-                   * information.
-                   * 
-                   * See Mozilla docs for more info: https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies#block_access_to_your_cookies
-                   */
-                  sameSite: 'strict',
-                  path: '/',
-                  // expires: MAX_AGE.SESSION,
-                })
-
-                const cookieValue: string = cookies().get(COOKIE_NAME)?.value ?? 'null'
-
-                /**
-                 * @dev 1.1.9 Return the cookie value and `isAdmin` in the 
+                 * @dev 1.1.7 Return the cookie value and `isAdmin` in the 
                  *            response
                  */
                 return NextResponse.json(
@@ -307,7 +254,7 @@ export async function POST(
      * @dev 3.0 Store the new user's sign-up data
      */
     // Get timestamp after the username is validated.
-    const timestamp = Date.now()
+    const createdAtTimestamp = Date.now()
 
     /**
      * @dev 3.1 Determine if the new user is an admin
@@ -325,7 +272,7 @@ export async function POST(
       username,
       password, // Contains a password that is already hashed
       isAdmin,
-      timestamp,
+      createdAtTimestamp,
     }
 
     input = {
@@ -351,85 +298,28 @@ export async function POST(
         if (typeof SECRET_KEY === 'string') {
           const secretKeyCipher = Buffer.from(SECRET_KEY, 'hex')
 
+          const toEncrypt: { [key: string]: string }[] = [
+            { email: email as string },
+            { username: username as string },
+            { isAdmin: isAdmin.toString() },
+            { isParticipant: isParticipant.toString() },
+            { timestamp: createdAtTimestamp.toString() },
+          ]
 
-          const encryptedEmail = new SSCrypto().encrypt(
-            email,
-            secretKeyCipher,
-          )
-          const encryptedUsername = new SSCrypto().encrypt(
-            username,
-            secretKeyCipher
-          )
-          const encryptedIsAdmin = new SSCrypto().encrypt(
-            isAdmin.toString(),
-            secretKeyCipher
-          )
-          const encryptedIsParticipant = new SSCrypto().encrypt(
-            isParticipant.toString(),
-            secretKeyCipher
-          )
-          const encryptedTimestamp = new SSCrypto().encrypt(
-            timestamp.toString(),
+          const encryptedItems = getEncryptedItems(
+            toEncrypt,
             secretKeyCipher
           )
 
-
-          /**
-           * @dev 3.3.1 Make sure the password that is stored in the cookie is 
-           *          hashed!
-           */
-          const token = sign(
-            {
-              email,
-              username,
-              password: password.hash, // Hashed password
-              isAdmin,
-              isParticipant,
-              timestamp,
-            },
-            JWT_SECRET as string,
-            { expiresIn: MAX_AGE.SESSION }
+          const cookieValue = setJwtCookieAndGetCookieValue(
+            cookies,
+            encryptedItems,
+            password.hash,
+            JWT_SECRET,
           )
 
           /**
-           * @dev 3.3.2 Store the cookie
-          */
-          cookies().set(COOKIE_NAME, token, {
-            /**
-             * @dev A cookie with the `HttpOnly` attribute can't be modified by 
-             * JavaScript, for example using `Document.cookie`; it can only be
-             * modified when it reaches the server. Cookies that persist user 
-             * sessions for example should have the `HttpOnly` attribute set — 
-             * it would be really insecure to make them available to JavaScript. 
-             * This precaution helps mitigate cross-site scripting (`XSS`) 
-             * attacks.
-             * 
-             * See Mozilla docs for more info: https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies#block_access_to_your_cookies
-             */
-            httpOnly: true,
-            /**
-             * @todo Change to `true` to ensure cookie is only sent to 
-             * the server with an encrypted request over the HTTPS 
-             * protocol (except on localhost), which means MITM attackers
-             * can't access it easily. Insecure sites (with `http`: in 
-             * the URL) can't set cookies with the `Secure` attribute. 
-             * However, don't assume that `Secure` prevents all access to
-             * sensitive information in cookies. For example, someone with
-             * access to the client's hard disk (or JavaScript if the 
-             * `HttpOnly` attribute isn't set) can read and modify the
-             * information.
-             * 
-             * See Mozilla docs for more info: https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies#block_access_to_your_cookies
-             */
-            sameSite: 'strict',
-            path: '/',
-            // expires: MAX_AGE.SESSION,
-          })
-
-          const cookieValue: string = cookies().get(COOKIE_NAME)?.value ?? 'null'
-
-          /**
-           * @dev 3.3.3 Return the cookie value and `isAdmin` in the 
+           * @dev 3.3.1 Return the cookie value and `isAdmin` in the 
            *         response
            */
           return NextResponse.json(

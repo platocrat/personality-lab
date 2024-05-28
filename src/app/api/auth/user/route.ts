@@ -1,21 +1,15 @@
 // Externals
-import { 
-  GetParameterCommand, 
-  GetParameterCommandInput, 
-} from '@aws-sdk/client-ssm'
 import { cookies } from 'next/headers'
 import { decode, verify } from 'jsonwebtoken'
 import { NextRequest, NextResponse } from 'next/server'
 // Locals
-import { 
+import {
   SSCrypto,
-  ssmClient,
   CookieType,
   COOKIE_NAME,
-  fetchAwsParameter, 
-  getCookieSecretKey,
+  fetchAwsParameter,
   AWS_PARAMETER_NAMES,
- } from '@/utils'
+} from '@/utils'
 
 
 /**

@@ -1,14 +1,12 @@
 // Externals
-import { FC, Fragment, useContext } from 'react'
+import { useContext } from 'react'
 // Locals
-import InputWrapper from '@/components/Input/Wrapper'
 import TextOrNumberInput from '@/components/Input/TextOrNumber'
+import InputWrapper from '@/components/Input/Wrapper'
 // Contexts
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 // Constants
-import { INVALID_CHARS_FOR_NUMBERS } from '@/utils'
 // CSS
-import { inputMarginStyle } from '../..'
 import styles from '@/app/page.module.css'
 
 

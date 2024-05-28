@@ -1,7 +1,5 @@
 'use client'
 
-// Externals
-import { FC, Fragment } from 'react'
 // Locals
 import BessiAge from './age'
 import BessiGender from './gender'
@@ -12,18 +10,7 @@ import BessiRaceOrEthnicity from './raceOrEthnicity'
 import BessiPriorCompletion from './prior-completion'
 import BessiEducationAndWork from './education-and-work'
 import BessiMarriageAndFamily from './marriage-and-family'
-import BessiCurrentMaritalStatus from './marriage-and-family/current-marital-status'
 // Enums
-import { 
-  Gender,
-  YesOrNo,
-  USState,
-  SocialClass,
-  RaceOrEthnicity,
-  CurrentMaritalStatus,
-  HighestFormalEducation,
-  CurrentEmploymentStatus,
-} from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 

@@ -1,14 +1,10 @@
 // Externals
 import { CipherKey } from 'crypto'
-import { NextResponse } from 'next/server'
-import { PutCommand } from '@aws-sdk/lib-dynamodb'
 // Locals
-import { 
+import {
   SSCrypto,
-  ddbDocClient, 
   fetchAwsParameter,
   AWS_PARAMETER_NAMES,
-  DYNAMODB_TABLE_NAMES,
 } from '@/utils'
 
 

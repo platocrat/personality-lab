@@ -1,5 +1,5 @@
 // Externals
-import { FC, Fragment, useContext } from 'react'
+import { useContext } from 'react'
 // Locals
 import InputWrapper from '@/components/Input/Wrapper'
 // Contexts

@@ -1,5 +1,5 @@
 // Externals
-import { CSSProperties, FC, Fragment } from 'react'
+import { CSSProperties, FC } from 'react'
 // Locals
 // Sections
 import ParticipantTableHead from './table-head'
@@ -9,7 +9,6 @@ import Spinner from '@/components/Suspense/Spinner'
 // Utils
 import { ParticipantType } from '@/utils'
 // CSS
-import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
 
 

@@ -3,16 +3,13 @@
 import {
   FC,
   Fragment,
-  useState,
 } from 'react'
-import { useRouter } from 'next/navigation'
 // Locals
 import Spinner from '@/components/Suspense/Spinner'
 // Utils
 import {
   STUDY__DYNAMODB,
   AVAILABLE_ASSESSMENTS,
-  getUsernameAndEmailFromCookie,
 } from '@/utils'
 // CSS
 import appStyles from '@/app/page.module.css'

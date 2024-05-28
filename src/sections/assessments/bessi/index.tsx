@@ -1,5 +1,4 @@
 // Externals
-import Link from 'next/link'
 import { FC, Fragment } from 'react'
 // Locals
 import ConsentForm from './consent-form'

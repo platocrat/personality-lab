@@ -1,5 +1,5 @@
 // Externals
-import { CSSProperties, FC, Fragment } from 'react'
+import { CSSProperties, FC } from 'react'
 // Locals
 // Sections
 import ParticipantTableHead from './table-head'

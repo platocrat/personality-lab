@@ -1,20 +1,16 @@
 'use client'
 
-import { 
-  FC, 
-  Fragment, 
-  useLayoutEffect, 
+import {
+  FC,
   useState,
 } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 // Locals
 import CreateStudyForm from './form'
-import Spinner from '@/components/Suspense/Spinner'
 // Utils
-import { 
-  AVAILABLE_ASSESSMENTS,
-  STUDY__DYNAMODB, 
-  getUsernameAndEmailFromCookie,
+import {
+  STUDY__DYNAMODB,
+  getUsernameAndEmailFromCookie
 } from '@/utils'
 // CSS
 import sectionStyles from './CreateStudy.module.css'

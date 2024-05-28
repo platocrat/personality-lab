@@ -1,7 +1,7 @@
 'use client'
 
 // Externals
-import { FC, useContext } from 'react'
+import { useContext } from 'react'
 // Locals
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // CSS

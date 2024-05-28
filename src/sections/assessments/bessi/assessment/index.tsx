@@ -1,8 +1,6 @@
 // Externals
-import Link from 'next/link'
-import { decode } from 'jsonwebtoken'
 import { useRouter } from 'next/navigation'
-import { FC, Fragment, useContext, useEffect, useState } from 'react'
+import { FC, Fragment, useContext, useState } from 'react'
 // Locals
 import BessiAssessmentInstructions from './instructions'
 import BessiDemographicQuestionnaire from '../demographic-questionnaire'
@@ -14,28 +12,18 @@ import Questionnaire from '@/components/Questionnaire'
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // Utilities
-import { 
-  Gender, 
-  YesOrNo,
-  USState,
+import {
   getFacet,
-  SocialClass, 
   UserScoresType,
   getAccessToken,
   FacetFactorType,
-  wellnessRatings,
-  RaceOrEthnicity, 
-  RESULTS__DYNAMODB,
   bessiActivityBank,
-  AWS_PARAMETER_NAMES, 
-  CurrentMaritalStatus, 
+  RESULTS__DYNAMODB,
   calculateBessiScores,
+  SkillDomainFactorType,
   AVAILABLE_ASSESSMENTS,
   StudySimple__DynamoDB,
-  SkillDomainFactorType,
-  HighestFormalEducation, 
   getSkillDomainAndWeight,
-  CurrentEmploymentStatus,
   BessiUserResults__DynamoDB,
   wellnessRatingDescriptions,
   getUsernameAndEmailFromCookie,

@@ -2,14 +2,14 @@
 
 // Externals
 import {
+  Dispatch,
   FC,
+  Fragment,
+  SetStateAction,
+  useContext,
+  useEffect,
   useRef,
   useState,
-  Fragment,
-  Dispatch,
-  useEffect,
-  useContext,
-  SetStateAction,
 } from 'react'
 import html2canvas from 'html2canvas'
 // Locals
@@ -22,7 +22,6 @@ import TreeMap from '@/components/DataViz/TreeMap'
 import StellarPlot from '@/components/DataViz/StellarPlot'
 import ShareResults from '@/components/DataViz/ShareResults'
 import RadialBarChart from '@/components/DataViz/BarChart/Radial'
-import RateUserResults from '@/components/Forms/BESSI/RateUserResults'
 import BarChartPerDomain from '@/components/DataViz/BarChart/PerDomain'
 import BessiRateUserResults from '@/components/Forms/BESSI/RateUserResults'
 import NormalDistributionChart from '@/components/DataViz/Distributions/Normal'
@@ -37,15 +36,15 @@ import {
   transformData,
   dummyVariables,
   FacetFactorType,
+  RATINGS__DYNAMODB,
   InputDataStructure,
   TargetDataStructure,
   BessiSkillScoresType,
-  getRandomValueInRange,
   SkillDomainFactorType,
-  getUsernameAndEmailFromCookie,
-  RATINGS__DYNAMODB,
-  AVAILABLE_ASSESSMENTS,
   StudySimple__DynamoDB,
+  AVAILABLE_ASSESSMENTS,
+  getRandomValueInRange,
+  getUsernameAndEmailFromCookie,
 } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'

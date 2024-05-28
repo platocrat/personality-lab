@@ -1,7 +1,7 @@
-'use client';
+'use client'
 
 // Externals
-import { Fragment, useContext, useEffect } from 'react'
+import { Fragment, useContext } from 'react'
 // Locals
 // Contexts
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'

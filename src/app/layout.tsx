@@ -241,7 +241,7 @@ export default function RootLayout({
   // --------------------------- Async functions -------------------------------
   async function getUser(): Promise<UserResponse> {
     try {
-      const response = await fetch('/api/user', { method: 'GET' })
+      const response = await fetch('/api/auth/user', { method: 'GET' })
       const json = await response.json()
 
       if (response.status === 401) return { user: null, error: json.message }

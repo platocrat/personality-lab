@@ -32,7 +32,7 @@ export type STUDY__DYNAMODB = {
 }
 
 
-type HashedPassword = {
+export type HashedPassword = {
   hash: string
   salt: string
 }
@@ -41,9 +41,10 @@ type HashedPassword = {
 export type ACCOUNT__DYNAMODB = {
   email: string
   username: string
-  timestamp: number
   isAdmin: boolean
   password: HashedPassword
+  createdAtTimestamp: number
+  updatedAtTimestamp: number
   studies: StudySimple__DynamoDB[]
   participant?: PARTICIPANT__DYNAMODB
 }

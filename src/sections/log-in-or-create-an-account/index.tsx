@@ -1,32 +1,24 @@
-'use client';
+'use client'
 
 // Externals
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { 
-  FC, 
-  useMemo, 
+import {
   useState,
-  useContext, 
-  CSSProperties, 
+  useContext,
 } from 'react'
+import { useRouter } from 'next/navigation'
 // Locals
 // Components
 import Card from '@/components/Card'
-import StellarPlot from '@/components/DataViz/StellarPlot'
 // Sections
 import Form from './form'
 // Contexts
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // Utils
 import {
-  dummyVariables,
-  deleteAllCookies, 
-  SkillDomainFactorType 
+  deleteAllCookies,
 } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
-import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
@@ -102,7 +94,7 @@ const LogInOrCreateAnAccount = () => {
     deleteAllCookies()
     
     try {
-      const response = await fetch('/api/log-in', {
+      const response = await fetch('/api/auth/log-in', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -194,7 +186,7 @@ const LogInOrCreateAnAccount = () => {
     deleteAllCookies()
 
     try {
-      const response = await fetch('/api/sign-up', {
+      const response = await fetch('/api/auth/sign-up', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -245,12 +237,8 @@ const LogInOrCreateAnAccount = () => {
     setIsWaitingForResponse(true)
 
     try {
-      const response = await fetch('/api/email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
+      const response = await fetch(`/api/auth/email?email=${ email }`, {
+        method: 'GET',
       })
 
       const json = await response.json()
@@ -273,12 +261,14 @@ const LogInOrCreateAnAccount = () => {
         }
       } else {
         setIsWaitingForResponse(false)
+        
         const error = json.error
-        console.error(`Error sending POST request to DynamoDB table: `, error)
+        console.error(`Unable to send POST request to DynamoDB table! `, error)
+
         /**
          * @todo Handle error UI here
          */
-        throw new Error(`Error sending POST request to DynamoDB table!`)
+        throw new Error(`Unable to send POST request to DynamoDB table!`)
       }
     } catch (error: any) {
       setIsWaitingForResponse(false)

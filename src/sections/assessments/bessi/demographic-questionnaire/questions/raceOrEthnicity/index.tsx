@@ -1,5 +1,5 @@
 // Externals
-import { FC, Fragment, useContext } from 'react'
+import { Fragment, useContext } from 'react'
 // Locals
 import InputWrapper from '@/components/Input/Wrapper'
 // Contexts
@@ -8,7 +8,6 @@ import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 import { RaceOrEthnicity } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
-import { inputMarginStyle } from '../..'
 
 
 

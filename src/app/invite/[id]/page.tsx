@@ -92,10 +92,11 @@ const StudyInvite: FC<StudyInviteProps> = ({
       { isLoadingStudy ? (
         <>
           <div
-            style={ {
+            style={{
               ...definitelyCenteredStyle,
               position: 'relative',
-            } }
+              top: !isAdmin && !isParticipant ? '80px' : '',
+            }}
           >
             <Spinner height='40' width='40' />
           </div>

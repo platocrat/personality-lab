@@ -2,18 +2,17 @@
 
 // Externals
 
-import { 
-  FC, 
+import {
+  FC,
   useMemo,
-  useState, 
-  useEffect, 
-  useContext, 
-  useLayoutEffect, 
+  useState,
+  useContext,
+  useLayoutEffect,
 } from 'react'
 // Locals
 import Spinner from '@/components/Suspense/Spinner'
 // Sections
-import BessiResultsVisualization, { 
+import BessiResultsVisualization, {
   BessiSkillScoresContextType
 } from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization'
 import BessiResultsExplanation from '@/sections/assessments/bessi/assessment/results/explanation'
@@ -22,17 +21,13 @@ import BessiResultsSkillsScoresAndDefinitions from '@/sections/assessments/bessi
 // Contexts
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // Utils
-import { 
-  jwtErrorMessages,
-  RESULTS__DYNAMODB, 
-  BessiUserResults__DynamoDB, 
+import {
+  RESULTS__DYNAMODB,
+  BessiUserResults__DynamoDB,
 } from '@/utils'
 // Types
-import { 
-  FacetFactorType, 
-  BessiSkillScoresType,
-  SkillDomainFactorType,
-  BessiUserDemographics__DynamoDB,
+import {
+  BessiSkillScoresType
 } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'

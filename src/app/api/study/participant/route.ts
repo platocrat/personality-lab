@@ -11,10 +11,15 @@ import { verify } from 'jsonwebtoken'
 import {
   getEntryId,
   ddbDocClient,
+  fetchStudyEntry,
   STUDY__DYNAMODB,
+  updateStudyEntry,
   ACCOUNT__DYNAMODB,
+  fetchAccountEntry,
+  updateAccountEntry,
   DYNAMODB_TABLE_NAMES,
   PARTICIPANT__DYNAMODB,
+  extractParticipantData,
 } from '@/utils'
 
 
@@ -33,6 +38,108 @@ export async function POST(
   req: NextRequest,
   res: NextResponse,
 ) {
+  // if (req.method !== 'POST') {
+  //   return NextResponse.json(
+  //     { error: 'Method Not Allowed' },
+  //     { 
+  //       status: 405, 
+  //       headers: { 
+  //         'Content-Type': 'application/json' 
+  //       } 
+  //     }
+  //   )
+  // }
+
+
+  // try {
+  //   const { participantData, studyId } = await extractParticipantData(req)
+
+  //   // Step 1: Fetch and update account entry
+  //   let response = await fetchAccountEntry(participantData.email)
+
+  //   if (
+  //     (response.Items as ACCOUNT__DYNAMODB[]) && 
+  //     (response.Items as ACCOUNT__DYNAMODB[])[0]?.email
+  //   ) {
+  //     const storedAccount = (response.Items as ACCOUNT__DYNAMODB[])[0]
+  //     await updateAccountEntry(participantData, storedAccount)
+  //   } else {
+  //     // Create new account entry if it doesn't exist
+  //     const TableName = DYNAMODB_TABLE_NAMES.accounts
+  //     const Key = {
+  //       email: participantData.email,
+  //       timestamp: Date.now()
+  //     }
+  //     const UpdateExpression = 'set participant = :participant, isParticipant = :isParticipant'
+  //     const ExpressionAttributeValues = {
+  //       ':participant': participantData,
+  //       ':isParticipant': true
+  //     }
+
+  //     const newAccountInput: UpdateCommandInput = {
+  //       TableName,
+  //       Key,
+  //       UpdateExpression,
+  //       ExpressionAttributeValues,
+  //     }
+      
+  //     const newAccountCommand = new UpdateCommand(newAccountInput)
+      
+  //     await ddbDocClient.send(newAccountCommand)
+  //   }
+
+  //   // Step 2: Fetch and update study entry
+  //   response = await fetchStudyEntry(studyId)
+
+  //   if (
+  //     (response.Items as STUDY__DYNAMODB[]) && 
+  //     (response.Items as STUDY__DYNAMODB[]).length > 0
+  //   ) {
+  //     const studyEntry = (response.Items as STUDY__DYNAMODB[])[0]
+  //     await updateStudyEntry(studyId, participantData, studyEntry)
+
+
+  //     return NextResponse.json(
+  //       { 
+  //         message: `Operation successful`, 
+  //         participantId: participantData.id
+  //       },
+  //       { 
+  //         status: 200, headers: {
+  //           'Content-Type': 'application/json' 
+  //         } 
+  //       }
+  //     )
+  //   } else {
+  //     return NextResponse.json(
+  //       { message: 'Owner email does not exist' },
+  //       { 
+  //         status: 404, headers: {
+  //           'Content-Type': 'application/json' 
+  //         } 
+  //       }
+  //     )
+  //   }
+  // } catch (error: any) {
+  //   console.error('Error:', error)
+
+
+  //   return NextResponse.json(
+  //     { error: error.message || 'Internal Server Error' },
+  //     { 
+  //       status: 500, 
+  //       headers: { 
+  //         'Content-Type': 'application/json' 
+  //       }
+  //     }
+  //   )
+  // }
+
+
+
+
+
+
   if (req.method === 'POST') {
     const { participant, studyId } = await req.json()
 
@@ -86,7 +193,9 @@ export async function POST(
          *      `timestamp` is used to construct the `UpdateCommand` to update
          *      the user's account entry.
          */
-        const storedTimestamp = (response.Items[0] as ACCOUNT__DYNAMODB).timestamp
+        const storedCreatedAtTimestamp = (
+          response.Items[0] as ACCOUNT__DYNAMODB
+        ).createdAtTimestamp
         // We also need `account.studies` to merge with the study of the new
         // `participant` entry
         const storedStudies = (response.Items[0] as ACCOUNT__DYNAMODB).studies
@@ -110,7 +219,7 @@ export async function POST(
         //         `accounts` table.
         const Key = {
           email: participant.email,
-          timestamp: storedTimestamp
+          createdAtTimestamp: storedCreatedAtTimestamp
         }
         const UpdateExpression = 'set participant = :participant, #ts = :timestamp'
         
@@ -319,9 +428,9 @@ export async function POST(
       //         send to DynamoDB
       const Key = {
         email: participant.email,
-        timestamp: Date.now() // Current timestamp
+        createdAtTimestamp: Date.now() // Current timestamp
       }
-      const UpdateExpression = 'set participant = :participant, isParticipant = :isParticipant'
+      const UpdateExpression = 'set participant = :participant'
       
       ExpressionAttributeValues = { ':participant': participant_ }
 
@@ -406,8 +515,9 @@ export async function POST(
             command = new UpdateCommand(input)
 
 
-            const successMessage = `'participants' property for study ID ${studyId
-              } has been updated in the ${TableName} table`
+            const successMessage = `'participants' property for study ID ${
+              studyId
+            } has been updated in the ${TableName} table`
 
 
             /**
@@ -438,7 +548,8 @@ export async function POST(
               )
             } catch (error: any) {
               console.log(
-                `Error performing Update operation on the '${TableName
+                `Error performing Update operation on the '${
+                  TableName
                 }' table to update the 'participants' property: `,
                 error
               )

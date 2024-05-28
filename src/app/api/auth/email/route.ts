@@ -10,12 +10,12 @@ import {
 
 
 
-export async function POST(
+export async function GET(
   req: NextRequest, 
   res: NextResponse
 ): Promise<NextResponse<{ message: string }> | NextResponse<{ error: any }>> {
-  if (req.method === 'POST') {
-    const { email } = await req.json()
+  if (req.method === 'GET') {
+    const email = req.nextUrl.searchParams.get('email')
 
     const TableName = DYNAMODB_TABLE_NAMES.accounts
     const KeyConditionExpression = 'email = :emailValue'

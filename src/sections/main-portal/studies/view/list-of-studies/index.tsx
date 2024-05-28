@@ -2,16 +2,14 @@
 
 // Externals
 import Link from 'next/link'
-import router from 'next/router'
-import { 
-  FC, 
-  Fragment, 
+import {
+  FC,
+  Fragment,
   useState,
-  useContext, 
-  useLayoutEffect, 
+  useContext,
+  useLayoutEffect,
 } from 'react'
 // Locals
-import ViewStudy from '../study'
 // Components
 import Spinner from '@/components/Suspense/Spinner'
 // Contexts

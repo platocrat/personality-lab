@@ -1,33 +1,27 @@
 'use client'
 
 // Externals
-import Link from 'next/link'
-import { 
-  FC, 
-  useMemo, 
+import {
+  FC,
+  useMemo,
+  Fragment,
   useState,
-  Fragment, 
   ReactNode,
-  useContext, 
-  useLayoutEffect, 
+  useContext,
+  useLayoutEffect,
 } from 'react'
 // Locals
 // Components
 import Card from '@/components/Card'
-import StellarPlot from '@/components/DataViz/StellarPlot'
 // Sections
 import BessiDescription from './bessi/description'
 import BigFiveDescription from './big-five/descriptions/entrance'
-import BessiResultsVisualization from './bessi/assessment/results/bessi-results-visualization'
 // Contexts
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // Utils
-import { 
-  dummyVariables,
-  bessiActivityBank,
+import {
   ACCOUNT__DYNAMODB,
-  SkillDomainFactorType, 
-  PARTICIPANT__DYNAMODB,
+  PARTICIPANT__DYNAMODB
 } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
@@ -175,8 +169,6 @@ const PersonalityAssessments = ({ }) => {
    */
   async function getParticipant() {
     setIsGettingParticipant(true)
-
-    console.log(`email: `, email)
 
     try {
       const response = await fetch(`/api/account?email=${ email }`, { method: 'GET' })

@@ -5,8 +5,8 @@ import {
   useState, 
   Fragment, 
   Dispatch,
-  SetStateAction,
   useContext,
+  SetStateAction,
 } from 'react'
 import HCaptcha from '@hcaptcha/react-hcaptcha'
 // Locals
@@ -295,7 +295,7 @@ const Form: FC<FormProps> = ({
   // -------------------------- Async functions --------------------------------
   async function hashPassword(password: string) {
     try {
-      const response = await fetch('/api/password', {
+      const response = await fetch('/api/auth/password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -330,7 +330,7 @@ const Form: FC<FormProps> = ({
 
     const METHOD = 'POST'
 
-    const response = await fetch('/api/hCaptcha', {
+    const response = await fetch('/api/auth/hCaptcha', {
       method: METHOD,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',

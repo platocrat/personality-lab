@@ -1,14 +1,9 @@
 // Externals
 import { FC } from 'react'
-import { useRouter } from 'next/navigation'
 // Locals
 import GeneralActivities from '@/components/Forms/BigFive/GeneralActivities'
 // Utils
 import { BIG_FIVE_ASSESSMENT_HREF } from '@/utils'
-// CSS
-import styles from '@/app/page.module.css'
-import { definitelyCenteredStyle } from '@/theme/styles'
-
 
 
 const href = `${BIG_FIVE_ASSESSMENT_HREF}/level-of-agreement`
