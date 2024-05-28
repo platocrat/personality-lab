@@ -19,15 +19,14 @@ export class SSCrypto {
   private static readonly ITERATIONS = 1_000_000
   private static readonly KEYLEN = 128
   private static readonly IV_LENGTH = 16
-  private static readonly ENCRYPTION_KEY_LENGTH = 16
+  private static readonly HASH_KEY_LENGTH = 16
   private static readonly ENCRYPTION_ALGORITHM = 'aes-256-cbc'
   private static readonly HASHED_PASSWORD_ENCODING = 'hex'
-  private static readonly SYMBOLS = `#@*+-_;,.?!()/{}&'`
-  private static readonly CAPITAL_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-  private static readonly LOWERCASE_LETTERS = 'abcdefghijklmnopqrstuvwxyz'
+  // private static readonly SYMBOLS = `#@*+-_;,.?!()/{}&'`
+  // private static readonly CAPITAL_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  // private static readonly LOWERCASE_LETTERS = 'abcdefghijklmnopqrstuvwxyz'
   private static readonly NUMBERS = '0123456789'
-  private static readonly ALL_CHARS = SSCrypto.SYMBOLS 
-    + SSCrypto.CAPITAL_LETTERS + SSCrypto.LOWERCASE_LETTERS + SSCrypto.NUMBERS
+  // private static readonly ALL_CHARS = SSCrypto.SYMBOLS + SSCrypto.CAPITAL_LETTERS + SSCrypto.LOWERCASE_LETTERS + SSCrypto.NUMBERS
 
     private iv: Buffer
     private salt: string
@@ -99,7 +98,7 @@ export class SSCrypto {
     const cipher = createCipheriv(
       SSCrypto.ENCRYPTION_ALGORITHM, 
       key,
-      this.iv
+      this.iv,
     )
 
     let encryptedData = cipher.update(JSON.stringify(data), 'utf8', 'hex')
@@ -131,7 +130,12 @@ export class SSCrypto {
     algorithm = 'shake256',
   ): string {
     // Create a hash object
-    const hash = createHash(algorithm, { outputLength: 16 })
+    const hash = createHash(
+      algorithm, 
+      { 
+        outputLength: SSCrypto.HASH_KEY_LENGTH 
+      }
+    )
 
     // Update the hash with the data
     hash.update(data)

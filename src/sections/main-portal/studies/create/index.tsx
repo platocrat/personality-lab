@@ -2,15 +2,17 @@
 
 import {
   FC,
+  useContext,
   useState,
 } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 // Locals
 import CreateStudyForm from './form'
+// Contexts
+import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // Utils
 import {
   STUDY__DYNAMODB,
-  getUsernameAndEmailFromCookie
 } from '@/utils'
 // CSS
 import sectionStyles from './CreateStudy.module.css'
@@ -28,6 +30,11 @@ type CreateStudyProps = {
 const CreateStudy: FC<CreateStudyProps> = ({
 
 }) => {
+  // Contexts
+  const {
+    email,
+    username,
+  } = useContext(AuthenticatedUserContext)
   // Hooks
   const router = useRouter()
   const pathname = usePathname()
@@ -128,8 +135,6 @@ const CreateStudy: FC<CreateStudyProps> = ({
 
 
   async function storeStudyInDynamoDB() {
-    const { email, username } = await getUsernameAndEmailFromCookie()
-
     if (email === undefined) {
       /**
        * @todo Replace the line below by handling the error on the UI here

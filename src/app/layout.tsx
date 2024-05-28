@@ -336,8 +336,8 @@ export default function RootLayout({
               <AuthenticatedUserContext.Provider
                 value={ {
                   email,
-                  username,
                   isAdmin,
+                  username,
                   setEmail,
                   setIsAdmin,
                   setUsername,

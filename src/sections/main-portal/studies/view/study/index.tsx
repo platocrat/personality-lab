@@ -5,7 +5,8 @@ import {
   useRef, 
   Fragment,
   useState,
-  useLayoutEffect, 
+  useLayoutEffect,
+  useContext, 
 } from 'react'
 // Locals
 import ParticipantsTable from './participants-table'
@@ -15,6 +16,8 @@ import Spinner from '@/components/Suspense/Spinner'
 import ViewResultsModal from '@/components/Modals/ViewResultsModal'
 import DownloadDataModal from '@/components/Modals/AdminPortal/DownloadData'
 // import CreateParticipantModal from '@/components/Modals/AdminPortal/CreateParticipant'
+// Contexts
+import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // Hooks
 import useClickOutside from '@/hooks/useClickOutside'
 // Utils
@@ -22,7 +25,6 @@ import {
   STUDY__DYNAMODB,
   ParticipantType, 
   PARTICIPANT__DYNAMODB,
-  getUsernameAndEmailFromCookie,
 } from '@/utils'
 // CSS
 import appStyles from '@/app/page.module.css'
@@ -43,6 +45,11 @@ type ViewStudySectionProps = {
 const ViewStudySection: FC<ViewStudySectionProps> = ({
   study
 }) => {
+  // Contexts
+  const { 
+    email,
+    username,
+  } = useContext(AuthenticatedUserContext)
   // Refs
   const viewResultsModalRef = useRef<any>(null)
   const downloadDataModalRef = useRef<any>(null)
@@ -215,9 +222,6 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
   async function storeParticipantInDynamoDB(
     _participant: ParticipantType
   ) {
-    const { email, username } = await getUsernameAndEmailFromCookie()
-
-
     if (email === undefined) {
       /**
        * @todo Replace the line below by handling the error on the UI here

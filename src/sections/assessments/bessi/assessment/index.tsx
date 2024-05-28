@@ -11,6 +11,7 @@ import Questionnaire from '@/components/Questionnaire'
 // Contexts
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
+import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // Utilities
 import {
   getFacet,
@@ -26,8 +27,8 @@ import {
   getSkillDomainAndWeight,
   BessiUserResults__DynamoDB,
   wellnessRatingDescriptions,
-  getUsernameAndEmailFromCookie,
   BessiUserDemographics__DynamoDB,
+  getUsernameAndEmailFromCookie,
 } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
@@ -49,6 +50,10 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
   // Hooks
   const router = useRouter()
   // Contexts
+  const { 
+    email,
+    username
+  } = useContext(AuthenticatedUserContext)
   const { setBessiSkillScores } = useContext(BessiSkillScoresContext)
   const { 
     // State variables
@@ -128,7 +133,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
       // console.log(`userScores: `, userScores)
 
       // 2. Calculate domain and facet scores
-      let finalScores: {
+      const finalScores: {
         id?: string,
         accessToken?: string
         facetScores: FacetFactorType
@@ -138,44 +143,16 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
       // console.log('finalScores: ', finalScores)
 
       // 3. Store `userResults` in DynamoDB and generate its respective ID
-      const userResultsId = await storeResultsInDynamoDB(finalScores)
-      // 4. Use ID of `userResults` to generate access token
-      const accessToken = await getAccessToken(ASSESSMENT_NAME, userResultsId)
-
-      // 4. Create new object with final scores and access token to cache on 
-      //    the client so that we can use the access token to share the user's
-      //    results to others.
-      finalScores = { 
-        ...finalScores, 
-        id: userResultsId,
-        accessToken: accessToken
-      }
-
-      // 5. Store final scores in React state
-      setBessiSkillScores(finalScores)
-      // 6.  Navigate to the results page
-      const href = `/${ ASSESSMENT_NAME }/assessment/results`
-      // 7. Use router to route the user the results page
-      router.push(href)
-      // 8. End suspense after 1 second delay
-      setTimeout(() => {
-        setIsLoadingResults(false)
-      }, 1_000)
-
-      /**
-       * @dev Refactor `sendEmail()` function to use SendGrid instead of
-       * Postmark. Reach out to Dr. Roberts to get the API key necessary for
-       * this.
-       */
-      // // 9. Send the users results to their account email address
-      // await sendEmail()
+      await storeResultsInDynamoDB(finalScores)
     }
   }
 
 
   async function storeResultsInDynamoDB(
     finalScores: {
-      facetScores: FacetFactorType,
+      id?: string,
+      accessToken?: string
+      facetScores: FacetFactorType
       domainScores: SkillDomainFactorType
     },
   ) {
@@ -194,9 +171,6 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
       highestFormalEducation: highestFormalEducation,
       currentEmploymentStatus: currentEmploymentStatus,
     }
-
-    const { email, username } = await getUsernameAndEmailFromCookie()
-
 
     if (email === undefined) {
       /**
@@ -238,6 +212,15 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
         results: bessiUserResults
       }
 
+      const cookieValues = await getUsernameAndEmailFromCookie()
+
+      console.log(
+        `[${new Date().toLocaleString()} \ --filepath="src/sections/assessments/bessi/assessment/index.tsx"]:`,
+        `client-side decrypted email and username jwt-cookie ensure. Double-check that these values aren't being intercepted by hackers to change any of its values.`,
+        cookieValues
+      )
+
+
       try {
         const response = await fetch('/api/assessment/results', {
           method: 'POST',
@@ -251,7 +234,37 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
 
         if (response.status === 200 ) {
           const userResultsId = json.userResultsId
-          return userResultsId
+
+          // 4. Use ID of `userResults` to generate access token
+          const accessToken = await getAccessToken(
+            ASSESSMENT_NAME,
+            userResultsId
+          )
+
+          // 5. Create new object with final scores and access token to cache 
+          //    on the client so that we can use the access token to share the 
+          //    user's results to others.
+          finalScores= {
+            ...finalScores,
+            id: userResultsId,
+            accessToken: accessToken
+          }
+
+          // 5. Store final scores in React state
+          setBessiSkillScores(finalScores)
+          // 6.  Navigate to the results page
+          const href = `/${ASSESSMENT_NAME}/assessment/results`
+
+          /**
+           * @dev Refactor `sendEmail()` function to use SendGrid instead of
+           * Postmark. Reach out to Dr. Roberts to get the API key necessary for
+           * this.
+           */
+          // // 7. Send the users results to their account email address
+          // await sendEmail()
+
+          // 8. Use router to route the user the results page
+          router.push(href)
         } else {
           setIsLoadingResults(false)
           

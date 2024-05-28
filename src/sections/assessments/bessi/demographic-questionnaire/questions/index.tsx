@@ -55,14 +55,14 @@ const Questions = () => {
             */}
           <div style={{ marginBottom: '-12px' }}/>
           <BessiPriorCompletion />
-          <BessiGender />
+          {/* <BessiGender />
           <BessiAge />
           <BessiRaceOrEthnicity />
           <BessiEnglishFluency />
           <BessiSocialClass />
           <BessiLocation />
           <BessiEducationAndWork />
-          <BessiMarriageAndFamily />
+          <BessiMarriageAndFamily /> */}
         </td>
       </tr>
     </>

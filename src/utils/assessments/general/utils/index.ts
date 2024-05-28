@@ -163,41 +163,31 @@ export async function getCookieSecretKey() {
 
 
 
-export async function sendEmail() {
-  const { email } = await getUsernameAndEmailFromCookie()
+export async function sendEmail(fromEmail: string) {
+  // Send email
+  try {
+    const response = await fetch('/api/assessment/results/SendGrid', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email: fromEmail }),
+    })
 
+    const data = await response.json()
 
-  if (email === undefined) {
-    /**
-     * @todo Replace the line below by handling the error UI here
-     */
-    throw new Error(`Error getting email from cookie!`)
-  } else {
-    // Send email
-    try {
-      const response = await fetch('/api/assessment/email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      })
-
-      const data = await response.json()
-
-      if (response.status === 200) {
-        return data
-      } else {
-        throw new Error(`Error getting JWT secret: ${data.error}`)
-        /**
-         * @todo Handle error UI here
-         */
-      }
-    } catch (error: any) {
-      throw new Error(`Error! ${error}`)
+    if (response.status === 200) {
+      return data
+    } else {
+      throw new Error(`Error getting JWT secret: ${data.error}`)
       /**
        * @todo Handle error UI here
        */
     }
+  } catch (error: any) {
+    throw new Error(`Error! ${error}`)
+    /**
+     * @todo Handle error UI here
+     */
   }
 }

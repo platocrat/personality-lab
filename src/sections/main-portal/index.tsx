@@ -1,5 +1,5 @@
 // Externals
-import { FC, useContext } from 'react'
+import { FC, useContext, useLayoutEffect } from 'react'
 // Locals
 import PersonalityAssessments from '../assessments'
 // Components
@@ -8,6 +8,7 @@ import LeftHandNav from '@/components/Nav/LeftHand'
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // Contexts
 import { definitelyCenteredStyle } from '@/theme/styles'
+import { getUsernameAndEmailFromCookie } from '@/utils'
 
 
 type MainPortalProps = {}
@@ -17,7 +18,7 @@ type MainPortalProps = {}
 const Title = ({ text }) => {
   return (
     <>
-      <div>
+      <div style={ definitelyCenteredStyle }>
         <h1>{ text }</h1>
       </div>
     </>
@@ -74,6 +75,24 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
 
   const TITLE_TEXT = `Welcome, ${username}!`
   const SUBTITLE_TEXT = `Based on the studies you have registered for, listed below are the assessments that you may take.`
+
+
+  
+  useLayoutEffect(() => {
+    getUsernameAndEmailFromCookie().then((response: { username: string, email: string }) => {
+      const cookieValues = {
+        username: response.username, 
+        email: response.email,
+      }
+
+      console.log(
+        `[${new Date().toLocaleString()} \ --filepath="src/sections/assessments/bessi/assessment/index.tsx"]:`,
+        `client-side decrypted email and username jwt-cookie ensure. Double-check that these values aren't being intercepted by hackers to change any of its values.`,
+        cookieValues
+      )
+    })
+  }, [])
+
 
 
 

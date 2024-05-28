@@ -31,6 +31,7 @@ import ResultsVisualizationModal from '@/components/Modals/BESSI/ResultsVisualiz
 import useClickOutside from '@/hooks/useClickOutside'
 // Contexts
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
+import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // Utils
 import {
   transformData,
@@ -44,7 +45,6 @@ import {
   StudySimple__DynamoDB,
   AVAILABLE_ASSESSMENTS,
   getRandomValueInRange,
-  getUsernameAndEmailFromCookie,
 } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -71,9 +71,13 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   rateUserResults
 }) => {
   // Contexts
-  const { bessiSkillScores } = useContext<BessiSkillScoresContextType>(
-    BessiSkillScoresContext
-  )
+  const {
+    email,
+    username,
+  } = useContext(AuthenticatedUserContext)
+  const {
+    bessiSkillScores 
+  } = useContext<BessiSkillScoresContextType>(BessiSkillScoresContext)
   
   // Refs
   const modalRef = useRef<any>(null)
@@ -290,9 +294,6 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
     rating: number, 
     vizName: string
   ) {
-      const { email, username } = await getUsernameAndEmailFromCookie()
-
-
       if (email === undefined) {
         /**
          * @todo Replace the line below by handling the error on the UI here

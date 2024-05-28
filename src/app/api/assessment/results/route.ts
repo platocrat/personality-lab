@@ -48,7 +48,7 @@ export async function POST(
     const command = new PutCommand(input)
 
     const successMessage = `User results have been added to ${
-      DYNAMODB_TABLE_NAMES.results
+      TableName
     } table`
 
     
@@ -61,7 +61,7 @@ export async function POST(
       return NextResponse.json(
         {
           message,
-          data: userResultsId,
+          userResultsId,
         },
         {
           status: 200,
@@ -138,12 +138,14 @@ export async function GET(
     const command: QueryCommand = new QueryCommand(input)
 
     const successMessage = `All user results have fetched from the ${
-      DYNAMODB_TABLE_NAMES.results
+      TableName
     } table`
 
 
     try {
       const response = await ddbDocClient.send(command)
+      
+      console.log(`response: `, response)
 
 
       if ((response.Items as RESULTS__DYNAMODB[])?.length === 0) {

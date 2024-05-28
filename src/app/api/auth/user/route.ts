@@ -102,6 +102,14 @@ export async function GET(
             timestamp,
           }
 
+          console.log(
+            `\n\n\n`, 
+            `[${new Date().toLocaleString()} \ --filepath="src/app/api/auth/user/route.ts"]: server-side decrypted user object on to ensure that hackers aren't intercepting it and changing any of its values:`,
+            '\n',
+            user, 
+            '\n\n\n'
+          )
+
 
           return NextResponse.json(
             {
