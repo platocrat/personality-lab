@@ -45,7 +45,7 @@ const InviteRegistrationForm: FC<InviteRegistrationFormProps> = ({
           />
         </label>
         <button type='submit'>
-          { `Register and Take Assessment` }
+          { `Register` }
         </button>
       </form>
     </>
