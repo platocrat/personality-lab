@@ -13,6 +13,7 @@ import {
   getSkillDomainAndWeight,
 } from '@/utils'
 // CSS
+import styles from '../../DataViz.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
 
 
@@ -45,17 +46,16 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
 
     const svgWidth = 600
     const svgHeight = 400
-    const margin = { top: 20, right: 83, bottom: 90, left: 50 }
+    const margin = { top: 20, right: 83, bottom: 70, left: 50 }
     const width = svgWidth - margin.left - margin.right
     const height = svgHeight - margin.top - margin.bottom
 
 
     const svg = d3.select(d3Container.current)
       .append('svg')
-      .attr('width', svgWidth)
-      .attr('height', svgHeight)
-      .append('g')
-      .attr('transform', `translate(${margin.left},${margin.top})`)
+      .attr('preserveAspectRatio', 'xMinYMin meet')
+      .attr('viewBox', '-50 -10 600 400')
+      .classed(styles.svgContent, true)
 
 
     const color = d3.scaleLinear<string>()
@@ -80,6 +80,9 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
 
     // Create a tooltip
     const tooltip = d3.select(d3Container.current).append('div')
+      /**
+       * @todo Tooltip is not being displayed
+       */
       .attr('class', 'tooltip')
       .style('opacity', 0)
       .style('position', 'absolute')
@@ -87,6 +90,7 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
       .style('border', '1px solid #d3d3d3')
       .style('padding', '10px')
       .style('border-radius', '5px')
+      .style('z-index', '100px')
 
     const g = svg.append('g')
 
@@ -98,6 +102,9 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
       .attr('width', x1.bandwidth())
       .attr('height', d => y(0)! - y(d.score))
       .attr('fill', d => color(d.score))
+      /**
+       * @todo Tooltip is not being displayed
+       */
       .on('mouseover', function (event, d) {
         tooltip.style('opacity', 1)
         d3.select(this).style('stroke', 'black').style('opacity', 0.8)
@@ -231,7 +238,11 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
       >
         { (data as TargetDataStructure).name }
       </h4>
-      <div ref={ d3Container } style={ definitelyCenteredStyle } />
+      <div 
+        ref={ d3Container } 
+        style={{ ...definitelyCenteredStyle, maxWidth: '700px' }}
+        className={ styles.svgContainer }
+      />
     </>
   )
 }

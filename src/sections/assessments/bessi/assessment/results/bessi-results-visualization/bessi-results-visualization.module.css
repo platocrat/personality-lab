@@ -20,7 +20,7 @@
   padding: 2px 32px;
   border-radius: 3rem;
   background-color: rgba(0, 80, 172, 0.114);
-  transform: scale(0.98);
+  transform: scale(0.975);
 
   transition: 0.1s ease-in-out;
 }
@@ -82,4 +82,8 @@
 .dropdownButton:hover .rotated {
   transform: rotate(0deg) translateY(1px);
   transition: transform 0.1s ease;
+}
+
+.dropdownButton:active {
+  transform: scale(0.965);
 }
