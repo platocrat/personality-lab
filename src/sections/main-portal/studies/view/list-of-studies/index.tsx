@@ -198,9 +198,7 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
                                   {/* Dropdown menu */}
                                   { isDropdownVisible === study.id && (
                                     <div className={ sectionStyles.dropdown }>
-                                      <Link 
-                                        href={ buttonHref(study.id.toString()) }
-                                      >
+                                      <Link href={ buttonHref(study?.id.toString()) }>
                                         <button>
                                           {` View Details` }
                                         </button>
@@ -213,7 +211,7 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
                                         </button>
                                       </Link>
                                       <button 
-                                        href='#' 
+                                        // href='#'
                                         onClick={ () => alert('Delete study') }
                                       >
                                         {` Delete Study` }

@@ -64,23 +64,25 @@ const LeftHandNav: FC<LeftHandNavProps> = ({
   children
 }) => {
   return (
-    <div className={ styles.container }>
-      <div className={ styles.sidebar }>
-        { BUTTONS.map((btn, i: number) => (
-          <Fragment key={ i }>
-            <Link href={ btn.href }>
-              <button className={ styles.sidebarLink }>
-                { btn.text }
-              </button>
-            </Link>
-          </Fragment>
-        )) }
+    <>
+      <div className={ styles.container }>
+        <div className={ styles.sidebar }>
+          { BUTTONS.map((btn, i: number) => (
+            <Fragment key={ i }>
+              <Link href={ btn.href }>
+                <button className={ styles.sidebarLink }>
+                  { btn.text }
+                </button>
+              </Link>
+            </Fragment>
+          )) }
+        </div>
+        <div className={ styles.mainContent }>
+          {/* Main content goes here */ }
+          { children }
+        </div>
       </div>
-      <div className={ styles.mainContent }>
-        {/* Main content goes here */ }
-        { children }
-      </div>
-    </div>
+    </>
   )
 }
 
