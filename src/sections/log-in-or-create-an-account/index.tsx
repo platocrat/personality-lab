@@ -314,7 +314,13 @@ const LogInOrCreateAnAccount = () => {
         <Card
           title={ title }
           description={ description }
-          cssStyle={{ maxWidth: '450px' }}
+          cssStyle={{ 
+            width: '80%',
+            marginRight: 'auto',
+            marginLeft: 'auto',
+            position: 'relative',
+            maxWidth: '450px',
+          }}
           options={{
             hasForm: true,
             isSignUp: isSignUp,

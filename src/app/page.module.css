@@ -296,6 +296,24 @@
   transition: 0.1s ease-in-out;
 }
 
+.logInSignUpButton {
+  border-radius: 1rem;
+  border-width: 1.2px;
+  height: 35px;
+  width: 100%;
+  font-size: clamp(12px, 2.5vw, 14px);
+  color: rgb(244, 244, 244);
+}
+
+.card {
+  width: 100%;
+  z-index: 1;
+  padding: 4px 18px;
+  border-radius: 1rem;
+  box-shadow: 0px 2.5px 5px rgba(80, 110, 127, 0.5);
+}
+
+
 .main {
   display: flex;
   position: relative;
@@ -304,6 +322,34 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 1rem 1rem 1rem;
+}
+
+@media (max-width: 800px) {
+  .card {
+    width: 72.5%;
+    margin-right: auto;
+    margin-left: auto;
+    z-index: 1;
+    padding: 6px 20px;
+    border-radius: 1rem;
+    box-shadow: 0px 2.5px 5px rgba(80, 110, 127, 0.5);
+  }
+
+  .card h2 {
+    font-size: clamp(1.1rem, 2.5vw, 2rem); 
+  }
+  
+  .card p {
+    font-size: clamp(13px, 2.5vw, 14.5px); 
+  }
+  
+  .card p.entranceNote {
+    font-size: clamp(11px, 2.5vw, 13px); 
+  }
+  
+  .main h1 {
+    font-size: 24px;
+  }
 }
 
 @media only screen and (max-width: 650px) {

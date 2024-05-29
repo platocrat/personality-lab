@@ -84,10 +84,15 @@ const CreateStudyForm: FC<CreateStudyFormProps> = ({
           style={ {
             display: 'flex',
             justifyContent: 'space-between',
-            margin: '12px 0px 24px 0px'
+            margin: '12px 0px 24px 0px',
           } }
         >
-          <label>
+          <label
+            style={{
+              position: 'relative',
+              top: '4.5px',
+            }}
+          >
             { `Select an Assessment:` }
           </label>
           <select

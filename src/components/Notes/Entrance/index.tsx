@@ -1,16 +1,11 @@
+import styles from '@/app/page.module.css'
+
+
 const EntranceNote = ({ }) => {
   return (
     <>
-      <div
-        style={{
-          fontSize: '13px',
-          margin: '36px 0px -8px 0px',
-        }}
-      >
-        <p>
-          { `Click the button below to begin the assessment.` }
-        </p>
-        <p>
+      <div style={{ margin: '36px 0px -8px 0px' }}>
+        <p className={ styles.entranceNote }>
           { `Please note that we do not store any information from these assessments` }
         </p>
       </div>

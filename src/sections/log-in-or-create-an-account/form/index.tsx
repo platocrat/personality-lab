@@ -400,8 +400,15 @@ const Form: FC<FormProps> = ({
                     placeholder={ fi.placeholder }
                     onChange={ (e: any) => fi.onChange(e) }
                     style={ {
-                      width: `310px`,
-                      fontSize: '14.5px',
+                      width: `100%`,
+                      minWidth: '175px',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      marginRight: 'auto',
+                      marginLeft: 'auto',
+                      position: 'relative',
+                      fontSize: 'clamp(12px, 2.5vw, 13.5px)',
                       padding: '5px 12px',
                       borderWidth: '0.5px',
                       borderRadius: '1rem',
@@ -444,16 +451,16 @@ const Form: FC<FormProps> = ({
               disabled={ isButtonDisabled ? true : false }
               style={{
                 boxShadow: 
-                isButtonDisabled 
-                ? ' inset 0px 1px 6px rgba(0, 43, 68, 0.412)' 
-                : '',
+                  isButtonDisabled 
+                  ? ' inset 0px 1px 6px rgba(0, 43, 68, 0.412)' 
+                  : '',
                 cursor: isButtonDisabled ? 'not-allowed' : 'pointer',
                 backgroundColor: isButtonDisabled ? 'rgba(152, 152, 152, 0.30)' : '',
                 borderRadius: `1rem`,
                 borderWidth: `1.2px`,
-                height: `35px`,
+                height: 'clamp(29px, 6vw, 32px)',
                 width: `100%`,
-                fontSize: `14px`,
+                fontSize: 'clamp(12px, 2.5vw, 14px)',
                 color: `rgb(244, 244, 244)`,
               }}
               onClick={ (e: any) => handleSubmit(e) }
