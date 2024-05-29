@@ -191,7 +191,7 @@
 
 @media only screen and (max-width: 650px) {
   .assessmentWrapper {
-    max-width: max-content;
+    width: 100%;
   }
 }
 
@@ -245,12 +245,17 @@
 }
 
 @media only screen and (max-width: 700px) {
-  .radioButtonWrapper {
-    width: 20%;
-  }
-
   .radioButtonLabel {
     font-size: 10px;
+    position: relative;
+    font-size: 13px;
+  }
+  
+  .radioButtonInput {
+    font-size: 10px;
+    position: relative;
+    top: 2.5px;
+    font-size: 13px;
   }
 }
 

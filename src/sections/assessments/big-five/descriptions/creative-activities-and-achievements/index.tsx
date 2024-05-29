@@ -63,9 +63,13 @@ const CreativeActivitesAndAchievementsDescription = () => {
             <Image
               width={ 720 }
               height={ 160 }
-              alt='Instructions example 1'
-              className={ styles.img }
               src={ imgPath(1) }
+              className={ styles.img }
+              alt='Instructions example 1'
+              style={{
+                width: `100%`,
+                height: `100%`,
+              }}
             />
           </div>
         </div>
@@ -96,11 +100,15 @@ const CreativeActivitesAndAchievementsDescription = () => {
             }}
           >
             <Image
-              width={ 720 }
+              width={ 792 }
               height={ 160 }
-              className={ styles.img }
-              alt='Instructions example 2'
+              objectFit='contain'
               src={ imgPath(1) }
+              alt='Instructions example 2'
+              style={ {
+                width: `100%`,
+                height: `100%`,
+              } }
             />
           </div>
         </div>

@@ -240,12 +240,12 @@ const BigFiveConsentForm: FC<BigFiveConsentFormProps> = ({
         </div>
 
         <FormButton 
-        buttonText={ BUTTON_TEXT }
-        state={{
-          isSubmitting: isSubmitting,
-          hasSubmitted: hasSubmitted,
-        }}
-      />
+          buttonText={ BUTTON_TEXT }
+          state={{
+            isSubmitting: isSubmitting,
+            hasSubmitted: hasSubmitted,
+          }}
+        />
       </form>
 
     </Fragment>
