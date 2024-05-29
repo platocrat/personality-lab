@@ -67,7 +67,7 @@ const ShareResults: FC<ShareResultsProps> = ({
               src={
                 state.isCopied
                   ? `${imgPaths().svg}white-checkmark.svg`
-                  : `${imgPaths().svg}white-share-icon.svg`
+                  : `${imgPaths().svg}white-share.svg`
               }
             />
           </button>

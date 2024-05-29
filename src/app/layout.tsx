@@ -246,6 +246,9 @@ export default function RootLayout({
 
       if (response.status === 401) return { user: null, error: json.message }
       if (response.status === 400) return { user: null, error: json.error }
+      if (response.status === 500 && json.error.name === 'TokenExpiredError')
+        return { user: null, error: json.error }
+
       return { user: json.user, error: null }
     } catch (error: any) {
       return { user: null, error: error }

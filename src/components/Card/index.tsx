@@ -53,6 +53,7 @@ const Card: FC<CardProps> = ({
           borderRadius: '1rem',
           margin: '0rem 0rem 2rem 0rem',
           boxShadow: '0px 2.5px 5px rgba(80, 110, 127, 0.5)',
+          zIndex: '1',
         } }
       >
         <div style={ { padding: '8px' } }>

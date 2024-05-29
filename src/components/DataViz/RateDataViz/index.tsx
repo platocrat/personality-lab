@@ -68,7 +68,7 @@ const RateDataViz: FC<RateDataVizProps> = ({
                     transform: 'scaleX(-1)',
                   } }
                   alt='Share icon to share data visualization'
-                  src={ `${imgPaths().svg}thumbs-up-icon.svg` }
+                  src={ `${imgPaths().svg}thumbs-up.svg` }
                 />
               </button>
               <button
@@ -91,7 +91,7 @@ const RateDataViz: FC<RateDataVizProps> = ({
                   width={ 18 }
                   height={ 18 }
                   alt='Share icon to share data visualization'
-                  src={ `${imgPaths().svg}thumbs-down-icon.svg` }
+                  src={ `${imgPaths().svg}thumbs-down.svg` }
                 />
               </button>
             </>

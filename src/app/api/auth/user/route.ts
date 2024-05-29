@@ -127,7 +127,7 @@ export async function GET(
       } catch (error: any) {
         // Something went wrong
         return NextResponse.json(
-          { error: error, },
+          { error: error },
           { 
             status: 500, 
             headers: {

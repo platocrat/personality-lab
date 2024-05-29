@@ -49,7 +49,7 @@
   cursor: pointer;
   border: none;
   margin-top: 24px;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.15s ease;
 }
 
 .form-container button[type="submit"]:hover {

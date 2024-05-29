@@ -143,7 +143,7 @@ const ResultsVisualizationModal: FC<ResultsVisualizationModalProps> = ({
                   src={
                     state.isCopied
                       ? `${imgPaths().svg}white-checkmark.svg`
-                      : `${imgPaths().svg}white-share-icon.svg`
+                      : `${imgPaths().svg}white-share.svg`
                   }
                 />
               </button>
