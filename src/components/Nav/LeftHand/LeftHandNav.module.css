@@ -41,7 +41,8 @@
 
 .mainContent {
   position: relative;
-  overflow-x: auto;
+  /* Ensure main content can scroll if needed */
+  overflow: auto;
   border-collapse: collapse;
   flex-direction: column;
   /* Adjust this value to match the sidebar width */
@@ -54,8 +55,6 @@
   /* Add padding to keep content away from sidebar */
   width: calc(100% - 275px);
   /* Adjust the width to fill remaining space */
-  /* Ensure main content can scroll if needed */
-  overflow-y: auto;
 }
 
 /* Responsive Design */
@@ -79,6 +78,6 @@
     top: 213px;
     /* Adjust the width to fill remaining space */
     /* Ensure main content can scroll if needed */
-    overflow-y: auto;
+    overflow: auto;
   }
 }

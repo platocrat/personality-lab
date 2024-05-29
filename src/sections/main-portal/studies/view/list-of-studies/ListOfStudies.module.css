@@ -4,11 +4,25 @@
   border-collapse: collapse;
 }
 
-.table th,
-.table td {
+.table td,
+.table th {
+  /* max-width: 7vh; */
   border: 1px solid #ddd;
   padding: 8px;
   text-align: left;
+}
+
+.table th {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.table td:not(:last-child) {
+  max-width: 4vh;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .table th {
@@ -53,25 +67,78 @@
 
 .buttonDiv {
   position: relative;
-  display: inline-block;
 }
 
 .dropdown {
-  display: block;
-  position: absolute;
+  position: fixed;
   background-color: white;
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-  /* margin-top: 8px; */
+  box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.2);
   z-index: 10;
+  width: max-content;
+  transform: translateY(2px);
 }
 
 .dropdown button {
-  color: black;
-  padding: 12px 16px;
+  width: 100%;
+  font-size: 12px;
+  cursor: pointer;
+  text-align: left;
+  outline: none;
+  border: none;
+  border-bottom: 0.1px solid rgba(128, 128, 128, 0.524);
+  padding: 8px 16px;
   text-decoration: none;
   display: block;
 }
 
 .dropdown button:hover {
   background-color: #ddd;
+}
+
+@media screen and (max-width: 920px) {
+  .table {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    border-collapse: collapse;
+    justify-content: space-between;
+  }
+
+  .table thead {
+    width: 40%;
+  }
+  
+  .table tbody {
+    width: 100%;
+  }
+
+  .table th {
+    background-color: #f2f2f2;
+  }
+
+  .table tr {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .table td {
+    display: flex;
+    border: none;
+  }
+
+  .table td:not(:last-child) {
+    display: flex;
+    /* border-bottom: 1px solid #ddd; */
+    max-width: 100%;
+    width: max-content;
+    text-align: right;
+  }
+
+  .table tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+
+  .table tr:hover {
+    background-color: #ddd;
+  }
 }

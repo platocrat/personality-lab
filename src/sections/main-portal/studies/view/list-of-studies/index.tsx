@@ -36,7 +36,7 @@ type ListOfStudiesProps = {
 const TABLE_HEADERS = [
   // `ID`,
   `Name`,
-  `Assessment ID`,
+  // `Assessment ID`,
   `Status`,
   `Date`,
   `Admin Emails`,
@@ -137,9 +137,10 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
         <>
             <div 
               style={ {
+                position: 'relative',
                 width: '100%',
                 margin: '24px 0',
-                overflowX: 'auto',
+                // overflow: 'auto',
               } }
             >
               { studies ? (
@@ -159,17 +160,25 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
                         <Fragment key={ i }>
                           <tr>
                             {/* <td>{ study.id.slice(0, 6) + '...' }</td> */}
-                            <td>{ study.name }</td>
-                            <td>{ study.details.assessmentId }</td>
-                            <td>{ study.isActive ? 'ACTIVE' : 'INACTIVE' }</td>
-                            <td>{ new Date(study.timestamp).toLocaleString() }</td>
-                            <td>{ study.adminEmails.join(', ') }</td>
-                            <td style={{ minWidth: '150px' }}>
+                            <td>
+                              { study.name }
+                            </td>
+                            {/* <td>{ study.details.assessmentId }</td> */}
+                            <td>
+                              { study.isActive ? 'ACTIVE' : 'INACTIVE' }
+                            </td>
+                            <td>
+                              { new Date(study.timestamp).toLocaleString() }
+                            </td>
+                            <td>
+                              { study.adminEmails.join(', ') }
+                            </td>
+                            <td style={{ width: '80px' }}>
                               <div className={ sectionStyles.buttonContainer }>
                                 <div className={ sectionStyles.buttonDiv }>
                                   <button
-                                    ref={ studyActionsDropdownRef }
                                     type='button'
+                                    ref={ studyActionsDropdownRef }
                                     onClick={ 
                                       (e: any) => toggleDropdown(study?.id) 
                                     }
@@ -197,25 +206,29 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
                                   </button>
                                   {/* Dropdown menu */}
                                   { isDropdownVisible === study.id && (
-                                    <div className={ sectionStyles.dropdown }>
-                                      <Link href={ buttonHref(study?.id.toString()) }>
-                                        <button>
-                                          {` View Details` }
+                                    <div style={{ position: 'relative' }}>
+                                      <div className={ sectionStyles.dropdown }>
+                                        <Link href={ buttonHref(study?.id.toString()) }>
+                                          <button>
+                                            {` View` }
+                                          </button>
+                                        </Link>
+                                        <Link 
+                                          href={ `/edit-studies/study/${study.id}` }
+                                        >
+                                        <Link href={ '' }>
+                                          <button>
+                                            { `Edit` }
+                                          </button>
+                                        </Link>
+                                        </Link>
+                                        <button 
+                                          // href='#'
+                                          onClick={ () => alert('Delete study') }
+                                        >
+                                          {` Delete` }
                                         </button>
-                                      </Link>
-                                      <Link 
-                                        href={ `/edit-studies/study/${study.id}` }
-                                      >
-                                        <button>
-                                          {` Edit Study` }
-                                        </button>
-                                      </Link>
-                                      <button 
-                                        // href='#'
-                                        onClick={ () => alert('Delete study') }
-                                      >
-                                        {` Delete Study` }
-                                      </button>
+                                      </div>
                                     </div>
                                   )}
                                 </div>
