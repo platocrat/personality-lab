@@ -469,9 +469,9 @@ const Form: FC<FormProps> = ({
                 ? (
                   <>
                     <Spinner 
-                      height='24'
-                      width='24' 
-                      style={{ position: 'relative',top: '1.75px' }}
+                      width={ 'clamp(18px, 4vw, 22px)' }
+                      height={ 'clamp(18px, 4vw, 22px)' }
+                      style={{ position: 'relative', top: '1.75px' }}
                     /> 
                   </>
                 )
