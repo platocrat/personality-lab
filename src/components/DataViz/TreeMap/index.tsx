@@ -6,6 +6,7 @@ import Title from '../Title'
 // Constants
 import { domainToFacetMapping } from '@/utils'
 // CSS
+import styles from '../DataViz.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
 
 
@@ -18,7 +19,7 @@ const TreeMap = ({
   isExample,
   data,
 }) => {
-  const d3Container = useRef<HTMLDivElement | null>(null)
+  const d3Container = useRef<any>(null)
   const title = `BESSI Tree Map`
 
 
@@ -108,13 +109,14 @@ const TreeMap = ({
 
     d3.select(d3Container.current).select('*').remove() // Clear the container
 
+    /**
+     * @todo d3.treemap() needs to use dynamic values for height and width
+     */
     const svg = d3.select(d3Container.current)
       .append('svg')
-      .attr('width', width + margin.left + margin.right)
-      // Use totalHeight to include space for the legend
-      .attr('height', totalHeight)
-      .append('g')
-      .attr('transform', `translate(${margin.left},${margin.top})`)
+      .attr('preserveAspectRatio', 'xMinYMin meet')
+      .attr('viewBox', '0 0 600 400')
+      .classed(styles.svgContent, true)
 
     const root: any = d3.hierarchy(transformData(originalData))
       .sum((d: any) => d.value)
@@ -122,6 +124,9 @@ const TreeMap = ({
         (a: any, b: any) => b.height - a.height || b.value - a.value
       )
 
+    /**
+     * @todo d3.treemap() needs to use dynamic values for height and width
+     */
     d3.treemap()
       .size([width, height])
       .paddingTop(24)
@@ -228,7 +233,11 @@ const TreeMap = ({
   return (
     <>
       <Title isExample={ isExample } title={ title } />
-      <div ref={ d3Container } style={ definitelyCenteredStyle } />
+      <div 
+        ref={ d3Container } 
+        style={ definitelyCenteredStyle } 
+        className={ styles.svgContainer }
+      />
       <div
         id='tooltip'
         style={ {

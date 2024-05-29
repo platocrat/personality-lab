@@ -169,7 +169,6 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
 
         return (
           <>
-            <div style={{ margin: '24px 0px 0px 0px' }} />
             <Title isExample={ isExample } title={ barChartTitle } />
 
             { allData.map((data: TargetDataStructure, i: number) => (
@@ -185,37 +184,30 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
 
         return (
           <>
-            <div 
+            <Title isExample={ isExample } title={ radialBarChartTitle } />
+            <select
+              value={ selectedRadialBarChart }
               style={{ 
-                ...definitelyCenteredStyle,
-                flexDirection: 'column',
+                padding: '4px 8px 4px 4px',
+                margin: '4px 0px 4px 0px',
               }}
+              onChange={ 
+                (e: any) => handleOnChangeRadialBarChart(e) 
+              }
             >
-              <Title isExample={ isExample } title={ radialBarChartTitle } />
-              <select
-                value={ selectedRadialBarChart }
-                style={{ 
-                  padding: '4px 8px 4px 4px',
-                  margin: '4px 0px 4px 0px',
-                }}
-                onChange={ 
-                  (e: any) => handleOnChangeRadialBarChart(e) 
-                }
-              >
-                { _allData.map((data: TargetDataStructure, i: number) => (
-                  <>
-                    <option key={ i } value={ i }>
-                      { data.name }
-                    </option>
-                  </>
-                )) }
-              </select>
+              { _allData.map((data: TargetDataStructure, i: number) => (
+                <>
+                  <option key={ i } value={ i }>
+                    { data.name }
+                  </option>
+                </>
+              )) }
+            </select>
 
-              <RadialBarChart
-                data={ _allData[selectedRadialBarChart] } 
-                selectedRadialBarChart={ selectedRadialBarChart }
-              />
-            </div>
+            <RadialBarChart
+              data={ _allData[selectedRadialBarChart] } 
+              selectedRadialBarChart={ selectedRadialBarChart }
+            />
           </>
         )
       case 3:

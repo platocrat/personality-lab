@@ -6,6 +6,7 @@ import Title from '../Title'
 // Constants
 import { domainToFacetMapping, skillsMapping } from '@/utils'
 // CSS
+import dataVizStyles from '../DataViz.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/components/DataViz/PersonalityVisualization/PersonalityVisualization.module.css'
 
@@ -16,7 +17,7 @@ const PersonalityVisualization = ({
   data,
   averages,
 }) => {
-  const d3Container = useRef<SVGSVGElement | null>(null)
+  const d3Container = useRef<any>(null)
   const [ activeDomain, setActiveDomain ] = useState('Self-Management Skills')
 
   const title = `BESSI Personality Visualization`
@@ -57,10 +58,10 @@ const PersonalityVisualization = ({
     const innerRadius = 120
 
     const svg = d3.select(d3Container.current)
-      .attr('width', width)
-      .attr('height', height)
-      .append('g')
-      .attr('transform', `translate(${width / 2}, ${height / 2})`)
+      .append('svg')
+      .attr('preserveAspectRatio', 'xMinYMin meet')
+      .attr('viewBox', '-210 -220 420 440')
+      .classed(dataVizStyles.svgContent, true)
 
     // Define the drop-shadow filter
     const defs = svg.append('defs')
@@ -248,13 +249,14 @@ const PersonalityVisualization = ({
   return (
     <>
       <Title isExample={ isExample } title={ title } />
-      <div>
-        <div 
-          id='tooltip' 
-          className={ styles.tooltip }
-        />
-        <svg ref={ d3Container } />
-      </div>
+      <div 
+        id='tooltip' 
+        className={ styles.tooltip }
+      />
+      <div 
+        ref={ d3Container } 
+        className={ dataVizStyles.svgContainer }
+      />
     </>
   )
 }

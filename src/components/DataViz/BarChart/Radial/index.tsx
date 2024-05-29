@@ -6,6 +6,7 @@ import Title from '@/components/DataViz/Title'
 // Utils
 import { TargetDataStructure } from '@/utils'
 // CSS
+import dataVizStyles from '../../DataViz.module.css'
 import styles from '@/components/DataViz/BarChart/Radial/Radial.module.css'
 
 
@@ -22,24 +23,23 @@ const RadialBarChart: FC<RadialBarChartProps> = ({
   data,
   selectedRadialBarChart,
 }) => {
-  const d3Container = useRef<SVGSVGElement | null>(null)
+  const d3Container = useRef<any>(null)
 
 
   useEffect(() => {
-    d3.select(d3Container.current).selectAll('*').remove()
+    d3.select(d3Container.current).selectAll('svg').remove()
 
     const margin = { top: 30, right: 50, bottom: 100, left: 10 }
-    const width = 350
-    const height = 300
+    const width = 450
+    const height = 400
     const innerRadius = 100
     const outerRadius = Math.min(width, height) / 2.2
 
     const svg = d3.select(d3Container.current)
-      .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom)
-      .append('g')
-      .attr('transform', `translate(${width / 2},${height / 2})`)
-      .attr('transform', `translate(${margin.right * 4.1},${margin.bottom + margin.top * 4.1})`)
+      .append('svg')
+      .attr('preserveAspectRatio', 'xMinYMin meet')
+      .attr('viewBox', '-223 -220 450 410')
+      .classed(dataVizStyles.svgContent, true)
 
     const x = d3.scaleBand()
       .domain(data.facets.map(d => d.name))
@@ -72,8 +72,12 @@ const RadialBarChart: FC<RadialBarChartProps> = ({
         .padRadius(innerRadius)
       )
       .on('mouseover', (event, d) => {
-        tooltip.style('left', (event.pageX) + 'px')
-          .style('top', (event.pageY - 28) + 'px')
+        /**
+         * @todo Position of tooltips need to be dynamic to match the varying 
+         *       height and width
+         */
+        tooltip.style('left', (event.pageX - 28) + 'px')
+          .style('top', (event.pageY - 200) + 'px')
           .html(
             `
             <div>
@@ -177,7 +181,11 @@ const RadialBarChart: FC<RadialBarChartProps> = ({
 
   return (
     <>
-      <svg ref={ d3Container } />
+      <div
+        ref={ d3Container }
+        style={{ maxWidth: '450px' }}
+        className={ dataVizStyles.svgContainer }
+      />
       <div
         id='tooltip'
         className={ styles.tooltip }

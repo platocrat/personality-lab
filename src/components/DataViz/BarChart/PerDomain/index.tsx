@@ -240,8 +240,8 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
       </h4>
       <div 
         ref={ d3Container } 
-        style={{ ...definitelyCenteredStyle, maxWidth: '700px' }}
         className={ styles.svgContainer }
+        style={{ ...definitelyCenteredStyle, maxWidth: '700px' }}
       />
     </>
   )

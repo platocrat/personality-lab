@@ -2,11 +2,14 @@
 import * as d3 from 'd3'
 import { FC, useEffect, useRef } from 'react'
 // Locals
-import '@/components/DataViz/Distributions/Normal/NormalDistribution.css'
 import { 
   generateAreaUnderCurve, 
   generateNormalDistributionCurve,
+  
 } from '@/utils'
+// CSS
+import styles from '../..//DataViz.module.css'
+import '@/components/DataViz/Distributions/Normal/NormalDistribution.css'
 
 
 
@@ -23,11 +26,14 @@ const NormalDistributionChart: FC<NormalDistributionChartProps> = ({
   score,
   stddev,
 }) => {
-  const d3Container = useRef<SVGSVGElement | null>(null)
+  const d3Container = useRef<any>(null)
 
 
 
   useEffect(() => {
+    // Remove any existing svg to avoid duplicates
+    d3.select(d3Container.current).select('svg').remove()
+
     const areaData = generateAreaUnderCurve(d3, mean, stddev)
     const data: { x: number, y: number }[] = generateNormalDistributionCurve(
       d3, 
@@ -52,10 +58,16 @@ const NormalDistributionChart: FC<NormalDistributionChartProps> = ({
     ]
 
 
-    const margin = { top: 20, right: 30, bottom: 40, left: 40 }
-    const width = 600 - margin.left - margin.right
+    const margin = { top: 20, right: 30, bottom: 0, left: 40 }
+    const width = 650 - margin.left - margin.right
     const height = 350 - margin.top - margin.bottom
 
+    // Create the SVG
+    const svg = d3.select(d3Container.current)
+      .append('svg')
+      .attr('preserveAspectRatio', 'xMinYMin meet')
+      .attr('viewBox', '-50 -40 650 400')
+      .classed(styles.svgContent, true)
 
     const x = d3.scaleLinear()
       .domain([mean - 3 * stddev, mean + 3 * stddev])
@@ -69,13 +81,6 @@ const NormalDistributionChart: FC<NormalDistributionChartProps> = ({
       .x((d: any) => x(d.x))
       .y((d: any) => y(d.y))
       .curve(d3.curveBasis)
-
-    // Create the SVG
-    const svg = d3.select(d3Container.current)
-      .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom)
-      .append('g')
-      .attr('transform', `translate(${margin.left},${margin.top})`)
 
     // Append the line
     svg.append('path')
@@ -109,12 +114,12 @@ const NormalDistributionChart: FC<NormalDistributionChartProps> = ({
     svg.append('g')
       .attr('transform', `translate(0,${height})`)
       .call(xAxis)
-      .style('font-size', '13px')
+      .style('font-size', '15px')
 
     // Add y-axis
     svg.append('g')
       .call(d3.axisLeft(y))
-      .style('font-size', '13px')
+      .style('font-size', '15px')
 
     const area = d3.area()
       .x((d: any) => x(d.x))
@@ -145,6 +150,7 @@ const NormalDistributionChart: FC<NormalDistributionChartProps> = ({
       .attr('fill', 'red')
       .attr('text-anchor', 'middle')
       .text(`Score: ${score}`)
+      .style('font-size', '16px')
 
     // Tooltip div
     const tooltip = d3.select('body').append('div')
@@ -204,7 +210,12 @@ const NormalDistributionChart: FC<NormalDistributionChartProps> = ({
           .attr('stroke-width', 2.5)  // Add border width
       })
       .on('mousemove', event => {
-        return tooltip.style('top', `${event.pageY - 10}px`).style('left', `${event.pageX + 10}px`)
+        /**
+         * @todo Position of tooltips need to be dynamic to match the varying 
+         *       height and width
+         */
+        return tooltip.style('top', `${event.pageY - 10}px`)
+          .style('left', `${event.pageX + 10}px`)
       })
       .on('mouseout', (event, d) => {
         tooltip.style('visibility', 'hidden')
@@ -274,7 +285,12 @@ const NormalDistributionChart: FC<NormalDistributionChartProps> = ({
           .attr('stroke-width', 2)  // Add border width
       })
       .on('mousemove', event => {
-        return scoreTooltip.style('top', `${event.pageY - 10}px`).style('left', `${event.pageX + 10}px`)
+        /**
+         * @todo Position of tooltips need to be dynamic to match the varying 
+         *       height and width
+         */
+        return scoreTooltip.style('top', `${event.pageY - 10}px`)
+          .style('left', `${event.pageX + 10}px`)
       })
       .on('mouseout', (event, d) => {
         scoreTooltip.style('visibility', 'hidden')
@@ -300,7 +316,10 @@ const NormalDistributionChart: FC<NormalDistributionChartProps> = ({
 
 
   return (
-    <svg ref={ d3Container } />
+    <div 
+      ref={ d3Container }
+      className={ styles.svgContainer }
+    />
   )
 }
 
