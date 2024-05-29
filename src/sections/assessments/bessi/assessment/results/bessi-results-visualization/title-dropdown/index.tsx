@@ -73,9 +73,7 @@ const TitleDropdown: FC<TitleDropdownProps> = ({
           onClick={ toggleDropdown }
           className={ styles.dropdownButton }
         >
-          <h3 
-            style={{ fontSize: '18px' }}
-          >
+          <h3>
             { title }
             <Image
               width={ 12 }

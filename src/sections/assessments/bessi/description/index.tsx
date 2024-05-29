@@ -34,7 +34,7 @@ const Description = () => {
       <div>
         <h3
           style={ {
-            fontSize: '22px',
+            fontSize: 'clamp(16px, 2.5vw, 20px',
             marginTop: '28px',
           } }
         >

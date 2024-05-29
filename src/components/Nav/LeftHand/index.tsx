@@ -24,7 +24,8 @@ const sidebarLinkTextContainerStyle: CSSProperties = {
 const sidebarLinkTextStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  justifyContent: 'center'
+  justifyContent: 'center',
+  fontSize: 'clamp(12.5px, 1.70vw, 14px)'
 }
 
 
@@ -34,7 +35,7 @@ const BUTTONS = [
     text: (
       <div style={ sidebarLinkTextContainerStyle }>
         <span role='img' aria-label='new'>➕</span>
-        <p>{ `New Study` }</p>
+        <p style={ sidebarLinkTextStyle }>{ `New Study` }</p>
       </div>
     ),
     href: '/create-study',
@@ -43,7 +44,7 @@ const BUTTONS = [
     text: (
       <div style={ sidebarLinkTextContainerStyle }>
         <span role='img' aria-label='search'>🔍</span>
-        <p>{ `Studies` }</p>
+        <p style={ sidebarLinkTextStyle }>{ `Studies` }</p>
       </div>
     ),
     href: '/view-studies',
@@ -52,7 +53,7 @@ const BUTTONS = [
     text: (
       <div style={ sidebarLinkTextContainerStyle }>
         <span role='img' aria-label='edit'>📝</span>
-        <p>{ `Assessments` }</p>
+        <p style={ sidebarLinkTextStyle }>{ `Assessments` }</p>
       </div>
     ),
     href: '/assessments',

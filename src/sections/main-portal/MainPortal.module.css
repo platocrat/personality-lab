@@ -1,0 +1,23 @@
+.mainPortal p {
+  font-size: clamp(14px, 2.5vw, 17px);
+}
+
+.welcomeTitle {
+  position: relative;
+  margin-top: 8px;
+  font-size: clamp(12px, 2.5vw, 14.5px);
+}
+
+@media (max-width: 800px) {
+  .welcomeTitle {
+    position: relative;
+    margin-top: 5.25px;
+  }
+}
+
+@media (max-width: 650px) {
+  .welcomeTitle {
+    position: relative;
+    margin-top: 14px;
+  }
+}

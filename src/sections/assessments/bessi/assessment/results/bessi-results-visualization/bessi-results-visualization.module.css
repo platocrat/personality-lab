@@ -3,6 +3,7 @@
   display: flex;
   cursor: pointer;
   padding: 2px 16px;
+  font-size: clamp(12px, 1.9vw, 16px);
   flex-direction: row;
   border-radius: 3rem;
   justify-content: center;

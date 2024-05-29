@@ -6,9 +6,11 @@ import PersonalityAssessments from '../assessments'
 import LeftHandNav from '@/components/Nav/LeftHand'
 // Contexts
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
-// Contexts
-import { definitelyCenteredStyle } from '@/theme/styles'
+// Utils
 import { getUsernameAndEmailFromCookie } from '@/utils'
+// Styles
+import styles from './MainPortal.module.css'
+import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 type MainPortalProps = {}
@@ -18,7 +20,10 @@ type MainPortalProps = {}
 const Title = ({ text }) => {
   return (
     <>
-      <div style={ definitelyCenteredStyle }>
+      <div 
+        style={ definitelyCenteredStyle }
+        className={ styles.welcomeTitle }
+      >
         <h1>{ text }</h1>
       </div>
     </>
@@ -100,32 +105,36 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
 
   return (
     <>
-      { isParticipant ? (
-        <>
-          <div 
-            style={{
-              position: 'relative',
-              top: '85px',
-            }}
-          >
-            <ParticipantTitle 
-              titleText={ TITLE_TEXT } 
-              subtitleText={ SUBTITLE_TEXT} 
-            />
-            <PersonalityAssessments />
-          </div>
-        </>
-      ) : (
-        <>
-          <LeftHandNav>
-            <Title text={ TITLE_TEXT } />
-            {/* Main content goes here */ }
-            <div style={{ ...definitelyCenteredStyle, margin: '48px' }}>
-              { 'Notifications and other important updates go here.' }
+      <div className={ styles.mainPortal }>
+        { isParticipant ? (
+          <>
+            <div 
+              style={{
+                position: 'relative',
+                top: '85px',
+              }}
+            >
+              <ParticipantTitle 
+                titleText={ TITLE_TEXT } 
+                subtitleText={ SUBTITLE_TEXT} 
+              />
+              <PersonalityAssessments />
             </div>
-          </LeftHandNav>
-        </>
-      )}
+          </>
+        ) : (
+          <>
+            <LeftHandNav>
+              <Title text={ TITLE_TEXT } />
+              {/* Main content goes here */ }
+              <div style={{ ...definitelyCenteredStyle, margin: '48px' }}>
+                <p>
+                  { 'Notifications and other important updates go here.' }
+                </p>
+              </div>
+            </LeftHandNav>
+          </>
+        )}
+      </div>
     </>
   )
 }
