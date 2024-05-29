@@ -319,7 +319,7 @@ const LogInOrCreateAnAccount = () => {
             marginRight: 'auto',
             marginLeft: 'auto',
             position: 'relative',
-            maxWidth: '450px',
+            maxWidth: '325px',
           }}
           options={{
             hasForm: true,

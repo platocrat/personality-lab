@@ -383,14 +383,22 @@ const Form: FC<FormProps> = ({
             ...definitelyCenteredStyle,
             flexDirection: 'column',
             gap: '4px',
+            width: '100%',
+            maxWidth: '245px',
           } }
         >
-          <div style={ { display: 'flex', flexDirection: 'column' } }>
+          <div 
+            style={{ 
+              display: 'block', 
+              width: '100%', 
+              flexDirection: 'column',
+            }}
+          >
             { formInputs.map((fi, i: number) => (
               <Fragment key={ `form-inputs-${i}` }>
                 { state.isSignUp && i === 0 && <PasswordValidation /> }
 
-                <div style={ { margin: '0px 0px 8px 0px' } }>
+                <div style={ { display: 'flex', margin: '0px 0px 8px 0px' } }>
                   <input
                     required
                     id={ fi.name }
@@ -401,17 +409,10 @@ const Form: FC<FormProps> = ({
                     onChange={ (e: any) => fi.onChange(e) }
                     style={ {
                       width: `100%`,
-                      minWidth: '175px',
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      marginRight: 'auto',
-                      marginLeft: 'auto',
-                      position: 'relative',
-                      fontSize: 'clamp(12px, 2.5vw, 13.5px)',
                       padding: '5px 12px',
                       borderWidth: '0.5px',
                       borderRadius: '1rem',
+                      fontSize: 'clamp(12px, 2.5vw, 13.5px)',
                       boxShadow: boxShadow(formInputs, i),
                       borderColor: borderColor(formInputs, i),
                     } }
@@ -441,7 +442,7 @@ const Form: FC<FormProps> = ({
             </>
           )}
 
-          <div style={ { display: 'block', width: '100%' } }>
+          <div style={{ display: 'block', width: '100%' }}>
             <button
               className={ 
                 isButtonDisabled 
@@ -454,14 +455,14 @@ const Form: FC<FormProps> = ({
                   isButtonDisabled 
                   ? ' inset 0px 1px 6px rgba(0, 43, 68, 0.412)' 
                   : '',
-                cursor: isButtonDisabled ? 'not-allowed' : 'pointer',
-                backgroundColor: isButtonDisabled ? 'rgba(152, 152, 152, 0.30)' : '',
+                width: `100%`,
                 borderRadius: `1rem`,
                 borderWidth: `1.2px`,
-                height: 'clamp(29px, 6vw, 32px)',
-                width: `100%`,
-                fontSize: 'clamp(12px, 2.5vw, 14px)',
                 color: `rgb(244, 244, 244)`,
+                height: 'clamp(29px, 6vw, 32px)',
+                fontSize: 'clamp(12px, 2.5vw, 14px)',
+                cursor: isButtonDisabled ? 'not-allowed' : 'pointer',
+                backgroundColor: isButtonDisabled ? 'rgba(152, 152, 152, 0.30)' : '',
               }}
               onClick={ (e: any) => handleSubmit(e) }
             >

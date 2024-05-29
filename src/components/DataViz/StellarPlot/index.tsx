@@ -1,10 +1,12 @@
 // Externals
-import React, { useRef, useEffect } from 'react'
 import * as d3 from 'd3'
+import React, { useRef, useEffect } from 'react'
 // Locals
 import Title from '../Title'
 // CSS
+import styles from '../DataViz.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+
 
 
 
@@ -186,7 +188,11 @@ const StellarPlot = ({
   return (
     <>
       <Title isExample={ isExample } title={ title } />
-      <div ref={ d3Container } style={ definitelyCenteredStyle } />
+      <div 
+        ref={ d3Container } 
+        style={ definitelyCenteredStyle } 
+        className={ styles.svgContainer }
+      />
     </>
   )
 }
