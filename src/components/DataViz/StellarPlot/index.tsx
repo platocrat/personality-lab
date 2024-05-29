@@ -21,8 +21,8 @@ const StellarPlot = ({
 
 
   useEffect(() => {
-    const width = 460,
-      height = 460,
+    const width = 500,
+      height = 500,
       margin = { top: 90, right: 90, bottom: 90, left: 90 },
       radius = (Math.min(width, height) / 2) - Math.max(
         ...Object.values(margin)
@@ -33,10 +33,9 @@ const StellarPlot = ({
 
     const svg = d3.select(d3Container.current)
       .append('svg')
-      .attr('width', width)
-      .attr('height', height - 60)
-      .append('g')
-      .attr('transform', `translate(${width / 2}, ${(height / 2) - 50})`)
+      .attr('preserveAspectRatio', 'xMinYMin meet')
+      .attr('viewBox', '-270 -190 540 440')
+      .classed(styles.svgContent, true)
 
     // Scale for the radius
     const rScale = d3.scaleLinear()

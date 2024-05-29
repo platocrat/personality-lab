@@ -93,7 +93,7 @@ const Card: FC<CardProps> = ({
                         style={{ 
                           ...definitelyCenteredStyle,
                           position: 'relative',
-                          marginBottom: '8px'
+                          marginBottom: '12px'
                         }}
                       >
                         <Link href={ href }>
