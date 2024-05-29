@@ -79,7 +79,9 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
 
   
   useLayoutEffect(() => {
-    getUsernameAndEmailFromCookie().then((response: { username: string, email: string }) => {
+    getUsernameAndEmailFromCookie().then((
+      response: { username: string, email: string }
+    ) => {
       const cookieValues = {
         username: response.username, 
         email: response.email,
