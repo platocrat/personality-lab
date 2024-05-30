@@ -46,8 +46,8 @@
   flex-direction: column;
   /* Adjust this value to match the sidebar width */
   flex-grow: 1;
-  padding: 8px;
-  top: 55px;
+  padding: 24px 8px;
+  top: 75px;
   background-color: #fff;
 
   margin-left: 275px;

@@ -16,6 +16,8 @@ import PasswordValidation from './password-validation'
 import Spinner from '@/components/Suspense/Spinner'
 // Contexts
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
+// Hooks
+import useWindowWidth from '@/hooks/useWindowWidth'
 // Utils
 import { H_CAPTCHA_SITE_KEY, debounce } from '@/utils'
 // CSS
@@ -73,14 +75,20 @@ const Form: FC<FormProps> = ({
     setEmail,
     setUsername,
   } = useContext(AuthenticatedUserContext)
-
+  // Hooks
+  const windowWidth = useWindowWidth()
+  // States
   const [
     isHCaptchaVerificationSuccessful, 
     setIsHCaptchaVerificationSuccessful
   ] = useState<boolean>(false)
 
 
-  // --------------------------- Memoized functions ----------------------------
+  // --------------------------- Memoized constants ----------------------------
+  const hCaptchaSize = useMemo((): 'compact' | 'normal' => {
+    return windowWidth <= 800 ? 'compact' : 'normal'
+  }, [windowWidth])
+
   const showSpinner = useMemo((): boolean => {
     return (state.isPasswordHashing || state.isWaitingForResponse) ? true : false
   }, [ state.isPasswordHashing, state.isWaitingForResponse ])
@@ -111,7 +119,8 @@ const Form: FC<FormProps> = ({
     state.isWaitingForResponse,
     isHCaptchaVerificationSuccessful,
   ])
-
+  
+  // ------------------------------ Regular functions --------------------------
   const formInputType = (i: number): 'email' | 'password' | 'text' => {
     return i === 1 // this line is equivalent to `if (i === i) {`
       ? 'email'
@@ -119,8 +128,7 @@ const Form: FC<FormProps> = ({
         ? 'password' 
         : 'text'
   }
-  
-  // ------------------------------ Regular functions --------------------------
+
   const boxShadow = (formInputs: any[], i: number): '0px 0px 6px 1px red' | '' => {
     const _ = '0px 0px 6px 1px red'
     if (state.isEmailIncorrect && i === 0) return _
@@ -381,10 +389,10 @@ const Form: FC<FormProps> = ({
         <div
           style={ {
             ...definitelyCenteredStyle,
-            flexDirection: 'column',
             gap: '4px',
             width: '100%',
             maxWidth: '245px',
+            flexDirection: 'column',
           } }
         >
           <div 
@@ -436,9 +444,10 @@ const Form: FC<FormProps> = ({
           { !state.isFirstStep && (
             <>
               <HCaptcha
+                size={ hCaptchaSize }
                 sitekey={ H_CAPTCHA_SITE_KEY }
                 onVerify={ handleVerificationSuccess }
-                />
+              />
             </>
           )}
 
@@ -450,6 +459,7 @@ const Form: FC<FormProps> = ({
                   : styles.button
               }
               disabled={ isButtonDisabled ? true : false }
+              onClick={ (e: any) => handleSubmit(e) }
               style={{
                 boxShadow: 
                   isButtonDisabled 
@@ -464,7 +474,6 @@ const Form: FC<FormProps> = ({
                 cursor: isButtonDisabled ? 'not-allowed' : 'pointer',
                 backgroundColor: isButtonDisabled ? 'rgba(152, 152, 152, 0.30)' : '',
               }}
-              onClick={ (e: any) => handleSubmit(e) }
             >
               { showSpinner 
                 ? (

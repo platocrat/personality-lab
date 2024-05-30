@@ -62,11 +62,13 @@
 
 .buttonContainer {
   display: flex;
-  justify-content: center;
+  position: relative;
+  /* margin-bottom: 30px; */
 }
 
 .buttonDiv {
   position: relative;
+  /* right: 36px; */
 }
 
 .dropdown {
@@ -96,6 +98,17 @@
 }
 
 @media screen and (max-width: 920px) {
+  .buttonContainer {
+    display: flex;
+    position: relative;
+    margin-bottom: 32px;
+  }
+
+  .buttonDiv {
+    position: absolute;
+    right: 0px;
+  }
+
   .table {
     width: 100%;
     display: flex;
@@ -122,13 +135,13 @@
   }
   
   .table td {
-    display: flex;
+    /* display: flex; */
     border: none;
+    position: relative;
   }
 
   .table td:not(:last-child) {
-    display: flex;
-    /* border-bottom: 1px solid #ddd; */
+    border: 1px solid #ddd;
     max-width: 100%;
     width: max-content;
     text-align: right;

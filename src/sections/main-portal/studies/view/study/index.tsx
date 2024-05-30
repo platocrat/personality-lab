@@ -1,14 +1,15 @@
 'use client'
 
 import {
-  FC, 
-  useRef, 
-  Fragment,
+  FC,
+  useRef,
   useState,
+  Fragment,
+  useContext,
   useLayoutEffect,
-  useContext, 
 } from 'react'
 // Locals
+import StudyHeader from './header'
 import ParticipantsTable from './participants-table'
 // Components
 import LeftHandNav from '@/components/Nav/LeftHand'
@@ -21,15 +22,15 @@ import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // Hooks
 import useClickOutside from '@/hooks/useClickOutside'
 // Utils
-import { 
+import {
+  ParticipantType,
   STUDY__DYNAMODB,
-  ParticipantType, 
   PARTICIPANT__DYNAMODB,
 } from '@/utils'
 // CSS
 import appStyles from '@/app/page.module.css'
+import sectionStyles from '@/sections/main-portal/studies/view/ViewStudies.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
-import sectionStyles from '@/sections/main-portal/studies/view/study/ViewStudy.module.css'
 
 
 
@@ -353,68 +354,16 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
             </>
           ) : (
             <>
-              <div
-                style={ {
-                  ...definitelyCenteredStyle,
-                  flexDirection: 'column'
-                } }
-              >
-                {/* Study Name */}
-                <h2 style={ { marginBottom: '4px' } }>
-                  { `${ study?.name }` }
-                </h2>
-                {/* Study ID */}
-                <div
-                  style={ {
-                    ...definitelyCenteredStyle,
-                    fontSize: '13px',
-                    color: 'gray',
-                  } }
-                >
-                  <div 
-                    style={{ 
-                      ...definitelyCenteredStyle,
-                      marginRight: '12px',
-                    }}
-                  >
-                    <p style={ { marginRight: '8px' } }>
-                      { `ID: ` }
-                    </p>
-                    <p>
-                      { `${ study?.id }` }
-                    </p>
-                  </div>
-                  {/* Study Invite Link */}
-                  <div>
-                    <button
-                      onClick={ handleCopyInviteLink }
-                      className={ 
-                        `${ sectionStyles.copyInviteLink } ${ 
-                          isCopied 
-                            ? sectionStyles.copied 
-                            : ''
-                          }`
-                      }
-                    >
-                      { isCopied ? 'Copied!' : 'Copy Invite Link' }
-                    </button>
-                  </div>
-                </div>
-                {/* Study Description */}
-                <div
-                  style={ {
-                    fontSize: '14px',
-                    textAlign: 'left',
-                    margin: '12px 48px 0px 48px',
-                  } }
-                >
-                  <p>{ `${ study?.details.description }` }</p>
-                </div>
-              </div>
+              <StudyHeader 
+                study={ study }
+                isCopied={ isCopied }
+                handleCopyInviteLink={ handleCopyInviteLink }
+              />
 
               <div
                 style={ {
                   ...definitelyCenteredStyle,
+                  position: 'relative',
                   width: '100%',
                   fontSize: '13px',
                   flexDirection: 'column',
@@ -443,15 +392,17 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
                       </Fragment>
                     )) }
                   </div>
-                  )}
+                )}
 
                 { participants && participants.length > 0 && (
                   <>
-                    {/* Table of participants */ }
-                    <ParticipantsTable
-                      participants={ participants }
-                      handleViewObserverResults={ handleViewObserverResults }
-                    />
+                    <div className={ `${sectionStyles['form-container']}` }>
+                      {/* Table of participants */ }
+                      <ParticipantsTable
+                        participants={ participants }
+                        handleViewObserverResults={ handleViewObserverResults }
+                      />
+                    </div>
                   </>
                 )}
 

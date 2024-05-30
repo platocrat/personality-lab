@@ -2,9 +2,11 @@
 import { FC, Fragment } from 'react'
 // Locals
 import { ParticipantType } from '@/utils'
+// Hooks
+import useWindowWidth from '@/hooks/useWindowWidth'
 // Styles
-import { tdOrThStyle } from '..'
-import styles from '@/app/page.module.css'
+import styles from '@/sections/main-portal/studies/view/list-of-studies/ListOfStudies.module.css'
+import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
@@ -19,56 +21,54 @@ const ParticipantsTableBody: FC<ParticipantsTableBodyProps> = ({
   participants,
   handleViewObserverResults
 }) => {
+  // Hooks
+  const windowWidth = useWindowWidth()
+
+  const isFullWidthTd = windowWidth <= 920 ? '100%' : ''
+
+
+
   return (
     <>
       <tbody>
         { participants?.map((participant: ParticipantType, i: number) => (
           <Fragment key={ i }>
             <tr>
-              <td style={ tdOrThStyle }>
-                <p>
-                  <span>
-                    <p>{ i }</p>
-                  </span>
-                </p>
+              <td style={{ width: isFullWidthTd }}>
+                <p>{ i }</p>
               </td>
-              <td style={ tdOrThStyle }>
-                <p>
-                  <span>
-                    <p>{ participant.username }</p>
-                  </span>
-                </p>
+              <td style={{ width: isFullWidthTd }}>
+                <p>{ participant.username }</p>
               </td>
-              <td style={ tdOrThStyle }>
-                <p>
-                  <span>
-                    <p>{ participant.email }</p>
-                  </span>
-                </p>
+              <td style={{ width: isFullWidthTd }}>
+                <p>{ participant.email }</p>
               </td>
-              <td style={ tdOrThStyle }>
-                <p>
-                  <span>
-                    <p>{ }</p>
-                  </span>
-                </p>
-              </td>
-              <td style={ tdOrThStyle }>
-                <p
-                  className={ styles.externalLink }
-                  style={ {
-                    cursor: 'pointer',
-                  } }
-                  onClick={
-                    (e: any) => handleViewObserverResults(
-                      participant
-                    )
-                  }
-                >
-                  <span>
-                    <p>{ `View Results` }</p>
-                  </span>
-                </p>
+              <td
+                style={ {
+                  width: windowWidth <= 920 ? '100%' : '80px',
+                  position: 'relative',
+                } }
+              >
+                <div className={ styles.buttonContainer }>
+                  <div className={ styles.buttonDiv }>
+                    <button
+                      type='button'
+                      onClick={
+                        (e: any) => handleViewObserverResults(participant)
+                      }
+                    >
+                      <p
+                        style={ {
+                          ...definitelyCenteredStyle,
+                          position: 'relative',
+                          marginRight: '4px',
+                        } }
+                      >
+                        { `View Results` }
+                      </p>
+                    </button>
+                  </div>
+                </div>
               </td>
             </tr>
           </Fragment>

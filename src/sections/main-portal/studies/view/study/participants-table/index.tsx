@@ -6,20 +6,14 @@ import ParticipantTableHead from './table-head'
 import ParticipantsTableBody from './table-body'
 // Utils
 import { ParticipantType } from '@/utils'
+// CSS
+import styles from '@/sections/main-portal/studies/view/list-of-studies/ListOfStudies.module.css'
 
 
 
 type ParticipantsTableProps = {
   participants: ParticipantType[] | null
   handleViewObserverResults: (e: any) => void
-}
-
-
-
-export const tdOrThStyle: CSSProperties = {
-  padding: '8px',
-  textAlign: 'center',
-  border: '1px solid #dddddd',
 }
 
 
@@ -33,18 +27,12 @@ const ParticipantsTable: FC<ParticipantsTableProps> = ({
     <>
       <div
         style={ {
+          position: 'relative',
           width: '100%',
           margin: '20px 0',
-          overflowX: 'auto',
         } }
       >
-        <table
-          style={ {
-            width: '100%',
-            margin: '0 auto',
-            borderCollapse: 'collapse',
-          } }
-        >
+        <table className={ styles.table }>
           <ParticipantTableHead />
           <ParticipantsTableBody
             participants={ participants }
