@@ -65,7 +65,7 @@ const ViewResultsModalTableBody: FC<ViewResultsModalTableBodyProps> = ({
                   padding: '4px 0px',
                 } }
               >
-                { _.study.name }
+                { _.study.assessmentId }
               </td>
               <td
                 style={ {

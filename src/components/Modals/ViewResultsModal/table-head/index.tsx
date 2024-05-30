@@ -10,7 +10,7 @@ type ViewResultsModalTableHeadProps = {
 
 
 const tableHeaders = [
-  'Assessment Name',
+  'Assessment ID',
   'ID',
   'Date',
   'View?'
