@@ -9,6 +9,8 @@ import {
   COOKIE_NAME,
   fetchAwsParameter,
   AWS_PARAMETER_NAMES,
+  getDecryptedItems,
+  EncryptedCookieFieldType,
 } from '@/utils'
 
 
@@ -66,40 +68,23 @@ export async function GET(
         if (typeof SECRET_KEY === 'string') {
           const secretKeyCipher = Buffer.from(SECRET_KEY, 'hex')
 
-          const email = new SSCrypto().decrypt(
-            encryptedEmail.encryptedData,
-            secretKeyCipher,
-            encryptedEmail.iv
-          )
-          const username = new SSCrypto().decrypt(
-            encryptedUsername.encryptedData,
-            secretKeyCipher,
-            encryptedUsername.iv
-          )
-          const isAdmin = new SSCrypto().decrypt(
-            encryptedIsAdmin.encryptedData,
-            secretKeyCipher,
-            encryptedIsAdmin.iv
-          ) === 'true' ? true : false
-          const isParticipant = new SSCrypto().decrypt(
-            encryptedIsParticipant.encryptedData,
-            secretKeyCipher,
-            encryptedIsParticipant.iv
-          ) === 'true' ? true : false
+          const toDecrypt: { [key: string]: EncryptedCookieFieldType }[] = [
+            { email: encryptedEmail },
+            { username: encryptedUsername },
+            { isAdmin: encryptedIsAdmin },
+            { isParticipant: encryptedIsParticipant },
+            { timestamp: encryptedTimestamp },
+          ]
 
-          const timestamp = new SSCrypto().decrypt(
-            encryptedTimestamp.encryptedData,
+          const decryptedItems = getDecryptedItems(
+            toDecrypt,
             secretKeyCipher,
-            encryptedTimestamp.iv
           )
-
 
           const user = { 
-            email, 
-            username, 
-            isAdmin,
-            isParticipant,
-            timestamp,
+            ...decryptedItems,
+            isAdmin: decryptedItems.isAdmin === 'true' ? true : false,
+            isParticipant: decryptedItems.isParticipant === 'true' ? true : false,
           }
 
           console.log(

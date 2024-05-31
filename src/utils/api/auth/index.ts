@@ -5,10 +5,11 @@ import { NextResponse } from 'next/server'
 import { 
   SSCrypto,
   ACCOUNT_ADMINS,
-  HASHED_PASSWORD__DYNAMODB,
   fetchAwsParameter, 
   AWS_PARAMETER_NAMES,
   PARTICIPANT__DYNAMODB,
+  EncryptedCookieFieldType,
+  HASHED_PASSWORD__DYNAMODB,
 } from '@/utils'
 import { MAX_AGE, COOKIE_NAME } from '../constants'
 
@@ -111,6 +112,32 @@ export function getEncryptedItems(
   })
 
   return encryptedItems
+}
+
+
+export function getDecryptedItems(
+  toDecrypt: { [key: string]: EncryptedCookieFieldType }[],
+  secretKeyCipher: Buffer
+): { [key: string]: string } {
+  let decryptedItems: { [key: string]: string } = {}
+
+  toDecrypt.forEach((
+    item: { [key: string]: EncryptedCookieFieldType }, 
+    i: number
+  ): void => {
+    const key = Object.keys(item)[0]
+    const value = Object.values(item)[0]
+
+    const decryptedItem = new SSCrypto().decrypt(
+      value.encryptedData,
+      secretKeyCipher,
+      value.iv,
+    )
+
+    decryptedItems[key] = decryptedItem
+  })
+
+  return decryptedItems
 }
 
 

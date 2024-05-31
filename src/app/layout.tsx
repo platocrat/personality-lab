@@ -6,8 +6,10 @@ import { usePathname, useRouter } from 'next/navigation'
 // Locals
 import Header from '@/components/Header'
 import Spinner from '@/components/Suspense/Spinner'
-// Contexts
 import UserDemographicsLayout from '@/components/Layouts/UserDemographics'
+import BessiSkillScoresLayout from '@/components/Layouts/BessiSkillScoresLayout'
+import CurrentParticipantStudyLayout from '@/components/Layouts/CurrentParticipantStudyLayout'
+// Contexts
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 import { CurrentParticipantStudyContext } from '@/contexts/CurrentParticipantStudyContext'
@@ -15,13 +17,12 @@ import { CurrentParticipantStudyContext } from '@/contexts/CurrentParticipantStu
 import { 
   ACCOUNT__DYNAMODB, 
   BessiSkillScoresType, 
+  PARTICIPANT__DYNAMODB, 
   STUDY_SIMPLE__DYNAMODB,
 } from '@/utils'
 // CSS
 import './globals.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
-import BessiSkillScoresLayout from '@/components/Layouts/BessiSkillScoresLayout'
-import CurrentParticipantStudyLayout from '@/components/Layouts/CurrentParticipantStudyLayout'
 
 
 
@@ -120,7 +121,8 @@ export default function RootLayout({
       )
 
       const account = json.account as ACCOUNT__DYNAMODB
-      const studies = account.studies as STUDY_SIMPLE__DYNAMODB[] | undefined
+      const participant = account.participant as PARTICIPANT__DYNAMODB | undefined
+      const studies = participant?.studies as STUDY_SIMPLE__DYNAMODB[] | undefined
       return studies
     } catch (error: any) {
       throw new Error(error)
