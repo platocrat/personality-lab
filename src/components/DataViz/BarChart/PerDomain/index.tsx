@@ -155,14 +155,16 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
       .attr('x', 0)
       .attr('y', -10)
       .text('Domain Score:')
+      .style('font-size', '16px')
 
     const domainScore: any = legend.append('text')
       .attr('x', 0)
-      .attr('y', 10)
+      .attr('y', 16)
       .text((data as TargetDataStructure).domainScore)
       // Set the color here
       .attr('fill', color((data as TargetDataStructure).domainScore))
       .style('filter', 'url(#drop-shadow)') // Apply drop shadow filter
+      .style('font-size', '20px')
       .attr('transform', 'translate(12,5)')
 
     // Add drop shadow filter
@@ -179,9 +181,10 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
     
     const scoreRangeText: any = legend.append('text')
       .attr('x', 0)
-      .attr('y', 10)
+      .attr('y', 30)
       .text(`Score Range`)
-      .attr('transform', 'translate(12,50)')
+      .style('font-size', '16px')
+      .attr('transform', 'translate(0,45)')
 
     const textBBox = domainScore.node().getBBox()
 
@@ -197,7 +200,7 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
 
     const legendGradient = legend.append('g')
       .attr('class', 'legend-gradient')
-      .attr('transform', 'translate(0,71)')
+      .attr('transform', 'translate(0,90)')
 
     legendGradient.append('rect')
       .attr('width', 20)
@@ -210,7 +213,7 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
 
     const legendAxis = legend.append('g')
       .attr('class', 'legend-axis')
-      .attr('transform', 'translate(20,71)')
+      .attr('transform', 'translate(20,90)')
       .call(d3.axisRight(legendScale).ticks(5))
 
     const defs = svg.append('defs')
