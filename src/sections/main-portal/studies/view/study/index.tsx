@@ -8,6 +8,7 @@ import {
   useContext,
   useLayoutEffect,
 } from 'react'
+import Image from 'next/image'
 // Locals
 import StudyHeader from './header'
 import ParticipantsTable from './participants-table'
@@ -121,7 +122,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
     if (!participants) return
 
     // Show confirmation alert
-    const alertMessage = 'Download CSV file?'
+    const alertMessage = 'Download participant data as a CSV file?'
     const shouldDownload = window.confirm(alertMessage)
 
     if (!shouldDownload) return
@@ -344,7 +345,17 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
     //   onClick: handleOpenCreateParticipantModal
     // },
     {
-      buttonText: `Download Data`,
+      buttonText: (
+        <div style={{ ...definitelyCenteredStyle, gap: '4px' }}>
+          <Image
+            width={ 20 }
+            height={ 20 }
+            alt={ 'Download data icon' }
+            src={ '/icons/svg/download.svg' }
+          />
+          <p>{ `CSV` }</p>
+        </div>
+      ),
       onClick: handleDownloadData
     },
   ]
