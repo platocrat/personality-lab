@@ -121,7 +121,7 @@ export async function updateStudyEntry(
   participant: PARTICIPANT__DYNAMODB, 
   studyEntry: STUDY__DYNAMODB,
 ): Promise<UpdateCommandOutput> {
-  const timestamp = studyEntry.timestamp
+  const createdAtTimestamp = studyEntry.createdAtTimestamp
   const ownerEmail = studyEntry.ownerEmail
   const previousParticipants = studyEntry.participants
   
@@ -131,7 +131,7 @@ export async function updateStudyEntry(
 
   const input: UpdateCommandInput = {
     TableName: DYNAMODB_TABLE_NAMES.studies,
-    Key: { ownerEmail, timestamp },
+    Key: { ownerEmail, createdAtTimestamp },
     UpdateExpression: 'set participants = :participants',
     ExpressionAttributeValues: { ':participants': updatedParticipants },
   }

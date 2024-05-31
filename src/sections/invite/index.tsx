@@ -96,7 +96,8 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
           ownerEmail: study ? study.ownerEmail : '',
           adminEmails: study ? study.adminEmails : [''],
           assessmentId: study ? study.details.assessmentId : '',
-          timestamp: study? study.timestamp : 0,
+          updatedAtTimestamp: study ? study.updatedAtTimestamp : 0,
+          createdAtTimestamp: study ? study.createdAtTimestamp : 0,
         }
       ],
     }

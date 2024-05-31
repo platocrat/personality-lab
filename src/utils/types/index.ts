@@ -45,7 +45,8 @@ export type STUDY__DYNAMODB = {
   details: STUDY_DETAILS__DYNAMODB
   participants?: PARTICIPANT__DYNAMODB[] // `undefined` for newly created study
   results?: RESULTS__DYNAMODB[] // `undefined` for newly created study
-  timestamp: number
+  updatedAtTimestamp: number
+  createdAtTimestamp: number
 }
 
 
@@ -63,10 +64,10 @@ export type ACCOUNT__DYNAMODB = {
   username: string
   isAdmin: boolean
   password: HASHED_PASSWORD__DYNAMODB
-  createdAtTimestamp: number
-  updatedAtTimestamp?: number // `undefined` for a non-participant account
   studies?: STUDY_SIMPLE__DYNAMODB[] // `undefined` for a non-participant account
   participant?: PARTICIPANT__DYNAMODB // `undefined` for a non-participant account
+  updatedAtTimestamp?: number // `undefined` for a non-participant account
+  createdAtTimestamp: number
 }
 
 

@@ -1,14 +1,12 @@
 // Externals
-import { NextRequest, NextResponse } from 'next/server'
-import { 
-  PutCommand, 
+import {
   QueryCommand,
-  PutCommandInput,
+  UpdateCommand,
   QueryCommandInput,
 } from '@aws-sdk/lib-dynamodb'
-import { verify } from 'jsonwebtoken'
+import { NextRequest, NextResponse } from 'next/server'
 // Locals
-import { 
+import {
   getEntryId,
   ddbDocClient,
   RESULTS__DYNAMODB,
@@ -20,7 +18,7 @@ import {
 
 
 /**
- * @dev POST `userResults` to `studies` table
+ * @dev POST: Update `results` of study entry in the `studies` table
  * @param req 
  * @param res 
  * @returns 
@@ -34,8 +32,7 @@ export async function POST(
 
     const userResultsId = await getEntryId(userResults)
 
-    const TableName = DYNAMODB_TABLE_NAMES.results
-    const Item: RESULTS__DYNAMODB = {
+    const results: RESULTS__DYNAMODB = {
       id: userResultsId,
       email: userResults.email as string,
       username: userResults.username as string,
@@ -44,8 +41,32 @@ export async function POST(
       timestamp: Date.now(),
     }
 
-    const input: PutCommandInput = { TableName, Item }
-    const command = new PutCommand(input)
+    const study = userResults.study as STUDY_SIMPLE__DYNAMODB
+    const ownerEmail = study.ownerEmail
+    const createdAtTimestamp = study.createdAtTimestamp
+
+    const TableName = DYNAMODB_TABLE_NAMES.studies
+    
+    const Key = {
+      ownerEmail,
+      createdAtTimestamp,
+    }
+
+    const UpdateExpression =
+      'set results = :results, updatedAtTimestamp = :updatedAtTimestamp'
+    const ExpressionAttributeValues = {
+      ':results': results,
+      ':updatedAtTimestamp': Date.now()
+    }
+
+    const input = {
+      TableName,
+      Key,
+      UpdateExpression,
+      ExpressionAttributeValues,
+    }
+
+    const command = new UpdateCommand(input)
 
     const successMessage = `User results have been added to ${
       TableName

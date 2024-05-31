@@ -5,7 +5,6 @@ export const REGION = 'us-east-1'
 // Used for AWS DynamoDB API calls
 export const DYNAMODB_TABLE_NAMES = {
   studies: 'studies',
-  results: 'results',
   accounts: 'accounts',
   vizRating: 'viz-ratings',
   userResultsAccessTokens: 'user-results-access-tokens',

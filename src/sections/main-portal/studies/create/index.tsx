@@ -42,7 +42,6 @@ const CreateStudy: FC<CreateStudyProps> = ({
   const [ study, setStudy ] = useState<STUDY__DYNAMODB>({
     id: '',
     name: '',
-    timestamp: 0,
     ownerEmail: '',
     isActive: false,
     adminEmails: [],
@@ -52,6 +51,8 @@ const CreateStudy: FC<CreateStudyProps> = ({
       description: '',
       assessmentId: '',
     },
+    createdAtTimestamp: 0,
+    updatedAtTimestamp: 0,
   })
   const [ 
     invalidEmailMessage, 
@@ -103,7 +104,9 @@ const CreateStudy: FC<CreateStudyProps> = ({
     if (newAdminEmail && /\S+@\S+\.\S+/.test(newAdminEmail)) {
       setStudy((prevData) => ({
         ...prevData,
-        adminEmails: [...prevData.adminEmails, newAdminEmail],
+        adminEmails: prevData.adminEmails
+          ? [ ...prevData.adminEmails, newAdminEmail ] 
+          : [ newAdminEmail ],
       }))
       setNewAdminEmail('')
       setInvalidEmailMessage(null)
@@ -116,7 +119,7 @@ const CreateStudy: FC<CreateStudyProps> = ({
   const removeAdminEmail = (email: string) => {
     setStudy((prevData) => ({
       ...prevData,
-      adminEmails: prevData.adminEmails.filter((e) => e !== email),
+      adminEmails: prevData.adminEmails?.filter((e) => e !== email),
     }))
   }
 
@@ -149,7 +152,7 @@ const CreateStudy: FC<CreateStudyProps> = ({
         ...study,
         isActive: true,
         ownerEmail: email,
-        adminEmails: [...study.adminEmails],
+        adminEmails: study ? study.adminEmails : [ '' ],
       }
 
       

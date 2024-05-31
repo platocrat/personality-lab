@@ -217,9 +217,9 @@ export async function POST(
 
               // 1.2.1.5.2.1  If `ownerEmail` exists...
               if (response.Items && response.Items.length > 0) {
-                const timestamp = (
+                const createdAtTimestamp = (
                   response.Items as STUDY__DYNAMODB[]
-                )[0].timestamp
+                )[0].createdAtTimestamp
                 const ownerEmail = (
                   response.Items as STUDY__DYNAMODB[]
                 )[0].ownerEmail
@@ -237,7 +237,7 @@ export async function POST(
                 //              the `studies` table. 
                 const Key = {
                   ownerEmail,
-                  timestamp
+                  createdAtTimestamp
                 }
                 const UpdateExpression = 'set participants = :participants'
 
@@ -433,7 +433,9 @@ export async function POST(
 
           // 2.2.1 If `ownerEmail` exists...
           if (response.Items && response.Items.length > 0) {
-            const timestamp = (response.Items as STUDY__DYNAMODB[])[0].timestamp
+            const createdAtTimestamp = (
+              response.Items as STUDY__DYNAMODB[]
+            )[0].createdAtTimestamp
             const ownerEmail = (
               response.Items as STUDY__DYNAMODB[]
             )[0].ownerEmail
@@ -449,7 +451,10 @@ export async function POST(
 
             // 2.2.1.1 Construct the `UpdateCommand` to update the `participant`
             //         property of the study entry in the `studies` table. 
-            const Key = { ownerEmail, timestamp }
+            const Key = { 
+              ownerEmail, 
+              createdAtTimestamp,
+            }
             const UpdateExpression = 'set participants = :participants'
 
             ExpressionAttributeValues = { ':participants': updatedParticipants }

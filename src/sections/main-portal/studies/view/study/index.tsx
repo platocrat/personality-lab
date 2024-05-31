@@ -353,7 +353,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
             alt={ 'Download data icon' }
             src={ '/icons/svg/download.svg' }
           />
-          <p>{ `CSV` }</p>
+          <p style={{ fontSize: '14px' }}>{ `.csv` }</p>
         </div>
       ),
       onClick: handleDownloadData

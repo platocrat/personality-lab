@@ -5,11 +5,11 @@ import { FC, Fragment, useRef, useState } from 'react'
 // Locals
 import { STUDY__DYNAMODB } from '@/utils'
 // Hooks
+import useWindowWidth from '@/hooks/useWindowWidth'
 import useClickOutside from '@/hooks/useClickOutside'
 // CSS
 import sectionStyles from '../ListOfStudies.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
-import useWindowWidth from '@/hooks/useWindowWidth'
 
 
 
@@ -23,7 +23,7 @@ const TABLE_HEADERS = [
   `Name`,
   // `Assessment ID`,
   `Status`,
-  `Date`,
+  `Created`,
   `Admin Emails`,
 ]
 
@@ -88,10 +88,10 @@ const StudiesTable: FC<StudiesTableProps> = ({
                   { study.isActive ? 'ACTIVE' : 'INACTIVE' }
                 </td>
                 <td style={{ width: isFullWidthTd }}>
-                  { new Date(study.timestamp).toLocaleString() }
+                  { new Date(study.createdAtTimestamp).toLocaleString() }
                 </td>
                 <td style={{ width: isFullWidthTd }}>
-                  { study.adminEmails.join(', ') }
+                  { study.adminEmails?.join(', ') }
                 </td>
                 <td 
                   style={{ 
@@ -132,25 +132,26 @@ const StudiesTable: FC<StudiesTableProps> = ({
                       { isDropdownVisible === study.id && (
                         <div
                           ref={ studyActionsDropdownRef }
-                          style={ { position: 'relative' } }
+                          style={{ position: 'relative' }}
                         >
                           <div className={ sectionStyles.dropdown }>
                             <Link href={ buttonHref(study?.id.toString()) }>
-                              <button>
+                              <button
+                                style={{ borderRadius: '4px 4px 0px 0px' }}
+                              >
                                 { ` View` }
                               </button>
                             </Link>
                             <Link
                               href={ `/edit-studies/study/${study.id}` }
                             >
-                              <Link href={ '' }>
-                                <button>
-                                  { `Edit` }
-                                </button>
-                              </Link>
+                              <button>
+                                { `Edit` }
+                              </button>
                             </Link>
                             <button
                               // href='#'
+                              style={{ borderRadius: '0px 0px 4px 4px' }}
                               onClick={ () => alert('Delete study') }
                             >
                               { ` Delete` }
