@@ -87,22 +87,24 @@ const BessiAssessment: FC<BessiAssessmentProps> = ({ }) => {
         { !isParticipant ? <BessiAssessmentSection /> : (
           <>
             { studiesForAssessment.length > 0 && (
-              <select 
-              value={ selectedStudyId }
-                onChange={ handleSelectCurrentStudy } 
-              >
-                <option value=''>Select a study</option>
-                { studiesForAssessment.map((
-                  study: STUDY_SIMPLE__DYNAMODB, 
-                  i: number
-                ) => (
-                  <Fragment key={ i }>
-                    <option key={ study.id } value={ study.id }>
-                      { study.name }
-                    </option>
-                  </Fragment>
-                )) }
-              </select>
+              <>
+                <select 
+                  value={ selectedStudyId }
+                  onChange={ handleSelectCurrentStudy } 
+                >
+                  <option value=''>{ `Select a study` }</option>
+                  { studiesForAssessment.map((
+                    study: STUDY_SIMPLE__DYNAMODB, 
+                    i: number
+                  ) => (
+                    <Fragment key={ i }>
+                      <option key={ study.id } value={ study.id }>
+                        { study.name }
+                      </option>
+                    </Fragment>
+                  )) }
+                </select>
+              </>
             )}
 
             { currentStudy && <BessiAssessmentSection /> }

@@ -18,6 +18,9 @@ import ViewResultsModal from '@/components/Modals/ViewResultsModal'
 // import DownloadDataModal from '@/components/Modals/AdminPortal/DownloadData'
 // import CreateParticipantModal from '@/components/Modals/AdminPortal/CreateParticipant'
 // Contexts
+import { 
+  CurrentParticipantStudyContext 
+} from '@/contexts/CurrentParticipantStudyContext'
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // Hooks
 import useClickOutside from '@/hooks/useClickOutside'
@@ -25,8 +28,8 @@ import useClickOutside from '@/hooks/useClickOutside'
 import {
   ParticipantType,
   STUDY__DYNAMODB,
-  PARTICIPANT__DYNAMODB,
   RESULTS__DYNAMODB,
+  PARTICIPANT__DYNAMODB,
 } from '@/utils'
 // CSS
 import appStyles from '@/app/page.module.css'
@@ -53,6 +56,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
     email,
     username,
   } = useContext(AuthenticatedUserContext)
+  const { currentStudy } = useContext(CurrentParticipantStudyContext)
   // Refs
   const viewResultsModalRef = useRef<any>(null)
   const downloadDataModalRef = useRef<any>(null)

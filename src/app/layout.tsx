@@ -12,7 +12,11 @@ import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 import { CurrentParticipantStudyContext } from '@/contexts/CurrentParticipantStudyContext'
 // Types
-import { BessiSkillScoresType, STUDY_SIMPLE__DYNAMODB } from '@/utils'
+import { 
+  ACCOUNT__DYNAMODB, 
+  BessiSkillScoresType, 
+  STUDY_SIMPLE__DYNAMODB,
+} from '@/utils'
 // CSS
 import './globals.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -83,8 +87,8 @@ export default function RootLayout({
       
       if (user_.isParticipant) {
         const userEmail = user_.email
-        const study_ = await getUserStudies(user_.email)
-        const user = { ...user_, study: study_ }
+        const userStudies_ = await getUserStudies(user_.email)
+        const user = { ...user_, studies: userStudies_ }
         return { user, error: null }
       } else {
         const user = { ...user_, study: undefined }
@@ -99,23 +103,25 @@ export default function RootLayout({
 
   async function getUserStudies(
     userEmail: string
-  ): Promise<STUDY_SIMPLE__DYNAMODB | undefined> {
+  ): Promise<STUDY_SIMPLE__DYNAMODB[] | undefined> {
     try {
-      const response = await fetch('/api/auth/user/studies', { method: 'GET' })
+      const apiEndpoint = `/api/account?email=${userEmail}`
+      const response = await fetch(apiEndpoint, { method: 'GET' })
       const json = await response.json()
 
-      if (response.status === 401) throw new Error(json.message)
       if (response.status === 400) throw new Error(json.error)
-      if (response.status === 500 && json.error.name === 'TokenExpiredError')
-        throw new Error(json.error)
+      if (response.status === 404) throw new Error(json.message)
+      if (response.status === 400) throw new Error(json.error)
+      if (response.status === 500) throw new Error(json.error)
 
       console.log(
         `[${new Date().toLocaleString() } --filepath="src/app/layout.tsx" --function="getUserStudies()"]: json: `, 
         json
       )
 
-      const study = json.study as STUDY_SIMPLE__DYNAMODB | undefined
-      return study
+      const account = json.account as ACCOUNT__DYNAMODB
+      const studies = account.studies as STUDY_SIMPLE__DYNAMODB[] | undefined
+      return studies
     } catch (error: any) {
       throw new Error(error)
     }
