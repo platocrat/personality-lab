@@ -391,7 +391,9 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
                 } }
               >
                 {/* Page Nav */ }
-                { participants && participants.length > 0 && (
+                { participants && 
+                  participants.length > 0 && 
+                  participants[0].studies[0] && (
                   <div className={ pageStyles.pageNav }>
                     { pageNavButtons.map((btn, i: number) => (
                       <Fragment key={ i }>
@@ -409,23 +411,13 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
                 )}
 
                 { participants && participants.length > 0 ? (
-                  <>
-                    <div 
-                      className={ `${viewStudiesStyles['form-container']}` }
-                    >
-                      {/* Table of participants */ }
-                      <ParticipantsTable
-                        participants={ participants }
-                        handleViewObserverResults={ handleViewObserverResults }
-                      />
-                    </div>
-                  </>
+                  <div className={ `${viewStudiesStyles['form-container']}` }>
+                    <ParticipantsTable participants={ participants } />
+                  </div>
                 ) : (
-                  <>
-                    <div style={{ margin: '72px 0px' }}>
-                      <h3>{ `Invite participants to register to your study!` }</h3>
-                    </div>
-                  </>
+                  <div style={{ margin: '72px 0px' }}>
+                    <h3>{ `Invite participants to register to your study!` }</h3>
+                  </div>
                 )}
               </div>
             </>

@@ -6,20 +6,17 @@ import { ParticipantType } from '@/utils'
 import useWindowWidth from '@/hooks/useWindowWidth'
 // Styles
 import { definitelyCenteredStyle } from '@/theme/styles'
-import styles from '@/sections/main-portal/studies/view/list-of-studies/ListOfStudies.module.css'
 
 
 
 type ParticipantsTableBodyProps = {
   participants: ParticipantType[] | null
-  handleViewObserverResults: (e: any) => void
 }
 
 
 
 const ParticipantsTableBody: FC<ParticipantsTableBodyProps> = ({
   participants,
-  handleViewObserverResults
 }) => {
   // Hooks
   const windowWidth = useWindowWidth()
@@ -42,33 +39,6 @@ const ParticipantsTableBody: FC<ParticipantsTableBodyProps> = ({
               </td>
               <td style={{ width: isFullWidthTd }}>
                 <p>{ participant.email }</p>
-              </td>
-              <td
-                style={ {
-                  width: windowWidth <= 920 ? '100%' : '120px',
-                  position: 'relative',
-                } }
-              >
-                <div className={ styles.buttonContainer }>
-                  <div className={ styles.buttonDiv }>
-                    <button
-                      type='button'
-                      onClick={
-                        (e: any) => handleViewObserverResults(participant)
-                      }
-                    >
-                      <p
-                        style={ {
-                          ...definitelyCenteredStyle,
-                          position: 'relative',
-                          marginRight: '4px',
-                        } }
-                      >
-                        { `View Results` }
-                      </p>
-                    </button>
-                  </div>
-                </div>
               </td>
             </tr>
           </Fragment>

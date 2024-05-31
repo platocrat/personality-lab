@@ -7,14 +7,13 @@ import ParticipantsTableBody from './table-body'
 // Utils
 import { ParticipantType } from '@/utils'
 // CSS
-import styles from '@/sections/main-portal/studies/view/list-of-studies/ListOfStudies.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+import styles from '@/sections/main-portal/studies/view/study/participants-table/ParticipantsTable.module.css'
 
 
 
 type ParticipantsTableProps = {
   participants: ParticipantType[] | null
-  handleViewObserverResults: (e: any) => void
 }
 
 
@@ -22,7 +21,6 @@ type ParticipantsTableProps = {
 
 const ParticipantsTable: FC<ParticipantsTableProps> = ({
   participants,
-  handleViewObserverResults,
 }) => {
   return (
     <>
@@ -45,10 +43,7 @@ const ParticipantsTable: FC<ParticipantsTableProps> = ({
           style={{ marginBottom: '24px' }}
         >
           <ParticipantTableHead />
-          <ParticipantsTableBody
-            participants={ participants }
-            handleViewObserverResults={ handleViewObserverResults }
-          />
+          <ParticipantsTableBody participants={ participants } />
         </table>
       </div>
     </>
