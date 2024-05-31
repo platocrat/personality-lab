@@ -90,13 +90,10 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
   // --------------------------- Async functions -------------------------------
   async function getUserResults() {
     try {
-      const response = await fetch('/api/assessment/share-results', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ id, accessToken })
-      })
+      const apiEndpoint = `/api/assessment/share-results?id=${
+        id
+      }?accessToken=${ accessToken }`
+      const response = await fetch(apiEndpoint, { method: 'GET' })
 
       const json = await response.json()
 

@@ -158,7 +158,7 @@ const CreateStudy: FC<CreateStudyProps> = ({
       
       try {
         const response = await fetch('/api/study', {
-          method: 'POST',
+          method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },

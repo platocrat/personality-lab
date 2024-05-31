@@ -319,7 +319,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
 
         try {
           const response = await fetch('/api/assessment/viz-rating', {
-            method: 'POST',
+            method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
             },

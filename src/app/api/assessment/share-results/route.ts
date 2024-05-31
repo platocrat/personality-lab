@@ -15,12 +15,13 @@ import {
  * @param res 
  * @returns 
  */
-export async function POST(
+export async function GET(
   req: NextRequest,
   res: NextResponse,
 ) {
   if (req.method === 'POST') {
-    const { id, accessToken } = await req.json()
+    const id = req.nextUrl.searchParams.get('id') ?? ''
+    const accessToken = req.nextUrl.searchParams.get('accessToken') ?? ''
 
     // 1. Fetch JWT secret to verify if the user is authorized to access the 
     //    `userResults` mapped to the provided `id`.

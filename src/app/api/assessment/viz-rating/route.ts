@@ -15,16 +15,16 @@ import {
 
 
 /**
- * @dev POST `userResults`
+ * @dev PUT `userResults`
  * @param req 
  * @param res 
  * @returns 
  */
-export async function POST(
+export async function PUT(
   req: NextRequest,
   res: NextResponse,
 ) {
-  if (req.method === 'POST') {
+  if (req.method === 'PUT') {
     const { userVizRating } = await req.json()
 
     const userVizRatingId = await getEntryId(userVizRating)

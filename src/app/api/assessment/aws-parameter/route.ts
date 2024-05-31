@@ -1,26 +1,18 @@
 // Externals
-import {
-  GetParameterCommand,
-  GetParameterCommandInput,
-} from '@aws-sdk/client-ssm'
-import { verify } from 'jsonwebtoken'
 import { NextRequest, NextResponse } from 'next/server'
 // Locals
-import { 
-  ssmClient,
-  COOKIE_NAME, 
-  fetchAwsParameter, 
-  AWS_PARAMETER_NAMES,
+import {
+  fetchAwsParameter
 } from '@/utils'
 
 
 
-export async function POST(
+export async function GET(
   req: NextRequest,
   res: NextResponse,
 ) {
-  if (req.method === 'POST') {
-    const { parameterName } = await req.json()
+  if (req.method === 'GET') {
+    const parameterName = req.nextUrl.searchParams.get('parameterName') ?? ''
 
     const parameter = await fetchAwsParameter(parameterName)
 

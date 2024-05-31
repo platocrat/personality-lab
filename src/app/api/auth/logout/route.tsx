@@ -6,11 +6,11 @@ import { COOKIE_NAME } from '@/utils'
 
 
 
-export async function POST(
+export async function DELETE(
   req: NextRequest,
   res: NextResponse,
 ) {
-  if (req.method === 'POST') {
+  if (req.method === 'DELETE') {
     cookies().delete(COOKIE_NAME)
 
     return NextResponse.json(

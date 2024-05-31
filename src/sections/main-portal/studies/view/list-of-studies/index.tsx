@@ -38,6 +38,14 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
     isLoadingStudies, 
     setIsLoadingStudies 
   ] = useState<boolean>(false)
+  const [ 
+    isDeletingStudy, 
+    setIsDeletingStudy 
+  ] = useState<boolean>(false)
+  const [ 
+    isStudyDeleted, 
+    setIsStudyDeleted 
+  ] = useState<boolean>(false)
   const [ studies, setStudies ] = useState<STUDY__DYNAMODB[] | []>([])
 
 
@@ -69,14 +77,14 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
     ]
 
     Promise.all(requests)
-  }, [ email ])
+  }, [ email, isStudyDeleted ])
 
 
 
 
   return (
     <>
-      { isLoadingStudies ? (
+      { isLoadingStudies || isDeletingStudy ? (
         <>
           <div
             style={ {
@@ -100,17 +108,30 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
                 whiteSpace: 'nowrap',
               }}
             >
-              { studies ? <StudiesTable studies={ studies } /> : (
-                <>
-                  <div style={{ ...definitelyCenteredStyle }}>
-                    <p>
-                      <strong>
-                        { `No studies were found.` }
-                      </strong>
-                    </p>
-                  </div>
-                </>
-              ) }
+              { studies 
+                ? (
+                  <StudiesTable 
+                    studies={ studies }
+                    state={{
+                      isStudyDeleted,
+                      isDeletingStudy,
+                      setIsStudyDeleted,
+                      setIsDeletingStudy,
+                    }}
+                  /> 
+                )
+                : (
+                  <>
+                    <div style={{ ...definitelyCenteredStyle }}>
+                      <p>
+                        <strong>
+                          { `No studies were found.` }
+                        </strong>
+                      </p>
+                    </div>
+                  </>
+                ) 
+              }
             </div>
         </>
       ) }

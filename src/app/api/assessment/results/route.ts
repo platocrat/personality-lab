@@ -130,6 +130,7 @@ export async function GET(
 ) {
   if (req.method === 'GET') {
     const email = req.nextUrl.searchParams.get('email')
+    const studyId = req.nextUrl.searchParams.get('studyId')
 
 
     if (!email) {
@@ -144,7 +145,7 @@ export async function GET(
       )
     }
 
-    const TableName: string = DYNAMODB_TABLE_NAMES.results
+    const TableName: string = DYNAMODB_TABLE_NAMES.studies
     const IndexName = 'email-timestamp-index'
     const KeyConditionExpression = 'email = :emailValue'
     const ExpressionAttributeValues = { ':emailValue': email }

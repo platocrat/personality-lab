@@ -20,15 +20,15 @@ export const AVAILABLE_ASSESSMENTS = [
    */
   // {
   //   id: 'bessi-20',
-  //   name: 'BESSI-20'
+  //   name: 'BESSI 20'
   // },
   // {
   //   id: 'bessi-45',
-  //   name: 'BESSI-45'
+  //   name: 'BESSI 45'
   // },
   // {
   //   id: 'bessi-96',
-  //   name: 'BESSI-96'
+  //   name: 'BESSI 96'
   // },
   {
     id: 'big-five',

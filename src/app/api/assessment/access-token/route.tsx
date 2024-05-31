@@ -18,11 +18,11 @@ import {
 
 
 
-export async function POST(
+export async function PUT(
   req: NextRequest, 
   res: NextResponse, 
 ) {
-  if (req.method === 'POST') {
+  if (req.method === 'PUT') {
     const { assessmentName, userResultsId } = await req.json()
 
     const JWT_SECRET = await fetchAwsParameter(AWS_PARAMETER_NAMES.JWT_SECRET)

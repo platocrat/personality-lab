@@ -1,7 +1,14 @@
 // Externals
 import Link from 'next/link'
 import Image from 'next/image'
-import { FC, Fragment, useRef, useState } from 'react'
+import { 
+  FC, 
+  useRef, 
+  useState,
+  Fragment, 
+  Dispatch, 
+  SetStateAction, 
+} from 'react'
 // Locals
 import { STUDY__DYNAMODB } from '@/utils'
 // Hooks
@@ -15,13 +22,17 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 
 type StudiesTableProps = {
   studies: STUDY__DYNAMODB[] | []
+  state: {
+    isStudyDeleted: boolean
+    isDeletingStudy: boolean
+    setIsStudyDeleted: Dispatch<SetStateAction<boolean>>
+    setIsDeletingStudy: Dispatch<SetStateAction<boolean>>
+  }
 }
 
 
 const TABLE_HEADERS = [
-  // `ID`,
   `Name`,
-  // `Assessment ID`,
   `Status`,
   `Created`,
   `Admin Emails`,
@@ -31,7 +42,8 @@ const TABLE_HEADERS = [
 
 
 const StudiesTable: FC<StudiesTableProps> = ({
-  studies
+  state,
+  studies,
 }) => {
   // Refs
   const studyActionsDropdownRef = useRef<any>(null)
@@ -51,6 +63,51 @@ const StudiesTable: FC<StudiesTableProps> = ({
       setIsDropdownVisible(null)
     } else {
       setIsDropdownVisible(studyId)
+    }
+  }
+
+
+  async function handleDeleteStudy(
+    e: any,
+    studyId: string,
+    ownerEmail: string,
+    createdAtTimestamp: number
+  ) {
+    state.setIsDeletingStudy(true)
+    state.setIsStudyDeleted(false)
+
+    try {
+      const response = await fetch('/api/study', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          ownerEmail, 
+          studyId,
+          createdAtTimestamp,
+        }),
+      })
+
+      const json = await response.json()
+
+      if (response.status === 400) throw new Error(json.error)
+      if (response.status === 404) throw new Error(json.message)
+      if (response.status === 405) throw new Error(json.error)
+      if (response.status === 500) throw new Error(json.error)
+
+      console.log(
+        `[${new Date().toLocaleString()} --filepath="src/app/layout.tsx" --function="handleDeleteStudy()"]: json: `,
+        json
+      )
+
+      const successMessage = json.message
+      state.setIsDeletingStudy(false)
+      state.setIsStudyDeleted(true)
+    } catch (error: any) {
+      state.setIsDeletingStudy(false)
+      state.setIsStudyDeleted(false)
+      throw new Error(error)
     }
   }
   
@@ -152,9 +209,16 @@ const StudiesTable: FC<StudiesTableProps> = ({
                             <button
                               // href='#'
                               style={{ borderRadius: '0px 0px 4px 4px' }}
-                              onClick={ () => alert('Delete study') }
+                              onClick={ 
+                                (e: any) => handleDeleteStudy(
+                                  e, 
+                                  study.id,
+                                  study.ownerEmail,
+                                  study.createdAtTimestamp,
+                                )
+                              }
                             >
-                              { ` Delete` }
+                              { `Delete` }
                             </button>
                           </div>
                         </div>

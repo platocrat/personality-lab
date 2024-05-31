@@ -26,7 +26,7 @@ export async function getAccessToken(
   } else {
     try {
       const response = await fetch('/api/assessment/access-token', {
-        method: 'POST',
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -65,15 +65,10 @@ export async function getAccessToken(
   */
 export async function getUsernameAndEmailFromCookie() {
   try {
-    const response = await fetch('/api/assessment/aws-parameter', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        parameterName: AWS_PARAMETER_NAMES.JWT_SECRET
-      }),
-    })
+    const apiEndpoint = `/api/assessment/aws-parameter?parameterName=${
+      AWS_PARAMETER_NAMES.JWT_SECRET
+    }`
+    const response = await fetch(apiEndpoint, { method: 'GET' })
 
     const json = await response.json()
 
@@ -126,15 +121,10 @@ export async function getUsernameAndEmailFromCookie() {
 
 export async function getCookieSecretKey() {
   try {
-    const response = await fetch('/api/assessment/aws-parameter', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        parameterName: AWS_PARAMETER_NAMES.COOKIE_ENCRYPTION_SECRET_KEY
-      }),
-    })
+    const apiEndpoint = `/api/assessment/aws-parameter?parameterName=${
+      AWS_PARAMETER_NAMES.COOKIE_ENCRYPTION_SECRET_KEY
+    }`
+    const response = await fetch(apiEndpoint, { method: 'GET' })
 
     const data = await response.json()
 

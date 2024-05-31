@@ -15,9 +15,6 @@ import ParticipantsTable from './participants-table'
 // Components
 import LeftHandNav from '@/components/Nav/LeftHand'
 import Spinner from '@/components/Suspense/Spinner'
-import ViewResultsModal from '@/components/Modals/ViewResultsModal'
-// import DownloadDataModal from '@/components/Modals/AdminPortal/DownloadData'
-// import CreateParticipantModal from '@/components/Modals/AdminPortal/CreateParticipant'
 // Contexts
 import { 
   CurrentParticipantStudyContext 
@@ -219,35 +216,6 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
   }
 
 
-  // async function handleOnCreateParticipant(e: any) {
-  //   e.preventDefault()
-
-  //   setIsCreatingParticipant(true)
-
-  //   // 1. Create a new `participant` object
-  //   const participant: ParticipantType = {
-  //     email: participantEmail,
-  //     username: participantUsername,
-  //     studies: [
-  //       {
-  //         name: study ? study.name : '',
-  //         assessmentId: study ? study.details.assessmentId : '',
-  //       }
-  //     ],
-  //   }
-
-  //   // 2. Store the new `participant` object in DynamoDB
-  //   await storeParticipantInDynamoDB(participant)
-
-  //   // 3. Stop loading spinner
-  //   setIsCreatingParticipant(false)
-  //   // 4. Close Modal
-  //   setShowCreateParticipantModal(false)
-  //   // 5. Update state to refetch `participants` from DynamoDB
-  //   setParticipantCreated(true)
-  // }
-
-
   /**
    * @dev Makes a `GET` request to get the `study` from the given ID to index
    *      the `participants` property from the `study` object
@@ -340,10 +308,6 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
 
   // -------------------------------- Mappings ---------------------------------
   const pageNavButtons = [
-    // {
-    //   buttonText: `Create Participant`,
-    //   onClick: handleOpenCreateParticipantModal
-    // },
     {
       buttonText: (
         <div style={{ ...definitelyCenteredStyle, gap: '4px' }}>
@@ -362,21 +326,12 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
 
 
   // ---------------------------------- Hooks ----------------------------------
-  // useClickOutside(
-  //   createParticipantModalRef,
-  //   () => setShowCreateParticipantModal(false)
-  // )
-  // useClickOutside(
-  //   downloadDataModalRef,
-  //   () => setShowDownloadDataModal(false)
-  // )
   useClickOutside(
     viewResultsModalRef,
     () => setShowViewResultsModal(false)
   )
 
-
-
+  // -------------------------- `useLayoutEffect`s -----------------------------
   useLayoutEffect(() => {
     if (
       study &&
@@ -453,7 +408,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
                   </div>
                 )}
 
-                { participants && participants.length > 0 && (
+                { participants && participants.length > 0 ? (
                   <>
                     <div 
                       className={ `${viewStudiesStyles['form-container']}` }
@@ -465,36 +420,13 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
                       />
                     </div>
                   </>
+                ) : (
+                  <>
+                    <div style={{ margin: '72px 0px' }}>
+                      <h3>{ `Invite participants to register to your study!` }</h3>
+                    </div>
+                  </>
                 )}
-
-                {/* Modals */ }
-                {/* <CreateParticipantModal
-                  onClick={ handleOnCreateParticipant }
-                  modalRef={ createParticipantModalRef }
-                  state={ {
-                    isCreatingParticipant,
-                    isModalVisible: showCreateParticipantModal,
-                  } }
-                  onChange={ {
-                    onEmailChange,
-                    onUsernameChange,
-                    onNobelLaureateChange,
-                  } }
-                /> */}
-
-                {/* <DownloadDataModal
-                  modalRef={ downloadDataModalRef }
-                /> */}
-
-                <ViewResultsModal
-                  modalRef={ viewResultsModalRef }
-                  isModalVisible={ showViewResultsModal }
-                  selectedParticipant={ selectedParticipant }
-                  onEventHandlers={ {
-                    handleOnViewResults,
-                    onViewResultsChange,
-                  } }
-                />
               </div>
             </>
           )}

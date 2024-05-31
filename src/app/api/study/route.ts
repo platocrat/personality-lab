@@ -1,36 +1,37 @@
 // Externals
-import { NextRequest, NextResponse } from 'next/server'
-import { 
-  PutCommand, 
-  GetCommand,
-  ScanCommand,
+import {
+  PutCommand,
   QueryCommand,
-  GetCommandInput,
+  ScanCommand,
+  UpdateCommand,
+  DeleteCommand,
   PutCommandInput,
   ScanCommandInput,
   QueryCommandInput,
+  DeleteCommandInput,
 } from '@aws-sdk/lib-dynamodb'
+import { NextRequest, NextResponse } from 'next/server'
 // Locals
-import { 
-  getEntryId, 
+import {
+  getEntryId,
   ddbDocClient,
-  STUDY__DYNAMODB, 
+  STUDY__DYNAMODB,
   DYNAMODB_TABLE_NAMES,
 } from '@/utils'
 
 
 
 /**
- * @dev POST a new study entry to the `study` table in DynamoDB.
+ * @dev PUT a new study entry to the `studies` table in DynamoDB.
  * @param req 
  * @param res 
  * @returns 
  */
-export async function POST(
+export async function PUT(
   req: NextRequest,
   res: NextResponse,
 ) {
-  if (req.method === 'POST') {
+  if (req.method === 'PUT') {
     const { study } = await req.json()
 
     const studyId = await getEntryId(study)
@@ -39,7 +40,7 @@ export async function POST(
     const Item = {
       ...study,
       id: studyId,
-      timestamp: Date.now(),
+      createdAtTimestamp: Date.now(),
     }
 
     const input: PutCommandInput = { TableName, Item }
@@ -296,6 +297,88 @@ export async function GET(
           },
         )
       }
+    }
+  } else {
+    return NextResponse.json(
+      { error: 'Method Not Allowed' },
+      {
+        status: 405,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      },
+    )
+  }
+}
+
+
+
+/**
+ * @dev DELETE a study by its ID from the `studies` table in DynamoDB.
+ * @param req 
+ * @param res 
+ * @returns 
+ */
+export async function DELETE(
+  req: NextRequest,
+  res: NextResponse,
+) {
+  if (req.method === 'DELETE') {
+    const { 
+      studyId,
+      ownerEmail,
+      createdAtTimestamp,
+    } = await req.json()
+
+
+    const TableName = DYNAMODB_TABLE_NAMES.studies
+    const Key = {
+      ownerEmail,
+      createdAtTimestamp,
+    }
+
+    const input = {
+      TableName,
+      Key,
+    } as DeleteCommandInput
+
+    const command = new DeleteCommand(input)
+
+    const message = `Study ID '${
+      studyId
+    }' has been deleted from the '${TableName}' table`
+    
+    try {
+      const response = await ddbDocClient.send(command)
+
+      console.log(`response: `, response)
+      
+      // Success
+      return NextResponse.json(
+        { message },
+        {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+    } catch (error: any) {
+      console.log(
+        `Could not delete study ID '${studyId}' from the '${TableName}' table: `,
+        error
+      )
+
+      // Something went wrong
+      return NextResponse.json(
+        { error: error },
+        {
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
     }
   } else {
     return NextResponse.json(

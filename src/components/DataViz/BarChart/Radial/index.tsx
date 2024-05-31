@@ -29,7 +29,7 @@ const RadialBarChart: FC<RadialBarChartProps> = ({
   useEffect(() => {
     d3.select(d3Container.current).selectAll('svg').remove()
 
-    const margin = { top: 30, right: 50, bottom: 100, left: 10 }
+    const margin = { top: 30, right: 50, bottom: 20, left: 10 }
     const width = 450
     const height = 400
     const innerRadius = 100
@@ -38,7 +38,7 @@ const RadialBarChart: FC<RadialBarChartProps> = ({
     const svg = d3.select(d3Container.current)
       .append('svg')
       .attr('preserveAspectRatio', 'xMinYMin meet')
-      .attr('viewBox', '-223 -220 450 410')
+      .attr('viewBox', '-223 -250 450 500')
       .classed(dataVizStyles.svgContent, true)
 
     const x = d3.scaleBand()
