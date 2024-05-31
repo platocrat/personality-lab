@@ -1,32 +1,28 @@
 'use client'
 
 // Externals
-import type { Metadata } from 'next'
-
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 // Locals
 import Header from '@/components/Header'
 import Spinner from '@/components/Suspense/Spinner'
 // Contexts
+import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
+import { CurrentParticipantStudyContext } from '@/contexts/CurrentParticipantStudyContext'
+// Utils
+import {
+  YesOrNo,
+  USState,
+  SocialClass,
+  RaceOrEthnicity,
+} from '@/utils'
 // Types
-import { BessiSkillScoresType } from '@/utils'
+import { BessiSkillScoresType, STUDY_SIMPLE__DYNAMODB } from '@/utils'
 // CSS
 import './globals.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
-import { UserDemographicContext } from '@/contexts/UserDemographicContext'
-import { 
-  Gender, 
-  YesOrNo, 
-  USState, 
-  SocialClass, 
-  RaceOrEthnicity, 
-  CurrentMaritalStatus, 
-  HighestFormalEducation,
-  CurrentEmploymentStatus,
-} from '@/utils'
 
 
 
@@ -35,6 +31,7 @@ type UserType = {
   username: string 
   isAdmin: boolean
   isParticipant: boolean
+  studies?: STUDY_SIMPLE__DYNAMODB[] // `undefined` for a non-participant
 }
 
 
@@ -72,7 +69,13 @@ export default function RootLayout({
   const [ email, setEmail ] = useState<string>('')
   const [ username, setUsername ] = useState<string>('')
   const [ isAdmin, setIsAdmin ] = useState<boolean>(false)
-  const [isParticipant, setIsParticipant ] = useState<boolean>(false)
+  const [ isParticipant, setIsParticipant ] = useState<boolean>(false)
+  const [ userStudies, setUserStudies ] = useState<STUDY_SIMPLE__DYNAMODB[]>([])
+  // State variables to select the participant's current study
+  const [ 
+    currentStudy, 
+    setCurrentStudy 
+  ] = useState<STUDY_SIMPLE__DYNAMODB | null>(null)
   // Booleans for user authentication
   const [ isInviteUrl, setIsInviteUrl] = useState<boolean>(false)
   const [ isFetchingUser, setIsFetchingUser ] = useState<boolean>(true)
@@ -150,13 +153,9 @@ export default function RootLayout({
     
     setRaceOrEthnicity((previousState) => {
       if (previousState.includes(_)) {
-        // console.log(`raceOrEthnicity: `, previousState.filter(item => item !== _))
-
         // If the current state is already in the array, remove it
         return previousState.filter(item => item !== _)
       } else {
-        // console.log(`raceOrEthnicity: `, [...previousState, _])
-        
         // Otherwise, add it to the array
         return [...previousState, _]
       }
@@ -249,16 +248,52 @@ export default function RootLayout({
       if (response.status === 500 && json.error.name === 'TokenExpiredError')
         return { user: null, error: json.error }
 
-      return { user: json.user, error: null }
+      const user_ = json.user as Omit<UserType, "studies">
+      
+      if (user_.isParticipant) {
+        const userEmail = user_.email
+        const study_ = await getUserStudies(user_.email)
+        const user = { ...user_, study: study_ }
+        return { user, error: null }
+      } else {
+        const user = { ...user_, study: undefined }
+        return { user, error: null }
+      }
+      
     } catch (error: any) {
       return { user: null, error: error }
     }
   }
 
 
+  async function getUserStudies(
+    userEmail: string
+  ): Promise<STUDY_SIMPLE__DYNAMODB | undefined> {
+    try {
+      const response = await fetch('/api/auth/user/studies', { method: 'GET' })
+      const json = await response.json()
+
+      if (response.status === 401) throw new Error(json.message)
+      if (response.status === 400) throw new Error(json.error)
+      if (response.status === 500 && json.error.name === 'TokenExpiredError')
+        throw new Error(json.error)
+
+      console.log(
+        `[${new Date().toLocaleString() } --filepath="src/app/layout.tsx" --function="getUserStudies()"]: json: `, 
+        json
+      )
+
+      const study = json.study as STUDY_SIMPLE__DYNAMODB | undefined
+      return study
+    } catch (error: any) {
+      throw new Error(error)
+    }
+  }
+
+
   /**
-   * @dev Protects any page by restricting access to users that
-   * have already authenticated and hold a session cookie.
+   * @dev Protects any page by restricting access to users that have already 
+   *      authenticated and hold a session cookie.
    */
   async function pageProtection(): Promise<void> {
     setIsFetchingUser(true)
@@ -293,6 +328,7 @@ export default function RootLayout({
       // Update state of the user
       setEmail((user as UserType).email)
       setUsername((user as UserType).username)
+      setUserStudies((user as UserType).studies ?? [])
       // Update state of the kind of user
       setIsParticipant((user as UserType).isParticipant)
       setIsAdmin((user as UserType).isAdmin)
@@ -337,69 +373,78 @@ export default function RootLayout({
           <html lang='en'>
             <body>
               <AuthenticatedUserContext.Provider
-                value={ {
+                value={{
                   email,
                   isAdmin,
                   username,
                   setEmail,
                   setIsAdmin,
+                  userStudies,
                   setUsername,
                   isParticipant,
+                  setUserStudies,
                   isAuthenticated,
                   setIsParticipant,
                   setIsAuthenticated,
-                } }
+                }}
               >
-                <UserDemographicContext.Provider
-                  value={ {
-                    // State variables
-                    age,
-                    gender,
-                    usState,
-                    zipCode,
-                    religion,
-                    isParent,
-                    familySize,
-                    socialClass,
-                    foreignCountry,
-                    raceOrEthnicity,
-                    priorCompletion,
-                    isFluentInEnglish,
-                    currentMaritalStatus,
-                    areaOfScienceTraining,
-                    annualHouseholdIncome,
-                    highestFormalEducation,
-                    currentEmploymentStatus,
-                    // Form input handlers
-                    onAgeChange,
-                    onGenderChange,
-                    onZipCodeChange,
-                    onReligionChange,
-                    onIsParentChange,
-                    onUsLocationChange,
-                    onFamilySizeChange,
-                    onSocialClassChange,
-                    onEnglishFluencyChange,
-                    onRaceOrEthnicityChange,
-                    onPriorCompletionChange,
-                    onForeignLocationChange,
-                    onCurrentMaritalStatusChange,
-                    onAreaOfScienceTrainingChange,
-                    onHighestEducationLevelChange,
-                    onAnnualHouseholdIncomeChange,
-                    onCurrentEmploymentStatusChange,
-                  } }
+                <CurrentParticipantStudyContext.Provider
+                  value={{
+                    currentStudy,
+                    setCurrentStudy,
+                  }}
                 >
-                  <BessiSkillScoresContext.Provider
-                    value={ {
-                      bessiSkillScores,
-                      setBessiSkillScores,
-                    } }
+                  <UserDemographicContext.Provider
+                    value={{
+                      // State variables
+                      age,
+                      gender,
+                      usState,
+                      zipCode,
+                      religion,
+                      isParent,
+                      familySize,
+                      socialClass,
+                      foreignCountry,
+                      raceOrEthnicity,
+                      priorCompletion,
+                      isFluentInEnglish,
+                      currentMaritalStatus,
+                      areaOfScienceTraining,
+                      annualHouseholdIncome,
+                      highestFormalEducation,
+                      currentEmploymentStatus,
+                      // Form input handlers
+                      onAgeChange,
+                      onGenderChange,
+                      onZipCodeChange,
+                      onReligionChange,
+                      onIsParentChange,
+                      onUsLocationChange,
+                      onFamilySizeChange,
+                      onSocialClassChange,
+                      onEnglishFluencyChange,
+                      onRaceOrEthnicityChange,
+                      onPriorCompletionChange,
+                      onForeignLocationChange,
+                      onCurrentMaritalStatusChange,
+                      onAreaOfScienceTrainingChange,
+                      onHighestEducationLevelChange,
+                      onAnnualHouseholdIncomeChange,
+                      onCurrentEmploymentStatusChange,
+                    }}
                   >
-                    { isAuthenticated && <Header/> }
-                    { children }
-                  </BessiSkillScoresContext.Provider>
-                </UserDemographicContext.Provider>
+                    <BessiSkillScoresContext.Provider
+                      value={{
+                        bessiSkillScores,
+                        setBessiSkillScores,
+                      }}
+                    >
+                      { isAuthenticated && <Header/> }
+                      { children }
+                    </BessiSkillScoresContext.Provider>
+                  </UserDemographicContext.Provider>
+                </CurrentParticipantStudyContext.Provider>
               </AuthenticatedUserContext.Provider>
             </body>
           </html>

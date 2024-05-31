@@ -34,9 +34,6 @@ export async function extractParticipantData(
     email: participant.email,
     username: participant.username,
     studies: participant.studies,
-    adminEmail: participant.adminEmail,
-    adminUsername: participant.adminUsername,
-    isNobelLaureate: participant.isNobelLaureate,
     timestamp: Date.now(),
   }
 

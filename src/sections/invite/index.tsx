@@ -80,6 +80,7 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
     const participant: Omit<PARTICIPANT__DYNAMODB, "id"> = {
       email: participantEmail,
       username: participantUsername,
+      timestamp: 0,
       /**
        * @dev Update `studies` with pre-existing `studies` when updating
        *      the user's account entry in the `/api/study/participant` API 
@@ -90,14 +91,14 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
        */
       studies: [
         {
+          id: study ? study.id : '',
           name: study ? study.name : '',
+          ownerEmail: study ? study.ownerEmail : '',
+          adminEmails: study ? study.adminEmails : [''],
           assessmentId: study ? study.details.assessmentId : '',
+          timestamp: study? study.timestamp : 0,
         }
       ],
-      adminEmail: study ? study.ownerEmail : '',
-      adminUsername: '',
-      isNobelLaureate: false,
-      timestamp: 0,
     }
     
     // 3. `Put` and/or `Update` the new `participant` object in the appropriate

@@ -20,6 +20,7 @@ import {
   DYNAMODB_TABLE_NAMES,
   PARTICIPANT__DYNAMODB,
   extractParticipantData,
+  STUDY_SIMPLE__DYNAMODB,
 } from '@/utils'
 
 
@@ -38,106 +39,6 @@ export async function POST(
   req: NextRequest,
   res: NextResponse,
 ) {
-  // if (req.method !== 'POST') {
-  //   return NextResponse.json(
-  //     { error: 'Method Not Allowed' },
-  //     { 
-  //       status: 405, 
-  //       headers: { 
-  //         'Content-Type': 'application/json' 
-  //       } 
-  //     }
-  //   )
-  // }
-
-
-  // try {
-  //   const { participantData, studyId } = await extractParticipantData(req)
-
-  //   // Step 1: Fetch and update account entry
-  //   let response = await fetchAccountEntry(participantData.email)
-
-  //   if (
-  //     (response.Items as ACCOUNT__DYNAMODB[]) && 
-  //     (response.Items as ACCOUNT__DYNAMODB[])[0]?.email
-  //   ) {
-  //     const storedAccount = (response.Items as ACCOUNT__DYNAMODB[])[0]
-  //     await updateAccountEntry(participantData, storedAccount)
-  //   } else {
-  //     // Create new account entry if it doesn't exist
-  //     const TableName = DYNAMODB_TABLE_NAMES.accounts
-  //     const Key = {
-  //       email: participantData.email,
-  //       timestamp: Date.now()
-  //     }
-  //     const UpdateExpression = 'set participant = :participant, isParticipant = :isParticipant'
-  //     const ExpressionAttributeValues = {
-  //       ':participant': participantData,
-  //       ':isParticipant': true
-  //     }
-
-  //     const newAccountInput: UpdateCommandInput = {
-  //       TableName,
-  //       Key,
-  //       UpdateExpression,
-  //       ExpressionAttributeValues,
-  //     }
-      
-  //     const newAccountCommand = new UpdateCommand(newAccountInput)
-      
-  //     await ddbDocClient.send(newAccountCommand)
-  //   }
-
-  //   // Step 2: Fetch and update study entry
-  //   response = await fetchStudyEntry(studyId)
-
-  //   if (
-  //     (response.Items as STUDY__DYNAMODB[]) && 
-  //     (response.Items as STUDY__DYNAMODB[]).length > 0
-  //   ) {
-  //     const studyEntry = (response.Items as STUDY__DYNAMODB[])[0]
-  //     await updateStudyEntry(studyId, participantData, studyEntry)
-
-
-  //     return NextResponse.json(
-  //       { 
-  //         message: `Operation successful`, 
-  //         participantId: participantData.id
-  //       },
-  //       { 
-  //         status: 200, headers: {
-  //           'Content-Type': 'application/json' 
-  //         } 
-  //       }
-  //     )
-  //   } else {
-  //     return NextResponse.json(
-  //       { message: 'Owner email does not exist' },
-  //       { 
-  //         status: 404, headers: {
-  //           'Content-Type': 'application/json' 
-  //         } 
-  //       }
-  //     )
-  //   }
-  // } catch (error: any) {
-  //   console.error('Error:', error)
-
-
-  //   return NextResponse.json(
-  //     { error: error.message || 'Internal Server Error' },
-  //     { 
-  //       status: 500, 
-  //       headers: { 
-  //         'Content-Type': 'application/json' 
-  //       }
-  //     }
-  //   )
-  // }
-
-
-
-
   if (req.method === 'POST') {
     const { participant, studyId } = await req.json()
 
@@ -151,9 +52,6 @@ export async function POST(
       email: participant.email,
       username: participant.username,
       studies: participant.studies,
-      adminEmail: participant.adminEmail,
-      adminUsername: participant.adminUsername,
-      isNobelLaureate: participant.isNobelLaureate,
       timestamp: Date.now(),
     }
 
@@ -218,8 +116,12 @@ export async function POST(
         } else {
           /**
            * @dev 1.2.1.3 Get the `timestamp` from the user's account entry. The 
-           *      `timestamp` is used to construct the `UpdateCommand` to update
-           *      the user's account entry.
+           *      `timestamp` and the `studies` that are already under this 
+           *      account entry are used to construct the `UpdateCommand` to 
+           *      update the user's account entry's:
+           *          1) `participant`, and 
+           *          2)`studies`
+           *      attributes.
            */
           const storedCreatedAtTimestamp = (
             response.Items[0] as ACCOUNT__DYNAMODB
@@ -228,12 +130,9 @@ export async function POST(
           // `participant` entry
           const storedStudies = (response.Items[0] as ACCOUNT__DYNAMODB).studies
 
-          const updatedStudies: {
-            name: string
-            assessmentId: string
-          }[] = storedStudies
-              ? [ ...storedStudies, participant.studies[0] ]
-              : [ participant.studies[0] ]
+          const updatedStudies: STUDY_SIMPLE__DYNAMODB[] = storedStudies
+              ? [ ...storedStudies, participant_.studies[0] ]
+              : [ participant_.studies[0] ]
 
 
           const participantWithUpdatedStudies: PARTICIPANT__DYNAMODB = {
@@ -249,11 +148,13 @@ export async function POST(
             email: participant.email,
             createdAtTimestamp: storedCreatedAtTimestamp
           }
-          const UpdateExpression = 'set participant = :participant, #ts = :timestamp'
+          const UpdateExpression = 
+            'set participant = :participant, studies = :studies, #ts = :timestamp'
 
           ExpressionAttributeValues = {
             ':participant': participantWithUpdatedStudies,
-            ':timestamp': Date.now()
+            ':studies': updatedStudies,
+            ':timestamp': Date.now(),
           }
 
           const ExpressionAttributeNames = {
@@ -470,9 +371,13 @@ export async function POST(
         email: participant_.email,
         createdAtTimestamp: Date.now() // Current timestamp
       }
-      const UpdateExpression = 'set participant = :participant'
+      const UpdateExpression = 
+        'set participant = :participant, studies = :studies'
       
-      ExpressionAttributeValues = { ':participant': participant_ }
+      ExpressionAttributeValues = { 
+        ':participant': participant_,
+        ':studies': participant_.studies,
+      }
 
       input = {
         TableName,

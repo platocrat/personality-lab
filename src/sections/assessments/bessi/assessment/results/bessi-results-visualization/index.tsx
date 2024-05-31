@@ -42,7 +42,7 @@ import {
   TargetDataStructure,
   BessiSkillScoresType,
   SkillDomainFactorType,
-  StudySimple__DynamoDB,
+  STUDY_SIMPLE__DYNAMODB,
   AVAILABLE_ASSESSMENTS,
   getRandomValueInRange,
 } from '@/utils'
@@ -295,14 +295,14 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         let study: {
           id: string
           name: string
-        } | StudySimple__DynamoDB = AVAILABLE_ASSESSMENTS.filter(
+        } | STUDY_SIMPLE__DYNAMODB = AVAILABLE_ASSESSMENTS.filter(
           item => item.id === 'bessi'
         )[0]
 
         study = {
           name: study.name,
           assessmentId: study.id
-        } as StudySimple__DynamoDB
+        } as STUDY_SIMPLE__DYNAMODB
 
         /**
          * @dev This is the object that we store in DynamoDB using AWS's

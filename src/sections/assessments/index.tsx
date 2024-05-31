@@ -2,34 +2,28 @@
 
 // Externals
 import {
-  FC,
-  useMemo,
-  Fragment,
   useState,
+  Fragment,
   ReactNode,
   useContext,
   useLayoutEffect,
 } from 'react'
 // Locals
-// Components
-import Card from '@/components/Card'
 // Sections
-import BessiDescription from './bessi/description'
-import BigFiveDescription from './big-five/descriptions/entrance'
+import AssessmentCards from './assessment-cards'
 // Contexts
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // Utils
 import {
   ACCOUNT__DYNAMODB,
-  PARTICIPANT__DYNAMODB
+  PARTICIPANT__DYNAMODB,
 } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
-import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
-type PersonalityAssessmentType = {
+export type PersonalityAssessmentType = {
   href: string
   title: string
   buttonText: string
@@ -40,78 +34,6 @@ type PersonalityAssessmentType = {
 
 
 const title = `Assessments`
-
-
-
-// const YourPersonalityDescription = () => {
-//   return (
-//     <>
-//       { `Click the button below to begin to take an attachment and personality survey.` }
-//       <br />
-//       { `Please note that we do not store any information from these assessments.` }
-//     </>
-//   )
-// }
-
-
-const pAssessments: PersonalityAssessmentType[] = [
-  {
-    href: `/bessi`,
-    title: `The BESSI`,
-    buttonText: `Begin`,
-    assessmentId: 'bessi',
-    description: <BessiDescription />,
-  },
-  {
-    href: `/big-five`,
-    title: `Big Five, Vocational Interests, and Creativity Test`,
-    buttonText: `Begin`,
-    assessmentId: 'big-five',
-    description: <BigFiveDescription />,
-  },
-  // {
-  //   buttonText: `Begin`,
-  //   title: 'yourPersonality',
-  //   description: <YourPersonalityDescription />,
-  //   href: `/${topLevelSlug}/your-personality`
-  // },
-]
-
-
-
-
-const AssessmentCards: FC<{
-  PAs: PersonalityAssessmentType[]
-  fragmentKey: (pa: PersonalityAssessmentType, i: number) => string
-}> = ({
-  PAs,
-  fragmentKey,
-}) => {
-  return (
-    <>
-      { PAs.map((
-        pa: PersonalityAssessmentType,
-        i: number
-      ) => (
-        <Fragment key={ fragmentKey(pa, i) }>
-          <Card
-            href={ pa.href }
-            title={ pa.title }
-            buttonText={ pa.buttonText }
-            description={ pa.description }
-          />
-          { PAs.length !== 1 && i !== pAssessments.length - 1 && (
-            <>
-              <div style={ definitelyCenteredStyle }>
-                <div className={ styles.divider } />
-              </div>
-            </>
-          )}
-        </Fragment>
-      )) }
-    </>
-  )
-}
 
 
 
@@ -132,22 +54,6 @@ const PersonalityAssessments = ({ }) => {
     participant, 
     setParticipant 
   ] = useState<PARTICIPANT__DYNAMODB | null>(null)
-
-  
-  const PAs = pAssessments
-
-  // ----------------------- Memoized constants --------------------------------
-  const participantAssessmentIds: string[] = useMemo((): string[] => {
-    return participant?.studies.map(s => s.assessmentId) ?? ['']
-  }, [ participant ])
-
-  const PPAs: PersonalityAssessmentType[] = useMemo(
-    (): PersonalityAssessmentType[] => {
-      return pAssessments.filter((item, i: number): boolean => (
-        item.assessmentId === participantAssessmentIds[i]
-      ))
-    }, [ participantAssessmentIds ]
-  )
 
 
   // ------------------------- Regular functions -------------------------------
@@ -217,7 +123,7 @@ const PersonalityAssessments = ({ }) => {
         <div className={ styles.assessmentWrapper }>
           <AssessmentCards
             fragmentKey={ fragmentKey }
-            PAs={ isAdmin ? PAs : PPAs }
+            participant={ participant }
           />
         </div>
 
@@ -225,5 +131,6 @@ const PersonalityAssessments = ({ }) => {
     </Fragment>
   )
 }
+
 
 export default PersonalityAssessments

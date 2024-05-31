@@ -15,7 +15,7 @@ import ParticipantsTable from './participants-table'
 import LeftHandNav from '@/components/Nav/LeftHand'
 import Spinner from '@/components/Suspense/Spinner'
 import ViewResultsModal from '@/components/Modals/ViewResultsModal'
-import DownloadDataModal from '@/components/Modals/AdminPortal/DownloadData'
+// import DownloadDataModal from '@/components/Modals/AdminPortal/DownloadData'
 // import CreateParticipantModal from '@/components/Modals/AdminPortal/CreateParticipant'
 // Contexts
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
@@ -26,11 +26,13 @@ import {
   ParticipantType,
   STUDY__DYNAMODB,
   PARTICIPANT__DYNAMODB,
+  RESULTS__DYNAMODB,
 } from '@/utils'
 // CSS
 import appStyles from '@/app/page.module.css'
-import sectionStyles from '@/sections/main-portal/studies/view/ViewStudies.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+import pageStyles from '@/sections/main-portal/studies/view/study/ViewStudy.module.css'
+import viewStudiesStyles from '@/sections/main-portal/studies/view/ViewStudies.module.css'
 
 
 
@@ -86,7 +88,6 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
   //   setShowCreateParticipantModal
   // ] = useState<boolean>(false)
   const [isCopied, setIsCopied] = useState(false)
-  const [isNobelLaureate, setIsNobelLaureate] = useState<boolean>(false)
   const [participantCreated, setParticipantCreated] = useState<boolean>(false)
   // Custom
   const [
@@ -111,11 +112,40 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
   //   setShowCreateParticipantModal(true)
   // }
 
-  function handleOpenDownloadDataModal(e: any) {
-    setShowDownloadDataModal(true)
-  }
-
   // ~~~~~~ Button handlers ~~~~~~
+  function handleDownloadData(e: any) {
+    if (!participants) return
+
+    // Show confirmation alert
+    const alertMessage = 'Download CSV file?'
+    const shouldDownload = window.confirm(alertMessage)
+
+    if (!shouldDownload) return
+
+    // Convert participants data to CSV
+    const csvData = getParticipantsResults(participants)
+
+    // Create a blob from the CSV content
+    const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+
+    // Create a link element
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', 'participants.csv')
+
+    // Append the link to the body
+    document.body.appendChild(link)
+
+    // Simulate a click
+    link.click()
+
+    // Clean up
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+  
+
   function handleCopyInviteLink ()  {
     navigator.clipboard.writeText(inviteUrl)
     setIsCopied(true)
@@ -131,11 +161,6 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
   function onEmailChange(e: any) {
     const { value } = e.target
     setParticipantEmail(value)
-  }
-
-  function onNobelLaureateChange(e: any) {
-    const { value, checked } = e.target
-    setIsNobelLaureate(checked)
   }
 
   function onViewResultsChange(
@@ -154,6 +179,36 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
   }
 
   // -------------------------- Async functions --------------------------------
+  // Utility function to convert JSON to CSV
+  async function getParticipantsResults(
+    participants: ParticipantType[]
+  ): RESULTS__DYNAMODB[] {
+
+
+    const headers = [
+      'Email',
+      'Username',
+      'Studies',
+      'Is Nobel Laureate'
+    ]
+
+    const rows = participants.map(participant => {
+      const studies = participant.studies.map(study => `${study.name} (${study.assessmentId})`).join('; ')
+      return [
+        participant.email,
+        participant.username,
+        studies,
+      ]
+    })
+
+    const csvData = [
+      headers.join(','),
+      ...rows.map(row => row.join(','))
+    ].join('\n')
+
+    return csvData
+  }
+
   async function handleOnViewResults(e: any) {
     console.log('Viewing results!')
   }
@@ -174,7 +229,6 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
   //         assessmentId: study ? study.details.assessmentId : '',
   //       }
   //     ],
-  //     isNobelLaureate: isNobelLaureate,
   //   }
 
   //   // 2. Store the new `participant` object in DynamoDB
@@ -234,12 +288,9 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
        * `PutItemCommand` operation.
        */
       const participant: Omit<PARTICIPANT__DYNAMODB, "id"> = {
-        adminEmail: email,
-        adminUsername: username,
         email: _participant.email,
         username: _participant.username,
         studies: _participant.studies,
-        isNobelLaureate: _participant.isNobelLaureate,
         timestamp: 0,
       }
 
@@ -290,7 +341,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
     // },
     {
       buttonText: `Download Data`,
-      onClick: handleOpenDownloadDataModal
+      onClick: handleDownloadData
     },
   ]
 
@@ -300,10 +351,10 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
   //   createParticipantModalRef,
   //   () => setShowCreateParticipantModal(false)
   // )
-  useClickOutside(
-    downloadDataModalRef,
-    () => setShowDownloadDataModal(false)
-  )
+  // useClickOutside(
+  //   downloadDataModalRef,
+  //   () => setShowDownloadDataModal(false)
+  // )
   useClickOutside(
     viewResultsModalRef,
     () => setShowViewResultsModal(false)
@@ -371,20 +422,13 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
               >
                 {/* Page Nav */ }
                 { participants && participants.length > 0 && (
-                  <div
-                    style={ {
-                      gap: '18px',
-                      display: 'flex',
-                      margin: '24px 0px'
-                    } }
-                  >
+                  <div className={ pageStyles.pageNav }>
                     { pageNavButtons.map((btn, i: number) => (
                       <Fragment key={ i }>
                         <div>
                           <button
+                            type={ 'button' }
                             onClick={ btn.onClick }
-                            style={{ width: '140px' }}
-                            className={ appStyles.button }
                           >
                             { btn.buttonText }
                           </button>
@@ -396,7 +440,9 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
 
                 { participants && participants.length > 0 && (
                   <>
-                    <div className={ `${sectionStyles['form-container']}` }>
+                    <div 
+                      className={ `${viewStudiesStyles['form-container']}` }
+                    >
                       {/* Table of participants */ }
                       <ParticipantsTable
                         participants={ participants }
@@ -421,9 +467,9 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
                   } }
                 /> */}
 
-                <DownloadDataModal
+                {/* <DownloadDataModal
                   modalRef={ downloadDataModalRef }
-                />
+                /> */}
 
                 <ViewResultsModal
                   modalRef={ viewResultsModalRef }

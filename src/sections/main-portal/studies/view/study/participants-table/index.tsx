@@ -8,6 +8,7 @@ import ParticipantsTableBody from './table-body'
 import { ParticipantType } from '@/utils'
 // CSS
 import styles from '@/sections/main-portal/studies/view/list-of-studies/ListOfStudies.module.css'
+import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
@@ -29,10 +30,20 @@ const ParticipantsTable: FC<ParticipantsTableProps> = ({
         style={ {
           position: 'relative',
           width: '100%',
-          margin: '20px 0',
         } }
       >
-        <table className={ styles.table }>
+        <div 
+          style={{ 
+            ...definitelyCenteredStyle,
+            marginBottom: '16px'
+          }}
+        >
+          <h2>{ `Participants` }</h2>
+        </div>
+        <table 
+          className={ styles.table }
+          style={{ marginBottom: '24px' }}
+        >
           <ParticipantTableHead />
           <ParticipantsTableBody
             participants={ participants }

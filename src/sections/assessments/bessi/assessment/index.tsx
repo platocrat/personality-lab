@@ -12,6 +12,7 @@ import Questionnaire from '@/components/Questionnaire'
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
+import { CurrentParticipantStudyContext } from '@/contexts/CurrentParticipantStudyContext'
 // Utilities
 import {
   getFacet,
@@ -23,7 +24,7 @@ import {
   calculateBessiScores,
   SkillDomainFactorType,
   AVAILABLE_ASSESSMENTS,
-  StudySimple__DynamoDB,
+  STUDY_SIMPLE__DYNAMODB,
   getSkillDomainAndWeight,
   BessiUserResults__DynamoDB,
   wellnessRatingDescriptions,
@@ -52,8 +53,9 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
   // Contexts
   const { 
     email,
-    username
+    username,
   } = useContext(AuthenticatedUserContext)
+  const { currentStudy } = useContext(CurrentParticipantStudyContext)
   const { setBessiSkillScores } = useContext(BessiSkillScoresContext)
   const { 
     // State variables
@@ -93,7 +95,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
   )
 
 
-    //------------------------- Regular function handlers ----------------------
+  //------------------------- Regular function handlers ----------------------
   function onWellnessRatingChange(e: any, questionIndex: number) {
     const { value } = e.target
 
@@ -187,18 +189,8 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
         domainScores: finalScores.domainScores,
         demographics: DEMOGRAPHICS,
       }
-
-      let study: {
-        id: string
-        name: string
-      } | StudySimple__DynamoDB = AVAILABLE_ASSESSMENTS.filter(
-        item => item.id === 'bessi'
-      )[0]
       
-      study = { 
-        name: study.name, 
-        assessmentId: study.id 
-      } as StudySimple__DynamoDB
+      const study = currentStudy as STUDY_SIMPLE__DYNAMODB
 
       /**
        * @dev This is the object that we store in DynamoDB using AWS's 

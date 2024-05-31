@@ -13,14 +13,14 @@ import {
   ddbDocClient,
   RESULTS__DYNAMODB,
   DYNAMODB_TABLE_NAMES,
-  StudySimple__DynamoDB,
+  STUDY_SIMPLE__DYNAMODB,
   BessiUserResults__DynamoDB,
 } from '@/utils'
 
 
 
 /**
- * @dev POST `userResults`
+ * @dev POST `userResults` to `studies` table
  * @param req 
  * @param res 
  * @returns 
@@ -39,7 +39,7 @@ export async function POST(
       id: userResultsId,
       email: userResults.email as string,
       username: userResults.username as string,
-      study: userResults.study as StudySimple__DynamoDB,
+      study: userResults.study as STUDY_SIMPLE__DYNAMODB,
       results: userResults.results as BessiUserResults__DynamoDB,
       timestamp: Date.now(),
     }

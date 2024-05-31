@@ -10,7 +10,7 @@ import {
   ddbDocClient,
   RATINGS__DYNAMODB,
   DYNAMODB_TABLE_NAMES,
-  StudySimple__DynamoDB,
+  STUDY_SIMPLE__DYNAMODB,
 } from '@/utils'
 
 
@@ -34,7 +34,7 @@ export async function POST(
       id: userVizRatingId,
       email: userVizRating.email as string,
       username: userVizRating.username as string,
-      study: userVizRating.study as StudySimple__DynamoDB,
+      study: userVizRating.study as STUDY_SIMPLE__DYNAMODB,
       rating: userVizRating.rating as number,
       vizName: userVizRating.vizName as string,
       timestamp: Date.now(),

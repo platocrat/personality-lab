@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server'
 import { 
   SSCrypto,
   ACCOUNT_ADMINS,
-  HashedPassword,
+  HASHED_PASSWORD__DYNAMODB,
   fetchAwsParameter, 
   AWS_PARAMETER_NAMES,
   PARTICIPANT__DYNAMODB,
@@ -124,7 +124,7 @@ export async function verifiedUsernameAndPasswordSwitch(
   email: string,
   username: string,
   storedParticipant: PARTICIPANT__DYNAMODB | undefined,
-  storedPassword: HashedPassword,
+  storedPassword: HASHED_PASSWORD__DYNAMODB,
 ): Promise<NextResponse<{ error: string }> | NextResponse<{ message: string }>> {
   switch (switchCondition) {
     // Code for when both username and password are verified

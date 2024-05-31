@@ -5,8 +5,8 @@ import { ParticipantType } from '@/utils'
 // Hooks
 import useWindowWidth from '@/hooks/useWindowWidth'
 // Styles
-import styles from '@/sections/main-portal/studies/view/list-of-studies/ListOfStudies.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+import styles from '@/sections/main-portal/studies/view/list-of-studies/ListOfStudies.module.css'
 
 
 
@@ -45,7 +45,7 @@ const ParticipantsTableBody: FC<ParticipantsTableBodyProps> = ({
               </td>
               <td
                 style={ {
-                  width: windowWidth <= 920 ? '100%' : '80px',
+                  width: windowWidth <= 920 ? '100%' : '120px',
                   position: 'relative',
                 } }
               >

@@ -7,13 +7,29 @@ import {
 
 
 
-export type StudySimple__DynamoDB = {
-  name: string
+/**
+ * ## Readable type definition:
+ * @example
+ * ```tsx 
+ * type STUDY_SIMPLE__DYNAMODB = {
+ *   id: string
+ *   name: string
+ *   ownerEmail: string
+ *   adminEmails?: string[]
+ *   assessmentId: string
+ *   timestamp: number
+ * }
+ * ```
+ */
+export type STUDY_SIMPLE__DYNAMODB = Omit<
+  STUDY__DYNAMODB,
+  "isActive" | "details" | "participants" | "results"
+> & {
   assessmentId: string
 }
 
 
-type StudyDetails__DynamoDB = {
+type STUDY_DETAILS__DYNAMODB = {
   inviteUrl: string
   description: string
   assessmentId: string
@@ -24,29 +40,33 @@ export type STUDY__DYNAMODB = {
   id: string
   name: string
   isActive: boolean
-  timestamp: number
   ownerEmail: string
-  adminEmails: string[]
-  details: StudyDetails__DynamoDB
-  participants: PARTICIPANT__DYNAMODB[]
+  adminEmails?: string[]
+  details: STUDY_DETAILS__DYNAMODB
+  participants?: PARTICIPANT__DYNAMODB[] // `undefined` for newly created study
+  results?: RESULTS__DYNAMODB[] // `undefined` for newly created study
+  timestamp: number
 }
 
 
-export type HashedPassword = {
+export type HASHED_PASSWORD__DYNAMODB = {
   hash: string
   salt: string
 }
 
 
+/**
+ * @dev An account can take an assessment without being a participant to a study
+ */
 export type ACCOUNT__DYNAMODB = {
   email: string
   username: string
   isAdmin: boolean
-  password: HashedPassword
+  password: HASHED_PASSWORD__DYNAMODB
   createdAtTimestamp: number
-  updatedAtTimestamp: number
-  studies: StudySimple__DynamoDB[]
-  participant?: PARTICIPANT__DYNAMODB
+  updatedAtTimestamp?: number // `undefined` for a non-participant account
+  studies?: STUDY_SIMPLE__DYNAMODB[] // `undefined` for a non-participant account
+  participant?: PARTICIPANT__DYNAMODB // `undefined` for a non-participant account
 }
 
 
@@ -54,11 +74,8 @@ export type PARTICIPANT__DYNAMODB = {
   id: string
   email: string
   username: string
-  adminEmail: string
-  adminUsername: string
-  isNobelLaureate: boolean
+  studies: STUDY_SIMPLE__DYNAMODB[]
   timestamp: number
-  studies: StudySimple__DynamoDB[]
 }
 
 
@@ -66,9 +83,9 @@ export type RESULTS__DYNAMODB = {
   id: string
   email: string
   username: string
-  timestamp: number
-  study: StudySimple__DynamoDB
+  study: STUDY_SIMPLE__DYNAMODB
   results: any | BessiUserResults__DynamoDB
+  timestamp: number
 }
 
 
@@ -76,7 +93,7 @@ export type RATINGS__DYNAMODB = {
   id: string
   email: string
   username: string
-  study: StudySimple__DynamoDB
+  study: STUDY_SIMPLE__DYNAMODB
   rating: number
   vizName: string
   timestamp: number
@@ -112,6 +129,5 @@ export type CookieType = {
 export type ParticipantType = {
   email: string
   username: string
-  isNobelLaureate: boolean
-  studies: StudySimple__DynamoDB[]
+  studies: STUDY_SIMPLE__DYNAMODB[]
 }

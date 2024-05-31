@@ -52,3 +52,34 @@
   box-shadow: none;
   /* Same background color on hover */
 }
+
+.pageNav {
+  display: flex;
+  justify-content: right;
+  position: relative;
+  width: 100%;
+  margin: 24px 0px 12px 0px;
+}
+
+.pageNav button[type="button"] {
+  display: flex;
+  padding: 6px 10px;
+  background-color: #007bff;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  border: none;
+  transform: scale(1);
+  transition: background-color 0.15s ease;
+}
+
+.pageNav button[type="button"]:hover {
+  transform: scale(0.99);
+  background-color: #0056b3;
+}
+
+.pageNav button[type="button"]:active {
+  transform: scale(0.965);
+  background-color: #004997;
+  transition: 0.15s ease;
+}
