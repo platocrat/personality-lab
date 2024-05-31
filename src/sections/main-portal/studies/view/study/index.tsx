@@ -79,12 +79,12 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
     setNoResultsToView
   ] = useState<boolean>(false)
   const [isCopied, setIsCopied] = useState(false)
-  const [participantCreated, setParticipantCreated] = useState<boolean>(false)
+  const [ participantCreated, setParticipantCreated ] = useState<boolean>(false)
   // Custom
   const [
     participants,
     setParticipants
-  ] = useState<ParticipantType[] | null>(null)
+  ] = useState<PARTICIPANT__DYNAMODB[] | null>(null)
   const [
     selectedParticipant,
     setSelectedParticipant
@@ -101,16 +101,6 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
   }, [ participants ])
 
   // -------------------------- Regular functions ------------------------------
-  // ~~~~~~ Modal handlers ~~~~~~
-  function handleViewObserverResults(participant: ParticipantType) {
-    setSelectedParticipant(participant)
-    setShowViewResultsModal(true)
-  }
-
-  // function handleOpenCreateParticipantModal(e: any) {
-  //   setShowCreateParticipantModal(true)
-  // }
-
   // ~~~~~~ Button handlers ~~~~~~
   function handleDownloadData(e: any) {
     if (!participants) return
@@ -178,12 +168,35 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
   }
 
   // -------------------------- Async functions --------------------------------
+  /**
+   * @dev Makes a `GET` request to get the `study` from the given ID to index
+   *      the `participants` property from the `study` object
+   */
+  async function getParticipants() {
+    try {
+      const response = await fetch(`/api/study?id=${study?.id}`, {
+        method: 'GET',
+      })
+
+      const json = await response.json()
+
+      if (response.status === 500) throw new Error(json.error)
+      if (response.status === 405) throw new Error(json.error)
+
+      const study_ = json.study as STUDY__DYNAMODB
+      const participants_ = study_.participants as PARTICIPANT__DYNAMODB[] | undefined
+
+      setParticipants(participants_ ?? null)
+    } catch (error: any) {
+      throw new Error(error.message)
+    }
+  }
+
+
   // Utility function to convert JSON to CSV
   async function getParticipantsResults(
     participants: ParticipantType[]
   ): RESULTS__DYNAMODB[] {
-
-
     const headers = [
       'Email',
       'Username',
@@ -208,98 +221,10 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
     return csvData
   }
 
-  async function handleOnViewResults(e: any) {
-    console.log('Viewing results!')
-  }
-
-
-  /**
-   * @dev Makes a `GET` request to get the `study` from the given ID to index
-   *      the `participants` property from the `study` object
-   */
-  async function getParticipants() {
-    try {
-      const response = await fetch(`/api/study?id=${ study?.id }`, {
-        method: 'GET',
-      })
-      
-      const json = await response.json()
-
-      if (response.status === 500) throw new Error(json.error)
-      if (response.status === 405) throw new Error(json.error)
-
-      const participants_ = json.study.participants
-
-      setParticipants(participants_)
-      setParticipantCreated(false)
-    } catch (error: any) {
-      throw new Error(error.message)
-    }
-  }
-
 
   async function getStudyIdAndInviteUrl() {
     const inviteUrl_ = `${ window.location.origin }/invite/${ study?.id }`
     setInviteUrl(inviteUrl_)
-  }
-
-
-  async function storeParticipantInDynamoDB(
-    _participant: ParticipantType
-  ) {
-    if (email === undefined) {
-      /**
-       * @todo Replace the line below by handling the error on the UI here
-       */
-      throw new Error(`Error getting email from cookie!`)
-    } else {
-      /**
-       * @dev This is the object that we store in DynamoDB using AWS's 
-       * `PutItemCommand` operation.
-       */
-      const participant: Omit<PARTICIPANT__DYNAMODB, "id"> = {
-        email: _participant.email,
-        username: _participant.username,
-        studies: _participant.studies,
-        timestamp: 0,
-      }
-
-      try {
-        const response = await fetch('/api/study/participant', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ 
-            participant,
-            studyId: study?.id
-          }),
-        })
-
-        const json = await response.json()
-
-
-        if (response.status === 200) {
-          const participantId = json.participantId
-          return participantId
-        } else {
-          setParticipantCreated(false)
-
-          const error = `Error posting ${'new participant'} to DynamoDB: `
-          /**
-           * @todo Handle error UI here
-           */
-          throw new Error(error, json.error)
-        }
-      } catch (error: any) {
-        setParticipantCreated(false)
-
-        /**
-         * @todo Handle error UI here
-         */
-        throw new Error(`Error! `, error)
-      }
-    }
   }
 
 
