@@ -85,6 +85,8 @@ export async function POST(
         response.Items &&
         (response.Items[0] as ACCOUNT__DYNAMODB).email
       ) {
+        const account = response.Items[0] as ACCOUNT__DYNAMODB
+
         /**
          * @dev 1.2.1.1 Check if the user had already registered for this study
          */
@@ -120,24 +122,22 @@ export async function POST(
            *      account entry are used to construct the `UpdateCommand` to 
            *      update the user's account entry's:
            *          1) `participant`, and 
-           *          2)`studies`
+           *          2) `participant.studies`
            *      attributes.
            */
-          const storedCreatedAtTimestamp = (
-            response.Items[0] as ACCOUNT__DYNAMODB
-          ).createdAtTimestamp
-          // We also need `account.studies` to merge with the study of the new
-          // `participant` entry
-          const storedStudies = (response.Items[0] as ACCOUNT__DYNAMODB).studies
+          const storedCreatedAtTimestamp = account.createdAtTimestamp
+          // We also need `account.participant.studies` to merge with the study 
+          // of the new `participant` entry
+          const storedParticipantStudies = account.participant?.studies
 
-          const updatedStudies: STUDY_SIMPLE__DYNAMODB[] = storedStudies
-              ? [ ...storedStudies, participant_.studies[0] ]
+          const updatedParticipant: STUDY_SIMPLE__DYNAMODB[] = storedParticipantStudies
+            ? [...storedParticipantStudies, participant_.studies[0] ]
               : [ participant_.studies[0] ]
 
 
           const participantWithUpdatedStudies: PARTICIPANT__DYNAMODB = {
             ...participant_,
-            studies: updatedStudies,
+            studies: updatedParticipant,
             timestamp: Date.now(),
           }
 
@@ -149,23 +149,17 @@ export async function POST(
             createdAtTimestamp: storedCreatedAtTimestamp
           }
           const UpdateExpression = 
-            'set participant = :participant, studies = :studies, #ts = :timestamp'
+            'set participant = :participant, updatedAtTimestamp = :updatedAtTimestamp'
 
           ExpressionAttributeValues = {
             ':participant': participantWithUpdatedStudies,
-            ':studies': updatedStudies,
-            ':timestamp': Date.now(),
-          }
-
-          const ExpressionAttributeNames = {
-            '#ts': 'timestamp'
+            ':updatedAtTimestamp': Date.now(),
           }
 
           input = {
             TableName,
             Key,
             UpdateExpression,
-            ExpressionAttributeNames,
             ExpressionAttributeValues,
           }
 
@@ -217,15 +211,11 @@ export async function POST(
 
               // 1.2.1.5.2.1  If `ownerEmail` exists...
               if (response.Items && response.Items.length > 0) {
-                const createdAtTimestamp = (
-                  response.Items as STUDY__DYNAMODB[]
-                )[0].createdAtTimestamp
-                const ownerEmail = (
-                  response.Items as STUDY__DYNAMODB[]
-                )[0].ownerEmail
-                const previousParticipants = (
-                  response.Items as STUDY__DYNAMODB[]
-                )[0].participants
+                const study = (response.Items as STUDY__DYNAMODB[])[0]
+
+                const ownerEmail = study.ownerEmail
+                const createdAtTimestamp = study.createdAtTimestamp
+                const previousParticipants = study.participants
 
                 // Update list of participants using existing participants.
                 const updatedParticipants = previousParticipants
@@ -233,8 +223,8 @@ export async function POST(
                   : [ participant_ ]
 
                 // 1.2.1.5.2.1.1  Construct the `UpdateCommand` to update the 
-                //              `participant` property of the study entry in 
-                //              the `studies` table. 
+                //                `participant` property of the study entry in 
+                //                the `studies` table. 
                 const Key = {
                   ownerEmail,
                   createdAtTimestamp
@@ -407,7 +397,7 @@ export async function POST(
 
         // 2.1 Construct `QueryCommand` to get the `ownerEmail` that we will use as
         //     the partition/primary key to then perform the `UpdateCommand` to
-        //     update the same study entry's `participant` property.
+        //     update the same study entry's `participants` property.
         const IndexName = 'id-index'
 
         TableName = DYNAMODB_TABLE_NAMES.studies
@@ -433,15 +423,11 @@ export async function POST(
 
           // 2.2.1 If `ownerEmail` exists...
           if (response.Items && response.Items.length > 0) {
-            const createdAtTimestamp = (
-              response.Items as STUDY__DYNAMODB[]
-            )[0].createdAtTimestamp
-            const ownerEmail = (
-              response.Items as STUDY__DYNAMODB[]
-            )[0].ownerEmail
-            const previousParticipants = (
-              response.Items as STUDY__DYNAMODB[]
-            )[0].participants
+            const study = (response.Items as STUDY__DYNAMODB[])[0]
+
+            const ownerEmail = study.ownerEmail
+            const createdAtTimestamp = study.createdAtTimestamp
+            const previousParticipants = study.participants
 
             // Update list of participants using existing participants.
             const updatedParticipants: PARTICIPANT__DYNAMODB[] = previousParticipants

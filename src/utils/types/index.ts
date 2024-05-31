@@ -1,8 +1,8 @@
 import { 
   FacetFactorType, 
   SkillDomainFactorType, 
+  BessiUserResults__DynamoDB,
   BessiUserDemographics__DynamoDB, 
-  BessiUserResults__DynamoDB
 } from '../assessments'
 
 
@@ -15,15 +15,16 @@ import {
  *   id: string
  *   name: string
  *   ownerEmail: string
- *   adminEmails?: string[]
  *   assessmentId: string
+ *   adminEmails?: string[]
+ *   results?: RESULTS__DYNAMODB[]
  *   timestamp: number
  * }
  * ```
  */
 export type STUDY_SIMPLE__DYNAMODB = Omit<
   STUDY__DYNAMODB,
-  "isActive" | "details" | "participants" | "results"
+  "isActive" | "details" | "participants"
 > & {
   assessmentId: string
 }
@@ -64,7 +65,6 @@ export type ACCOUNT__DYNAMODB = {
   username: string
   isAdmin: boolean
   password: HASHED_PASSWORD__DYNAMODB
-  studies?: STUDY_SIMPLE__DYNAMODB[] // `undefined` for a non-participant account
   participant?: PARTICIPANT__DYNAMODB // `undefined` for a non-participant account
   updatedAtTimestamp?: number // `undefined` for a non-participant account
   createdAtTimestamp: number

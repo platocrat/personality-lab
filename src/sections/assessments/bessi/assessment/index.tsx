@@ -1,3 +1,5 @@
+'use client'
+
 // Externals
 import { useRouter } from 'next/navigation'
 import { FC, Fragment, useContext, useState } from 'react'

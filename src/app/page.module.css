@@ -329,6 +329,10 @@
   padding: 0.5rem 1rem 1rem 1rem;
 }
 
+.main h1 {
+    font-size: 28px;
+  }
+
 .card p.entranceNote {
     font-size: clamp(9px, 2.5vw, 12.5px); 
   }

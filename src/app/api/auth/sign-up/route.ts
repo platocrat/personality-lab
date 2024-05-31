@@ -78,12 +78,11 @@ export async function POST(
           (response.Items[0] as ACCOUNT__DYNAMODB).email &&
           !(response.Items[0] as ACCOUNT__DYNAMODB).password
         ) {
+          const account = response.Items[0] as ACCOUNT__DYNAMODB
           /**
            * @dev 1.1.2 Get the createdAt from the database entry
            */
-          const createdAtTimestamp = (
-            response.Items[0] as ACCOUNT__DYNAMODB
-          ).createdAtTimestamp
+          const createdAtTimestamp = account.createdAtTimestamp
 
           /**
            * @dev 1.1.3 Since the email exists, the user is an unregistered 
@@ -255,6 +254,7 @@ export async function POST(
      */
     // Get timestamp after the username is validated.
     const createdAtTimestamp = Date.now()
+    const updatedAtTimestamp = 0
 
     /**
      * @dev 3.1 Determine if the new user is an admin
@@ -273,6 +273,7 @@ export async function POST(
       password, // Contains a password that is already hashed
       isAdmin,
       createdAtTimestamp,
+      updatedAtTimestamp,
     }
 
     input = {

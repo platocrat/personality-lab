@@ -3,6 +3,7 @@
 import {
   FC,
   useRef,
+  useMemo,
   useState,
   Fragment,
   useContext,
@@ -77,18 +78,6 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
     noResultsToView,
     setNoResultsToView
   ] = useState<boolean>(false)
-  const [
-    showViewResultsModal,
-    setShowViewResultsModal
-  ] = useState<boolean>(false)
-  const [
-    showDownloadDataModal,
-    setShowDownloadDataModal
-  ] = useState<boolean>(false)
-  // const [
-  //   showCreateParticipantModal,
-  //   setShowCreateParticipantModal
-  // ] = useState<boolean>(false)
   const [isCopied, setIsCopied] = useState(false)
   const [participantCreated, setParticipantCreated] = useState<boolean>(false)
   // Custom
@@ -102,6 +91,14 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
   ] = useState<ParticipantType | null>(null)
   const [resultsToView, setResultsToView] = useState<any>({})
 
+
+
+  // ------------------------- Memoized constants ------------------------------
+  const showPageNav = useMemo((): boolean => {
+    return participants !== null &&
+      participants.length > 0 &&
+      participants[0].studies[0].results !== undefined
+  }, [ participants ])
 
   // -------------------------- Regular functions ------------------------------
   // ~~~~~~ Modal handlers ~~~~~~
@@ -324,13 +321,6 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
     },
   ]
 
-
-  // ---------------------------------- Hooks ----------------------------------
-  useClickOutside(
-    viewResultsModalRef,
-    () => setShowViewResultsModal(false)
-  )
-
   // -------------------------- `useLayoutEffect`s -----------------------------
   useLayoutEffect(() => {
     if (
@@ -391,9 +381,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
                 } }
               >
                 {/* Page Nav */ }
-                { participants && 
-                  participants.length > 0 && 
-                  participants[0].studies[0] && (
+                { showPageNav && (
                   <div className={ pageStyles.pageNav }>
                     { pageNavButtons.map((btn, i: number) => (
                       <Fragment key={ i }>
@@ -410,8 +398,13 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
                   </div>
                 )}
 
-                { participants && participants.length > 0 ? (
-                  <div className={ `${viewStudiesStyles['form-container']}` }>
+                { participants !== null && participants.length > 0 ? (
+                  <div 
+                    className={ `${viewStudiesStyles['form-container']}` }
+                    style={{ 
+                      marginTop: participants[0].studies[0].results ? '' : '36px'
+                    }}
+                  >
                     <ParticipantsTable participants={ participants } />
                   </div>
                 ) : (
