@@ -3,9 +3,10 @@
 // Externals
 import { 
   FC, 
+  Fragment, 
   useState,
   useContext, 
-  useLayoutEffect, 
+  useLayoutEffect,
 } from 'react'
 // Locals
 // Sections
@@ -86,12 +87,20 @@ const BessiAssessment: FC<BessiAssessmentProps> = ({ }) => {
         { !isParticipant ? <BessiAssessmentSection /> : (
           <>
             { studiesForAssessment.length > 0 && (
-              <select onChange={ handleSelectCurrentStudy } value={ selectedStudyId }>
+              <select 
+              value={ selectedStudyId }
+                onChange={ handleSelectCurrentStudy } 
+              >
                 <option value=''>Select a study</option>
-                { studiesForAssessment.map(study => (
-                  <option key={ study.id } value={ study.id }>
-                    { study.name }
-                  </option>
+                { studiesForAssessment.map((
+                  study: STUDY_SIMPLE__DYNAMODB, 
+                  i: number
+                ) => (
+                  <Fragment key={ i }>
+                    <option key={ study.id } value={ study.id }>
+                      { study.name }
+                    </option>
+                  </Fragment>
                 )) }
               </select>
             )}
