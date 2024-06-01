@@ -42,9 +42,8 @@ import {
   TargetDataStructure,
   BessiSkillScoresType,
   SkillDomainFactorType,
-  STUDY_SIMPLE__DYNAMODB,
-  AVAILABLE_ASSESSMENTS,
   getRandomValueInRange,
+  STUDY_SIMPLE__DYNAMODB,
 } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -78,7 +77,6 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   const {
     bessiSkillScores 
   } = useContext<BessiSkillScoresContextType>(BessiSkillScoresContext)
-  
   // Refs
   const modalRef = useRef<any>(null)
   const screenshot1Ref = useRef<any>(null)
@@ -292,17 +290,8 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
          */
         throw new Error(`Error getting email from cookie!`)
       } else {
-        let study: {
-          id: string
-          name: string
-        } | STUDY_SIMPLE__DYNAMODB = AVAILABLE_ASSESSMENTS.filter(
-          item => item.id === 'bessi'
-        )[0]
-
-        study = {
-          name: study.name,
-          assessmentId: study.id
-        } as STUDY_SIMPLE__DYNAMODB
+        const localStorageItem = localStorage.getItem('currentStudy') as string ?? ''
+        const study = JSON.parse(localStorageItem) as STUDY_SIMPLE__DYNAMODB
 
         /**
          * @dev This is the object that we store in DynamoDB using AWS's

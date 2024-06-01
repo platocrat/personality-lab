@@ -14,7 +14,6 @@ import Questionnaire from '@/components/Questionnaire'
 import { UserDemographicContext } from '@/contexts/UserDemographicContext'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
-import { CurrentParticipantStudyContext } from '@/contexts/CurrentParticipantStudyContext'
 // Utilities
 import {
   getFacet,
@@ -25,7 +24,6 @@ import {
   RESULTS__DYNAMODB,
   calculateBessiScores,
   SkillDomainFactorType,
-  AVAILABLE_ASSESSMENTS,
   STUDY_SIMPLE__DYNAMODB,
   getSkillDomainAndWeight,
   BessiUserResults__DynamoDB,
@@ -57,7 +55,6 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
     email,
     username,
   } = useContext(AuthenticatedUserContext)
-  const { currentStudy } = useContext(CurrentParticipantStudyContext)
   const { setBessiSkillScores } = useContext(BessiSkillScoresContext)
   const { 
     // State variables
@@ -192,7 +189,8 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
         demographics: DEMOGRAPHICS,
       }
       
-      const study = currentStudy as STUDY_SIMPLE__DYNAMODB
+      const localStorageItem = localStorage.getItem('currentStudy') ?? ''
+      const study = JSON.parse(localStorageItem) as STUDY_SIMPLE__DYNAMODB
 
       /**
        * @dev This is the object that we store in DynamoDB using AWS's 

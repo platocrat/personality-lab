@@ -10,7 +10,6 @@ import { STUDY_SIMPLE__DYNAMODB } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
-import { CurrentParticipantStudyContext } from '@/contexts/CurrentParticipantStudyContext'
 
 
 
@@ -22,16 +21,16 @@ export default function _() {
     userStudies,
     isParticipant,
   } = useContext(AuthenticatedUserContext)
-  const {
-    currentStudy,
-    setCurrentStudy
-  } = useContext(CurrentParticipantStudyContext)
   // States
   const [
     studiesForAssessment,
     setStudiesForAssessment
   ] = useState<STUDY_SIMPLE__DYNAMODB[] | []>([])
-  const [selectedStudyId, setSelectedStudyId] = useState<string>('')
+  const [ 
+    currentStudy, 
+    setCurrentStudy 
+  ] = useState<STUDY_SIMPLE__DYNAMODB | null>(null)
+  const [ selectedStudyId, setSelectedStudyId ] = useState<string>('')
 
 
   function handleSelectCurrentStudy(e: any): void {
@@ -44,6 +43,9 @@ export default function _() {
     )
 
     if (selectedStudy) {
+      const key = 'currentStudy'
+      const value = JSON.stringify(selectedStudy)
+      localStorage.setItem(key, value)
       setCurrentStudy(selectedStudy)
     }
   }
@@ -55,8 +57,7 @@ export default function _() {
     )
 
     setStudiesForAssessment(filteredStudies)
-  }, [userStudies])
-
+  }, [ userStudies ])
 
 
 

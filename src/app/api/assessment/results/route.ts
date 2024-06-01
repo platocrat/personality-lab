@@ -42,6 +42,7 @@ export async function POST(
     }
 
     const study = userResults.study as STUDY_SIMPLE__DYNAMODB
+
     const ownerEmail = study.ownerEmail
     const createdAtTimestamp = study.createdAtTimestamp
 

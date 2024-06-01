@@ -1,18 +1,16 @@
 'use client'
 
 // Externals
-import { useEffect, useState } from 'react'
+import { useLayoutEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 // Locals
 import Header from '@/components/Header'
 import Spinner from '@/components/Suspense/Spinner'
 import UserDemographicsLayout from '@/components/Layouts/UserDemographics'
 import BessiSkillScoresLayout from '@/components/Layouts/BessiSkillScoresLayout'
-import CurrentParticipantStudyLayout from '@/components/Layouts/CurrentParticipantStudyLayout'
 // Contexts
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
-import { CurrentParticipantStudyContext } from '@/contexts/CurrentParticipantStudyContext'
 // Types
 import { 
   ACCOUNT__DYNAMODB, 
@@ -135,8 +133,6 @@ export default function RootLayout({
    *      authenticated and hold a session cookie.
    */
   async function pageProtection(): Promise<void> {
-    setIsFetchingUser(true)
-
     const { user, error } = await getUser()
 
 
@@ -179,7 +175,12 @@ export default function RootLayout({
 
 
   // ------------------------------ `useEffect`s -------------------------------
-  useEffect(() => {
+  useLayoutEffect(() => {
+    console.log(
+      `localStorage.getItem('currentStudy'): `, 
+      localStorage.getItem('currentStudy')
+    )
+
     const requests = [
       pageProtection(),
     ]
@@ -227,14 +228,12 @@ export default function RootLayout({
                   setIsAuthenticated,
                 }}
               >
-                <CurrentParticipantStudyLayout>
-                  <UserDemographicsLayout>
-                    <BessiSkillScoresLayout>
-                      { isAuthenticated && <Header/> }
-                      { children }
-                    </BessiSkillScoresLayout>
-                  </UserDemographicsLayout>
-                </CurrentParticipantStudyLayout>
+                <UserDemographicsLayout>
+                  <BessiSkillScoresLayout>
+                    { isAuthenticated && <Header/> }
+                    { children }
+                  </BessiSkillScoresLayout>
+                </UserDemographicsLayout>
               </AuthenticatedUserContext.Provider>
             </body>
           </html>

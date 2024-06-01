@@ -82,22 +82,35 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
   const SUBTITLE_TEXT = `Based on the studies you have registered for, listed below are the assessments that you may take.`
 
 
+  function resetCurrentStudy(): void {
+    const key = 'currentStudy'
+    localStorage.removeItem(key)
+  }
+
+
+  /**
+   * @dev Used for debugging cookies
+   */
+  async function _getUsernameAndEmailFromCookie() {
+    const cookieValues = await getUsernameAndEmailFromCookie()
+
+    console.log(
+      `[${new Date().toLocaleString()} \ --filepath="src/sections/assessments/bessi/assessment/index.tsx"]:`,
+      `client-side decrypted email and username jwt-cookie ensure. Double-check that these values aren't being intercepted by hackers to change any of its values.`,
+      cookieValues
+    )
+  }
+
+
   
   useLayoutEffect(() => {
-    getUsernameAndEmailFromCookie().then((
-      response: { username: string, email: string }
-    ) => {
-      const cookieValues = {
-        username: response.username, 
-        email: response.email,
-      }
+    resetCurrentStudy()
 
-      console.log(
-        `[${new Date().toLocaleString()} \ --filepath="src/sections/assessments/bessi/assessment/index.tsx"]:`,
-        `client-side decrypted email and username jwt-cookie ensure. Double-check that these values aren't being intercepted by hackers to change any of its values.`,
-        cookieValues
-      )
-    })
+    const requests = [
+      _getUsernameAndEmailFromCookie,
+    ]
+
+    Promise.all(requests)
   }, [])
 
 

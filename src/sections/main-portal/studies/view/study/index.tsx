@@ -17,9 +17,6 @@ import ParticipantsTable from './participants-table'
 import LeftHandNav from '@/components/Nav/LeftHand'
 import Spinner from '@/components/Suspense/Spinner'
 // Contexts
-import { 
-  CurrentParticipantStudyContext 
-} from '@/contexts/CurrentParticipantStudyContext'
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // Hooks
 import useClickOutside from '@/hooks/useClickOutside'
@@ -29,6 +26,8 @@ import {
   STUDY__DYNAMODB,
   RESULTS__DYNAMODB,
   PARTICIPANT__DYNAMODB,
+  AVAILABLE_ASSESSMENTS,
+  BessiUserResults__DynamoDB,
 } from '@/utils'
 // CSS
 import appStyles from '@/app/page.module.css'
@@ -55,7 +54,6 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
     email,
     username,
   } = useContext(AuthenticatedUserContext)
-  const { currentStudy } = useContext(CurrentParticipantStudyContext)
   // Refs
   const viewResultsModalRef = useRef<any>(null)
   const downloadDataModalRef = useRef<any>(null)
@@ -195,20 +193,34 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
 
   // Utility function to convert JSON to CSV
   async function getParticipantsResults(
-    participants: ParticipantType[]
-  ): RESULTS__DYNAMODB[] {
-    const headers = [
-      'Email',
-      'Username',
-      'Studies',
-      'Is Nobel Laureate'
-    ]
+    participants: PARTICIPANT__DYNAMODB[]
+  ) {
+    const results__DynamoDB: RESULTS__DYNAMODB[] = participants[0].studies[0].results
+      ? participants[0].studies[0].results[0].results as RESULTS__DYNAMODB[]
+      : []
 
-    const rows = participants.map(participant => {
-      const studies = participant.studies.map(study => `${study.name} (${study.assessmentId})`).join('; ')
+    const studyAssessmentName = AVAILABLE_ASSESSMENTS.find((
+      availableAssessment: { id: string, name: string }
+    ): boolean => availableAssessment.id === study?.details.assessmentId
+    )?.name
+
+    
+    let results: any | BessiUserResults__DynamoDB
+
+    if (studyAssessmentName === 'BESSI') {
+      results = results__DynamoDB[0].results as BessiUserResults__DynamoDB
+    }
+
+    
+    const headers = Object.keys(results)
+
+    const rows = participants.map((participant: PARTICIPANT__DYNAMODB) => {
+      const studies = participant.studies.map(
+        study => `${study.name} (${study.assessmentId})`
+      ).join('; ')
+
       return [
-        participant.email,
-        participant.username,
+        ...results,
         studies,
       ]
     })
