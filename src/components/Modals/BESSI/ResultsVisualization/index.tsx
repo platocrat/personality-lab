@@ -80,73 +80,75 @@ const ResultsVisualizationModal: FC<ResultsVisualizationModalProps> = ({
     <>
       { state.isModalVisible && (
         <>
-          <div 
-            ref={ refs.modalRef }
-            className={ `${ modalStyle.modal } ${ modalStyle.background }` }
-          >
-            <h2 
-              style={{
-                ...definitelyCenteredStyle,
-                margin: '0px 0px 24px 0px',
-              }}
+          <div style={ definitelyCenteredStyle }>
+            <div 
+              ref={ refs.modalRef }
+              className={ `${ modalStyle.modal } ${ modalStyle.background }` }
             >
-                { title }
-            </h2>
-
-            <div ref={ refs.screenshot2Ref }>
-              <Image
-                width={ 200 }
-                height={ 200 }
-                src={ screenshotUrl }
-                alt='Screenshot of Visualization'
-                style={ { width: '100%',  height: 'auto'  } } 
-              />
-
-              {/**
-                * @todo Add user metadata of strengths and things to highlight 
-                * to them to make the image more engaging to others who may view
-                * it.  
-                */}
-              {/* User Metadata section */}
-              <div
+              <h2 
                 style={{
                   ...definitelyCenteredStyle,
-                  flexDirection: 'column'
+                  margin: '0px 0px 24px 0px',
                 }}
               >
-                {/* <div 
+                  { title }
+              </h2>
+
+              <div ref={ refs.screenshot2Ref }>
+                <Image
+                  width={ 200 }
+                  height={ 200 }
+                  src={ screenshotUrl }
+                  alt='Screenshot of Visualization'
+                  style={ { width: '100%',  height: 'auto'  } } 
+                />
+
+                {/**
+                  * @todo Add user metadata of strengths and things to highlight 
+                  * to them to make the image more engaging to others who may view
+                  * it.  
+                  */}
+                {/* User Metadata section */}
+                <div
                   style={{
-                    margin: '12px 0px 24px 0px'
+                    ...definitelyCenteredStyle,
+                    flexDirection: 'column'
                   }}
                 >
-                  <h3>{ `User Metadata` }</h3>
-                  <p>{ `Name: ${'name'}` }</p>
-                  <p>{ `Strengths: ${'strengths'}` }</p>
-                </div> */}
+                  {/* <div 
+                    style={{
+                      margin: '12px 0px 24px 0px'
+                    }}
+                  >
+                    <h3>{ `User Metadata` }</h3>
+                    <p>{ `Name: ${'name'}` }</p>
+                    <p>{ `Strengths: ${'strengths'}` }</p>
+                  </div> */}
+                </div>
               </div>
-            </div>
 
-            <div style={definitelyCenteredStyle}>
-              <button
-                className={ appStyles.button }
-                onClick={ handleShareScreenshot }
-                style={ {
-                  width: '60px',
-                  padding: '6px 0px 0px 0px',
-                  backgroundColor: state.isCopied ? 'rgb(18, 215, 67)' : ''
-                } }
-              >
-                <Image
-                  width={ 18 }
-                  height={ 18 }
-                  alt='Share icon to share data visualization'
-                  src={
-                    state.isCopied
-                      ? `${imgPaths().svg}white-checkmark.svg`
-                      : `${imgPaths().svg}white-share.svg`
-                  }
-                />
-              </button>
+              <div style={definitelyCenteredStyle}>
+                <button
+                  className={ appStyles.button }
+                  onClick={ handleShareScreenshot }
+                  style={ {
+                    width: '60px',
+                    padding: '6px 0px 0px 0px',
+                    backgroundColor: state.isCopied ? 'rgb(18, 215, 67)' : ''
+                  } }
+                >
+                  <Image
+                    width={ 18 }
+                    height={ 18 }
+                    alt='Share icon to share data visualization'
+                    src={
+                      state.isCopied
+                        ? `${imgPaths().svg}white-checkmark.svg`
+                        : `${imgPaths().svg}white-share.svg`
+                    }
+                  />
+                </button>
+              </div>
             </div>
           </div>
         </>

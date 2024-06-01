@@ -233,19 +233,26 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
 
   return (
     <>
-      <h4 
-        style={{ 
+      <div
+        style={ {
           ...definitelyCenteredStyle,
-          margin: '12px 0px 4px 0px',
-        }}
+          flexDirection: 'column',
+        } }
       >
-        { (data as TargetDataStructure).name }
-      </h4>
-      <div 
-        ref={ d3Container } 
-        className={ styles.svgContainer }
-        style={{ ...definitelyCenteredStyle, maxWidth: '700px' }}
-      />
+        <h4 
+          style={{ 
+            ...definitelyCenteredStyle,
+            margin: '12px 0px 4px 0px',
+          }}
+        >
+          { (data as TargetDataStructure).name }
+        </h4>
+        <div 
+          ref={ d3Container } 
+          className={ styles.svgContainer }
+          style={{ ...definitelyCenteredStyle, maxWidth: '700px' }}
+        />
+      </div>
     </>
   )
 }

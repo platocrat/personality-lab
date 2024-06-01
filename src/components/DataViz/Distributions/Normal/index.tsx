@@ -9,6 +9,7 @@ import {
 } from '@/utils'
 // CSS
 import styles from '../..//DataViz.module.css'
+import { definitelyCenteredStyle } from '@/theme/styles'
 import '@/components/DataViz/Distributions/Normal/NormalDistribution.css'
 
 
@@ -316,10 +317,17 @@ const NormalDistributionChart: FC<NormalDistributionChartProps> = ({
 
 
   return (
-    <div 
-      ref={ d3Container }
-      className={ styles.svgContainer }
-    />
+    <div
+      style={ {
+        ...definitelyCenteredStyle,
+        flexDirection: 'column',
+      } }
+    >
+      <div 
+        ref={ d3Container }
+        className={ styles.svgContainer }
+      />
+    </div>
   )
 }
 

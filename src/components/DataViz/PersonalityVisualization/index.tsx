@@ -52,15 +52,15 @@ const PersonalityVisualization = ({
     const domainNames = Object.keys(data.domainScores)
     const facetNames = domainToFacetMapping[activeDomain]
 
-    const width = 430
-    const height = 450
+    const width = 460
+    const height = 480
     const outerRadius = 170
     const innerRadius = 120
 
     const svg = d3.select(d3Container.current)
       .append('svg')
       .attr('preserveAspectRatio', 'xMinYMin meet')
-      .attr('viewBox', '-210 -220 420 440')
+      .attr('viewBox', '-225 -220 450 470')
       .classed(dataVizStyles.svgContent, true)
 
     // Define the drop-shadow filter
@@ -248,15 +248,22 @@ const PersonalityVisualization = ({
 
   return (
     <>
-      <Title isExample={ isExample } title={ title } />
-      <div 
-        id='tooltip' 
-        className={ styles.tooltip }
-      />
-      <div 
-        ref={ d3Container } 
-        className={ dataVizStyles.svgContainer }
-      />
+      <div
+        style={ {
+          ...definitelyCenteredStyle,
+          flexDirection: 'column',
+        } }
+      >
+        <Title isExample={ isExample } title={ title } />
+        <div 
+          id='tooltip' 
+          className={ styles.tooltip }
+        />
+        <div 
+          ref={ d3Container } 
+          className={ dataVizStyles.svgContainer }
+        />
+      </div>
     </>
   )
 }

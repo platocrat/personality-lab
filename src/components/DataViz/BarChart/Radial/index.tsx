@@ -7,6 +7,7 @@ import Title from '@/components/DataViz/Title'
 import { TargetDataStructure } from '@/utils'
 // CSS
 import dataVizStyles from '../../DataViz.module.css'
+import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/components/DataViz/BarChart/Radial/Radial.module.css'
 
 
@@ -30,15 +31,15 @@ const RadialBarChart: FC<RadialBarChartProps> = ({
     d3.select(d3Container.current).selectAll('svg').remove()
 
     const margin = { top: 30, right: 50, bottom: 20, left: 10 }
-    const width = 450
-    const height = 400
+    const width = 470
+    const height = 420
     const innerRadius = 100
     const outerRadius = Math.min(width, height) / 2.2
 
     const svg = d3.select(d3Container.current)
       .append('svg')
       .attr('preserveAspectRatio', 'xMinYMin meet')
-      .attr('viewBox', '-223 -250 450 500')
+      .attr('viewBox', '-213 -230 420 470')
       .classed(dataVizStyles.svgContent, true)
 
     const x = d3.scaleBand()
@@ -108,10 +109,10 @@ const RadialBarChart: FC<RadialBarChartProps> = ({
       .attr('y', -37)
       .html(
         `
-        <div style="text-align: center; font-size: 15px;">
-          <p>
+        <div style="text-align: center; font-size: 15.5px;">
+          <div>
             ${ data.name }
-          </p>
+          </div>
         </div>
         `
       )
@@ -119,7 +120,7 @@ const RadialBarChart: FC<RadialBarChartProps> = ({
     const domainScore: any = svg.append('text')
       .attr('text-anchor', 'middle')
       .attr('alignment-baseline', 'middle')
-      .style('font-size', '22px')
+      .style('font-size', '28px')
       .text(data.domainScore)
       .attr('fill', z((data as TargetDataStructure).domainScore))
       .style('filter', 'url(#drop-shadow)') // Apply drop shadow filter

@@ -232,25 +232,32 @@ const TreeMap = ({
 
   return (
     <>
-      <Title isExample={ isExample } title={ title } />
-      <div 
-        ref={ d3Container } 
-        style={ definitelyCenteredStyle } 
-        className={ styles.svgContainer }
-      />
       <div
-        id='tooltip'
         style={ {
-          display: 'none',
-          padding: '10px',
-          background: 'white',
-          borderRadius: '5px',
-          position: 'absolute',
-          pointerEvents: 'none',
-          border: '1px solid #ccc',
-          boxShadow: '0px 0px 10px rgba(0,0,0,0.5)',
+          ...definitelyCenteredStyle,
+          flexDirection: 'column',
         } }
       >
+        <Title isExample={ isExample } title={ title } />
+        <div 
+          ref={ d3Container } 
+          style={ definitelyCenteredStyle } 
+          className={ styles.svgContainer }
+        />
+        <div
+          id='tooltip'
+          style={ {
+            display: 'none',
+            padding: '10px',
+            background: 'white',
+            borderRadius: '5px',
+            position: 'absolute',
+            pointerEvents: 'none',
+            border: '1px solid #ccc',
+            boxShadow: '0px 0px 10px rgba(0,0,0,0.5)',
+          } }
+        >
+        </div>
       </div>
     </>
   )

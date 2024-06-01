@@ -14,7 +14,7 @@ const StellarPlot = ({
   isExample,
   data
 }) => {
-  const d3Container = useRef<HTMLDivElement | null>(null)
+  const d3Container = useRef<any>(null)
 
   const title = `BESSI Stellar Plot`
 
@@ -186,12 +186,19 @@ const StellarPlot = ({
 
   return (
     <>
-      <Title isExample={ isExample } title={ title } />
       <div 
-        ref={ d3Container } 
-        style={ definitelyCenteredStyle } 
-        className={ styles.svgContainer }
-      />
+        style={{ 
+          ...definitelyCenteredStyle,
+          flexDirection: 'column',
+        }}
+      >
+        <Title isExample={ isExample } title={ title } />
+        <div 
+          ref={ d3Container } 
+          style={ definitelyCenteredStyle } 
+          className={ styles.svgContainer }
+        />
+      </div>
     </>
   )
 }

@@ -182,30 +182,37 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
 
         return (
           <>
-            <Title isExample={ isExample } title={ radialBarChartTitle } />
-            <select
-              value={ selectedRadialBarChart }
-              style={{ 
-                padding: '4px 8px 4px 4px',
-                margin: '4px 0px 4px 0px',
-              }}
-              onChange={ 
-                (e: any) => handleOnChangeRadialBarChart(e) 
-              }
+            <div
+              style={ {
+                ...definitelyCenteredStyle,
+                flexDirection: 'column',
+              } }
             >
-              { _allData.map((data: TargetDataStructure, i: number) => (
-                <>
-                  <option key={ i } value={ i }>
-                    { data.name }
-                  </option>
-                </>
-              )) }
-            </select>
+              <Title isExample={ isExample } title={ radialBarChartTitle } />
+              <select
+                value={ selectedRadialBarChart }
+                style={{ 
+                  padding: '4px 8px 4px 4px',
+                  margin: '4px 0px 4px 0px',
+                }}
+                onChange={ 
+                  (e: any) => handleOnChangeRadialBarChart(e) 
+                }
+              >
+                { _allData.map((data: TargetDataStructure, i: number) => (
+                  <>
+                    <option key={ i } value={ i }>
+                      { data.name }
+                    </option>
+                  </>
+                )) }
+              </select>
 
-            <RadialBarChart
-              data={ _allData[selectedRadialBarChart] } 
-              selectedRadialBarChart={ selectedRadialBarChart }
-            />
+              <RadialBarChart
+                data={ _allData[selectedRadialBarChart] } 
+                selectedRadialBarChart={ selectedRadialBarChart }
+              />
+            </div>
           </>
         )
       case 3:
@@ -356,11 +363,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   return (
     <>
       <div 
-        style={ { 
-          marginTop: '24px',
-          ...definitelyCenteredStyle,
-          flexDirection: 'column',
-        } }
+        style={{ marginTop: '24px' }}
       >
         <TitleDropdown
           visualizations={ visualizations }
@@ -372,16 +375,16 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         { isExample
           ? renderVisualization(isExample, currentVisualization)
           : (
-            <Fragment>
+            <>
               <ShareResults
-                state={{
+                state={ {
                   isCopied: isCopied,
                   isRating: isRating,
-                }}
-                onClick={{
+                } }
+                onClick={ {
                   handleTakeScreenshot,
                   handleRateVisualization,
-                }}
+                } }
               />
 
               <UserVisualization
@@ -392,7 +395,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
                 currentVisualization={ currentVisualization }
                 rateUserResults={ rateUserResults as boolean }
               />
-            </Fragment>
+            </>
           )
         }
 

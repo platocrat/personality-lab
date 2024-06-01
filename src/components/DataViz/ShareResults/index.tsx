@@ -39,7 +39,6 @@ const ShareResults: FC<ShareResultsProps> = ({
           ...definitelyCenteredStyle,
           gap: '12px',
           marginBottom: '8px',
-          justifyContent: 'space-between',
         } }
       >
         
