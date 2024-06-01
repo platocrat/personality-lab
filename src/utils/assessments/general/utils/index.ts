@@ -11,8 +11,9 @@ import {
 
 
 export async function getAccessToken(
-  assessmentName: string,
-  userResultsId: string
+  assessmentId: string,
+  userResultsId: string,
+  studyId: string,
 ) {
   if (!userResultsId) {
     /**
@@ -30,17 +31,17 @@ export async function getAccessToken(
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ assessmentName, userResultsId }),
+        body: JSON.stringify({ assessmentId, userResultsId, studyId }),
       })
 
       const json = await response.json()
 
       if (response.status === 200) {
-        const accessToken = json.data
+        const accessToken = json.accessToken
         return accessToken
       } else {
         const error = `Error posting ${ 
-          assessmentName.toUpperCase() 
+          assessmentId.toUpperCase() 
         } results to DynamoDB: `
         /**
          * @todo Handle error UI here

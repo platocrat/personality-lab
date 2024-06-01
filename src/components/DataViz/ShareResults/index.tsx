@@ -8,6 +8,7 @@ import { imgPaths } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+import BessiShareResultsButton from '@/components/Buttons/BESSI/ShareResultsButton'
 
 
 
@@ -70,6 +71,8 @@ const ShareResults: FC<ShareResultsProps> = ({
               }
             />
           </button>
+
+          <BessiShareResultsButton />
         </div>
       </div>
     </>

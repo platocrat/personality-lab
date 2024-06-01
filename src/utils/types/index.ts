@@ -38,16 +38,16 @@ type STUDY_DETAILS__DYNAMODB = {
 
 
 export type STUDY__DYNAMODB = {
+  ownerEmail: string // Partition/Primary Key
+  createdAtTimestamp: number // Sort Key
   id: string
   name: string
   isActive: boolean
-  ownerEmail: string
   adminEmails?: string[]
   details: STUDY_DETAILS__DYNAMODB
   participants?: PARTICIPANT__DYNAMODB[] // `undefined` for newly created study
   results?: RESULTS__DYNAMODB[] // `undefined` for newly created study
   updatedAtTimestamp: number
-  createdAtTimestamp: number
 }
 
 
@@ -61,13 +61,13 @@ export type HASHED_PASSWORD__DYNAMODB = {
  * @dev An account can take an assessment without being a participant to a study
  */
 export type ACCOUNT__DYNAMODB = {
-  email: string
+  email: string // Partition/Primary Key
+  createdAtTimestamp: number // Sort Key
   username: string
   isAdmin: boolean
   password: HASHED_PASSWORD__DYNAMODB
   participant?: PARTICIPANT__DYNAMODB // `undefined` for a non-participant account
   updatedAtTimestamp?: number // `undefined` for a non-participant account
-  createdAtTimestamp: number
 }
 
 
@@ -90,14 +90,22 @@ export type RESULTS__DYNAMODB = {
 }
 
 
+export type USER_RESULTS_ACCESS_TOKENS__DYNAMODB = {
+  accessToken: string // Partition/Primary Key
+  id: string // Sort Key -- A.K.A. user results ID
+  studyId: string
+  assessmentId: string
+}
+
+
 export type RATINGS__DYNAMODB = {
-  id: string
+  id: string // Partition/Primary Key
+  timestamp: number // Sort Key
   email: string
   username: string
   study: STUDY_SIMPLE__DYNAMODB
   rating: number
   vizName: string
-  timestamp: number
 }
 
 

@@ -14,6 +14,7 @@ import {
   fetchAwsParameter,
   AWS_PARAMETER_NAMES,
   DYNAMODB_TABLE_NAMES,
+  USER_RESULTS_ACCESS_TOKENS__DYNAMODB,
 } from '@/utils'
 
 
@@ -23,7 +24,11 @@ export async function PUT(
   res: NextResponse, 
 ) {
   if (req.method === 'PUT') {
-    const { assessmentName, userResultsId } = await req.json()
+    const { 
+      assessmentId, 
+      userResultsId, 
+      studyId, 
+    } = await req.json()
 
     const JWT_SECRET = await fetchAwsParameter(AWS_PARAMETER_NAMES.JWT_SECRET)
 
@@ -41,17 +46,20 @@ export async function PUT(
         { expiresIn: MAX_AGE.ACCESS_TOKEN }
       )
 
-      // Write to table of `id` and `accessToken` in DynamoDB
-      const putCommandInput: PutCommandInput = {
-        TableName,
-        Item: {
-          id: userResultsId,
-          assessmentName,
-          accessToken,
-        }
+      const Item: USER_RESULTS_ACCESS_TOKENS__DYNAMODB = {
+        accessToken, // Partition/Primary Key
+        id: userResultsId, // Sort Key
+        studyId,
+        assessmentId,
       }
 
-      const command = new PutCommand(putCommandInput)
+      // Write to table of `id` and `accessToken` in DynamoDB
+      const input: PutCommandInput = {
+        TableName,
+        Item,
+      }
+
+      const command = new PutCommand(input)
 
 
       try {
@@ -61,10 +69,11 @@ export async function PUT(
           DYNAMODB_TABLE_NAMES.userResultsAccessTokens
         } table`
 
+
         return NextResponse.json(
           {
-            message: message,
-            data: accessToken
+            message,
+            accessToken
           },
           {
             status: 200,
@@ -114,7 +123,7 @@ export async function GET(
   res: NextResponse,
 ) {
   if (req.method === 'GET') {
-    const { assessmentName, id } = await req.json()
+    const { assessmentId, id } = await req.json()
 
     const TableName = DYNAMODB_TABLE_NAMES.userResultsAccessTokens
     const Key = { id: id }
@@ -146,10 +155,10 @@ export async function GET(
          *          retrieved.
          *       2. Decrypt the access token.
          */
-        const accessToken = response.Item.accessToken
+        const accessToken = response.Item.accessToken as string
 
         return NextResponse.json(
-          { data: accessToken },
+          { accessToken },
           {
             status: 200,
             headers: {

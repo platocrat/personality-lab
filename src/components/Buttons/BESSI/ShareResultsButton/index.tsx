@@ -8,9 +8,7 @@ import { imgPaths } from '@/utils'
 // Contexts
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // Types
-import { 
-  BessiSkillScoresContextType 
-} from '../../../../sections/assessments/bessi/assessment/results/bessi-results-visualization'
+import { BessiSkillScoresContextType } from '@/contexts/types'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -28,14 +26,17 @@ const BessiShareResultsButton = ({ }) => {
 
   
   /**
-   * @todo Encrypt the ID and access token
+   * @todo Encrypt the ID, access token, and study ID
    */
-  const id = useMemo(() => {
+  const id = useMemo((): string | undefined => {
     return bessiSkillScores?.id
-  }, [bessiSkillScores])
-  const accessToken = useMemo(() => {
+  }, [ bessiSkillScores ])
+  const accessToken = useMemo((): string | undefined => {
     return bessiSkillScores?.accessToken
-  }, [bessiSkillScores])
+  }, [ bessiSkillScores ])
+  const studyId = useMemo((): string | undefined => {
+    return bessiSkillScores?.studyId
+  }, [ bessiSkillScores ])
 
 
   /**
@@ -83,18 +84,23 @@ const BessiShareResultsButton = ({ }) => {
             backgroundColor: isCopied ? 'rgb(18, 215, 67)' : ''
           }}
         >
-          <Image
-            width={ 18 }
-            height={ 18 }
-            alt='Share icon to share data visualization'
-            className={ styles.img }
-            onClick={ handleShareResults }
-            src={ 
-              isCopied 
-                ? `${ imgPaths().svg }white-checkmark.svg` 
-                : `${ imgPaths().svg }white-share.svg`
-            }
-          />
+          <div style={ definitelyCenteredStyle }>
+            <p style={{ marginRight: '8px' }}>
+              { `Share Results` }
+            </p>
+            <Image
+              width={ 18 }
+              height={ 18 }
+              alt='Share icon to share data visualization'
+              className={ styles.img }
+              onClick={ handleShareResults }
+              src={ 
+                isCopied 
+                  ? `${ imgPaths().svg }white-checkmark.svg` 
+                  : `${ imgPaths().svg }white-share.svg`
+              }
+            />
+          </div>
         </button>
       </div>
     </>

@@ -10,10 +10,12 @@ import {
 // Locals
 import {
   ddbDocClient,
+  STUDY__DYNAMODB,
   jwtErrorMessages,
   RESULTS__DYNAMODB,
   DYNAMODB_TABLE_NAMES,
   BessiUserResults__DynamoDB,
+  USER_RESULTS_ACCESS_TOKENS__DYNAMODB,
 } from '@/utils'
 
 
@@ -33,10 +35,9 @@ export async function verfiyAccessTokenAndFetchUserResults(
 ) {
   try {
     // 3. If verification of `accessToken` using JWT secret is successful,
-    //    create DynamoDB `GetCommand` to fetch `id` from
-    //    `DYNAMODB_TABLE_NAMES.userResultsAccessTokens`
-    //    which will be used later to fetch the `userResults` from the
-    //    `DYNAMODB_TABLE_NAMES.results` table.
+    //    create DynamoDB `GetCommand` to fetch the `id` from the
+    //    `user-results-access-tokens` table. The `id` will be used later to
+    //    fetch the user's `results` from the `studies` table.
     verify(accessToken, JWT_SECRET)
 
     const TableName = DYNAMODB_TABLE_NAMES.userResultsAccessTokens
@@ -45,7 +46,9 @@ export async function verfiyAccessTokenAndFetchUserResults(
     const input: GetCommandInput = { TableName, Key }
     const command = new GetCommand(input)
 
-    // 4. Try to fetch `userResults` from DynamoDB table
+    // 4. Send the `GetCommand` to fetch the `id` from the 
+    //    `user-results-access-tokens` table, then try to fetch user's `results`
+    //    from the `studies` table
     return await fetchUserResultsIdAndUserResults(command)
   } catch (error: any) {
     if (error.message === jwtErrorMessages.expiredJWT) {
@@ -82,7 +85,9 @@ export async function verfiyAccessTokenAndFetchUserResults(
 
 
 /**
- * @dev Tries to fetch `userResults` object from DynamoDB.
+ * @dev Uses to get the `results` object from fetching a study item from the 
+ *      `studies` table, using the `id` of the study that is fetched from the
+ *      `user-results-access-tokens` table.
  * @param command 
  * @returns 
 */
@@ -92,8 +97,9 @@ export async function fetchUserResultsIdAndUserResults(
   try {
     const response = await ddbDocClient.send(command)
 
-    // 5. Throw an error if the results are not in the table
-    if (!response.Item) {
+    // 5. Throw an error if the access token is not in the 
+    //    `user-results-access-tokens` table.
+    if (!(response.Item as USER_RESULTS_ACCESS_TOKENS__DYNAMODB)) {
       const message = `No access token found in ${
         DYNAMODB_TABLE_NAMES.userResultsAccessTokens
       } table`
@@ -108,11 +114,14 @@ export async function fetchUserResultsIdAndUserResults(
         },
       )
     } else {
-      // 6. Return the `id` if the access token exists.
-      const userResultsId = response.Item.id
+      // 6. Get the user's results `id` and `studyId` if the access token exists
+      const item = response.Item as USER_RESULTS_ACCESS_TOKENS__DYNAMODB
+      
+      const studyId = item.studyId
+      const userResultsId = item.id
 
       // 7. Use `userResultsId` to fetch `userResults`
-      return fetchUserResults(userResultsId)
+      return fetchUserResults(studyId, userResultsId)
     }
   } catch (error: any) {
     const errorMessage = `Failed fetching 'id' using 'accessToken'`
@@ -134,19 +143,20 @@ export async function fetchUserResultsIdAndUserResults(
 
 
 /**
- * @dev Returns `userResults` if they are in the DynamoDB table for the given 
- *      `id`.
+ * @dev Returns `userResults` if they are in `studies` DynamoDB table for a 
+ *      given `id`.
  * @param userResultsId
  * @returns 
  */
 export async function fetchUserResults(
-  userResultsId: string
+  studyId: string,
+  userResultsId: string,
 ) {
-  // 8. Build `QueryCommand` to fetch the `userResults` from the `BESSI-results` 
-  //    table
-  const TableName = DYNAMODB_TABLE_NAMES.results
+  // 8. Build `QueryCommand` to fetch the user's `results` from the `studies` 
+  //    table.
+  const TableName = DYNAMODB_TABLE_NAMES.studies
   const KeyConditionExpression = 'id = :idValue'
-  const ExpressionAttributeValues = { ':idValue': userResultsId }
+  const ExpressionAttributeValues = { ':idValue': studyId }
 
   const input: QueryCommandInput = {
     TableName,
@@ -161,22 +171,38 @@ export async function fetchUserResults(
     const response = await ddbDocClient.send(command)
 
 
-    if (response.Items && response.Items.length > 0) {
-      if ((response.Items[0] as RESULTS__DYNAMODB)) {
-        const userResults = response.Items[0] as RESULTS__DYNAMODB
+    if (response.Items && response.Items.length > 0) { 
+      if ((response.Items[0] as STUDY__DYNAMODB)) {
+        const study = response.Items[0] as STUDY__DYNAMODB
+        const results = study.results as RESULTS__DYNAMODB[] | undefined
 
-        return NextResponse.json(
-          {
-            message: 'id exists',
-            userResults,
-          },
-          {
-            status: 200,
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          },
-        )
+        const userResults = results?.find(result => result.id === userResultsId)
+
+
+        if (userResults) {
+          return NextResponse.json(
+            {
+              message: 'id exists',
+              userResults,
+            },
+            {
+              status: 200,
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            },
+          )
+        } else {
+          return NextResponse.json(
+            { message: `User results with ID '${userResultsId}' was not found` },
+            {
+              status: 200,
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            },
+          )
+        }
       } else {
         /**
          * @dev This if/else statement is necessary so that the type signature 
@@ -189,7 +215,7 @@ export async function fetchUserResults(
          * Promise<NextResponse<{ message: string }> | NextResponse<{ error: any }> | undefined> 
          */
         return NextResponse.json(
-          { message: 'User results `id` does not exist' },
+          { message: `Study with ID '${studyId}' was not found` },
           {
             status: 200,
             headers: {
@@ -200,7 +226,7 @@ export async function fetchUserResults(
       }
     } else {
       return NextResponse.json(
-        { message: 'User results `id` does not exist' },
+        { message: `Study with ID '${studyId}' was not found` },
         {
           status: 200,
           headers: {
@@ -210,7 +236,12 @@ export async function fetchUserResults(
       )
     }
   } catch (error: any) {
-    const errorMessage = `Failed fetching 'userResults' from 'ID'`
+    const errorMessage = `Failed getting study entry with ID '${
+      studyId
+    }' from the '${
+      TableName
+    }' table`
+
     console.error(`${errorMessage}: `, error)
 
     // Something went wrong

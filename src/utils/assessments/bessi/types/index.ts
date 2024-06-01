@@ -34,6 +34,7 @@ export type UserScoresType = {
 
 export type BessiSkillScoresType = {
   id: string
+  studyId: string
   accessToken: string
   facetScores: FacetFactorType,
   domainScores: SkillDomainFactorType

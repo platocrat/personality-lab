@@ -12,14 +12,14 @@ import {
 // Locals
 import Spinner from '@/components/Suspense/Spinner'
 // Sections
-import BessiResultsVisualization, {
-  BessiSkillScoresContextType
-} from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization'
 import BessiResultsExplanation from '@/sections/assessments/bessi/assessment/results/explanation'
 import BessiWantToLearnMore from '@/sections/assessments/bessi/assessment/results/want-to-learn-more'
+import BessiResultsVisualization from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization'
 import BessiResultsSkillsScoresAndDefinitions from '@/sections/assessments/bessi/assessment/results/skills-scores-and-definitions'
 // Contexts
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
+// Context types
+import { BessiSkillScoresContextType } from '@/contexts/types'
 // Utils
 import {
   RESULTS__DYNAMODB,
@@ -40,13 +40,13 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 
 type BessiUserSharedResultsType = {
   params: {
-    id_accessToken: string
+    id_accessToken_studyId: string
   }
 }
 
 
 const rateUserResults = true
-const ASSESSMENT_NAME = 'bessi'
+const ASSESSMENT_ID = 'bessi'
 
 
 
@@ -55,7 +55,7 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
   params 
 }) => {
   // Param
-  const { id_accessToken } = params
+  const { id_accessToken_studyId } = params
   // Contexts
   const { 
     bessiSkillScores,
@@ -68,12 +68,17 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
   const [ isAccessTokenExpired, setIsAccessTokenExpired ] = useState(false)
   
 
-  // Extract id and access token from the concatenated string
-  const targetIndex = id_accessToken.indexOf('-')
-  const id = id_accessToken.slice(0, targetIndex)
-  const accessToken = id_accessToken.slice(
-    targetIndex + 1, 
-    id_accessToken.length
+  // Extract id, access token, studyId and from the concatenated string
+  const targetIndex1 = (id_accessToken_studyId as string).indexOf('-', 1)
+  const targetIndex2 = (id_accessToken_studyId as string).indexOf('-', 2)
+  const id = id_accessToken_studyId.slice(0, targetIndex1)
+  const accessToken = id_accessToken_studyId.slice(
+    targetIndex1 + 1, 
+    targetIndex2
+  )
+  const studyId = id_accessToken_studyId.slice(
+    targetIndex2 + 1, 
+    id_accessToken_studyId.length
   )
   
   const errorMessage =  isAccessTokenExpired 
@@ -92,10 +97,15 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
     try {
       const apiEndpoint = `/api/assessment/share-results?id=${
         id
-      }?accessToken=${ accessToken }`
+      }?accessToken=${ 
+        accessToken 
+      }?studyId=${
+        studyId
+      }`
       const response = await fetch(apiEndpoint, { method: 'GET' })
 
       const json = await response.json()
+
 
       if (response.status === 200) {
         const userResults: RESULTS__DYNAMODB = json.userResults
@@ -107,6 +117,7 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
         const bessiSkillScores_: BessiSkillScoresType = {
           id,
           accessToken,
+          studyId,
           facetScores,
           domainScores,
         }
@@ -115,11 +126,17 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
       } else if (json.error === 'Access token expired') {
         setIsAccessTokenExpired(true)
       } else {
-        const error = `Error posting ${ ASSESSMENT_NAME } results to DynamoDB: `
+        const error = `Could not get results from the provided id: '${
+          id
+        }', access token: '${
+          accessToken
+        }', and studyId: '${ 
+          studyId 
+        }': `
         /**
          * @todo Handle error UI here
-        */
-       throw new Error(error, json.error)
+         */
+        throw new Error(error, json.error)
       }
     } catch (error: any) {
       /**
@@ -133,14 +150,18 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
   
   // ----------------------------- `useLayoutEffect`s --------------------------
   useLayoutEffect(() => {
-    if (!id || !accessToken) {
+    if (!id || !accessToken || !studyId) {
       /**
        * @todo Replace the line below by handling the error on the UI here
        */
       throw new Error(
-        `Error: 'accessToken' or 'id' is invalid , see 'accessToken': ${
+        `Error: 'id', 'accessToken', or 'studyId' is invalid , see 'id': ${
+          id
+        }, 'accessToken': ${ 
           accessToken
-        } and ${ id }!`
+        }, and 'studyId': ${
+          studyId
+        } !`
       )
     } else {
       setIsDataLoading(true)
@@ -153,7 +174,7 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
         setIsDataLoading(false)
       })
     }
-  }, [id, accessToken])
+  }, [ id, accessToken, studyId ])
 
 
 

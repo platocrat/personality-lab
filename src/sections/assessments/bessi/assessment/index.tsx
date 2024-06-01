@@ -43,7 +43,7 @@ type BessiProps = {}
 
 const TITLE = `BESSI`
 const BUTTON_TEXT = `Submit`
-const ASSESSMENT_NAME = 'bessi'
+const ASSESSMENT_ID = 'bessi'
 
 
 
@@ -167,6 +167,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
     finalScores: {
       id?: string,
       accessToken?: string
+      studyId?: string
       facetScores: FacetFactorType
       domainScores: SkillDomainFactorType
     },
@@ -242,8 +243,9 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
 
           // 4. Use ID of `userResults` to generate access token
           const accessToken = await getAccessToken(
-            ASSESSMENT_NAME,
-            userResultsId
+            ASSESSMENT_ID,
+            userResultsId,
+            study.id
           )
 
           // 5. Create new object with final scores and access token to cache 
@@ -252,13 +254,14 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
           finalScores= {
             ...finalScores,
             id: userResultsId,
-            accessToken: accessToken
+            accessToken: accessToken,
+            studyId: study.id,
           }
 
           // 5. Store final scores in React state
           setBessiSkillScores(finalScores)
           // 6.  Navigate to the results page
-          const href = `/${ASSESSMENT_NAME}/assessment/results`
+          const href = `/${ASSESSMENT_ID}/assessment/results`
 
           /**
            * @dev Refactor `sendEmail()` function to use SendGrid instead of
@@ -277,7 +280,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
           setIsLoadingResults(false)
           
           const error = `Error posting ${ 
-            ASSESSMENT_NAME.toUpperCase() 
+            ASSESSMENT_ID.toUpperCase() 
           } results to DynamoDB: `
           /**
            * @todo Handle error UI here

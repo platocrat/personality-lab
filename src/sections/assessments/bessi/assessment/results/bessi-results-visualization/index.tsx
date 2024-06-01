@@ -2,14 +2,11 @@
 
 // Externals
 import {
-  Dispatch,
   FC,
-  Fragment,
-  SetStateAction,
-  useContext,
-  useEffect,
   useRef,
   useState,
+  useEffect,
+  useContext,
 } from 'react'
 import html2canvas from 'html2canvas'
 // Locals
@@ -32,18 +29,19 @@ import useClickOutside from '@/hooks/useClickOutside'
 // Contexts
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
+// Context Types
+import { BessiSkillScoresContextType } from '@/contexts/types'
 // Utils
 import {
-  transformData,
   dummyVariables,
   FacetFactorType,
   RATINGS__DYNAMODB,
   InputDataStructure,
   TargetDataStructure,
-  BessiSkillScoresType,
-  SkillDomainFactorType,
   getRandomValueInRange,
+  SkillDomainFactorType,
   STUDY_SIMPLE__DYNAMODB,
+  transformData,
 } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -54,12 +52,6 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 type BessiResultsVisualizationType = {
   isExample?: boolean
   rateUserResults?: boolean
-}
-
-
-export type BessiSkillScoresContextType = {
-  bessiSkillScores: BessiSkillScoresType | null,
-  setBessiSkillScores: Dispatch<SetStateAction<BessiSkillScoresType | null>>
 }
 
 
