@@ -2,11 +2,13 @@
 
 // Externals
 import { useRouter } from 'next/navigation'
-import { FC, useLayoutEffect, useState } from 'react'
+import { FC, useContext, useLayoutEffect, useState } from 'react'
 // Locals
 import Spinner from '@/components/Suspense/Spinner'
 // Sections
 import BessiAssessmentResultsSection from '@/sections/assessments/bessi/assessment/results'
+// Contexts
+import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -19,28 +21,31 @@ type BessiAssessmentResultProps = {}
 
 
 const BessiAssessmentResults: FC<BessiAssessmentResultProps> = () => {
+  // Contexts
+  const { bessiSkillScores } = useContext(BessiSkillScoresContext)
   // Hooks
   const router = useRouter()
   // States
-  const [ isGettingCurrentStudy, setIsGettingCurrentStudy ] = useState(true)
+  const [ 
+    isGettingBessiSkillScores, 
+    setIsGettingBessiSkillScores 
+  ] = useState(true)
 
 
   useLayoutEffect(() => {
-    const key = 'currentStudy'
-    const currentStudy = localStorage.getItem(key)
-
-    if (!currentStudy) {
+    if (!bessiSkillScores) {
       router.push('/bessi')
     } else {
-      setIsGettingCurrentStudy(false)
+      setIsGettingBessiSkillScores(false)
     }
-  }, [])
+  }, [ bessiSkillScores ])
+
 
 
 
   return (
     <>
-      { isGettingCurrentStudy ? (
+      { isGettingBessiSkillScores ? (
         <>
           <div
             style={ {

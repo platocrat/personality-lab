@@ -95,6 +95,20 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
 
 
   //------------------------- Regular function handlers ----------------------
+  function getCurrentStudy(): STUDY_SIMPLE__DYNAMODB {
+    const key = 'currentStudy'
+    const localStorageItem = localStorage.getItem(key) ?? ''
+    const currentStudy = JSON.parse(localStorageItem) as STUDY_SIMPLE__DYNAMODB
+    return currentStudy
+  }
+
+
+  function resetCurrentStudy() {
+    const key = 'currentStudy'
+    localStorage.removeItem(key)
+  }
+
+
   function onWellnessRatingChange(e: any, questionIndex: number) {
     const { value } = e.target
 
@@ -189,8 +203,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
         demographics: DEMOGRAPHICS,
       }
       
-      const localStorageItem = localStorage.getItem('currentStudy') ?? ''
-      const study = JSON.parse(localStorageItem) as STUDY_SIMPLE__DYNAMODB
+      const study = getCurrentStudy()
 
       /**
        * @dev This is the object that we store in DynamoDB using AWS's 
@@ -257,6 +270,9 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
 
           // 8. Use router to route the user the results page
           router.push(href)
+          
+          // 9. Reset current study
+          resetCurrentStudy()
         } else {
           setIsLoadingResults(false)
           
