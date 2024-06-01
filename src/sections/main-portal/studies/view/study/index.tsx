@@ -76,7 +76,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
     noResultsToView,
     setNoResultsToView
   ] = useState<boolean>(false)
-  const [isCopied, setIsCopied] = useState(false)
+  const [ isCopied, setIsCopied ] = useState(false)
   const [ participantCreated, setParticipantCreated ] = useState<boolean>(false)
   // Custom
   const [
@@ -87,21 +87,129 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
     selectedParticipant,
     setSelectedParticipant
   ] = useState<ParticipantType | null>(null)
-  const [resultsToView, setResultsToView] = useState<any>({})
+  const [ results, setResults ] = useState<RESULTS__DYNAMODB[] | null>(null)
 
 
 
   // ------------------------- Memoized constants ------------------------------
   const showPageNav = useMemo((): boolean => {
-    return participants !== null &&
-      participants.length > 0 &&
-      participants[0].studies[0].results !== undefined
+    return results !== null
   }, [ participants ])
 
-  // -------------------------- Regular functions ------------------------------
+  // -------------------------- Async functions functions ------------------------------
   // ~~~~~~ Button handlers ~~~~~~
-  function handleDownloadData(e: any) {
-    if (!participants) return
+  function handleCopyInviteLink ()  {
+    navigator.clipboard.writeText(inviteUrl)
+    setIsCopied(true)
+    setTimeout(() => setIsCopied(false), 2000)
+  }
+
+  // ~~~~~~ Input handlers ~~~~~~
+  function onUsernameChange(e: any) {
+    const { value } = e.target
+    setParticipantUsername(value)
+  }
+
+  function onEmailChange(e: any) {
+    const { value } = e.target
+    setParticipantEmail(value)
+  }
+
+  // -------------------------- Async functions --------------------------------
+  /**
+   * @dev Makes a `GET` request to get the `study` from the given ID to index
+   *      the `participants` property from the `study` object
+   */
+  async function getParticipants() {
+    try {
+      const response = await fetch(`/api/study?id=${study?.id}`, {
+        method: 'GET',
+      })
+
+      const json = await response.json()
+
+      if (response.status === 500) throw new Error(json.error)
+      if (response.status === 405) throw new Error(json.error)
+
+      const study_ = json.study as STUDY__DYNAMODB
+      const results_ = study_.results as RESULTS__DYNAMODB[] ?? null
+      const participants_ = study_.participants as PARTICIPANT__DYNAMODB[] ?? null
+
+      setResults(results_)
+      setParticipants(participants_)
+    } catch (error: any) {
+      throw new Error(error.message)
+    }
+  }
+
+
+  // Utility function to convert JSON to CSV
+  async function getCsvData(
+    participants: PARTICIPANT__DYNAMODB[],
+    results: RESULTS__DYNAMODB[],
+  ) {
+    const studyAssessmentName = AVAILABLE_ASSESSMENTS.find(
+      (availableAssessment: { id: string, name: string }): boolean =>
+        availableAssessment.id === participants[0]?.studies[0]?.assessmentId
+    )?.name
+
+    /**
+     * @todo Convert this to a switch-function to handle all assessment names
+     */
+    if (studyAssessmentName === 'BESSI') {
+      const results_ = results.map(
+        (result: RESULTS__DYNAMODB) => result.results
+      )
+
+      
+      console.log(`results_: `, results_)
+
+
+      if (results_.length === 0) return ''
+
+      // Flatten the structure for CSV
+      const headers = [
+        'participantId',
+        ...Object.keys(results_[0].facetScores),
+        ...Object.keys(results_[0].domainScores),
+        ...Object.keys(results_[0].demographics)
+      ]
+
+      const rows = results_.map((
+        result: BessiUserResults__DynamoDB, 
+        i: number
+      ): (string| number)[] => {
+        const { facetScores, domainScores, demographics } = result
+
+        return [
+          participants[i].id,
+          ...Object.values(facetScores),
+          ...Object.values(domainScores),
+          ...Object.values(demographics)
+        ]
+      })
+
+      const csvData = [
+        headers.join(','),
+        ...rows.map(row => row.join(','))
+      ].join('\n')
+
+      return csvData
+    }
+
+    return ''
+  }
+
+
+  async function getStudyIdAndInviteUrl() {
+    const inviteUrl_ = `${ window.location.origin }/invite/${ study?.id }`
+    setInviteUrl(inviteUrl_)
+  }
+
+
+  // ~~~~~~ Button handlers ~~~~~~
+  async function handleDownloadData(e: any) {
+    if (!participants && !results) return
 
     // Show confirmation alert
     const alertMessage = 'Download participant data as a CSV file?'
@@ -110,7 +218,10 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
     if (!shouldDownload) return
 
     // Convert participants data to CSV
-    const csvData = getParticipantsResults(participants)
+    const csvData = await getCsvData(
+      participants as PARTICIPANT__DYNAMODB[],
+      results as RESULTS__DYNAMODB[],
+    )
 
     // Create a blob from the CSV content
     const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' })
@@ -131,113 +242,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
   }
-  
 
-  function handleCopyInviteLink ()  {
-    navigator.clipboard.writeText(inviteUrl)
-    setIsCopied(true)
-    setTimeout(() => setIsCopied(false), 2000)
-  }
-
-  // ~~~~~~ Input handlers ~~~~~~
-  function onUsernameChange(e: any) {
-    const { value } = e.target
-    setParticipantUsername(value)
-  }
-
-  function onEmailChange(e: any) {
-    const { value } = e.target
-    setParticipantEmail(value)
-  }
-
-  function onViewResultsChange(
-    e: any,
-    study: {
-      name: string
-      assessmentId: string
-    }
-  ) {
-    const { checked } = e.target
-
-    setResultsToView({
-      ...resultsToView,
-      study,
-    })
-  }
-
-  // -------------------------- Async functions --------------------------------
-  /**
-   * @dev Makes a `GET` request to get the `study` from the given ID to index
-   *      the `participants` property from the `study` object
-   */
-  async function getParticipants() {
-    try {
-      const response = await fetch(`/api/study?id=${study?.id}`, {
-        method: 'GET',
-      })
-
-      const json = await response.json()
-
-      if (response.status === 500) throw new Error(json.error)
-      if (response.status === 405) throw new Error(json.error)
-
-      const study_ = json.study as STUDY__DYNAMODB
-      const participants_ = study_.participants as PARTICIPANT__DYNAMODB[] | undefined
-
-      setParticipants(participants_ ?? null)
-    } catch (error: any) {
-      throw new Error(error.message)
-    }
-  }
-
-
-  // Utility function to convert JSON to CSV
-  async function getParticipantsResults(
-    participants: PARTICIPANT__DYNAMODB[]
-  ) {
-    const results__DynamoDB: RESULTS__DYNAMODB[] = participants[0].studies[0].results
-      ? participants[0].studies[0].results[0].results as RESULTS__DYNAMODB[]
-      : []
-
-    const studyAssessmentName = AVAILABLE_ASSESSMENTS.find((
-      availableAssessment: { id: string, name: string }
-    ): boolean => availableAssessment.id === study?.details.assessmentId
-    )?.name
-
-    
-    let results: any | BessiUserResults__DynamoDB
-
-    if (studyAssessmentName === 'BESSI') {
-      results = results__DynamoDB[0].results as BessiUserResults__DynamoDB
-    }
-
-    
-    const headers = Object.keys(results)
-
-    const rows = participants.map((participant: PARTICIPANT__DYNAMODB) => {
-      const studies = participant.studies.map(
-        study => `${study.name} (${study.assessmentId})`
-      ).join('; ')
-
-      return [
-        ...results,
-        studies,
-      ]
-    })
-
-    const csvData = [
-      headers.join(','),
-      ...rows.map(row => row.join(','))
-    ].join('\n')
-
-    return csvData
-  }
-
-
-  async function getStudyIdAndInviteUrl() {
-    const inviteUrl_ = `${ window.location.origin }/invite/${ study?.id }`
-    setInviteUrl(inviteUrl_)
-  }
 
 
   // -------------------------------- Mappings ---------------------------------
@@ -339,7 +344,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
                   <div 
                     className={ `${viewStudiesStyles['form-container']}` }
                     style={{ 
-                      marginTop: participants[0].studies[0].results ? '' : '36px'
+                      marginTop: participants[0].studies[0].results ? '36px' : ''
                     }}
                   >
                     <ParticipantsTable participants={ participants } />

@@ -13,6 +13,7 @@ import {
   DYNAMODB_TABLE_NAMES,
   STUDY_SIMPLE__DYNAMODB,
   BessiUserResults__DynamoDB,
+  STUDY__DYNAMODB,
 } from '@/utils'
 
 
@@ -46,53 +47,110 @@ export async function POST(
     const ownerEmail = study.ownerEmail
     const createdAtTimestamp = study.createdAtTimestamp
 
+
     const TableName = DYNAMODB_TABLE_NAMES.studies
-    
-    const Key = {
-      ownerEmail,
-      createdAtTimestamp,
-    }
-
-    const UpdateExpression =
-      'set results = :results, updatedAtTimestamp = :updatedAtTimestamp'
-    const ExpressionAttributeValues = {
-      ':results': results,
-      ':updatedAtTimestamp': Date.now()
-    }
-
-    const input = {
+    const KeyConditionExpression = 'ownerEmail = :ownerEmailValue'
+    const ExpressionAttributeValues = { ':ownerEmailValue': ownerEmail }
+    const input: QueryCommandInput = {
       TableName,
-      Key,
-      UpdateExpression,
+      KeyConditionExpression,
       ExpressionAttributeValues,
     }
-
-    const command = new UpdateCommand(input)
-
-    const successMessage = `User results have been added to ${
-      TableName
-    } table`
-
+    const command: QueryCommand = new QueryCommand(input)
+    
     
     try {
-      const response = await ddbDocClient.send(command)
+      const response = await ddbDocClient.send(command)      
+      
+      if ((response.Items as STUDY__DYNAMODB[])[0].ownerEmail) {
+        const study = (response.Items as STUDY__DYNAMODB[])[0]
+        const storedResults = study.results as RESULTS__DYNAMODB[]
 
-      const message = successMessage || 'Operation successful'
+        const updatedResults = storedResults
+          ? [ ...storedResults, results ]
+          : [ results ]
 
-
-      return NextResponse.json(
-        {
-          message,
-          userResultsId,
-        },
-        {
-          status: 200,
-          headers: {
-            'Content-Type': 'application/json',
-          },
+        const Key = {
+          ownerEmail,
+          createdAtTimestamp
         }
-      )
+        const UpdateExpression =
+          'set results = :results, updatedAtTimestamp = :updatedAtTimestamp'
+        const ExpressionAttributeValues = {
+          ':results': updatedResults,
+          ':updatedAtTimestamp': Date.now()
+        }
+
+        const input = {
+          TableName,
+          Key,
+          UpdateExpression,
+          ExpressionAttributeValues,
+        }
+
+        const command = new UpdateCommand(input)
+
+        const successMessage = `User results have been added to ${
+          TableName
+        } table`
+
+
+        try {
+          const response = await ddbDocClient.send(command)
+
+
+          return NextResponse.json(
+            {
+              message: successMessage,
+              userResultsId,
+            },
+            {
+              status: 200,
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            }
+          )
+        } catch (error: any) {
+          console.log(
+            `Could not update user results for study ID '${
+              study.id
+            }' of the '${ TableName }' table: `, 
+            error
+          )
+
+          // Something went wrong
+          return NextResponse.json(
+            { error: error },
+            {
+              status: 500,
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            }
+          )
+        }
+      } else {
+        const error = `Owner email '${ownerEmail}' not found in '${TableName}' table`
+
+        return NextResponse.json(
+          { error },
+          {
+            status: 404,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+      }      
     } catch (error: any) {
+      console.log(
+        `Could not Query study ID '${ 
+          study.id 
+        }' using owner email '${ownerEmail}': `, 
+        error
+      )
+
       // Something went wrong
       return NextResponse.json(
         { error: error },

@@ -73,7 +73,7 @@ const Questions = () => {
 const BessiDemographicQuestions = () => {
   return (
     <>
-      <table className={ styles.bessi_assessment_table_body }>
+      <table className={ styles.bessi_assessment_table }>
         <tbody className={ styles.bessi_assessment_tbody }>
           <Title />
           <Questions />

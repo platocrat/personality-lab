@@ -70,7 +70,16 @@ export default function _() {
 
   useLayoutEffect(() => {
     getStudiesForAssessment()
-    setIsGettingStudiesForAssessment(false)
+
+    const timeout = 300
+
+    const updateIsGettingStudiesTimeout = setTimeout(() => {
+      setIsGettingStudiesForAssessment(false)
+    }, timeout)
+
+    return () => {
+      updateIsGettingStudiesTimeout
+    }
   }, [ userStudies ])
 
 

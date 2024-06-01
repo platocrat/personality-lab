@@ -6,21 +6,19 @@ import { usePathname, useRouter } from 'next/navigation'
 // Locals
 import Header from '@/components/Header'
 import Spinner from '@/components/Suspense/Spinner'
-import UserDemographicsLayout from '@/components/Layouts/UserDemographics'
 import BessiSkillScoresLayout from '@/components/Layouts/BessiSkillScoresLayout'
+import UserDemographicsLayout from '@/components/Layouts/UserDemographics'
 // Contexts
-import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // Types
-import { 
-  ACCOUNT__DYNAMODB, 
-  BessiSkillScoresType, 
-  PARTICIPANT__DYNAMODB, 
-  STUDY_SIMPLE__DYNAMODB,
+import {
+  ACCOUNT__DYNAMODB,
+  PARTICIPANT__DYNAMODB,
+  STUDY_SIMPLE__DYNAMODB
 } from '@/utils'
 // CSS
-import './globals.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+import './globals.css'
 
 
 
@@ -37,8 +35,6 @@ export type UserResponse = {
   user: UserType | null
   error: Error | null
 }
-
-
 
 
 const INIT_USER = {
@@ -176,11 +172,6 @@ export default function RootLayout({
 
   // ------------------------------ `useEffect`s -------------------------------
   useLayoutEffect(() => {
-    console.log(
-      `localStorage.getItem('currentStudy'): `, 
-      localStorage.getItem('currentStudy')
-    )
-
     const requests = [
       pageProtection(),
     ]
