@@ -254,7 +254,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
             width={ 20 }
             height={ 20 }
             alt={ 'Download data icon' }
-            src={ '/icons/svg/download.svg' }
+            src={ '/icons/svg/download-file.svg' }
           />
           <p style={{ fontSize: '14px' }}>{ `.csv` }</p>
         </div>

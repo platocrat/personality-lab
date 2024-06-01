@@ -19,9 +19,28 @@ export async function GET(
   req: NextRequest,
   res: NextResponse,
 ) {
-  if (req.method === 'POST') {
-    const id = req.nextUrl.searchParams.get('id') ?? ''
-    const accessToken = req.nextUrl.searchParams.get('accessToken') ?? ''
+  if (req.method === 'GET') {
+    const name = 'id_accessToken_studyId'
+    const id_accessToken_studyId = req.nextUrl.searchParams.get(name) ?? ''
+
+    // Split the string by the separator '--'
+    const parts = (id_accessToken_studyId as string).split('--')
+
+    if (parts.length !== 3) {
+      return NextResponse.json(
+        { error: 'Expected exactly 3 parts' },
+        { 
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        },
+      )
+    }
+
+    const id = parts[0]
+    const accessToken = parts[1]
+    // const studyId = parts[2]
 
     // 1. Fetch JWT secret to verify if the user is authorized to access the 
     //    `userResults` mapped to the provided `id`.
@@ -31,8 +50,8 @@ export async function GET(
     if (typeof JWT_SECRET === 'string') {
       // 2. Verify `accessToken` using the JWT secret
       return await verfiyAccessTokenAndFetchUserResults(
-        id, 
-        accessToken, 
+        id,
+        accessToken,
         JWT_SECRET
       )
     } else { // Return the error in the json of the `NextResponse`

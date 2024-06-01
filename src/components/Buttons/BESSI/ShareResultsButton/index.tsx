@@ -38,7 +38,6 @@ const BessiShareResultsButton = ({ }) => {
     return bessiSkillScores?.studyId
   }, [ bessiSkillScores ])
 
-
   /**
    * Handle sharing results by generating a URL with the access token.
    * Toggle visibility of the URL for copying.
@@ -48,7 +47,7 @@ const BessiShareResultsButton = ({ }) => {
 
     const baseUrl = `${ origin }/bessi/assessment`
     // Using path segment instead of query
-    const fullUrl = `${baseUrl}/results/${id}-${accessToken}`
+    const fullUrl = `${baseUrl}/results/${id}--${accessToken}--${studyId}`
 
     const timeout = 2_000
     try {
@@ -76,32 +75,50 @@ const BessiShareResultsButton = ({ }) => {
   return (
     <>
       <div>
-        <button 
-          className={ styles.button }
-          onClick={ handleShareResults }
-          style={{ 
-            padding: '8px 12px',
-            backgroundColor: isCopied ? 'rgb(18, 215, 67)' : ''
-          }}
-        >
-          <div style={ definitelyCenteredStyle }>
-            <p style={{ marginRight: '8px' }}>
-              { `Share Results` }
-            </p>
-            <Image
-              width={ 18 }
-              height={ 18 }
-              alt='Share icon to share data visualization'
-              className={ styles.img }
+        { isCopied ? (
+          <>
+            <div
+              style={ {
+                ...definitelyCenteredStyle,
+                borderRadius: `1rem`,
+                borderWidth: `1.2px`,
+                width: '40px',
+                height: '32px',
+                margin: '12px 0px',
+                backgroundColor: 'rgb(18, 215, 67)'
+              } }
+            >
+              <Image
+                width={ 18 }
+                height={ 18 }
+                alt='Share icon to share data visualization'
+                src={ `${imgPaths().svg}white-checkmark.svg` }
+              />
+            </div>
+          </>
+        ) : (
+          <>
+            <button
+              className={ styles.button }
               onClick={ handleShareResults }
-              src={ 
-                isCopied 
-                  ? `${ imgPaths().svg }white-checkmark.svg` 
-                  : `${ imgPaths().svg }white-share.svg`
-              }
-            />
-          </div>
-        </button>
+              style={ {
+                height: '32px',
+                padding: '0px 12px',
+              } }
+            >
+              <div style={ definitelyCenteredStyle }>
+                <Image
+                  width={ 14 }
+                  height={ 14 }
+                  className={ styles.img }
+                  onClick={ handleShareResults }
+                  src={ `${imgPaths().svg}white-share.svg` }
+                  alt='Share icon to share data visualization'
+                />
+              </div>
+            </button>
+          </>
+        )}
       </div>
     </>
   )

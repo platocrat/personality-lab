@@ -2,9 +2,9 @@
 import { decode } from 'jsonwebtoken'
 // Locals
 import { 
+  SSCrypto,
   CookieType,
   AWS_PARAMETER_NAMES,
-  SSCrypto,
 } from '@/utils'
 
 
@@ -31,7 +31,11 @@ export async function getAccessToken(
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ assessmentId, userResultsId, studyId }),
+        body: JSON.stringify({ 
+          assessmentId, 
+          userResultsId, 
+          studyId,
+        }),
       })
 
       const json = await response.json()

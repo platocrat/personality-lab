@@ -128,26 +128,48 @@ const ResultsVisualizationModal: FC<ResultsVisualizationModalProps> = ({
               </div>
 
               <div style={definitelyCenteredStyle}>
-                <button
-                  className={ appStyles.button }
-                  onClick={ handleShareScreenshot }
-                  style={ {
-                    width: '60px',
-                    padding: '6px 0px 0px 0px',
-                    backgroundColor: state.isCopied ? 'rgb(18, 215, 67)' : ''
-                  } }
-                >
-                  <Image
-                    width={ 18 }
-                    height={ 18 }
-                    alt='Share icon to share data visualization'
-                    src={
-                      state.isCopied
-                        ? `${imgPaths().svg}white-checkmark.svg`
-                        : `${imgPaths().svg}white-share.svg`
-                    }
-                  />
-                </button>
+                { state.isCopied ? (
+                  <>
+                    <div
+                      style={{ 
+                        ...definitelyCenteredStyle,
+                        borderRadius: '1rem',
+                        borderWidth: '1.2px',
+                        width: '50px',
+                        height: '36px',
+                        backgroundColor: state.isCopied 
+                          ? 'rgb(18, 215, 67)' 
+                          : '',
+                      }}
+                    >
+                      <Image
+                        width={ 22 }
+                        height={ 22 }
+                        alt='Share icon to share data visualization'
+                        src={ `${imgPaths().svg}white-checkmark.svg` }
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      className={ appStyles.button }
+                      onClick={ handleShareScreenshot }
+                      style={ {
+                        width: '50px',
+                        height: '36px',
+                        padding: '6px 0px 0px 0px',
+                      } }
+                    >
+                      <Image
+                        width={ 22 }
+                        height={ 22 }
+                        alt='Share icon to share data visualization'
+                        src={ `${imgPaths().svg}download-image.svg` }
+                      />
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>

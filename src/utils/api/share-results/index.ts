@@ -155,11 +155,13 @@ export async function fetchUserResults(
   // 8. Build `QueryCommand` to fetch the user's `results` from the `studies` 
   //    table.
   const TableName = DYNAMODB_TABLE_NAMES.studies
+  const IndexName = 'id-index'
   const KeyConditionExpression = 'id = :idValue'
   const ExpressionAttributeValues = { ':idValue': studyId }
 
   const input: QueryCommandInput = {
     TableName,
+    IndexName,
     KeyConditionExpression,
     ExpressionAttributeValues,
   }

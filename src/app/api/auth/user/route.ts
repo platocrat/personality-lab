@@ -35,7 +35,9 @@ export async function GET(
     if (!token) {
       return NextResponse.json(
         { message: 'Unauthorized', },
-        { status: 401 }
+        { 
+          status: 401,
+        }
       )
     } 
 

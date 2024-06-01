@@ -52,18 +52,18 @@ const RateDataViz: FC<RateDataVizProps> = ({
                   )
                 }
                 style={ {
-                  width: '100%',
+                  width: '36px',
+                  height: '32px',
                   fontSize: '13px',
-                  padding: '8px 12px',
                   background: 'rgb(42, 184, 101)',
                   borderColor: 'rgb(42, 184, 101)',
                 } }
               >
                 <Image
-                  width={ 18 }
-                  height={ 18 }
+                  width={ 16 }
+                  height={ 16 }
                   style={ {
-                    top: '-1.5px',
+                    top: '1.5px',
                     position: 'relative',
                     transform: 'scaleX(-1)',
                   } }
@@ -80,16 +80,17 @@ const RateDataViz: FC<RateDataVizProps> = ({
                   )
                 }
                 style={ {
-                  width: '100%',
+                  width: '36px',
+                  height: '32px',
                   fontSize: '13px',
-                  padding: '8px 12px',
                   background: 'rgb(231, 76, 60)',
                   borderColor: 'rgb(231, 76, 60)',
                 } }
               >
                 <Image
-                  width={ 18 }
-                  height={ 18 }
+                  width={ 16 }
+                  height={ 16 }
+                  style={{ position: 'relative', top: '1.75px' }}
                   alt='Share icon to share data visualization'
                   src={ `${imgPaths().svg}thumbs-down.svg` }
                 />

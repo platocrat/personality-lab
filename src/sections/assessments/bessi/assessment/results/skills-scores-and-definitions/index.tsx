@@ -35,7 +35,7 @@ const SkillsScoresAndDefinitionsTable = () => {
                       : '15%',
                   }} 
                 >
-                  <p>
+                  <div>
                     <strong>
                       <span className={ styles.bessi_text1 }>
                         { header }
@@ -43,7 +43,7 @@ const SkillsScoresAndDefinitionsTable = () => {
                         { `(0-100)` }
                       </span>
                     </strong>
-                  </p>
+                  </div>
                 </th>
               </Fragment>
             )) }
@@ -86,7 +86,7 @@ const SkillsScoresAndDefinitionsTable = () => {
                         `skills-scores-and-definitions-${ domain }-${ facet }-${i}`
                       }
                     >
-                      <p
+                      <div
                         style={{
                           lineHeight: '18px',
                           marginBottom: '24px',
@@ -101,7 +101,7 @@ const SkillsScoresAndDefinitionsTable = () => {
                             { bessiSkillScores?.facetScores[facet] ?? 0 }
                           </strong>
                         </span>
-                      </p>
+                      </div>
                     </Fragment>
                   )) }
                 </td>
@@ -140,7 +140,7 @@ const SkillsScoresAndDefinitionsTable = () => {
                         `skills-scores-and-definitions-${ domain }-${ facet }-${ k }`
                       }
                     >
-                      <p
+                      <div
                         style={ {
                           margin: '8px 0px 24px 0px'
                         } }
@@ -160,7 +160,7 @@ const SkillsScoresAndDefinitionsTable = () => {
                             { skillsMapping.domains[domain].facets[facet] }
                           </p>
                         </span>
-                      </p>
+                      </div>
                     </Fragment>
                   )) }
                 </td>

@@ -49,31 +49,52 @@ const ShareResults: FC<ShareResultsProps> = ({
         />
 
         <div>
-          <button
-            className={ styles.button }
-            onClick={ onClick.handleTakeScreenshot }
-            style={ {
-              width: '50px',
-              fontSize: '12.5px',
-              padding: '8px 12px',
-              margin: '12px 0px 12px 0px',
-              backgroundColor: state.isCopied ? 'rgb(18, 215, 67)' : ''
-            } }
-          >
-            <Image
-              width={ 18 }
-              height={ 18 }
-              alt='Share icon to share data visualization'
-              src={
-                state.isCopied
-                  ? `${imgPaths().svg}white-checkmark.svg`
-                  : `${imgPaths().svg}white-share.svg`
-              }
-            />
-          </button>
-
-          <BessiShareResultsButton />
+          { state.isCopied ? (
+            <>
+              <div 
+                style={{
+                  ...definitelyCenteredStyle,
+                  borderRadius: `1rem`,
+                  borderWidth: `1.2px`,
+                  width: '40px',
+                  height: '32px',
+                  margin: '12px 0px',
+                  backgroundColor: 'rgb(18, 215, 67)'
+                }}
+              >
+                <Image
+                  width={ 18 }
+                  height={ 18 }
+                  alt='Share icon to share data visualization'
+                  src={ `${imgPaths().svg}white-checkmark.svg` }
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <button
+                className={ styles.button }
+                onClick={ onClick.handleTakeScreenshot }
+                style={ {
+                  width: '40px',
+                  height: '32px',
+                  fontSize: '12.5px',
+                  padding: '7px 8px',
+                  margin: '12px 0px 12px 0px',
+                } }
+              >
+                <Image
+                  width={ 17 }
+                  height={ 17 }
+                  alt='Share icon to share data visualization'
+                  src={ `${imgPaths().svg}download-image.svg` }
+                />
+              </button>
+            </>
+          ) }
         </div>
+        
+        <BessiShareResultsButton />
       </div>
     </>
   )

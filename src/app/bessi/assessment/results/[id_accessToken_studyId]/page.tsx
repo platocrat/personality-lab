@@ -68,18 +68,16 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
   const [ isAccessTokenExpired, setIsAccessTokenExpired ] = useState(false)
   
 
-  // Extract id, access token, studyId and from the concatenated string
-  const targetIndex1 = (id_accessToken_studyId as string).indexOf('-', 1)
-  const targetIndex2 = (id_accessToken_studyId as string).indexOf('-', 2)
-  const id = id_accessToken_studyId.slice(0, targetIndex1)
-  const accessToken = id_accessToken_studyId.slice(
-    targetIndex1 + 1, 
-    targetIndex2
-  )
-  const studyId = id_accessToken_studyId.slice(
-    targetIndex2 + 1, 
-    id_accessToken_studyId.length
-  )
+  // Split the string by the separator '--'
+  const parts = (id_accessToken_studyId as string).split('--')
+
+  if (parts.length !== 3) {
+    throw new Error('Unexpected format: expected exactly 3 parts')
+  }
+
+  const id = parts[0]
+  const accessToken = parts[1]
+  const studyId = parts[2]
   
   const errorMessage =  isAccessTokenExpired 
     ? `Access token expired!`
@@ -88,19 +86,15 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
   // Memoized constants
   const errorStatus = useMemo((): boolean => {
     setIsDataLoading(false)
-    return isAccessTokenExpired || !accessToken
-  }, [ isAccessTokenExpired, accessToken ])
+    return isAccessTokenExpired || !accessToken || !id || !studyId
+  }, [ isAccessTokenExpired, accessToken, id, studyId ])
 
 
   // --------------------------- Async functions -------------------------------
   async function getUserResults() {
     try {
-      const apiEndpoint = `/api/assessment/share-results?id=${
-        id
-      }?accessToken=${ 
-        accessToken 
-      }?studyId=${
-        studyId
+      const apiEndpoint = `/api/assessment/share-results?id_accessToken_studyId=${ 
+        id_accessToken_studyId 
       }`
       const response = await fetch(apiEndpoint, { method: 'GET' })
 
@@ -139,6 +133,8 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
         throw new Error(error, json.error)
       }
     } catch (error: any) {
+      console.error(error)
+
       /**
        * @todo Handle error UI here
        */
