@@ -60,7 +60,7 @@
   margin-inline-end: 0px;
 }
 
-.bessi_assessment_td {
+.bessi_assessment_table td {
   border-style: solid;
   border-width: 2;
   border-collapse: collapse;
@@ -71,13 +71,13 @@
   text-align: center;
 }
 
-.bessi_assessment_p {
+.bessi_assessment_table _p {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 11pt;
   text-align: center;
 }
 
-.bessi_assessment_th {
+.bessi_assessment_table th {
   border-style: solid;
   border-width: 2;
   border-collapse: collapse;
@@ -88,33 +88,13 @@
   width: 10%;
 }
 
-.bessi_assessment_tr {
+.bessi_assessment_table tr {
   display: table-row;
 }
 
-.bessi_assessment_tbody {
+.bessi_assessment_table tbody {
   display: table-row-group;
   vertical-align: middle;
-}
-
-.bessi_assessment_table_body {
-  width: 100%;
-  border-spacing: 0px;
-  border-collapse: collapse;
-
-  display: table;
-  border-collapse: separate;
-  box-sizing: border-box;
-  text-indent: initial;
-  line-height: normal;
-  font-weight: normal;
-  font-size: medium;
-  font-style: normal;
-  text-align: start;
-
-  border-color: gray;
-  white-space: normal;
-  font-variant: normal;
 }
 
 
