@@ -110,8 +110,8 @@ const Questionnaire: FC<QuestionnaireProps> = ({
                         top: '-1px',
                         left: '11px',
                         right: '0px',
-                        width: '100%',
-                        height: '48px',
+                        width: '20px', /* Fixed width */
+                        height: '20px', /* Fixed height */
                         cursor: 'pointer',
                       }}
                     />

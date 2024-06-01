@@ -3,13 +3,16 @@
 // Externals
 import { Fragment, useContext, useLayoutEffect, useState } from 'react'
 // Locals
+import Spinner from '@/components/Suspense/Spinner'
 // Sections
 import Bessi from '@/sections/assessments/bessi'
+// Contexts
+import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // Utils
 import { STUDY_SIMPLE__DYNAMODB } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
-import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
+import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
@@ -26,6 +29,10 @@ export default function _() {
     studiesForAssessment,
     setStudiesForAssessment
   ] = useState<STUDY_SIMPLE__DYNAMODB[] | []>([])
+  const [
+    isGettingStudiesForAssessment,
+    setIsGettingStudiesForAssessment
+  ] = useState(true)
   const [ 
     currentStudy, 
     setCurrentStudy 
@@ -51,12 +58,19 @@ export default function _() {
   }
 
 
-  useLayoutEffect(() => {
+  function getStudiesForAssessment() {
     const filteredStudies = (userStudies as STUDY_SIMPLE__DYNAMODB[]).filter(
       (study: STUDY_SIMPLE__DYNAMODB): boolean => study.assessmentId === 'bessi'
     )
 
     setStudiesForAssessment(filteredStudies)
+  }
+
+
+
+  useLayoutEffect(() => {
+    getStudiesForAssessment()
+    setIsGettingStudiesForAssessment(false)
   }, [ userStudies ])
 
 
@@ -64,36 +78,51 @@ export default function _() {
 
   return (
     <>
-      <main className={ `${styles.main}` }>
-        { !isParticipant ? <Bessi /> : (
-          <>
-            { !currentStudy && 
-              studiesForAssessment.length > 0 ? (
-                <>
-                  <select
-                    value={ selectedStudyId }
-                    onChange={ handleSelectCurrentStudy }
-                  >
-                    <option value=''>{ `Select a study` }</option>
-                    { studiesForAssessment.map((
-                      study: STUDY_SIMPLE__DYNAMODB,
-                      i: number
-                    ) => (
-                      <Fragment key={ i }>
-                        <option key={ study.id } value={ study.id }>
-                          { study.name }
-                        </option>
-                      </Fragment>
-                    )) }
-                  </select>
-                </>
-              ) : (
-                <Bessi />
-              )
-            }
-          </>
-        ) }
-      </main>
+      { isGettingStudiesForAssessment ? (
+        <>
+          <div
+            style={ {
+              ...definitelyCenteredStyle,
+              position: 'relative',
+              top: '80px',
+            } }
+          >
+            <Spinner height='40' width='40' />
+          </div>
+        </>
+      ) : (
+        <>
+          <main className={ `${styles.main}` }>
+            { !isParticipant ? <Bessi /> : (
+              <>
+                { !currentStudy &&
+                  studiesForAssessment.length > 0 ? (
+                  <>
+                    <select
+                      value={ selectedStudyId }
+                      onChange={ handleSelectCurrentStudy }
+                    >
+                      <option value=''>{ `Select a study` }</option>
+                      { studiesForAssessment.map((
+                        study: STUDY_SIMPLE__DYNAMODB,
+                        i: number
+                      ) => (
+                        <Fragment key={ i }>
+                          <option key={ study.id } value={ study.id }>
+                            { study.name }
+                          </option>
+                        </Fragment>
+                      )) }
+                    </select>
+                  </>
+                ) : (
+                  <Bessi />
+                )}
+              </>
+            ) }
+          </main>
+        </>
+      ) }
     </>
   )
 }

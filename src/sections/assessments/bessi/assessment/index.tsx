@@ -306,7 +306,12 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
           className={ styles.grayColor }
           onSubmit={ (e: any): Promise<void> => handleSubmit(e) }
         >
-          <h2 className={ styles.assessmentTitle }>{ TITLE }</h2>
+          <h2 
+            className={ styles.assessmentTitle }
+            style={{ textAlign: isLoadingResults ? 'center' : 'left' }}
+          >
+              { TITLE }
+          </h2>
 
           { isLoadingResults ? (
             <>

@@ -12,6 +12,8 @@ import styles from '@/app/page.module.css'
 
 
 
+
+
 const SkillsScoresAndDefinitionsTable = () => {
   const { bessiSkillScores } = useContext(BessiSkillScoresContext)
 
@@ -163,7 +165,7 @@ const BessiResultsSkillsScoresAndDefinitions = () => {
   return (
     <>
       <div style={{ margin: '48px 0px 0px 0px' }}>
-        <div style={{ margin: '18px 0px 18px 0px',  }}>
+        <div style={{ margin: '18px 0px 18px 0px' }}>
           <h3>{ title }</h3>
         </div>
 
