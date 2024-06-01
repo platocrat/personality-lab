@@ -136,7 +136,7 @@ const CreateStudyForm: FC<CreateStudyFormProps> = ({
             { `Add` }
           </button>
 
-          { study.adminEmails.length !== 0 && (
+          { study?.adminEmails?.length !== 0 && (
             <div
               style={ {
                 marginTop: '12px',
@@ -152,7 +152,7 @@ const CreateStudyForm: FC<CreateStudyFormProps> = ({
                 { `Emails to add as admins:` }
               </p>
               <ul>
-                { study.adminEmails.map((email, index) => (
+                { study?.adminEmails?.map((email, index) => (
                   <Fragment key={ index }>
                     <ul
                       key={ index }
