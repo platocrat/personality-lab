@@ -9,11 +9,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import {
   getEntryId,
   ddbDocClient,
+  STUDY__DYNAMODB,
   RESULTS__DYNAMODB,
   DYNAMODB_TABLE_NAMES,
   STUDY_SIMPLE__DYNAMODB,
   BessiUserResults__DynamoDB,
-  STUDY__DYNAMODB,
 } from '@/utils'
 
 
