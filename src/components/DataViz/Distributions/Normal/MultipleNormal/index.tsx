@@ -1,6 +1,6 @@
 import { FC } from 'react'
 // Locals
-import SingleNormalDistributionChart from '../SingleNormal'
+import SingleNormalDistributionChart from '@/components/DataViz/Distributions/Normal/SingleNormal'
 // Utils
 import { 
   calculateStats,
