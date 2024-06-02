@@ -4,7 +4,7 @@
   height: auto;
   padding: 10px;
   text-align: left;
-  position: absolute;
+  position: fixed;
   pointer-events: none;
   border-radius: 4px;
   word-wrap: break-word;

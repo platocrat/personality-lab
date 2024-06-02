@@ -175,10 +175,10 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         return (
           <>
             <div
-              style={ {
+              style={{
                 ...definitelyCenteredStyle,
                 flexDirection: 'column',
-              } }
+              }}
             >
               <Title isExample={ isExample } title={ radialBarChartTitle } />
               <select

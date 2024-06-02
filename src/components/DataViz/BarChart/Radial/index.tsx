@@ -3,6 +3,8 @@ import * as d3 from 'd3'
 import React, { FC, useEffect, useRef } from 'react'
 // Locals
 import Title from '@/components/DataViz/Title'
+// Hooks
+import useWindowWidth from '@/hooks/useWindowWidth'
 // Utils
 import { TargetDataStructure } from '@/utils'
 // CSS
@@ -24,7 +26,10 @@ const RadialBarChart: FC<RadialBarChartProps> = ({
   data,
   selectedRadialBarChart,
 }) => {
+  // Refs
   const d3Container = useRef<any>(null)
+  // Hooks
+  const windowWidth = useWindowWidth()
 
 
   useEffect(() => {
@@ -73,12 +78,15 @@ const RadialBarChart: FC<RadialBarChartProps> = ({
         .padRadius(innerRadius)
       )
       .on('mouseover', (event, d) => {
+        console.log(`event: `, event)
+
         /**
          * @todo Position of tooltips need to be dynamic to match the varying 
          *       height and width
          */
-        tooltip.style('left', (event.pageX - 28) + 'px')
-          .style('top', (event.pageY - 200) + 'px')
+        tooltip
+          .style('left', (event.x) + 'px')
+          .style('top', (event.y) + 'px')
           .html(
             `
             <div>
@@ -86,9 +94,18 @@ const RadialBarChart: FC<RadialBarChartProps> = ({
                 ${d.name}
               </strong>
               <br/>
-              <p>
-                Score: ${d.score}
-              </p>
+              <div style="display: flex; gap: 6px;">
+                ${ 'Score: ' }
+                <div 
+                  style="background-color: #555555; border-radius: 5px; padding: 0.1px 6px"
+                >
+                  <p 
+                    style="color: ${ z(d.score) }; filter: drop-shadow(0px 0.1px 0.01px rgba(83, 83, 83, 0.85));"
+                  >
+                    ${ d.score }
+                  </p>
+                </div>
+              </div>
             </div>
             `
           )
@@ -120,7 +137,7 @@ const RadialBarChart: FC<RadialBarChartProps> = ({
     const domainScore: any = svg.append('text')
       .attr('text-anchor', 'middle')
       .attr('alignment-baseline', 'middle')
-      .style('font-size', '28px')
+      .style('font-size', '25px')
       .text(data.domainScore)
       .attr('fill', z((data as TargetDataStructure).domainScore))
       .style('filter', 'url(#drop-shadow)') // Apply drop shadow filter
@@ -186,11 +203,12 @@ const RadialBarChart: FC<RadialBarChartProps> = ({
         ref={ d3Container }
         style={{ maxWidth: '450px' }}
         className={ dataVizStyles.svgContainer }
-      />
-      <div
-        id='tooltip'
-        className={ styles.tooltip }
-      />
+      >
+        <div
+          id='tooltip'
+          className={ styles.tooltip }
+        />
+      </div>
     </>
   )
 }
