@@ -146,3 +146,40 @@ export function generateNormalDistributionCurve(
 
   return _
 }
+
+
+
+export function getRangeLabel(score: number): 'Very Low' | 'Low' | 'Medium' | 'High' | 'Very High' | 'Out of range' {
+  const isVeryLow = score >= 0 && score <= 20
+  const isLow = score > 20 && score <= 40
+  const isMedium = score > 40 && score <= 60
+  const isHigh = score > 60 && score <= 80
+  const isVeryHigh = score > 80 && score <= 100
+
+  if (isVeryLow) {
+    return 'Very Low'
+  } else if (isLow) {
+    return 'Low'
+  } else if (isMedium) {
+    return 'Medium'
+  } else if (isHigh) {
+    return 'High'
+  } else if (isVeryHigh) {
+    return 'Very High'
+  } else {
+    return 'Out of range'
+  }
+}
+
+
+
+export const rgbToRgba = (rgb: string, opacity: number): string => {
+  const rgbValues = rgb.match(/\d+/g)
+
+  if (rgbValues && rgbValues.length === 3) {
+    const [r, g, b] = rgbValues
+    return `rgba(${r}, ${g}, ${b}, ${opacity})`
+  }
+
+  return rgb // Fallback to the original rgb if there's an issue
+}

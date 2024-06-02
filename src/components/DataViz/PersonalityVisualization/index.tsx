@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react'
 // Locals
 import Title from '../Title'
 // Constants
-import { domainToFacetMapping, skillsMapping } from '@/utils'
+import { domainToFacetMapping, getRangeLabel, rgbToRgba, skillsMapping } from '@/utils'
 // CSS
 import dataVizStyles from '../DataViz.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -33,13 +33,18 @@ const PersonalityVisualization = ({
   }
 
   // Function to determine color based on score
-  const getColorBasedOnScore = (score: number): string => {
-    if (score >= 0 && score < 20) return '#e9967a' // Soft Red
-    else if (score >= 20 && score < 40) return '#f9cb9c' // Soft Orange
-    else if (score >= 40 && score < 60) return '#ffe599' // Soft Yellow
-    else if (score >= 60 && score < 80) return '#b6d7a8' // Soft Lime Green
-    else if (score >= 80 && score <= 100) return '#98fb98' // Soft Green
-    else return '' // Default white color for unexpected cases
+  const z = d3.scaleLinear<string>()
+    .domain([0, 50, 100])
+    .range(['#ff0000', '#ffff00', '#00ff00'])
+
+  const getColorBasedOnScore = (score: number, isDomainScore?: boolean): string => {
+    if (score >= 0 && score <= 100) {
+      const color = z(score)
+      const opacity = isDomainScore ? 1 : 0.6
+      return rgbToRgba(color, opacity)
+    }
+
+    return '' // Default color for unexpected cases
   }
 
 
@@ -176,22 +181,52 @@ const PersonalityVisualization = ({
       )
       .attr('stroke', 'white')
       .on('mouseover', function (e, d: any) {
-        tooltip.html(`
-        <h3><strong>${d}</strong></h3>
-        <div style="margin: 10px 0px 0px 0px"/>
-        Score: ${data.facetScores[d]}
-        <div style="margin: 10px 0px 0px 0px"/>
-        ${skillsMapping.domains[activeDomain].facets[d]}
-      `)
+        tooltip
+          .html(
+            `
+              <h3>
+                <strong>
+                  ${d}
+                </strong>
+              </h3>
+              <div style="margin: 10px 0px 0px 0px"/>
+              <div style="display: flex; flex-direction: row; gap: 12px;">
+                <p>
+                  Score: ${data.facetScores[d]}
+                </p>
+                <div style="width: max-content; background-color: ${ getColorBasedOnScore(data.facetScores[d], true)}; border-radius: 5px; padding: 0px 7.5px;">
+                  <p style="color: white; font-weight: 800; filter: drop-shadow(0px 0px 1px rgba(0, 0, 0, 1));">
+                    ${getRangeLabel(data.facetScores[d]) }
+                  </p>
+                </div>
+              </div>
+              <div style="margin: 10px 0px 0px 0px"/>
+              <div>
+                <p>
+                  ${skillsMapping.domains[activeDomain].facets[d]}
+                </p>
+              </div>
+            `
+          )
+          .transition()
+          .duration(100) // Duration of the transition in milliseconds
           .style('opacity', 1)
-          .style('left', `${e.pageX + 10}px`)
-          .style('top', `${e.pageY - 28}px`)
+          .style('left', `${e.x}px`)
+          .style('top', `${e.y}px`)
 
-        d3.select(this).attr('transform', 'scale(0.9925)')
+        d3.select(this)
+          .transition()
+          .duration(100) // Duration of the transition in milliseconds
+          .attr('transform', 'scale(0.9925)')
+          .style('cursor', `pointer`)
       })
       .on('mouseout', function () {
         tooltip.style('opacity', 0)
-        d3.select(this).attr('transform', 'scale(1.0)')
+        
+        d3.select(this)
+          .transition()
+          .duration(100) // Duration of the transition in milliseconds
+          .attr('transform', 'scale(1.0)')
       })
 
     // Add text to inner circle
@@ -223,22 +258,36 @@ const PersonalityVisualization = ({
     svg.append('text')
       .attr('class', 'center-text')
       .attr('text-anchor', 'middle')
-      .attr('font-size', '48px')
+      .attr('y', -2.5)
+      .attr('font-size', '40px')
       .text(data.domainScores[activeDomain])
 
-    // Text for the average score
-    svg.append('text')
-      .attr('class', 'average-text')
-      .attr('text-anchor', 'middle')
-      .attr('y', 30)
-      .attr('font-size', '18px')
-      .text(`AVG: ${averageScore}`)
+    const domainScore: any = svg.append('foreignObject')
+      .attr('width', 200)
+      .attr('height', 63)
+      .attr('x', -100)
+      .attr('y', 14)
+      .html(
+        `
+          <div style="display: flex; flex-direction: column; gap: 7px; justify-content: center; align-items: center;">
+            <div style="width: max-content; background-color: ${ getColorBasedOnScore(data.domainScores[activeDomain], true)}; border-radius: 5px; padding: 0px 7.5px;">
+              <p style="color: white; font-weight: 800; filter: drop-shadow(0px 0px 1px rgba(0, 0, 0, 1));">
+                ${getRangeLabel(data.domainScores[activeDomain]) }
+              </p>
+            </div>
+            <div>
+              <p style="font-size: 18px;">
+                AVG: ${averageScore}
+              </p>
+          </div>
+        `
+      )
 
     // Active facet name in the center of the inner circle
     svg.append('text')
       .attr('class', 'facet-name')
       .attr('text-anchor', 'middle')
-      .attr('font-size', '14px') // Reduced font size to fit the smaller area
+      .attr('font-size', '15px') // Reduced font size to fit the smaller area
       .attr('y', -50) // Centered vertically inside the inner circle
       .text(activeDomain)
 
@@ -256,12 +305,12 @@ const PersonalityVisualization = ({
       >
         <Title isExample={ isExample } title={ title } />
         <div 
-          id='tooltip' 
-          className={ styles.tooltip }
-        />
-        <div 
           ref={ d3Container } 
           className={ dataVizStyles.svgContainer }
+        />
+        <div
+          id='tooltip' 
+          className={ styles.tooltip }
         />
       </div>
     </>

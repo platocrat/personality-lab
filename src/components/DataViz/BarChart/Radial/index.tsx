@@ -6,7 +6,7 @@ import Title from '@/components/DataViz/Title'
 // Hooks
 import useWindowWidth from '@/hooks/useWindowWidth'
 // Utils
-import { TargetDataStructure } from '@/utils'
+import { TargetDataStructure, getRangeLabel } from '@/utils'
 // CSS
 import dataVizStyles from '../../DataViz.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -18,7 +18,6 @@ type RadialBarChartProps = {
   data: TargetDataStructure
   selectedRadialBarChart: number
 }
-
 
 
 
@@ -38,7 +37,7 @@ const RadialBarChart: FC<RadialBarChartProps> = ({
     const margin = { top: 30, right: 50, bottom: 20, left: 10 }
     const width = 470
     const height = 420
-    const innerRadius = 100
+    const innerRadius = 120
     const outerRadius = Math.min(width, height) / 2.2
 
     const svg = d3.select(d3Container.current)
@@ -77,16 +76,8 @@ const RadialBarChart: FC<RadialBarChartProps> = ({
         .padAngle(0.01)
         .padRadius(innerRadius)
       )
-      .on('mouseover', (event, d) => {
-        console.log(`event: `, event)
-
-        /**
-         * @todo Position of tooltips need to be dynamic to match the varying 
-         *       height and width
-         */
+      .on('mouseover', function (event, d) {
         tooltip
-          .style('left', (event.x) + 'px')
-          .style('top', (event.y) + 'px')
           .html(
             `
             <div>
@@ -94,15 +85,13 @@ const RadialBarChart: FC<RadialBarChartProps> = ({
                 ${d.name}
               </strong>
               <br/>
-              <div style="display: flex; gap: 6px;">
-                ${ 'Score: ' }
-                <div 
-                  style="background-color: #555555; border-radius: 5px; padding: 0.1px 6px"
-                >
-                  <p 
-                    style="color: ${ z(d.score) }; filter: drop-shadow(0px 0.1px 0.01px rgba(83, 83, 83, 0.85));"
-                  >
-                    ${ d.score }
+              <div style="display: flex; gap: 10px">
+                <div>
+                  ${ `Score: ${ d.score }` }
+                </div>
+                <div style="background-color: ${ z(d.score) }; border-radius: 5px; padding: 0px 7.5px;">
+                  <p style="color: white; font-weight: 800; filter: drop-shadow(0px 0px 1px rgba(0, 0, 0, 0.85));">
+                    ${ getRangeLabel(d.score) }
                   </p>
                 </div>
               </div>
@@ -110,23 +99,39 @@ const RadialBarChart: FC<RadialBarChartProps> = ({
             `
           )
           .transition()
-          .duration(50)
+          .duration(100)
           .style('opacity', 1)
+          .style('left', (event.x) + 'px')
+          .style('top', (event.y) + 'px')
+        
+        d3.select(this)
+          .transition()
+          .duration(100) // Duration of the transition in milliseconds
+          .style('stroke', 'black')
+          .style('stroke-width', '2px')
+          .style('cursor', `pointer`)
       })
-      .on('mouseleave', () => {
-        tooltip.transition()
-          .duration(1)
+      .on('mouseout', function () {
+        tooltip
+          .transition()
+          .duration(100) // Duration of the transition in milliseconds
           .style('opacity', 0)
+
+        d3.select(this)
+          .transition()
+          .duration(100) // Duration of the transition in milliseconds
+          .style('stroke', 'none')
+          .style('stroke-width', '0')
       })
 
     svg.append('foreignObject')
       .attr('width', 200)
       .attr('height', 50)
       .attr('x', -100)
-      .attr('y', -37)
+      .attr('y', data.name === 'Emotional Resilience Skills' ? -57 : -47)
       .html(
         `
-        <div style="text-align: center; font-size: 15.5px;">
+        <div style="text-align: center; font-size: 17.5px;">
           <div>
             ${ data.name }
           </div>
@@ -134,14 +139,25 @@ const RadialBarChart: FC<RadialBarChartProps> = ({
         `
       )
 
-    const domainScore: any = svg.append('text')
-      .attr('text-anchor', 'middle')
-      .attr('alignment-baseline', 'middle')
-      .style('font-size', '25px')
-      .text(data.domainScore)
-      .attr('fill', z((data as TargetDataStructure).domainScore))
-      .style('filter', 'url(#drop-shadow)') // Apply drop shadow filter
-      .attr('y', 20)
+    const domainScore: any = svg.append('foreignObject')
+      .attr('width', 200)
+      .attr('height', 63)
+      .attr('x', -100)
+      .attr('y', data.name === 'Emotional Resilience Skills' ? -8 : -22)
+      .html(
+        `
+          <div style="display: flex; flex-direction: column; gap: 3px; justify-content: center; align-items: center;">
+            <p style="font-size: 28px;">
+              ${data.domainScore}
+            </p>
+            <div style="background-color: ${ z(data.domainScore)}; border-radius: 5px; padding: 0px 7.5px;">
+              <p style="color: white; font-weight: 800; filter: drop-shadow(0px 0px 1px rgba(0, 0, 0, 1));">
+                ${getRangeLabel(data.domainScore) }
+              </p>
+            </div>
+          </div>
+        `
+      )
 
     // Add drop shadow filter
     svg.append('defs')
@@ -154,18 +170,6 @@ const RadialBarChart: FC<RadialBarChartProps> = ({
       .attr('stdDeviation', 1)
       .attr('flood-color', '#000000')
       .attr('flood-opacity', '0.75')
-
-    const textBBox = domainScore.node().getBBox()
-
-    svg.insert('rect', 'text')
-      .attr('x', textBBox.x - 8.5) // Add some padding
-      .attr('y', textBBox.y - 6.25) // Add some padding
-      .attr('width', textBBox.width + 17.25) // Add some padding
-      .attr('height', textBBox.height + 3) // Add some padding
-      .attr('fill', '#555555') // Set the background color
-      .attr('rx', 5) // Rounded corners
-      .attr('ry', 5) // Rounded corners
-      .attr('transform', 'translate(0,5)')
 
     // Add rings with labels
     const ringsData = [0, 50, 100] // Adjust the values as needed
