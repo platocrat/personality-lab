@@ -3,6 +3,7 @@
 // Externals
 import { useLayoutEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
+import { AppProgressBar as ProgressBar } from 'next-nprogress-bar'
 // Locals
 import Header from '@/components/Header'
 import Spinner from '@/components/Suspense/Spinner'
@@ -226,6 +227,12 @@ export default function RootLayout({
                   </BessiSkillScoresLayout>
                 </UserDemographicsLayout>
               </AuthenticatedUserContext.Provider>
+              <ProgressBar
+                height="4px"
+                color="rgb(0, 123, 194, 0.5)"
+                options={ { showSpinner: false } }
+                shallowRouting
+              />
             </body>
           </html>
         </>

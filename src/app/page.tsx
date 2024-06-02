@@ -2,6 +2,7 @@
 
 // Externals
 import { useContext, useMemo } from 'react'
+import { PagesProgressBar as ProgressBar } from 'next-nprogress-bar'
 // Locals
 // Sections
 import MainPortal from '@/sections/main-portal'
