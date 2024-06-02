@@ -228,10 +228,10 @@ export default function RootLayout({
                 </UserDemographicsLayout>
               </AuthenticatedUserContext.Provider>
               <ProgressBar
-                height="4px"
-                color="rgb(0, 123, 194, 0.5)"
-                options={ { showSpinner: false } }
+                height="3.5px"
                 shallowRouting
+                color="rgba(32, 113, 160, 0.85)"
+                options={{ showSpinner: false }}
               />
             </body>
           </html>

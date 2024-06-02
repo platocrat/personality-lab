@@ -11,15 +11,10 @@ import { verify } from 'jsonwebtoken'
 import {
   getEntryId,
   ddbDocClient,
-  fetchStudyEntry,
   STUDY__DYNAMODB,
-  updateStudyEntry,
   ACCOUNT__DYNAMODB,
-  fetchAccountEntry,
-  updateAccountEntry,
   DYNAMODB_TABLE_NAMES,
   PARTICIPANT__DYNAMODB,
-  extractParticipantData,
   STUDY_SIMPLE__DYNAMODB,
 } from '@/utils'
 
