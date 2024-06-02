@@ -11,6 +11,7 @@ import {
   useContext, 
 } from 'react'
 // Locals
+import ProgressBarLink from '@/components/Progress/ProgressBarLink'
 // Contexts
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // Hooks
@@ -89,12 +90,12 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
                 <Fragment
                   key={ i }
                 >
-                  <Link
+                  <ProgressBarLink
                     href={ link.href }
                     className={ styles.dropdownLink }
                   >
                     { link.label }
-                  </Link>
+                  </ProgressBarLink>
                 </Fragment>
               )) }
               { children }

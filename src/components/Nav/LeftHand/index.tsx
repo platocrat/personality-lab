@@ -1,7 +1,7 @@
 // Externals
-import Link from 'next/link'
 import { CSSProperties, FC, Fragment, ReactNode } from 'react'
 // Locals
+import ProgressBarLink from '@/components/Progress/ProgressBarLink'
 // CSS
 import styles from '@/components/Nav/LeftHand/LeftHandNav.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -70,11 +70,11 @@ const LeftHandNav: FC<LeftHandNavProps> = ({
         <div className={ styles.sidebar }>
           { BUTTONS.map((btn, i: number) => (
             <Fragment key={ i }>
-              <Link href={ btn.href }>
+              <ProgressBarLink href={ btn.href }>
                 <button className={ styles.sidebarLink }>
                   { btn.text }
                 </button>
-              </Link>
+              </ProgressBarLink>
             </Fragment>
           )) }
         </div>

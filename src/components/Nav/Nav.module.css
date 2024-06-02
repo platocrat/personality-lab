@@ -28,6 +28,8 @@
 
 .nav {
   display: flex;
+  position: relative;
+  z-index: 2;
   justify-content: space-between;
   flex-direction: row;
   align-items: center;

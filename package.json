@@ -34,9 +34,9 @@
     "d3": "^7.9.0",
     "eslint": "^8.56.0",
     "eslint-config-next": "^14.2.3",
+    "framer-motion": "^11.2.10",
     "html2canvas": "^1.4.1",
     "jsonwebtoken": "^9.0.2",
-    "next-nprogress-bar": "^2.3.12",
     "sharp": "^0.33.4",
     "turbo": "^1.13.3",
     "typescript": "^5.4.5"

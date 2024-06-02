@@ -1,5 +1,4 @@
 // Externals
-import Link from 'next/link'
 import Image from 'next/image'
 import { 
   FC, 
@@ -10,10 +9,12 @@ import {
   SetStateAction, 
 } from 'react'
 // Locals
-import { STUDY__DYNAMODB } from '@/utils'
+import ProgressBarLink from '@/components/Progress/ProgressBarLink'
 // Hooks
 import useWindowWidth from '@/hooks/useWindowWidth'
 import useClickOutside from '@/hooks/useClickOutside'
+// Utils
+import { STUDY__DYNAMODB } from '@/utils'
 // CSS
 import sectionStyles from '../ListOfStudies.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -192,20 +193,20 @@ const StudiesTable: FC<StudiesTableProps> = ({
                           style={{ position: 'relative' }}
                         >
                           <div className={ sectionStyles.dropdown }>
-                            <Link href={ buttonHref(study?.id.toString()) }>
+                            <ProgressBarLink href={ buttonHref(study?.id.toString()) }>
                               <button
                                 style={{ borderRadius: '4px 4px 0px 0px' }}
                               >
                                 { ` View` }
                               </button>
-                            </Link>
-                            <Link
+                            </ProgressBarLink>
+                            <ProgressBarLink
                               href={ `/edit-studies/study/${study.id}` }
                             >
                               <button>
                                 { `Edit` }
                               </button>
-                            </Link>
+                            </ProgressBarLink>
                             <button
                               // href='#'
                               style={{ borderRadius: '0px 0px 4px 4px' }}

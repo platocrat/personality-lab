@@ -3,10 +3,10 @@
 // Externals
 import { useLayoutEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import { AppProgressBar as ProgressBar } from 'next-nprogress-bar'
 // Locals
 import Header from '@/components/Header'
 import Spinner from '@/components/Suspense/Spinner'
+import ProgressBar from '@/components/Progress/ProgressBar'
 import BessiSkillScoresLayout from '@/components/Layouts/BessiSkillScoresLayout'
 import UserDemographicsLayout from '@/components/Layouts/UserDemographics'
 // Contexts
@@ -18,8 +18,8 @@ import {
   STUDY_SIMPLE__DYNAMODB
 } from '@/utils'
 // CSS
-import { definitelyCenteredStyle } from '@/theme/styles'
 import './globals.css'
+import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
@@ -204,35 +204,31 @@ export default function RootLayout({
         <>
           <html lang='en'>
             <body>
-              <AuthenticatedUserContext.Provider
-                value={{
-                  email,
-                  isAdmin,
-                  username,
-                  setEmail,
-                  setIsAdmin,
-                  userStudies,
-                  setUsername,
-                  isParticipant,
-                  setUserStudies,
-                  isAuthenticated,
-                  setIsParticipant,
-                  setIsAuthenticated,
-                }}
-              >
-                <UserDemographicsLayout>
-                  <BessiSkillScoresLayout>
-                    { isAuthenticated && <Header/> }
-                    { children }
-                  </BessiSkillScoresLayout>
-                </UserDemographicsLayout>
-              </AuthenticatedUserContext.Provider>
-              <ProgressBar
-                height="3.5px"
-                shallowRouting
-                color="rgba(32, 113, 160, 0.85)"
-                options={{ showSpinner: false }}
-              />
+              <ProgressBar>
+                <AuthenticatedUserContext.Provider
+                  value={{
+                    email,
+                    isAdmin,
+                    username,
+                    setEmail,
+                    setIsAdmin,
+                    userStudies,
+                    setUsername,
+                    isParticipant,
+                    setUserStudies,
+                    isAuthenticated,
+                    setIsParticipant,
+                    setIsAuthenticated,
+                  }}
+                >
+                  <UserDemographicsLayout>
+                    <BessiSkillScoresLayout>
+                      { isAuthenticated && <Header/> }
+                      { children }
+                    </BessiSkillScoresLayout>
+                  </UserDemographicsLayout>
+                </AuthenticatedUserContext.Provider>
+              </ProgressBar>
             </body>
           </html>
         </>

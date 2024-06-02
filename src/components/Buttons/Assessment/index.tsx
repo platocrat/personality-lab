@@ -2,9 +2,9 @@
 
 // Externals
 import { FC, useState } from 'react'
-import Link from 'next/link'
 // Locals
 import Spinner from '@/components/Suspense/Spinner'
+import ProgressBarLink from '@/components/Progress/ProgressBarLink'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -17,7 +17,7 @@ type AssessmentButtonProps = {
 
 
 /**
- * @dev This component CANNOT be used to submit forms because it uses `<Link>`
+ * @dev This component CANNOT be used to submit forms because it uses `<ProgressBarLink>`
  * component which overwrites the functionality of a form element.
  */
 const AssessmentButton: FC<AssessmentButtonProps> = ({
@@ -50,7 +50,7 @@ const AssessmentButton: FC<AssessmentButtonProps> = ({
       ) : (
         <>
           <div style={ { float: 'right' } }>
-            <Link href={ href }>
+            <ProgressBarLink href={ href }>
               <button
                 className={ styles.button }
                 style={ { width: '80px' } }
@@ -58,7 +58,7 @@ const AssessmentButton: FC<AssessmentButtonProps> = ({
               >
                 { buttonText }
               </button>
-            </Link>
+            </ProgressBarLink>
           </div>
         </>
       ) }

@@ -1,10 +1,10 @@
 'use client'
 
 // Externals
-import Link from 'next/link'
 import { CSSProperties, FC, ReactNode, useState } from 'react'
 // Locals
-import Spinner from '../Suspense/Spinner'
+import Spinner from '@/components/Suspense/Spinner'
+import ProgressBarLink from '@/components/Progress/ProgressBarLink'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -96,7 +96,7 @@ const Card: FC<CardProps> = ({
                           marginBottom: '12px'
                         }}
                       >
-                        <Link href={ href }>
+                        <ProgressBarLink href={ href }>
                           <button 
                             style={{ width: '70px' }}
                             className={ styles.button }
@@ -104,12 +104,13 @@ const Card: FC<CardProps> = ({
                           >
                             { buttonText }
                           </button>
-                        </Link>
+                        </ProgressBarLink>
                       </div>
                     </>
-                )}
+                  )
+                }
               </>
-            ) }
+            )}
           </div>
         </div>
       </div>
