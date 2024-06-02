@@ -1,6 +1,7 @@
 export * from './aws'
 export * from './api'
 export * from './misc'
+export * from './math'
 export * from './types'
 export * from './crypto'
 export * from './constants'

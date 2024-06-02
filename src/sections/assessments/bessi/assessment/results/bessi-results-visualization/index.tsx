@@ -21,9 +21,9 @@ import ShareResults from '@/components/DataViz/ShareResults'
 import RadialBarChart from '@/components/DataViz/BarChart/Radial'
 import BarChartPerDomain from '@/components/DataViz/BarChart/PerDomain'
 import BessiRateUserResults from '@/components/Forms/BESSI/RateUserResults'
-import NormalDistributionChart from '@/components/DataViz/Distributions/Normal'
 import PersonalityVisualization from '@/components/DataViz/PersonalityVisualization'
 import ResultsVisualizationModal from '@/components/Modals/BESSI/ResultsVisualization'
+import SingleNormalDistributionChart from '@/components/DataViz/Distributions/Normal/SingleNormal'
 // Hooks
 import useClickOutside from '@/hooks/useClickOutside'
 // Contexts
@@ -223,7 +223,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         console.log(`[${new Date().toLocaleString()}] stddev: `, stddev)
 
         return (
-          <NormalDistributionChart
+          <SingleNormalDistributionChart
             mean={ mean }
             stddev={ stddev }
             score={ score }

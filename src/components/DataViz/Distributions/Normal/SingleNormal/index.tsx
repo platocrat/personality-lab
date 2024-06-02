@@ -10,19 +10,19 @@ import {
 // CSS
 import styles from '../..//DataViz.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
-import '@/components/DataViz/Distributions/Normal/NormalDistribution.css'
+import '@/components/DataViz/Distributions/Normal/SingleNormal'
 
 
 
 
-type NormalDistributionChartProps = {
+type SingleNormalDistributionChartProps = {
   mean: number
   score: number
   stddev: number
 }
 
 
-const NormalDistributionChart: FC<NormalDistributionChartProps> = ({ 
+const SingleNormalDistributionChart: FC<SingleNormalDistributionChartProps> = ({ 
   mean, 
   score,
   stddev,
@@ -332,4 +332,4 @@ const NormalDistributionChart: FC<NormalDistributionChartProps> = ({
 }
 
 
-export default NormalDistributionChart
+export default SingleNormalDistributionChart
