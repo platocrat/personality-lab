@@ -246,8 +246,16 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         const isSample = false
 
         const multipleNormalDistributionData: MultipleNormalDistributionDataType = {
-          facetScores: dummyUserBessiScores.facetScores,
-          domainScores: dummyUserBessiScores.domainScores,
+          facetScores: (data_(i) as {
+            facetScores: FacetFactorType,
+            domainScores: SkillDomainFactorType,
+            averages: SkillDomainFactorType,
+          }).facetScores,
+          domainScores: (data_(i) as {
+            facetScores: FacetFactorType,
+            domainScores: SkillDomainFactorType,
+            averages: SkillDomainFactorType,
+          }).domainScores,
           populationFacetScores,
           populationDomainScores,
         }
