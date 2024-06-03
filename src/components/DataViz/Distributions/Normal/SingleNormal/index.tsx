@@ -5,7 +5,6 @@ import { FC, useEffect, useRef } from 'react'
 import { 
   generateAreaUnderCurve, 
   generateNormalDistributionCurve,
-  
 } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
