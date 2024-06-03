@@ -14,7 +14,7 @@ import {
   getSkillDomainAndWeight,
 } from '@/utils'
 // CSS
-import styles from '@/components/DataViz.module.css'
+import styles from '@/components/DataViz/DataViz.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
 
 
