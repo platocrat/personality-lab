@@ -9,32 +9,32 @@ import {
 } from '@/utils'
 
 
-type InputData = {
+export type MultipleNormalDistributionDataType = {
   facetScores: FacetFactorType
   domainScores: SkillDomainFactorType
-  populationFacetScores: Record<string, number[]>
-  populationDomainScores: Record<string, number[]>
+  populationFacetScores: { [key: string]: number[]  }
+  populationDomainScores: { [key: string]: number[] }
 }
 
 
 type MultipleNormalDistributionsProps = {
-  inputData: InputData
   isSample: boolean
+  data: MultipleNormalDistributionDataType
 }
 
 
 
 
 const MultipleNormalDistributions: FC<MultipleNormalDistributionsProps> = ({ 
-  inputData, 
-  isSample 
+  data,
+  isSample,
 }) => {
   const { 
     facetScores, 
     domainScores, 
     populationFacetScores, 
     populationDomainScores,
-  } = inputData
+  } = data
 
   const facetScoresStats = calculateStats(populationFacetScores, isSample)
   const domainScoresStats = calculateStats(populationDomainScores, isSample)

@@ -4,6 +4,8 @@ import { getFacet, getSkillDomainAndWeight } from '../utils'
 import { Facet, SkillDomain } from '../enums'
 // Enums
 import { BessiActivityType } from '../types'
+import _ from '@/app/assessments/page'
+import { getRandomValueInRange } from '@/utils/misc'
 
 
 // Invalid characters for strings
@@ -42,64 +44,82 @@ export const imgPaths = () => {
 
 
 /**
- * # Dummy variables
- * @dev Personality Visualization (`pv`)
+ * # Dummy variables for BESSI assessment results
  */
-export const dummyVariables = {
-  // Personality Visualization
-  pv: {
-    data: {
-      domainScores: {
-        'Self-Management Skills': Math.floor(Math.random() * 100),
-        'Social Engagement Skills': Math.floor(Math.random() * 100),
-        'Cooperation Skills': Math.floor(Math.random() * 100),
-        'Emotional Resilience Skills': Math.floor(Math.random() * 100),
-        'Innovation Skills': Math.floor(Math.random() * 100),
-      },
-      facetScores: {
-        'Time Management': Math.floor(Math.random() * 100),
-        'Organizational Skill': Math.floor(Math.random() * 100),
-        'Capacity for Consistency': Math.floor(Math.random() * 100),
-        'Task Management': Math.floor(Math.random() * 100),
-        'Detail Management': Math.floor(Math.random() * 100),
-        'Rule-Following Skill': Math.floor(Math.random() * 100),
-        'Responsibility Management': Math.floor(Math.random() * 100),
-        'Goal Regulation': Math.floor(Math.random() * 100),
-        'Decision-Making Skill': Math.floor(Math.random() * 100),
-        'Leadership Skill': Math.floor(Math.random() * 100),
-        'Persuasive Skill': Math.floor(Math.random() * 100),
-        'Expressive Skill': Math.floor(Math.random() * 100),
-        'Conversational Skill': Math.floor(Math.random() * 100),
-        'Energy Regulation': Math.floor(Math.random() * 100),
-        'Perspective-Taking Skill': Math.floor(Math.random() * 100),
-        'Capacity for Trust': Math.floor(Math.random() * 100),
-        'Capacity for Social Warmth': Math.floor(Math.random() * 100),
-        'Teamwork Skill': Math.floor(Math.random() * 100),
-        'Ethical Competence': Math.floor(Math.random() * 100),
-        'Stress Regulation': Math.floor(Math.random() * 100),
-        'Capacity for Optimism': Math.floor(Math.random() * 100),
-        'Anger Management': Math.floor(Math.random() * 100),
-        'Confidence Regulation': Math.floor(Math.random() * 100),
-        'Impulse Regulation': Math.floor(Math.random() * 100),
-        'Abstract Thinking Skill': Math.floor(Math.random() * 100),
-        'Creative Skill': Math.floor(Math.random() * 100),
-        'Artistic Skill': Math.floor(Math.random() * 100),
-        'Cultural Competence': Math.floor(Math.random() * 100),
-        'Information Processing Skill': Math.floor(Math.random() * 100),
-        'Self-Reflection Skill': Math.floor(Math.random() * 100),
-        'Adaptability': Math.floor(Math.random() * 100),
-        'Capacity for Independence': Math.floor(Math.random() * 100),
-      }
-    },
-    averages: {
-      "Self-Management Skills": Math.floor(Math.random() * 100),
-      "Social Engagement Skills": Math.floor(Math.random() * 100),
-      "Cooperation Skills": Math.floor(Math.random() * 100),
-      "Emotional Resilience Skills": Math.floor(Math.random() * 100),
-      "Innovation Skills": Math.floor(Math.random() * 100),
-    }
+export const dummyUserBessiScores = {
+  domainScores: {
+    'Self-Management Skills': Math.floor(Math.random() * 100),
+    'Social Engagement Skills': Math.floor(Math.random() * 100),
+    'Cooperation Skills': Math.floor(Math.random() * 100),
+    'Emotional Resilience Skills': Math.floor(Math.random() * 100),
+    'Innovation Skills': Math.floor(Math.random() * 100),
+  },
+  facetScores: {
+    'Time Management': Math.floor(Math.random() * 100),
+    'Organizational Skill': Math.floor(Math.random() * 100),
+    'Capacity for Consistency': Math.floor(Math.random() * 100),
+    'Task Management': Math.floor(Math.random() * 100),
+    'Detail Management': Math.floor(Math.random() * 100),
+    'Rule-Following Skill': Math.floor(Math.random() * 100),
+    'Responsibility Management': Math.floor(Math.random() * 100),
+    'Goal Regulation': Math.floor(Math.random() * 100),
+    'Decision-Making Skill': Math.floor(Math.random() * 100),
+    'Leadership Skill': Math.floor(Math.random() * 100),
+    'Persuasive Skill': Math.floor(Math.random() * 100),
+    'Expressive Skill': Math.floor(Math.random() * 100),
+    'Conversational Skill': Math.floor(Math.random() * 100),
+    'Energy Regulation': Math.floor(Math.random() * 100),
+    'Perspective-Taking Skill': Math.floor(Math.random() * 100),
+    'Capacity for Trust': Math.floor(Math.random() * 100),
+    'Capacity for Social Warmth': Math.floor(Math.random() * 100),
+    'Teamwork Skill': Math.floor(Math.random() * 100),
+    'Ethical Competence': Math.floor(Math.random() * 100),
+    'Stress Regulation': Math.floor(Math.random() * 100),
+    'Capacity for Optimism': Math.floor(Math.random() * 100),
+    'Anger Management': Math.floor(Math.random() * 100),
+    'Confidence Regulation': Math.floor(Math.random() * 100),
+    'Impulse Regulation': Math.floor(Math.random() * 100),
+    'Abstract Thinking Skill': Math.floor(Math.random() * 100),
+    'Creative Skill': Math.floor(Math.random() * 100),
+    'Artistic Skill': Math.floor(Math.random() * 100),
+    'Cultural Competence': Math.floor(Math.random() * 100),
+    'Information Processing Skill': Math.floor(Math.random() * 100),
+    'Self-Reflection Skill': Math.floor(Math.random() * 100),
+    'Adaptability': Math.floor(Math.random() * 100),
+    'Capacity for Independence': Math.floor(Math.random() * 100),
   }
 }
+
+
+export function getDummyPopulationBessiScores(
+  n: number, 
+  domainOrFacet: 'facet' | 'domain'
+): { [key: string]: number[] } {
+  let keys: string[] = []
+
+  if (domainOrFacet === 'domain') {
+    keys = Object.keys(dummyUserBessiScores.domainScores)
+  } else if (domainOrFacet === 'facet') {
+    keys = Object.keys(dummyUserBessiScores.facetScores)
+  } else {
+    const error = 'Could not get dummy population scores because did not specify whether output is for facet or domain.'
+    throw new Error(error)
+  }
+
+  let populationScores: { [key: string]: number[] } = {}
+
+  for (let i = 0; i < n; i++) {
+    // For each domain name
+    keys.forEach((key: string) => {
+      // Push the user's score to the array of scores for this key.
+      const value = getRandomValueInRange(0, 100)
+      _[key] = [..._[key], value]
+    })
+  }
+
+  return populationScores
+}
+
 
 
 // Mappings

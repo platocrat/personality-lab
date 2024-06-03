@@ -24,6 +24,9 @@ import BessiRateUserResults from '@/components/Forms/BESSI/RateUserResults'
 import PersonalityVisualization from '@/components/DataViz/PersonalityVisualization'
 import ResultsVisualizationModal from '@/components/Modals/BESSI/ResultsVisualization'
 import SingleNormalDistributionChart from '@/components/DataViz/Distributions/Normal/SingleNormal'
+import MultipleNormalDistributions, { 
+  MultipleNormalDistributionDataType 
+} from '@/components/DataViz/Distributions/Normal/MultipleNormal'
 // Hooks
 import useClickOutside from '@/hooks/useClickOutside'
 // Contexts
@@ -33,18 +36,21 @@ import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 import { BessiSkillScoresContextType } from '@/contexts/types'
 // Utils
 import {
-  dummyVariables,
+  transformData,
+  calculateStats,
   FacetFactorType,
   RATINGS__DYNAMODB,
-  InputDataStructure,
-  TargetDataStructure,
+  dummyUserBessiScores,
+  BarChartInputDataType,
   getRandomValueInRange,
   SkillDomainFactorType,
+  BarChartTargetDataType,
   STUDY_SIMPLE__DYNAMODB,
-  transformData,
+  getDummyPopulationBessiScores,
 } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
+import _ from '@/app/assessments/page'
 
 
 
@@ -112,14 +118,14 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
       case 0:
         return Object.entries(
           bessiSkillScores?.domainScores as SkillDomainFactorType
-          ?? dummyVariables.pv.data?.domainScores as SkillDomainFactorType
+          ?? dummyUserBessiScores.domainScores as SkillDomainFactorType
         ).map(([key, value]) => ({
           axis: key,
           value: value / 100
         }))
       case 1:
       case 2:
-        const inputData: InputDataStructure = {
+        const inputData: BarChartInputDataType = {
           facetScores: bessiSkillScores?.facetScores as FacetFactorType,
           domainScores: bessiSkillScores?.domainScores as SkillDomainFactorType,
         }
@@ -127,20 +133,21 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         return transformData(
           bessiSkillScores?.domainScores
             ? inputData 
-            : dummyVariables.pv.data
+            : dummyUserBessiScores
           )
       case 3:
       case 4:
       case 5:
+      case 6:
         return bessiSkillScores?.domainScores
           ? {
             facetScores: bessiSkillScores?.facetScores,
             domainScores: bessiSkillScores?.domainScores,
-            averages: dummyVariables.pv.averages,
+            averages: dummyUserBessiScores.domainScores,
           }
-          : dummyVariables.pv.data
+          : dummyUserBessiScores
       default:
-        return dummyVariables.pv.data
+        return dummyUserBessiScores
     }
   }
 
@@ -155,13 +162,13 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         return <StellarPlot isExample={ isExample } data={ data_(i) } />
       case 1:
         const barChartTitle = 'BESSI Bar Chart'
-        const allData: TargetDataStructure[] = data_(i) as TargetDataStructure[]
+        const allData: BarChartTargetDataType[] = data_(i) as BarChartTargetDataType[]
 
         return (
           <>
             <Title isExample={ isExample } title={ barChartTitle } />
 
-            { allData.map((data: TargetDataStructure, i: number) => (
+            { allData.map((data: BarChartTargetDataType, i: number) => (
               <>
                 <BarChartPerDomain isExample={ isExample } data={ data } />
               </>
@@ -170,7 +177,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         )
       case 2:
         const radialBarChartTitle = `BESSI Radial Bar Chart`
-        const _allData = data_(i) as TargetDataStructure[]
+        const _allData = data_(i) as BarChartTargetDataType[]
 
         return (
           <>
@@ -191,7 +198,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
                   (e: any) => handleOnChangeRadialBarChart(e) 
                 }
               >
-                { _allData.map((data: TargetDataStructure, i: number) => (
+                { _allData.map((data: BarChartTargetDataType, i: number) => (
                   <>
                     <option key={ i } value={ i }>
                       { data.name }
@@ -229,12 +236,34 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
             score={ score }
           />
         )
+      case 4:
+        /**
+         * @todo If `isExample` is false, replace dummy data with real data
+         */
+        const populationFacetScores = getDummyPopulationBessiScores(100, 'facet')
+        const populationDomainScores = getDummyPopulationBessiScores(100, 'domain')
+
+        const isSample = false
+
+        const multipleNormalDistributionData: MultipleNormalDistributionDataType = {
+          facetScores: dummyUserBessiScores.facetScores,
+          domainScores: dummyUserBessiScores.domainScores,
+          populationFacetScores,
+          populationDomainScores,
+        }
+
+        return (
+          <MultipleNormalDistributions
+            isSample={ isSample }
+            data={ multipleNormalDistributionData }
+          />
+        )
       case 5:
         return (
           <PersonalityVisualization
             isExample={ isExample }
             data={ data_(i) }
-            averages={ dummyVariables.pv.averages }
+            averages={ dummyUserBessiScores.domainScores }
           />
         )
       default:

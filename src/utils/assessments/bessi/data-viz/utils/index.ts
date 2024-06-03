@@ -3,8 +3,8 @@ import { domainToFacetMapping } from '../../constants'
 // Types
 import { 
   FacetDataType, 
-  InputDataStructure,
-  TargetDataStructure, 
+  BarChartInputDataType,
+  BarChartTargetDataType, 
 } from '../types'
 
 
@@ -18,7 +18,7 @@ export function convertToAbbreviation(input: string): string {
 
 
 export function findFacetByScore(
-  data: TargetDataStructure[],
+  data: BarChartTargetDataType[],
   facetScore: number,
   facetScoreIndex: number
 ): FacetDataType | undefined {
@@ -62,8 +62,8 @@ export function generateHighContrastColors(count: number): string[] {
 
 
 export function transformData(
-  inputData: InputDataStructure
-): TargetDataStructure[] {
+  inputData: BarChartInputDataType
+): BarChartTargetDataType[] {
   return Object.keys(inputData.domainScores).map(domainName => {
     const facets: FacetDataType[] = domainToFacetMapping[domainName].map(
       (facetName: string): FacetDataType => ({

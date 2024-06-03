@@ -2,26 +2,26 @@
 import * as d3 from 'd3'
 import { FC, useEffect, useRef } from 'react'
 // Locals
-import Title from '../../Title'
+import Title from '@/components/DataViz/Title'
 import {
+  getRangeLabel,
   FacetFactorType,
   findFacetByScore,
   skillDomainMapping,
-  TargetDataStructure,
   domainToFacetMapping,
   SkillDomainFactorType,
+  BarChartTargetDataType,
   getSkillDomainAndWeight,
-  getRangeLabel,
 } from '@/utils'
 // CSS
-import styles from '../../DataViz.module.css'
+import styles from '@/components/DataViz.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
 type BarChartPerDomainType = {
   isExample: boolean
-  data: TargetDataStructure | {
+  data: BarChartTargetDataType | {
     axis: string
     value: number
   }[] | {
@@ -65,12 +65,12 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
 
 
     const x0 = d3.scaleBand()
-      .domain([(data as TargetDataStructure).name])
+      .domain([(data as BarChartTargetDataType).name])
       .rangeRound([0, width])
       .paddingInner(0.1)
 
     const x1 = d3.scaleBand()
-      .domain((data as TargetDataStructure).facets.map(d => d.name))
+      .domain((data as BarChartTargetDataType).facets.map(d => d.name))
       .rangeRound([0, x0.bandwidth()])
       .padding(0.25)
 
@@ -97,7 +97,7 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
     const g = svg.append('g')
 
     g.selectAll('rect')
-      .data((data as TargetDataStructure).facets)
+      .data((data as BarChartTargetDataType).facets)
       .join('rect')
       .attr('x', (d, i) => x1(d.name)!)
       .attr('y', d => y(d.score))
@@ -167,7 +167,7 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
 
     // Add facet score labels to the top of each bar
     g.selectAll('.bar-label')
-      .data((data as TargetDataStructure).facets)
+      .data((data as BarChartTargetDataType).facets)
       .join('text')
       .attr('class', 'bar-label')
       .attr('x', (d, i) => x1(d.name)! + x1.bandwidth() / 2)
@@ -212,12 +212,12 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
           <div style="display: flex; flex-direction: row; gap: 8px; justify-content: left; align-items: left;">
             <div>
               <p style="font-size: 14px;">
-              ${ (data as TargetDataStructure).domainScore }
+              ${ (data as BarChartTargetDataType).domainScore }
               </p>
             </div>
-            <div style="width: max-content; background-color: ${ color((data as TargetDataStructure).domainScore) }; border-radius: 5px; padding: 0px 7.5px;">
+            <div style="width: max-content; background-color: ${ color((data as BarChartTargetDataType).domainScore) }; border-radius: 5px; padding: 0px 7.5px;">
               <p style="color: white; font-size: 14px; font-weight: 800; filter: drop-shadow(0px 0px 1px rgba(0, 0, 0, 1));">
-                ${ getRangeLabel((data as TargetDataStructure).domainScore) }
+                ${ getRangeLabel((data as BarChartTargetDataType).domainScore) }
               </p>
             </div>
           </div>
@@ -290,7 +290,7 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
             margin: '12px 0px 4px 0px',
           }}
         >
-          { (data as TargetDataStructure).name }
+          { (data as BarChartTargetDataType).name }
         </h4>
         <div 
           ref={ d3Container } 

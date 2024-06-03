@@ -6,20 +6,24 @@ type StatsType = {
 }
 
 
+
 export function calculateStats(
-  data: Record<string, number[]>, 
+  populationOrSampleData: { [key: string]: number[] },
   isSample: boolean
 ): StatsType {
-  const stats: Record<string, { mean: number, stddev: number }> = {}
+  const stats: StatsType = {}
 
-  Object.entries(data).forEach(([key, scores]): void => {
+  Object.keys(populationOrSampleData).forEach((key): void => {
+    const scores = populationOrSampleData[key]
     const mean = calculateMean(scores)
     const stddev = calculateStandardDeviation(scores, mean, isSample)
+    
     stats[key] = { mean, stddev }
   })
 
   return stats
 }
+
 
 
 export function calculateMean(scores: number[]): number {
