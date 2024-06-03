@@ -6,7 +6,7 @@ import Title from '@/components/DataViz/Title'
 // Hooks
 import useWindowWidth from '@/hooks/useWindowWidth'
 // Utils
-import { TargetDataStructure, getRangeLabel } from '@/utils'
+import { BarChartTargetDataType, getRangeLabel } from '@/utils'
 // CSS
 import dataVizStyles from '../../DataViz.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -15,7 +15,7 @@ import styles from '@/components/DataViz/BarChart/Radial/Radial.module.css'
 
 
 type RadialBarChartProps = {
-  data: TargetDataStructure
+  data: BarChartTargetDataType
   selectedRadialBarChart: number
 }
 
