@@ -8,8 +8,8 @@ import {
   
 } from '@/utils'
 // CSS
-import styles from '@/components/DataViz/DataViz.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+import styles from '@/components/DataViz/DataViz.module.css'
 import '@/components/DataViz/Distributions/Normal/SingleNormal'
 
 

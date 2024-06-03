@@ -236,7 +236,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
             score={ score }
           />
         )
-      case 4:
+      case 5:
         /**
          * @todo If `isExample` is false, replace dummy data with real data
          */
@@ -266,7 +266,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
             data={ multipleNormalDistributionData }
           />
         )
-      case 5:
+      case 6:
         return (
           <PersonalityVisualization
             isExample={ isExample }
