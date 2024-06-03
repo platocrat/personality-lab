@@ -7,6 +7,8 @@ import {
   FacetFactorType, 
   SkillDomainFactorType,
 } from '@/utils'
+import Title from '@/components/DataViz/Title'
+import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 export type MultipleNormalDistributionDataType = {
@@ -19,6 +21,7 @@ export type MultipleNormalDistributionDataType = {
 
 type MultipleNormalDistributionsProps = {
   isSample: boolean
+  isExample: boolean
   data: MultipleNormalDistributionDataType
 }
 
@@ -28,6 +31,7 @@ type MultipleNormalDistributionsProps = {
 const MultipleNormalDistributions: FC<MultipleNormalDistributionsProps> = ({ 
   data,
   isSample,
+  isExample,
 }) => {
   const { 
     facetScores, 
@@ -48,12 +52,24 @@ const MultipleNormalDistributions: FC<MultipleNormalDistributionsProps> = ({
         ]
 
         return (
-          <SingleNormalDistributionChart
-            key={ `facet-${facet}` }
-            mean={ mean }
-            stddev={ stddev }
-            score={ score as number ?? 0 }
-          />
+          <>
+            <div>
+              <div style={{ ...definitelyCenteredStyle }}>
+                <p style={{ marginRight: '8px' }}>
+                  { `Facet: ` }
+                </p>
+                <p>
+                  { facet }
+                </p>
+              </div>
+              <SingleNormalDistributionChart
+                key={ `facet-${facet}` }
+                mean={ mean }
+                stddev={ stddev }
+                score={ score as number ?? 0 }
+              />
+            </div>
+          </>
         )
       }) }
 
@@ -63,12 +79,24 @@ const MultipleNormalDistributions: FC<MultipleNormalDistributionsProps> = ({
         ]
 
         return (
-          <SingleNormalDistributionChart
-            key={ `domain-${domain}` }
-            mean={ mean }
-            stddev={ stddev }
-            score={ score as number ?? 0 }
-          />
+          <>
+            <div>
+              <div style={{ ...definitelyCenteredStyle }}>
+                <p style={{ marginRight: '8px' }}>
+                  { `Domain: ` }
+                </p>
+                <p>
+                  { domain }
+                </p>
+              </div>
+              <SingleNormalDistributionChart
+                key={ `domain-${domain}` }
+                mean={ mean }
+                stddev={ stddev }
+                score={ score as number ?? 0 }
+              />
+            </div>
+          </>
         )
       }) }
     </div>

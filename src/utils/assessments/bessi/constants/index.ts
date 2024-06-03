@@ -4,7 +4,6 @@ import { getFacet, getSkillDomainAndWeight } from '../utils'
 import { Facet, SkillDomain } from '../enums'
 // Enums
 import { BessiActivityType } from '../types'
-import _ from '@/app/assessments/page'
 import { getRandomValueInRange } from '@/utils/misc'
 
 
@@ -113,7 +112,11 @@ export function getDummyPopulationBessiScores(
     keys.forEach((key: string) => {
       // Push the user's score to the array of scores for this key.
       const value = getRandomValueInRange(0, 100)
-      _[key] = [..._[key], value]
+      const values = populationScores[key] 
+        ? [ ...populationScores[key], value ] 
+        : [ value ]
+
+      populationScores[key] = values
     })
   }
 

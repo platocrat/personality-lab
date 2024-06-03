@@ -264,6 +264,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         return (
           <MultipleNormalDistributions
             isSample={ isSample }
+            isExample={ isExample }
             data={ multipleNormalDistributionData }
           />
         )
