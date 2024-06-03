@@ -102,6 +102,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
     { name: 'Radial Bar Graph', imgName: 'radial-bar-graph' },
     { name: 'Tree Map', imgName: 'tree-map' },
     { name: 'Normal Distribution', imgName: 'normal-distribution' },
+    { name: 'Multiple Normal Distributions', imgName: 'multiple-normal-distributions' },
     { name: 'Personality Visualization', imgName: 'personality-visualization' },
   ]
   
