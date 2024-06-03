@@ -3,9 +3,11 @@ import {
   PutCommand,
   PutCommandInput
 } from '@aws-sdk/lib-dynamodb'
+import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 // Locals
 import {
+  hasJWT,
   getEntryId,
   ddbDocClient,
   RATINGS__DYNAMODB,
@@ -25,6 +27,8 @@ export async function PUT(
   res: NextResponse,
 ) {
   if (req.method === 'PUT') {
+    hasJWT(cookies)
+    
     const { userVizRating } = await req.json()
 
     const userVizRatingId = await getEntryId(userVizRating)

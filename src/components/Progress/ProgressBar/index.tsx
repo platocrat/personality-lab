@@ -34,11 +34,6 @@ const ProgressBar = ({ children }: { children: ReactNode }) => {
   let width = useMotionTemplate`${progress.value}%`
 
 
-  useLayoutEffect(() => {
-    console.log(`progress.state: `, progress.state)
-  }, [ progress.state ])
-
-
   return (
     <ProgressBarContext.Provider value={ progress }>
       <AnimatePresence onExitComplete={ progress.reset }>
@@ -49,7 +44,8 @@ const ProgressBar = ({ children }: { children: ReactNode }) => {
               height: '4px',
               position: 'absolute',
               zIndex: '100',
-              backgroundColor: 'rgb(0, 123, 194, 1)',
+              filter: 'drop-shadow(0px 2px 4px rgba(61, 142, 255, 0.9))',
+              backgroundColor: 'rgb(61, 142, 255, 1)',
             }}
             exit={{ opacity: 0 }}
           />

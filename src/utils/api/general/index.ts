@@ -3,6 +3,7 @@ import { CipherKey } from 'crypto'
 // Locals
 import {
   SSCrypto,
+  LibsodiumUtils,
   fetchAwsParameter,
   AWS_PARAMETER_NAMES,
 } from '@/utils'
@@ -15,25 +16,39 @@ import {
  * @param obj 
  * @returns 
  */
-export async function getEntryId(obj) {
+export async function getEntryId(
+  obj, 
+  isLibsodium?: boolean
+): Promise<string> {
   try {
     const SECRET_KEY = await fetchAwsParameter(
       AWS_PARAMETER_NAMES.RESULTS_ENCRYPTION_SECRET_KEY
     )
 
     if (typeof SECRET_KEY === 'string') {
-      const secretKeyCipher = Buffer.from(SECRET_KEY, 'hex')
+      let secretKey: Buffer | Uint8Array
+
+      secretKey = isLibsodium 
+        ? LibsodiumUtils.base64ToUint8Array(SECRET_KEY)
+        : Buffer.from(SECRET_KEY, 'hex')
 
       // Encrypt object's properties
       const encryptedObj = await encryptObject(
-        secretKeyCipher, 
+        secretKey as Buffer, // Secret Key Cipher
         obj, 
         encryptionTransformFn
       )
 
       // Represent ID of the encrypted obj as a hash, in hexadecimal, to be
       // stored in a database
-      const entryId = new SSCrypto().createHash(JSON.stringify(encryptedObj))
+      const entryId = isLibsodium 
+        ? (await LibsodiumUtils.genericHash(
+              16, 
+              JSON.stringify(encryptObject), 
+              true
+          )) as string
+        : new SSCrypto().createHash(JSON.stringify(encryptedObj))
+
       return entryId
     } else {
       throw new Error(
@@ -50,13 +65,19 @@ export async function getEntryId(obj) {
 
 
 const encryptObject = async (
-  secretKey: CipherKey,
+  secretKey: CipherKey | Uint8Array,
   obj,
   transformFn,
+  isLibsodium?: boolean
 ) => {
   const entries = await Promise.all(
     Object.entries(obj).map(async ([key, value]) => {
-        const encryptedValue = await encryptionTransformFn(secretKey, value)
+        const encryptedValue = await encryptionTransformFn(
+          secretKey, 
+          value,
+          isLibsodium
+        )
+
         return [key, encryptedValue]
       }
     )
@@ -70,16 +91,27 @@ const encryptObject = async (
 
 // Example transformation function
 const encryptionTransformFn = (
-  secretKey: CipherKey, 
-  value
+  secretKey: CipherKey | Uint8Array,
+  value,
+  isLibsodium?: boolean
 ) => {
   // Generic transformations here
   if (typeof value === 'string') {
-    return new SSCrypto().encrypt(value, secretKey)
+    return isLibsodium 
+      ? LibsodiumUtils.encrypt(value, secretKey as Uint8Array)
+      : new SSCrypto().encrypt(value, secretKey as CipherKey) 
   } else if (typeof value === 'boolean') {
-    return new SSCrypto().encrypt(`${ value }`, secretKey)
+    const _value = `${ value }`
+
+    return isLibsodium 
+      ? LibsodiumUtils.encrypt(_value, secretKey as Uint8Array)
+      : new SSCrypto().encrypt(_value, secretKey as CipherKey) 
   } else if (typeof value === 'number') {
-    return new SSCrypto().encrypt(value.toString(), secretKey)
+      const _value = value.toString()
+
+      return isLibsodium 
+        ? LibsodiumUtils.encrypt(_value, secretKey as Uint8Array)
+        : new SSCrypto().encrypt(_value, secretKey as CipherKey) 
   } else {
     return value
   }

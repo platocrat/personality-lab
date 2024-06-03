@@ -13,6 +13,8 @@ import {
 import AssessmentCards from './assessment-cards'
 // Contexts
 import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
+// Hooks
+import useWindowWidth from '@/hooks/useWindowWidth'
 // Utils
 import {
   ACCOUNT__DYNAMODB,
@@ -45,6 +47,8 @@ const PersonalityAssessments = ({ }) => {
     isAdmin,
     isParticipant,
   } = useContext(AuthenticatedUserContext)
+  // Hooks
+  const windowWidth = useWindowWidth()
   // States
   const [ 
     isGettingParticipant, 
@@ -114,9 +118,17 @@ const PersonalityAssessments = ({ }) => {
       <div 
         className={ styles.main }
         style={{ top: isParticipant || isAdmin ? '0' : '' }}
-      >
-        
-        <div style={{ marginBottom: '8px' }}>
+      > 
+        <div 
+          style={{ 
+            marginTop: isAdmin
+              ? windowWidth > 800 
+                ? '-24px' 
+                : '-12px'
+               : '', 
+            marginBottom: '8px', 
+          }}
+        >
           <h1>{ title }</h1>
         </div>
 

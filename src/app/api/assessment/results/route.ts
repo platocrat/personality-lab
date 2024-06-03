@@ -4,9 +4,11 @@ import {
   UpdateCommand,
   QueryCommandInput,
 } from '@aws-sdk/lib-dynamodb'
+import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 // Locals
 import {
+  hasJWT,
   getEntryId,
   ddbDocClient,
   STUDY__DYNAMODB,
@@ -29,6 +31,8 @@ export async function POST(
   res: NextResponse,
 ) {
   if (req.method === 'POST') {
+    hasJWT(cookies)
+
     const { userResults } = await req.json()
 
     const userResultsId = await getEntryId(userResults)
@@ -188,6 +192,8 @@ export async function GET(
   res: NextResponse,
 ) {
   if (req.method === 'GET') {
+    hasJWT(cookies)
+
     const email = req.nextUrl.searchParams.get('email')
     const studyId = req.nextUrl.searchParams.get('studyId')
 

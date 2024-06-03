@@ -1,9 +1,11 @@
 // Externals
 import sgMail from '@sendgrid/mail'
+import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 import { GetParameterCommandInput, GetParameterCommand } from '@aws-sdk/client-ssm'
 // Locals
 import { 
+  hasJWT,
   ssmClient,
   fetchAwsParameter, 
   AWS_PARAMETER_NAMES,
@@ -16,6 +18,8 @@ export async function POST(
   res: NextResponse,
 ) {
   if (req.method === 'POST') {
+    hasJWT(cookies)
+
     const { email } = await req.json()
 
     const API_KEY = await fetchAwsParameter(

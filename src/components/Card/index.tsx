@@ -51,10 +51,14 @@ const Card: FC<CardProps> = ({
         className={ styles.card }
       >
         <div style={ { padding: '8px' } }>
-          <h2 style={ { textAlign: 'center' } }>{ title }</h2>
+          <h2 style={ { textAlign: 'center' } }>
+            { title }
+          </h2>
         </div>
         <div>
-          <p style={ { textAlign: 'center' } }>{ description }</p>
+          <div style={ { textAlign: 'center' } }>
+            { description }
+          </div>
         </div>
         <div
           style={ {

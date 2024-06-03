@@ -21,6 +21,7 @@ export class SSCrypto {
   private static readonly IV_LENGTH = 16
   private static readonly HASH_KEY_LENGTH = 16
   private static readonly ENCRYPTION_ALGORITHM = 'aes-256-cbc'
+  private static readonly ENCRYPTION_KEY_LENGTH = 32
   private static readonly HASHED_PASSWORD_ENCODING = 'hex'
   // private static readonly SYMBOLS = `#@*+-_;,.?!()/{}&'`
   // private static readonly CAPITAL_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -142,5 +143,31 @@ export class SSCrypto {
 
     // Calculate the hash digest (output) in hex format
     return hash.digest('hex')
+  }
+
+
+  public async generateNewSecretKeys(): Promise<{
+    COOKIE_ENCRYPTION_SECRET_KEY: string
+    RESULTS_ENCRYPTION_SECRET_KEY: string
+    SHARE_RESULTS_ENCRYPTION_SECRET_KEY: string
+  }> {
+    let newSecretKeys = { 
+      COOKIE_ENCRYPTION_SECRET_KEY: '',
+      RESULTS_ENCRYPTION_SECRET_KEY: '',
+      SHARE_RESULTS_ENCRYPTION_SECRET_KEY: '',
+    }
+
+    const objectKeys = [
+      `COOKIE_ENCRYPTION_SECRET_KEY`,
+      `RESULTS_ENCRYPTION_SECRET_KEY`,
+      `SHARE_RESULTS_ENCRYPTION_SECRET_KEY`
+    ]
+
+    objectKeys.forEach((objKey: string): void => {
+      const secretKey = randomBytes(SSCrypto.ENCRYPTION_KEY_LENGTH)
+      newSecretKeys[objKey] = secretKey.toString('hex')
+    })
+
+    return newSecretKeys
   }
 }

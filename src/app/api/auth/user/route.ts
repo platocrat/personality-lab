@@ -4,6 +4,7 @@ import { decode, verify } from 'jsonwebtoken'
 import { NextRequest, NextResponse } from 'next/server'
 // Locals
 import {
+  hasJWT,
   SSCrypto,
   CookieType,
   COOKIE_NAME,
@@ -25,23 +26,8 @@ export async function GET(
   res: NextResponse,
 ) {
   if (req.method === 'GET') {
-    /**
-     * @dev 1. Check if a cookie exists for the user
-     */
-    const cookieStore = cookies()
-
-    const token = cookieStore.get(COOKIE_NAME)
-
-    if (!token) {
-      return NextResponse.json(
-        { message: 'Unauthorized', },
-        { 
-          status: 401,
-        }
-      )
-    } 
-
-    const tokenValue = token?.value
+    const getJWT = true
+    const JWT = hasJWT(cookies, getJWT)
 
     const JWT_SECRET = await fetchAwsParameter(AWS_PARAMETER_NAMES.JWT_SECRET)
 
@@ -51,11 +37,11 @@ export async function GET(
        * @dev 2. Verify token using the JWT secret
        */
       try {
-        verify(tokenValue, JWT_SECRET)
+        verify(JWT, JWT_SECRET)
 
         const message = 'User authenticated'
 
-        const decoded = decode(tokenValue)
+        const decoded = decode(JWT)
 
         const encryptedEmail = (decoded as CookieType).email
         const encryptedUsername = (decoded as CookieType).username

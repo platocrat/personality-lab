@@ -90,7 +90,7 @@ const AssessmentCards: FC<AssessmentCardsProps> = ({
           />
           { PAs.length !== 1 && i !== pAssessments.length - 1 && (
             <>
-              <div style={ definitelyCenteredStyle }>
+              <div style={{ ...definitelyCenteredStyle, margin: '12px 0px -12px 0px' }}>
                 <div className={ styles.divider } />
               </div>
             </>

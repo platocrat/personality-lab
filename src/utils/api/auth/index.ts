@@ -3,7 +3,9 @@ import { sign } from 'jsonwebtoken'
 import { NextResponse } from 'next/server'
 // Locals
 import { 
+  MAX_AGE,
   SSCrypto,
+  COOKIE_NAME,
   ACCOUNT_ADMINS,
   fetchAwsParameter, 
   AWS_PARAMETER_NAMES,
@@ -11,7 +13,6 @@ import {
   EncryptedCookieFieldType,
   HASHED_PASSWORD__DYNAMODB,
 } from '@/utils'
-import { MAX_AGE, COOKIE_NAME } from '../constants'
 
 
 type EncryptedItem = { 
@@ -28,6 +29,33 @@ export type EncryptedItems = {
 
 
 
+
+export function hasJWT(cookies, getJWT?: boolean) {
+  /**
+   * @dev 1. Check if a cookie exists for the user
+   */
+  const cookieStore = cookies()
+  const token = cookieStore.get(COOKIE_NAME)
+
+  if (!token) {
+    return NextResponse.json(
+      { message: 'Unauthorized', },
+      {
+        status: 401,
+      }
+    )
+  } else {
+    if (getJWT) {
+      const JWT = token.value
+      return JWT
+    } else {
+      return
+    }
+  }
+}
+
+
+
 /**
  * @param cookies Imported from `next/header`
  */
@@ -37,6 +65,11 @@ export function setJwtCookieAndGetCookieValue(
   passwordHash: string,
   JWT_SECRET: string,
 ) {
+  console.log(`cookies: `, cookies)
+  console.log(`encryptedItems: `, encryptedItems)
+  console.log(`passwordHash: `, passwordHash)
+  console.log(`JWT_SECRET: `, JWT_SECRET)
+
   /**
    * @dev 1. Sign the JWT 
    * @notice Make sure the password that is stored in the cookie is hashed!
@@ -81,7 +114,7 @@ export function setJwtCookieAndGetCookieValue(
      * 
      * See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies#block_access_to_your_cookies
      */
-    secure: false,
+    secure: true,
     sameSite: 'strict',
     path: '/',
   })
@@ -165,9 +198,10 @@ export async function verifiedUsernameAndPasswordSwitch(
           AWS_PARAMETER_NAMES.COOKIE_ENCRYPTION_SECRET_KEY
         )
 
+        
         if (typeof SECRET_KEY === 'string') {
           const secretKeyCipher = Buffer.from(SECRET_KEY, 'hex')
-
+          
           // Determine if the new user is an admin
           const isAdmin = ACCOUNT_ADMINS.some(
             admin => admin.email === email

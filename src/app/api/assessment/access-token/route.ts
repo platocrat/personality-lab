@@ -6,9 +6,11 @@ import {
   PutCommandInput,
 } from '@aws-sdk/lib-dynamodb'
 import { sign } from 'jsonwebtoken'
+import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 // Locals
 import { 
+  hasJWT,
   MAX_AGE,
   ddbDocClient,
   fetchAwsParameter,
@@ -24,6 +26,8 @@ export async function PUT(
   res: NextResponse, 
 ) {
   if (req.method === 'PUT') {
+    hasJWT(cookies)
+
     const { 
       assessmentId, 
       userResultsId, 
@@ -123,6 +127,8 @@ export async function GET(
   res: NextResponse,
 ) {
   if (req.method === 'GET') {
+    hasJWT(cookies)
+
     const { assessmentId, id } = await req.json()
 
     const TableName = DYNAMODB_TABLE_NAMES.userResultsAccessTokens

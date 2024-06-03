@@ -10,9 +10,11 @@ import {
   QueryCommandInput,
   DeleteCommandInput,
 } from '@aws-sdk/lib-dynamodb'
+import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 // Locals
 import {
+  hasJWT,
   getEntryId,
   ddbDocClient,
   STUDY__DYNAMODB,
@@ -32,6 +34,8 @@ export async function PUT(
   res: NextResponse,
 ) {
   if (req.method === 'PUT') {
+    hasJWT(cookies)
+
     const { study } = await req.json()
 
     const studyId = await getEntryId(study)
@@ -106,6 +110,8 @@ export async function GET(
   res: NextResponse,
 ) {
   if (req.method === 'GET') {
+    hasJWT(cookies)
+
     const adminEmail = req.nextUrl.searchParams.get('adminEmail')
 
     // 1.0 Handle the case where adminEmail exists

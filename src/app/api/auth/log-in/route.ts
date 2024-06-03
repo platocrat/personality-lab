@@ -8,7 +8,7 @@ import {
   ddbDocClient,
   ACCOUNT__DYNAMODB,
   DYNAMODB_TABLE_NAMES,
-  verifiedUsernameAndPasswordSwitch
+  verifiedUsernameAndPasswordSwitch,
 } from '@/utils'
 
 
@@ -22,7 +22,16 @@ export async function POST(
       email, 
       username, 
       password, // Password is already hashed
-    } = await req.json()     
+    } = await req.json()
+    
+    if (!email || !username || !password) {
+      return NextResponse.json(
+        { message: 'Unauthorized without email, username, and password', },
+        {
+          status: 401,
+        }
+      )
+    }
 
     const TableName = DYNAMODB_TABLE_NAMES.accounts
     const KeyConditionExpression = 'email = :emailValue'

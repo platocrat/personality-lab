@@ -7,8 +7,10 @@ import {
   UpdateCommandInput,
 } from '@aws-sdk/lib-dynamodb'
 import { verify } from 'jsonwebtoken'
+import { cookies } from 'next/headers'
 // Locals
 import {
+  hasJWT,
   getEntryId,
   ddbDocClient,
   STUDY__DYNAMODB,
@@ -35,6 +37,8 @@ export async function POST(
   res: NextResponse,
 ) {
   if (req.method === 'POST') {
+    hasJWT(cookies)
+
     const { participant, studyId } = await req.json()
 
     /**

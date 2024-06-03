@@ -1,5 +1,5 @@
 // Externals
-import { FC, useContext, useLayoutEffect } from 'react'
+import { FC, useContext, useLayoutEffect, useState } from 'react'
 // Locals
 import PersonalityAssessments from '../assessments'
 // Components
@@ -9,8 +9,8 @@ import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // Utils
 import { getUsernameAndEmailFromCookie } from '@/utils'
 // Styles
-import styles from './MainPortal.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+import styles from '@/sections/main-portal/MainPortal.module.css'
 
 
 type MainPortalProps = {}
@@ -52,17 +52,31 @@ const ParticipantTitle = ({
   titleText,
   subtitleText
 }) => {
+  const [isVisible, setIsVisible] = useState(true)
+
+  const handleClose = () => {
+    setIsVisible(false)
+  }
+
+  if (!isVisible) return null
+
+
   return (
     <>
-      <div 
-        style={{
-          ...definitelyCenteredStyle,
-          flexDirection: 'column',
-        }}
-      >
-        <Title text={ titleText } /> 
-        <Subtitle text={ subtitleText } />
-      </div>
+      { isVisible && (
+        <div style={ { ...definitelyCenteredStyle, padding: '0px 24px' } }>
+          <div className={ styles['notification-card'] }>
+            <button 
+              onClick={ handleClose }
+              className={ styles['close-button'] } 
+            >
+              &times;
+            </button>
+            <Title text={ titleText } />
+            <Subtitle text={ subtitleText } />
+          </div>
+        </div>
+      )}
     </>
   )
 }

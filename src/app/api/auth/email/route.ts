@@ -1,11 +1,13 @@
 // Externals
+import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 import { QueryCommand, QueryCommandInput } from '@aws-sdk/lib-dynamodb'
 // Locals
 import { 
+  hasJWT, 
   ddbDocClient,
   ACCOUNT__DYNAMODB,
-  DYNAMODB_TABLE_NAMES, 
+  DYNAMODB_TABLE_NAMES,
 } from '@/utils'
 
 

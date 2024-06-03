@@ -154,7 +154,6 @@ const CreateStudy: FC<CreateStudyProps> = ({
         ownerEmail: email,
         adminEmails: study ? study.adminEmails : [ '' ],
       }
-
       
       try {
         const response = await fetch('/api/study', {

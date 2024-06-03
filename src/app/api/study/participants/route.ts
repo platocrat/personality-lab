@@ -1,7 +1,9 @@
 // Externals
+import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 // Locals
 import {
+  hasJWT,
   ddbDocClient,
   ParticipantType,
   ACCOUNT__DYNAMODB,
@@ -24,6 +26,8 @@ export async function GET(
   res: NextResponse,
 ) {
   if (req.method === 'GET') {
+    hasJWT(cookies)
+
     const TableName = DYNAMODB_TABLE_NAMES.accounts
     const FilterExpression = 'attribute_exists(participant)'
 

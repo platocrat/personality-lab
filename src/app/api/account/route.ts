@@ -1,5 +1,4 @@
 // Externals
-import { NextRequest, NextResponse } from 'next/server'
 import {
   QueryCommand,
   UpdateCommand,
@@ -7,8 +6,11 @@ import {
   UpdateCommandInput,
 } from '@aws-sdk/lib-dynamodb'
 import { verify } from 'jsonwebtoken'
+import { cookies } from 'next/headers'
+import { NextRequest, NextResponse } from 'next/server'
 // Locals
 import {
+  hasJWT,
   getEntryId,
   ddbDocClient,
   STUDY__DYNAMODB,
@@ -30,6 +32,8 @@ export async function GET(
   res: NextResponse,
 ) {
   if (req.method === 'GET') {
+    hasJWT(cookies)
+
     const email = req.nextUrl.searchParams.get('email')
 
     if (!email) {
