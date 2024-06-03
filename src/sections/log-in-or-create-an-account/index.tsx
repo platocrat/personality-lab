@@ -12,7 +12,9 @@ import Card from '@/components/Card'
 // Sections
 import Form from './form'
 // Contexts
-import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
+import { SessionContext } from '@/contexts/SessionContext'
+// Context types
+import { SessionContextType } from '@/contexts/types'
 // Utils
 import {
   deleteAllCookies,
@@ -34,7 +36,7 @@ const LogInOrCreateAnAccount = () => {
     setUsername,
     setIsParticipant,
     setIsAuthenticated,
-  } = useContext(AuthenticatedUserContext)
+  } = useContext<SessionContextType>(SessionContext)
 
   // Strings
   // Booleans
@@ -261,14 +263,11 @@ const LogInOrCreateAnAccount = () => {
         }
       } else {
         setIsWaitingForResponse(false)
-        
         const error = json.error
-        console.error(`Unable to send POST request to DynamoDB table! `, error)
-
         /**
          * @todo Handle error UI here
          */
-        throw new Error(`Unable to send POST request to DynamoDB table!`)
+        throw new Error(error)
       }
     } catch (error: any) {
       setIsWaitingForResponse(false)

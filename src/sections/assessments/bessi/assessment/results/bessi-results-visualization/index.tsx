@@ -30,10 +30,13 @@ import MultipleNormalDistributions, {
 // Hooks
 import useClickOutside from '@/hooks/useClickOutside'
 // Contexts
+import { SessionContext } from '@/contexts/SessionContext'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
-import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
 // Context Types
-import { BessiSkillScoresContextType } from '@/contexts/types'
+import {
+  SessionContextType,
+  BessiSkillScoresContextType, 
+} from '@/contexts/types'
 // Utils
 import {
   transformData,
@@ -50,7 +53,6 @@ import {
 } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
-import _ from '@/app/assessments/page'
 
 
 
@@ -71,7 +73,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   const {
     email,
     username,
-  } = useContext(AuthenticatedUserContext)
+  } = useContext<SessionContextType>(SessionContext)
   const {
     bessiSkillScores 
   } = useContext<BessiSkillScoresContextType>(BessiSkillScoresContext)

@@ -4,7 +4,7 @@ import { useContext } from 'react'
 import TextOrNumberInput from '@/components/Input/TextOrNumber'
 import InputWrapper from '@/components/Input/Wrapper'
 // Contexts
-import { UserDemographicContext } from '@/contexts/UserDemographicContext'
+import { UserDemographicsContext } from '@/contexts/UserDemographicsContext'
 // Constants
 // CSS
 import styles from '@/app/page.module.css'
@@ -21,7 +21,7 @@ const Label = () => {
 }
 
 const Input = () => {
-  const { onAgeChange } = useContext(UserDemographicContext)  
+  const { onAgeChange } = useContext(UserDemographicsContext)  
   const name = 'age'
 
 

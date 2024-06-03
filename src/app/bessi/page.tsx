@@ -7,7 +7,9 @@ import Spinner from '@/components/Suspense/Spinner'
 // Sections
 import Bessi from '@/sections/assessments/bessi'
 // Contexts
-import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
+import { SessionContextType } from '@/contexts/types'
+// Context Types
+import { SessionContext } from '@/contexts/SessionContext'
 // Utils
 import { STUDY_SIMPLE__DYNAMODB } from '@/utils'
 // CSS
@@ -23,7 +25,7 @@ export default function _() {
   const {
     userStudies,
     isParticipant,
-  } = useContext(AuthenticatedUserContext)
+  } = useContext<SessionContextType>(SessionContext)
   // States
   const [
     studiesForAssessment,

@@ -126,15 +126,20 @@ export class SSCrypto {
 
 
   // Function to create a hash
-  public createHash(
-    data: any, 
-    algorithm = 'shake256',
-  ): string {
+  public createHash({
+    data,
+    algorithm,
+    outputLength,
+  }: { 
+    data: any
+    algorithm?: string
+    outputLength?: number
+  }): string {
     // Create a hash object
     const hash = createHash(
-      algorithm, 
+      algorithm ?? 'shake256', 
       { 
-        outputLength: SSCrypto.HASH_KEY_LENGTH 
+        outputLength: outputLength ?? SSCrypto.HASH_KEY_LENGTH 
       }
     )
 

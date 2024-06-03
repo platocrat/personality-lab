@@ -3,7 +3,7 @@ import { FC, Fragment, useContext } from 'react'
 // Locals
 import InputWrapper from '@/components/Input/Wrapper'
 // Contexts
-import { UserDemographicContext } from '@/contexts/UserDemographicContext'
+import { UserDemographicsContext } from '@/contexts/UserDemographicsContext'
 // Constants
 import { INVALID_CHARS_EXCEPT_NUMBERS } from '@/utils'
 // Enums
@@ -30,7 +30,7 @@ const Input = () => {
   const { 
     onZipCodeChange, 
     onUsLocationChange 
-  } = useContext(UserDemographicContext)
+  } = useContext(UserDemographicsContext)
 
   const inputLabel = `What is your zip code?`
   const selectName = `us-state`

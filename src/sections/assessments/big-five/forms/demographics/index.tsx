@@ -9,7 +9,7 @@ import InputWrapper from '@/components/Input/Wrapper'
 import { RadioOrCheckboxInput } from '@/components/Input'
 import TextOrNumberInput from '@/components/Input/TextOrNumber'
 // Contexts
-import { UserDemographicContext } from '@/contexts/UserDemographicContext'
+import { UserDemographicsContext } from '@/contexts/UserDemographicsContext'
 // Utils
 import {
   Religion,
@@ -75,7 +75,7 @@ const DemographicsForm = ({ }) => {
     onHighestEducationLevelChange,
     onAnnualHouseholdIncomeChange,
     onCurrentEmploymentStatusChange,
-  } = useContext(UserDemographicContext)
+  } = useContext(UserDemographicsContext)
   // React states
   const [
     bigFiveDemographics,

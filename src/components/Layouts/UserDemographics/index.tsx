@@ -7,7 +7,7 @@ import {
   SocialClass,
   RaceOrEthnicity,
 } from '@/utils'
-import { UserDemographicContext } from '@/contexts/UserDemographicContext'
+import { UserDemographicsContext } from '@/contexts/UserDemographicsContext'
 
 
 type UserDemographicsLayoutProps = {
@@ -183,7 +183,7 @@ const UserDemographicsLayout: FC<UserDemographicsLayoutProps> = ({
   
   return (
     <>
-      <UserDemographicContext.Provider
+      <UserDemographicsContext.Provider
         value={ {
           // State variables
           age,
@@ -224,7 +224,7 @@ const UserDemographicsLayout: FC<UserDemographicsLayoutProps> = ({
         } }
       >
         { children }
-      </UserDemographicContext.Provider>
+      </UserDemographicsContext.Provider>
     </>
   )
 }

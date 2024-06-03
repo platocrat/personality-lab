@@ -13,7 +13,9 @@ import Spinner from '@/components/Suspense/Spinner'
 // Sections
 import BessiAssessmentSection from '@/sections/assessments/bessi/assessment'
 // Contexts
-import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
+import { SessionContext } from '@/contexts/SessionContext'
+// Context types
+import { SessionContextType } from '@/contexts/types'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -28,7 +30,7 @@ const BessiAssessment: FC<BessiAssessmentProps> = ({ }) => {
   const { 
     isAdmin,
     isParticipant
-  } = useContext(AuthenticatedUserContext)
+  } = useContext<SessionContextType>(SessionContext)
   // Hooks
   const router = useRouter()
   // States

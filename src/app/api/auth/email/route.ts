@@ -68,10 +68,19 @@ export async function GET(
       }
     } catch (error: any) {
       // Error sending POST request to DynamoDB table
-      return NextResponse.json(
-        { error: error },
-        { status: 500 },
-      )
+      const isExpiredTokenException = error.name === 'ExpiredTokenException'
+
+      if (isExpiredTokenException) {
+        return NextResponse.json(
+          { error: 'ExpiredTokenException: AWS access keys have expired.' },
+          { status: 500 },
+        )
+      } else {
+        return NextResponse.json(
+          { error: error },
+          { status: 500 },
+        )
+      }
     }
   } else {
     return NextResponse.json(

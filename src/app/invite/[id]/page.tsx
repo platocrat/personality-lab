@@ -8,7 +8,9 @@ import StudyInviteSection from '@/sections/invite'
 // Components
 import Spinner from '@/components/Suspense/Spinner'
 // Contexts
-import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
+import { SessionContext } from '@/contexts/SessionContext'
+// Context types
+import { SessionContextType } from '@/contexts/types'
 // Utils
 import { STUDY__DYNAMODB } from '@/utils'
 // CSS
@@ -30,7 +32,10 @@ const StudyInvite: FC<StudyInviteProps> = ({
   // URL params
   const { id } = params
   // Contexts
-  const { isAdmin, isParticipant } = useContext(AuthenticatedUserContext)
+  const { 
+    isAdmin, 
+    isParticipant 
+  } = useContext<SessionContextType>(SessionContext)
   // Hooks
   const router = useRouter()
   // States

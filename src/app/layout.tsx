@@ -10,7 +10,7 @@ import ProgressBar from '@/components/Progress/ProgressBar'
 import BessiSkillScoresLayout from '@/components/Layouts/BessiSkillScoresLayout'
 import UserDemographicsLayout from '@/components/Layouts/UserDemographics'
 // Contexts
-import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
+import { SessionContext } from '@/contexts/SessionContext'
 // Types
 import {
   ACCOUNT__DYNAMODB,
@@ -23,7 +23,7 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
-type UserType = { 
+export type SessionType = { 
   email: string
   username: string 
   isAdmin: boolean
@@ -32,8 +32,8 @@ type UserType = {
 }
 
 
-export type UserResponse = {
-  user: UserType | null
+export type SessionResponse = {
+  session: SessionType | null
   error: Error | null
 }
 
@@ -55,7 +55,7 @@ export default function RootLayout({
   const router = useRouter()
   const pathname = usePathname()
 
-  // State variables for `UserType`
+  // State variables for `SessionType`
   const [ email, setEmail ] = useState<string>('')
   const [ username, setUsername ] = useState<string>('')
   const [ isAdmin, setIsAdmin ] = useState<boolean>(false)
@@ -69,34 +69,41 @@ export default function RootLayout({
 
 
   // --------------------------- Async functions -------------------------------
-  async function getUser(): Promise<UserResponse> {
+  async function getSession(): Promise<SessionResponse> {
     try {
+      // First get the user's basic information from their JWT cookie
       const response = await fetch('/api/auth/user', { method: 'GET' })
       const json = await response.json()
 
-      if (response.status === 401) return { user: null, error: json.message }
-      if (response.status === 400) return { user: null, error: json.error }
+      if (response.status === 401) return { session: null, error: json.message }
+      if (response.status === 400) return { session: null, error: json.error }
       if (response.status === 500 && json.error.name === 'TokenExpiredError')
-        return { user: null, error: json.error }
+        return { session: null, error: json.error }
 
-      const user_ = json.user as Omit<UserType, "studies">
+      const user_ = json.user as Omit<SessionType, "studies">
       
       if (user_.isParticipant) {
         const userEmail = user_.email
         const userStudies_ = await getUserStudies(user_.email)
-        const user = { ...user_, studies: userStudies_ }
-        return { user, error: null }
+        const session = { ...user_, studies: userStudies_ }
+        return { session, error: null }
       } else {
-        const user = { ...user_, study: undefined }
-        return { user, error: null }
+        const session = { ...user_, study: undefined }
+        return { session, error: null }
       }
       
     } catch (error: any) {
-      return { user: null, error: error }
+      return { session: null, error: error }
     }
   }
 
 
+  /**
+   * @dev Returns `studies` for a given user's email. Called after the user has 
+   *      been authenticated with a JWT in `getSession()`.
+   * @param userEmail 
+   * @returns studies
+   */
   async function getUserStudies(
     userEmail: string
   ): Promise<STUDY_SIMPLE__DYNAMODB[] | undefined> {
@@ -130,7 +137,7 @@ export default function RootLayout({
    *      authenticated and hold a session cookie.
    */
   async function pageProtection(): Promise<void> {
-    const { user, error } = await getUser()
+    const { session, error } = await getSession()
 
 
     if (error) {
@@ -157,13 +164,13 @@ export default function RootLayout({
         return
       }
     } else {
-      // Update state of the user
-      setEmail((user as UserType).email)
-      setUsername((user as UserType).username)
-      setUserStudies((user as UserType).studies ?? [])
+      // Update state of the user's session
+      setEmail((session as SessionType).email)
+      setUsername((session as SessionType).username)
+      setUserStudies((session as SessionType).studies ?? [])
       // Update state of the kind of user
-      setIsParticipant((user as UserType).isParticipant)
-      setIsAdmin((user as UserType).isAdmin)
+      setIsParticipant((session as SessionType).isParticipant)
+      setIsAdmin((session as SessionType).isAdmin)
       // Show the dashboard
       setIsAuthenticated(true)
       setIsFetchingUser(false)
@@ -205,7 +212,7 @@ export default function RootLayout({
           <html lang='en'>
             <body>
               <ProgressBar>
-                <AuthenticatedUserContext.Provider
+                <SessionContext.Provider
                   value={{
                     email,
                     isAdmin,
@@ -227,7 +234,7 @@ export default function RootLayout({
                       { children }
                     </BessiSkillScoresLayout>
                   </UserDemographicsLayout>
-                </AuthenticatedUserContext.Provider>
+                </SessionContext.Provider>
               </ProgressBar>
             </body>
           </html>

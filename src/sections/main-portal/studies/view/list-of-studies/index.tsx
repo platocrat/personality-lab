@@ -12,7 +12,9 @@ import StudiesTable from './table'
 // Components
 import Spinner from '@/components/Suspense/Spinner'
 // Contexts
-import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
+import { SessionContext } from '@/contexts/SessionContext'
+// Context types
+import { SessionContextType } from '@/contexts/types'
 // Hooks
 // Utils
 import { STUDY__DYNAMODB } from '@/utils'
@@ -32,7 +34,7 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
 
 }) => {
   // Contexts
-  const { email } = useContext(AuthenticatedUserContext)
+  const { email } = useContext<SessionContextType>(SessionContext)
   // States
   const [ 
     isLoadingStudies, 

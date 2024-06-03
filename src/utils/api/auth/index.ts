@@ -65,11 +65,6 @@ export function setJwtCookieAndGetCookieValue(
   passwordHash: string,
   JWT_SECRET: string,
 ) {
-  console.log(`cookies: `, cookies)
-  console.log(`encryptedItems: `, encryptedItems)
-  console.log(`passwordHash: `, passwordHash)
-  console.log(`JWT_SECRET: `, JWT_SECRET)
-
   /**
    * @dev 1. Sign the JWT 
    * @notice Make sure the password that is stored in the cookie is hashed!

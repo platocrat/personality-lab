@@ -3,7 +3,7 @@ import { useContext } from 'react'
 // Locals
 import InputWrapper from '@/components/Input/Wrapper'
 // Contexts
-import { UserDemographicContext } from '@/contexts/UserDemographicContext'
+import { UserDemographicsContext } from '@/contexts/UserDemographicsContext'
 // Constants
 import { INVALID_CHARS_WITH_NUMBERS } from '@/utils'
 // CSS
@@ -22,7 +22,7 @@ const Label = () => {
 }
 
 const Input = () => {
-  const { onForeignLocationChange } = useContext(UserDemographicContext)
+  const { onForeignLocationChange } = useContext(UserDemographicsContext)
   const name = `foreign-country`
 
 

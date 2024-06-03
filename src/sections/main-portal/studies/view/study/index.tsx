@@ -17,7 +17,9 @@ import ParticipantsTable from './participants-table'
 import LeftHandNav from '@/components/Nav/LeftHand'
 import Spinner from '@/components/Suspense/Spinner'
 // Contexts
-import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
+import { SessionContext } from '@/contexts/SessionContext'
+// Context types
+import { SessionContextType } from '@/contexts/types'
 // Hooks
 import useClickOutside from '@/hooks/useClickOutside'
 // Utils
@@ -53,7 +55,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
   const { 
     email,
     username,
-  } = useContext(AuthenticatedUserContext)
+  } = useContext<SessionContextType>(SessionContext)
   // Refs
   const viewResultsModalRef = useRef<any>(null)
   const downloadDataModalRef = useRef<any>(null)
@@ -253,7 +255,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
           <Image
             width={ 20 }
             height={ 20 }
-            alt={ 'Download data icon' }
+            alt={ 'Download file icon' }
             src={ '/icons/svg/download-file.svg' }
           />
           <p style={{ fontSize: '14px' }}>{ `.csv` }</p>

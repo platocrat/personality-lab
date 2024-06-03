@@ -9,7 +9,9 @@ import { usePathname, useRouter } from 'next/navigation'
 // Locals
 import CreateStudyForm from './form'
 // Contexts
-import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
+import { SessionContext } from '@/contexts/SessionContext'
+// Context types
+import { SessionContextType } from '@/contexts/types'
 // Utils
 import {
   STUDY__DYNAMODB,
@@ -34,7 +36,7 @@ const CreateStudy: FC<CreateStudyProps> = ({
   const {
     email,
     username,
-  } = useContext(AuthenticatedUserContext)
+  } = useContext<SessionContextType>(SessionContext)
   // Hooks
   const router = useRouter()
   const pathname = usePathname()

@@ -1,11 +1,13 @@
 // Externals
 import { FC, useContext, useLayoutEffect, useState } from 'react'
 // Locals
-import PersonalityAssessments from '../assessments'
+import PersonalityAssessments from '@/sections/assessments'
 // Components
 import LeftHandNav from '@/components/Nav/LeftHand'
 // Contexts
-import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
+import { SessionContext } from '@/contexts/SessionContext'
+// Context types
+import { SessionContextType } from '@/contexts/types'
 // Utils
 import { getUsernameAndEmailFromCookie } from '@/utils'
 // Styles
@@ -90,7 +92,7 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
     isAdmin,
     username,
     isParticipant, 
-  } = useContext(AuthenticatedUserContext)
+  } = useContext<SessionContextType>(SessionContext)
 
   const TITLE_TEXT = `Welcome, ${username}!`
   const SUBTITLE_TEXT = `Based on the studies you have registered for, listed below are the assessments that you may take.`

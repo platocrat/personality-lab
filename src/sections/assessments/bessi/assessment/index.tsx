@@ -11,9 +11,11 @@ import FormButton from '@/components/Buttons/Form'
 import Spinner from '@/components/Suspense/Spinner'
 import Questionnaire from '@/components/Questionnaire'
 // Contexts
-import { UserDemographicContext } from '@/contexts/UserDemographicContext'
+import { SessionContext } from '@/contexts/SessionContext'
+import { UserDemographicsContext } from '@/contexts/UserDemographicsContext'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
-import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
+// Context types 
+import { SessionContextType } from '@/contexts/types'
 // Utilities
 import {
   getFacet,
@@ -54,7 +56,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
   const { 
     email,
     username,
-  } = useContext(AuthenticatedUserContext)
+  } = useContext<SessionContextType>(SessionContext)
   const { setBessiSkillScores } = useContext(BessiSkillScoresContext)
   const { 
     // State variables
@@ -72,7 +74,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
     highestFormalEducation,
     currentEmploymentStatus,
     // Form input handlers
-   } = useContext(UserDemographicContext)  
+   } = useContext(UserDemographicsContext)  
 
   // Custom
   const [

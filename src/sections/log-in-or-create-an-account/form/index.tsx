@@ -15,7 +15,9 @@ import PasswordValidation from './password-validation'
 // Components
 import Spinner from '@/components/Suspense/Spinner'
 // Contexts
-import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
+import { SessionContext } from '@/contexts/SessionContext'
+// Context types
+import { SessionContextType } from '@/contexts/types'
 // Hooks
 import useWindowWidth from '@/hooks/useWindowWidth'
 // Utils
@@ -74,7 +76,7 @@ const Form: FC<FormProps> = ({
     username,
     setEmail,
     setUsername,
-  } = useContext(AuthenticatedUserContext)
+  } = useContext<SessionContextType>(SessionContext)
   // Hooks
   const windowWidth = useWindowWidth()
   // States

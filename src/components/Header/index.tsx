@@ -5,7 +5,9 @@ import { useRouter, usePathname } from 'next/navigation'
 import Nav from '../Nav'
 import DropdownMenu, { NavLink } from '../Nav/DropdownMenu'
 // Contexts
-import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
+import { SessionContext } from '@/contexts/SessionContext'
+// Context types
+import { SessionContextType } from '@/contexts/types'
 // CSS
 import styles from '@/components/Header/Header.module.css'
 
@@ -19,7 +21,7 @@ const navTitle = `Personality Lab`
 
 const Header: FC<HeaderProps> = ({}) => {  
   // Contexts
-  const { setIsAuthenticated } = useContext(AuthenticatedUserContext)
+  const { setIsAuthenticated } = useContext<SessionContextType>(SessionContext)
   // Hooks
   const router = useRouter()
   const pathname = usePathname()

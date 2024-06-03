@@ -7,7 +7,9 @@ import Card from '@/components/Card'
 import BessiDescription from '../bessi/description'
 import BigFiveDescription from '../big-five/descriptions/entrance'
 // Contexts
-import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
+import { SessionContext } from '@/contexts/SessionContext'
+// Context types
+import { SessionContextType } from '@/contexts/types'
 // Types
 import { PersonalityAssessmentType } from '..'
 // CSS
@@ -55,7 +57,7 @@ const AssessmentCards: FC<AssessmentCardsProps> = ({
   participant,
   fragmentKey,
 }) => {
-  const { isAdmin } = useContext(AuthenticatedUserContext)
+  const { isAdmin } = useContext<SessionContextType>(SessionContext)
 
   // ----------------------- Memoized constants --------------------------------
   const participantAssessmentIds: string[] = useMemo((): string[] => {

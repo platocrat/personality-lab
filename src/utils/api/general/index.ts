@@ -47,7 +47,9 @@ export async function getEntryId(
               JSON.stringify(encryptObject), 
               true
           )) as string
-        : new SSCrypto().createHash(JSON.stringify(encryptedObj))
+        : new SSCrypto().createHash({
+          data: JSON.stringify(encryptedObj),
+        })
 
       return entryId
     } else {

@@ -7,7 +7,9 @@ import { useContext, useMemo } from 'react'
 import MainPortal from '@/sections/main-portal'
 import LogInOrCreateAnAccount from '@/sections/log-in-or-create-an-account'
 // Contexts
-import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
+import { SessionContext } from '@/contexts/SessionContext'
+// Context types
+import { SessionContextType } from '@/contexts/types'
 // CSS
 import styles from '@/app/page.module.css'
 
@@ -16,7 +18,7 @@ import styles from '@/app/page.module.css'
 
 
 export default function Home() {
-  const { isAuthenticated } = useContext(AuthenticatedUserContext)
+  const { isAuthenticated } = useContext<SessionContextType>(SessionContext)
 
 
   return (

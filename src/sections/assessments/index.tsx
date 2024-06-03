@@ -12,7 +12,9 @@ import {
 // Sections
 import AssessmentCards from './assessment-cards'
 // Contexts
-import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
+import { SessionContext } from '@/contexts/SessionContext'
+// Context types
+import { SessionContextType } from '@/contexts/types'
 // Hooks
 import useWindowWidth from '@/hooks/useWindowWidth'
 // Utils
@@ -46,7 +48,7 @@ const PersonalityAssessments = ({ }) => {
     email,
     isAdmin,
     isParticipant,
-  } = useContext(AuthenticatedUserContext)
+  } = useContext<SessionContextType>(SessionContext)
   // Hooks
   const windowWidth = useWindowWidth()
   // States
