@@ -9,7 +9,7 @@ import {
   FacetFactorType,
   findFacetByScore,
   skillDomainMapping,
-  InputDataStructure,
+  BarChartInputDataType,
   domainToFacetMapping,
   SkillDomainFactorType,
   getSkillDomainAndWeight,
@@ -24,7 +24,7 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 
 type GroupedBarChartType = {
   isExample: boolean
-  data: InputDataStructure | {
+  data: BarChartInputDataType | {
     axis: string
     value: number
   }[] | {
@@ -49,7 +49,7 @@ const GroupedBarChart: FC<GroupedBarChartType> = ({
   const height = 400 - margin.top - margin.bottom
 
   
-  const _data = transformData(data as InputDataStructure)
+  const _data = transformData(data as BarChartInputDataType)
 
 
 
