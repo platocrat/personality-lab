@@ -80,7 +80,7 @@ Create a new security group, or use an existing security group, that has the fol
 <!-- 
 
 EC2_USERNAME = ec2-user 
-EC2_HOSTNAME = 52.54.185.71
+EC2_HOSTNAME = 54.198.211.160
 
 -->
 
@@ -118,7 +118,7 @@ sudo vim "/etc/nginx/conf.d/<APP_NAME>.conf"
 
 <!-- 
 
-EC2_HOSTNAME = 52.54.185.71
+EC2_HOSTNAME = 54.198.211.160
 
 -->
 
@@ -232,5 +232,5 @@ ssh -i "key-pair-name.pem" EC2_USERNAME@EC2_HOSTNAME.compute-1.amazonaws.com
 where `EC2_HOSTNAME` the formatted like so:
 
 ```zsh
-ec2-52-54-185-71
+ec2-54-198-211-160
 ```
