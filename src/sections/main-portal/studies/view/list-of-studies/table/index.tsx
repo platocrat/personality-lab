@@ -9,6 +9,9 @@ import {
   SetStateAction, 
 } from 'react'
 // Locals
+// Sections
+import StudyTableTbody from '@/sections/main-portal/studies/view/list-of-studies/table/tbody'
+// Components
 import ProgressBarLink from '@/components/Progress/ProgressBarLink'
 // Hooks
 import useWindowWidth from '@/hooks/useWindowWidth'
@@ -16,8 +19,8 @@ import useClickOutside from '@/hooks/useClickOutside'
 // Utils
 import { STUDY__DYNAMODB } from '@/utils'
 // CSS
-import sectionStyles from '../ListOfStudies.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+import sectionStyles from '@/sections/main-portal/studies/view/list-of-studies/ListOfStudies.module.css'
 
 
 
@@ -26,8 +29,10 @@ type StudiesTableProps = {
   state: {
     isStudyDeleted: boolean
     isDeletingStudy: boolean
+    showEditStudyModal: boolean
     setIsStudyDeleted: Dispatch<SetStateAction<boolean>>
     setIsDeletingStudy: Dispatch<SetStateAction<boolean>>
+    setShowEditStudyModal: Dispatch<SetStateAction<boolean>>
   }
 }
 
@@ -47,6 +52,7 @@ const StudiesTable: FC<StudiesTableProps> = ({
   studies,
 }) => {
   // Refs
+  const editStudyModalRef = useRef<any>(null)
   const studyActionsDropdownRef = useRef<any>(null)
   // Hooks
   const windowWidth = useWindowWidth()
@@ -55,10 +61,13 @@ const StudiesTable: FC<StudiesTableProps> = ({
     isDropdownVisible,
     setIsDropdownVisible
   ] = useState<string | null>(null)
+
   
-  const isFullWidthTd = windowWidth <= 920 ? '100%' : ''
+  const fullWidthTd = windowWidth <= 920 ? '100%' : ''
   const buttonHref = (studyId: string): string => `/view-studies/study/${studyId}`
 
+  // ----------------------------- Regular functions ---------------------------
+  // ~~~~~~ Button handlers ~~~~~~
   const toggleDropdown = (studyId: string) => {
     if (isDropdownVisible === studyId) {
       setIsDropdownVisible(null)
@@ -68,6 +77,12 @@ const StudiesTable: FC<StudiesTableProps> = ({
   }
 
 
+  function handleOpenEditStudyModal(e: any, study: STUDY__DYNAMODB) {
+    state.setShowEditStudyModal(true)
+  }
+
+
+  // ----------------------------- Async functions -----------------------------
   async function handleDeleteStudy(
     e: any,
     studyId: string,
@@ -120,6 +135,16 @@ const StudiesTable: FC<StudiesTableProps> = ({
   )
 
 
+  const buttonHandlers = {
+    buttonHref,
+    toggleDropdown,
+    handleDeleteStudy,
+    handleOpenEditStudyModal,
+  }
+
+
+
+
 
   return (
     <>
@@ -133,105 +158,14 @@ const StudiesTable: FC<StudiesTableProps> = ({
             )) }
           </tr>
         </thead>
-        <tbody>
-          { studies.map((study: STUDY__DYNAMODB, i: number) => (
-            <Fragment key={ i }>
-              <tr>
-                {/* <td>{ study.id.slice(0, 6) + '...' }</td> */ }
-                <td style={{ width: isFullWidthTd }}>
-                  { study.name }
-                </td>
-                {/* <td>{ study.details.assessmentId }</td> */ }
-                <td style={{ width: isFullWidthTd }}>
-                  { study.isActive ? 'ACTIVE' : 'INACTIVE' }
-                </td>
-                <td style={{ width: isFullWidthTd }}>
-                  { new Date(study.createdAtTimestamp).toLocaleString() }
-                </td>
-                <td style={{ width: isFullWidthTd }}>
-                  { study.adminEmails?.join(', ') }
-                </td>
-                <td 
-                  style={{ 
-                    width: windowWidth <= 920 ? '100%' : '80px',
-                    position: 'relative',
-                  }}
-                >
-                  <div className={ sectionStyles.buttonContainer }>
-                    <div className={ sectionStyles.buttonDiv }>
-                      <button
-                        type='button'
-                        onClick={
-                          (e: any) => toggleDropdown(study?.id)
-                        }
-                      >
-                        <p
-                          style={ {
-                            ...definitelyCenteredStyle,
-                            position: 'relative',
-                            marginRight: '4px',
-                          } }
-                        >
-                          { `ACTIONS` }
-                        </p>
-                        <Image
-                          width={ 18 }
-                          height={ 18 }
-                          style={ {
-                            ...definitelyCenteredStyle,
-                            position: 'relative',
-                            // top: '3px',
-                          } }
-                          alt='Share icon to share data visualization'
-                          src={ `/icons/svg/rounded-down-arrow.svg` }
-                        />
-                      </button>
-                      {/* Dropdown menu */ }
-                      { isDropdownVisible === study.id && (
-                        <div
-                          ref={ studyActionsDropdownRef }
-                          style={{ position: 'relative' }}
-                        >
-                          <div className={ sectionStyles.dropdown }>
-                            <ProgressBarLink href={ buttonHref(study?.id.toString()) }>
-                              <button
-                                style={{ borderRadius: '4px 4px 0px 0px' }}
-                              >
-                                { ` View` }
-                              </button>
-                            </ProgressBarLink>
-                            <ProgressBarLink
-                              href={ `/edit-studies/study/${study.id}` }
-                            >
-                              <button>
-                                { `Edit` }
-                              </button>
-                            </ProgressBarLink>
-                            <button
-                              // href='#'
-                              style={{ borderRadius: '0px 0px 4px 4px' }}
-                              onClick={ 
-                                (e: any) => handleDeleteStudy(
-                                  e, 
-                                  study.id,
-                                  study.ownerEmail,
-                                  study.createdAtTimestamp,
-                                )
-                              }
-                            >
-                              { `Delete` }
-                            </button>
-                          </div>
-                        </div>
-                      ) }
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            </Fragment>
-          )) }
-        </tbody>
-      </table>   
+        <StudyTableTbody 
+          studies={ studies }
+          fullWidthTd={ fullWidthTd }
+          buttonHandlers={ buttonHandlers }
+          isDropdownVisible={ isDropdownVisible }
+          studyActionsDropdownRef={ studyActionsDropdownRef }
+        />
+      </table>
     </>
   )
 }

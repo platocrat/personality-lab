@@ -85,14 +85,14 @@ const ResultsVisualizationModal: FC<ResultsVisualizationModalProps> = ({
               ref={ refs.modalRef }
               className={ `${ modalStyle.modal } ${ modalStyle.background }` }
             >
-              <h2 
+              <h3
                 style={{
                   ...definitelyCenteredStyle,
-                  margin: '0px 0px 24px 0px',
+                  margin: '8px 0px 24px 0px',
                 }}
               >
                   { title }
-              </h2>
+              </h3>
 
               <div ref={ refs.screenshot2Ref }>
                 <Image

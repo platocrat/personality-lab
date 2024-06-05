@@ -3,6 +3,7 @@
 // Externals
 import {
   FC,
+  useRef,
   useState,
   useContext,
   useLayoutEffect,
@@ -19,7 +20,9 @@ import { SessionContextType } from '@/contexts/types'
 // Utils
 import { STUDY__DYNAMODB } from '@/utils'
 // CSS
+import useClickOutside from '@/hooks/useClickOutside'
 import { definitelyCenteredStyle } from '@/theme/styles'
+import EditStudyModal from '@/components/Modals/EditStudy'
 
 
 
@@ -33,6 +36,8 @@ type ListOfStudiesProps = {
 const ListOfStudies: FC<ListOfStudiesProps> = ({
 
 }) => {
+  // Refs
+  const editStudyModalRef = useRef<any>(null)
   // Contexts
   const { email } = useContext<SessionContextType>(SessionContext)
   // States
@@ -48,7 +53,12 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
     isStudyDeleted, 
     setIsStudyDeleted 
   ] = useState<boolean>(false)
+  const [ 
+    studyToEdit, 
+    setStudyToEdit 
+  ] = useState<STUDY__DYNAMODB | null>(null)
   const [ studies, setStudies ] = useState<STUDY__DYNAMODB[] | []>([])
+  const [ showEditStudyModal, setShowEditStudyModal ] = useState<boolean>(false)
 
 
   // -------------------------- Async functions --------------------------------
@@ -73,6 +83,13 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
   }
 
 
+  // --------------------------------- Hooks -----------------------------------
+  useClickOutside(
+    editStudyModalRef,
+    () => setShowEditStudyModal(false)
+  ) 
+
+  // ----------------------------- `useLayoutEffect`s --------------------------
   useLayoutEffect(() => {
     const requests = [
       getStudies(),
@@ -119,6 +136,8 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
                       isDeletingStudy,
                       setIsStudyDeleted,
                       setIsDeletingStudy,
+                      showEditStudyModal,
+                      setShowEditStudyModal,
                     }}
                   /> 
                 )
@@ -135,6 +154,14 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
                 ) 
               }
             </div>
+
+            {/* Edit study modal */}
+            <EditStudyModal
+              study={ studyToEdit }
+              ref={ editStudyModalRef }
+              setStudy={ setStudyToEdit }
+              isModalVisible={ showEditStudyModal }
+            />
         </>
       ) }
     </>
