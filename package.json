@@ -7,6 +7,7 @@
     "name": "Jack Winfield",
     "url": "https://github.com/platocrat"
   },
+  "packageManager": "npm@10.7.0",
   "scripts": {
     "dev": "next dev --experimental-https",
     "build": "next build",
