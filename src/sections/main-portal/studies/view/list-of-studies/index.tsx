@@ -133,6 +133,13 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
         </>
       ) : (
         <>
+          <EditStudyModalContext.Provider
+            value={ {
+              showEditStudyModal,
+              setShowEditStudyModal,
+              handleOpenEditStudyModal,
+            } }
+          >
             <div 
               style={{
                 position: 'relative',
@@ -146,22 +153,15 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
               { studies 
                 ? (
                   <>
-                    <EditStudyModalContext.Provider
-                      value={{
-                        showEditStudyModal,
-                        handleOpenEditStudyModal,
+                    <StudiesTable 
+                      studies={ studies }
+                      state={{
+                        isStudyDeleted,
+                        isDeletingStudy,
+                        setIsStudyDeleted,
+                        setIsDeletingStudy
                       }}
-                    >
-                      <StudiesTable 
-                        studies={ studies }
-                        state={{
-                          isStudyDeleted,
-                          isDeletingStudy,
-                          setIsStudyDeleted,
-                          setIsDeletingStudy
-                        }}
-                      />
-                    </EditStudyModalContext.Provider>
+                    />
                   </>
                 )
                 : (
@@ -185,6 +185,7 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
               setStudy={ setStudyToEdit }
               isModalVisible={ showEditStudyModal }
             />
+          </EditStudyModalContext.Provider>
         </>
       ) }
     </>

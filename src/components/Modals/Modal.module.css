@@ -1,6 +1,6 @@
 .modal {
   top: 100px;
-  height: calc(100vh - 400px);
+  height: max-content;
   width: 650px;
   z-index: 100;
   padding: 20px;

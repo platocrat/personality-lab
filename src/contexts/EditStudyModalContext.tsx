@@ -7,5 +7,6 @@ import { EditStudyModalContextType } from './types'
 
 export const EditStudyModalContext = createContext<EditStudyModalContextType>({
   showEditStudyModal: null,
+  setShowEditStudyModal: null,
   handleOpenEditStudyModal: null
 })

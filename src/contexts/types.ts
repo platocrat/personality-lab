@@ -47,5 +47,6 @@ export type StudiesTableContextType = {
 
 export type EditStudyModalContextType = {
   showEditStudyModal: string | null
+  setShowEditStudyModal: Dispatch<SetStateAction<string | null>> | null
   handleOpenEditStudyModal: ((e: any, study: STUDY__DYNAMODB) => void) | null
 }

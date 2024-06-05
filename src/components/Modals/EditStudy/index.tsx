@@ -3,16 +3,21 @@ import {
   FC, 
   useState,
   Dispatch, 
-  SetStateAction, 
+  SetStateAction,
+  useContext, 
 } from 'react'
 // Locals
+// Contexts
+import { EditStudyModalContextType } from '@/contexts/types'
+import { EditStudyModalContext } from '@/contexts/EditStudyModalContext'
 // Utils
 import { STUDY__DYNAMODB } from '@/utils'
 // CSS
 import appStyles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
 import modalStyles from '@/components/Modals/Modal.module.css'
-import formStyles from '@/sections/main-portal/studies/create/CreateStudy.module.css'
+import mainPortalStyle from '@/sections/main-portal/MainPortal.module.css'
+import createStudyStyle from '@/sections/main-portal/studies/create/CreateStudy.module.css'
 
 
 
@@ -32,6 +37,10 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
   setStudy,
   isModalVisible,
 }) => {
+  // Contexts
+  const { 
+    setShowEditStudyModal 
+  } = useContext<EditStudyModalContextType>(EditStudyModalContext)
   // States
   const [
     description, 
@@ -48,11 +57,18 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
 
 
   const title = `Edit Study`
-  const refClassName = `${modalStyles.modal} ${modalStyles.background} ${formStyles['form-container']}`
+  const refClassName = `${modalStyles.modal} ${modalStyles.background} ${createStudyStyle['form-container']}`
 
 
-  const handleSaveChanges = () => {
+  const closeModal = (e: any) => {
+    return setShowEditStudyModal
+      ? setShowEditStudyModal(null)
+      : null
+  }
+
+  const handleSaveChanges = (e: any) => {
     const updatedAdminEmails = adminEmails.split(',').map(email => email.trim())
+    
     setStudy((prevStudy: any) => ({
       ...prevStudy,
       name,
@@ -62,6 +78,8 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
       },
       adminEmails: updatedAdminEmails,
     }))
+    
+    setShowEditStudyModal !== null ? setShowEditStudyModal(null) : null
   }
 
 
@@ -75,15 +93,28 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
             <div
               ref={ ref }
               className={ refClassName }
+              style={{ width: 'max-content', maxWidth: '500px' }}
             >
-              <h3
-                style={{
-                  ...definitelyCenteredStyle,
-                  margin: '8px 0px 24px 0px',
-                }}
-              >
-                { title }
-              </h3>
+              <div>
+                <button
+                  onClick={ closeModal }
+                  className={ mainPortalStyle['close-button'] }
+                  style={{ 
+                    top: '8px',
+                    right: '10px',
+                  }}
+                >
+                  &times;
+                </button>
+                <h3
+                  style={{
+                    ...definitelyCenteredStyle,
+                    margin: '0px 0px 0px 0px',
+                  }}
+                >
+                  { title }
+                </h3>
+              </div>
 
               <div>
                 <div className={ appStyles.field }>
@@ -98,7 +129,9 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
                   />
                 </div>
                 <div className={ appStyles.field }>
-                  <label htmlFor='description'>Description:</label>
+                  <label htmlFor='description'>
+                    { `Description:` }
+                  </label>
                   <textarea
                     id='description'
                     value={ description }
@@ -116,12 +149,21 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
                     onChange={ e => setAdminEmails(e.target.value) }
                   />
                 </div>
-                <button 
-                  onClick={ handleSaveChanges }
-                  className={ appStyles.button }
-                >
-                  { `Save` }
-                </button>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    onClick={ closeModal }
+                    className={ appStyles.button }
+                    style={ { backgroundColor: 'rgb(114, 114, 114, 0.75)' }}
+                  >
+                    { `Cancel` }
+                  </button>
+                  <button 
+                    onClick={ handleSaveChanges }
+                    className={ appStyles.button }
+                  >
+                    { `Save` }
+                  </button>
+                </div>
               </div>
             </div>
           </div>
