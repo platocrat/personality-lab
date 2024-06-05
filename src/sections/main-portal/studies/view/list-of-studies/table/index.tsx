@@ -6,13 +6,16 @@ import {
   useState,
   Fragment, 
   Dispatch, 
-  SetStateAction, 
+  SetStateAction,
+  createContext, 
 } from 'react'
 // Locals
 // Sections
 import StudyTableTbody from '@/sections/main-portal/studies/view/list-of-studies/table/tbody'
 // Components
 import ProgressBarLink from '@/components/Progress/ProgressBarLink'
+// Contexts
+import { StudiesTableContext } from '@/contexts/StudiesTableContext'
 // Hooks
 import useWindowWidth from '@/hooks/useWindowWidth'
 import useClickOutside from '@/hooks/useClickOutside'
@@ -29,10 +32,8 @@ type StudiesTableProps = {
   state: {
     isStudyDeleted: boolean
     isDeletingStudy: boolean
-    showEditStudyModal: boolean
     setIsStudyDeleted: Dispatch<SetStateAction<boolean>>
     setIsDeletingStudy: Dispatch<SetStateAction<boolean>>
-    setShowEditStudyModal: Dispatch<SetStateAction<boolean>>
   }
 }
 
@@ -74,11 +75,6 @@ const StudiesTable: FC<StudiesTableProps> = ({
     } else {
       setIsDropdownVisible(studyId)
     }
-  }
-
-
-  function handleOpenEditStudyModal(e: any, study: STUDY__DYNAMODB) {
-    state.setShowEditStudyModal(true)
   }
 
 
@@ -139,7 +135,6 @@ const StudiesTable: FC<StudiesTableProps> = ({
     buttonHref,
     toggleDropdown,
     handleDeleteStudy,
-    handleOpenEditStudyModal,
   }
 
 
@@ -158,13 +153,16 @@ const StudiesTable: FC<StudiesTableProps> = ({
             )) }
           </tr>
         </thead>
-        <StudyTableTbody 
-          studies={ studies }
-          fullWidthTd={ fullWidthTd }
-          buttonHandlers={ buttonHandlers }
-          isDropdownVisible={ isDropdownVisible }
-          studyActionsDropdownRef={ studyActionsDropdownRef }
-        />
+        <StudiesTableContext.Provider
+          value={{ buttonHandlers }}
+        >
+          <StudyTableTbody 
+            studies={ studies }
+            fullWidthTd={ fullWidthTd }
+            isDropdownVisible={ isDropdownVisible }
+            studyActionsDropdownRef={ studyActionsDropdownRef }
+          />
+        </StudiesTableContext.Provider>
       </table>
     </>
   )

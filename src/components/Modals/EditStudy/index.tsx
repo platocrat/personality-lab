@@ -1,5 +1,10 @@
 // Externals
-import { Dispatch, FC, SetStateAction, useState } from 'react'
+import { 
+  FC, 
+  useState,
+  Dispatch, 
+  SetStateAction, 
+} from 'react'
 // Locals
 // Utils
 import { STUDY__DYNAMODB } from '@/utils'
@@ -8,12 +13,11 @@ import appStyles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
 import modalStyles from '@/components/Modals/Modal.module.css'
 import formStyles from '@/sections/main-portal/studies/create/CreateStudy.module.css'
-import { style } from 'd3'
 
 
 
 type EditStudyModalProps = {
-  isModalVisible: boolean
+  isModalVisible: string | null
   study: STUDY__DYNAMODB | null
   ref: React.RefObject<HTMLDivElement>
   setStudy: Dispatch<SetStateAction<STUDY__DYNAMODB | null>>
@@ -39,6 +43,9 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
   ] = useState(study?.adminEmails?.join(', ') || '')
   const [ name, setName] = useState(study?.name ?? '')
 
+  console.log(`study?.id: `, study?.id)
+  console.log(`isModalVisible: `, isModalVisible)
+
 
   const title = `Edit Study`
   const refClassName = `${modalStyles.modal} ${modalStyles.background} ${formStyles['form-container']}`
@@ -59,9 +66,10 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
 
 
 
+
   return (
     <>
-      { isModalVisible && (
+      { isModalVisible === study?.id && (
         <>
           <div style={ definitelyCenteredStyle }>
             <div

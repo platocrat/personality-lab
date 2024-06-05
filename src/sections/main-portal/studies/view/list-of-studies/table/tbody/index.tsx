@@ -1,6 +1,6 @@
 // Externals
 import Image from 'next/image'
-import { FC, Fragment } from 'react'
+import { FC, Fragment, useContext } from 'react'
 import { definitelyCenteredStyle } from '@/theme/styles'
 // Locals
 // Sections
@@ -11,6 +11,7 @@ import useWindowWidth from '@/hooks/useWindowWidth'
 import { STUDY__DYNAMODB } from '@/utils'
 // CSS
 import sectionStyles from '@/sections/main-portal/studies/view/list-of-studies/ListOfStudies.module.css'
+import { StudiesTableContext } from '@/contexts/StudiesTableContext'
 
 
 
@@ -19,17 +20,6 @@ type StudyTableTbodyProps = {
   studies: STUDY__DYNAMODB[]
   studyActionsDropdownRef: any
   isDropdownVisible: string | null
-  buttonHandlers: {
-    toggleDropdown: (studyId: any) => void
-    buttonHref: (studyId: string) => string
-    handleOpenEditStudyModal: (e: any, study: STUDY__DYNAMODB) => void
-    handleDeleteStudy: (
-      e: any,
-      id: string,
-      ownerEmail: string,
-      createdAtTimestamp: number
-    ) => void
-  }
 }
 
 
@@ -38,11 +28,14 @@ type StudyTableTbodyProps = {
 const StudyTableTbody: FC<StudyTableTbodyProps> = ({
   studies,
   fullWidthTd,
-  buttonHandlers,
   isDropdownVisible,
   studyActionsDropdownRef,
 }) => {
+  // Contexts
+  const { buttonHandlers } = useContext(StudiesTableContext)
+  // Hooks
   const windowWidth = useWindowWidth()
+
 
 
   return (
@@ -76,7 +69,7 @@ const StudyTableTbody: FC<StudyTableTbodyProps> = ({
                     <button
                       type='button'
                       onClick={
-                        (e: any) => buttonHandlers.toggleDropdown(
+                        (e: any) => buttonHandlers?.toggleDropdown(
                           study?.id
                         )
                       }
@@ -107,11 +100,6 @@ const StudyTableTbody: FC<StudyTableTbodyProps> = ({
                       study={ study }
                       isDropdownVisible={ isDropdownVisible }
                       studyActionsDropdownRef={ studyActionsDropdownRef }
-                      buttonHandlers={{
-                        buttonHref: buttonHandlers.buttonHref,
-                        handleDeleteStudy: buttonHandlers.handleDeleteStudy,
-                        handleOpenEditStudyModal: buttonHandlers.handleOpenEditStudyModal,
-                      }}
                     />
                   </div>
                 </div>

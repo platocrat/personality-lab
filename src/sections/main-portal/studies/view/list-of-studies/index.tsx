@@ -4,31 +4,37 @@
 import {
   FC,
   useRef,
+  Dispatch,
   useState,
   useContext,
+  createContext,
   useLayoutEffect,
+  SetStateAction,
 } from 'react'
 // Locals
 import StudiesTable from './table'
 // Components
 import Spinner from '@/components/Suspense/Spinner'
+import EditStudyModal from '@/components/Modals/EditStudy'
 // Contexts
 import { SessionContext } from '@/contexts/SessionContext'
+import { EditStudyModalContext } from '@/contexts/EditStudyModalContext'
 // Context types
 import { SessionContextType } from '@/contexts/types'
 // Hooks
+import useClickOutside from '@/hooks/useClickOutside'
 // Utils
 import { STUDY__DYNAMODB } from '@/utils'
 // CSS
-import useClickOutside from '@/hooks/useClickOutside'
 import { definitelyCenteredStyle } from '@/theme/styles'
-import EditStudyModal from '@/components/Modals/EditStudy'
 
 
 
 type ListOfStudiesProps = {
 
 }
+
+
 
 
 
@@ -53,13 +59,23 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
     isStudyDeleted, 
     setIsStudyDeleted 
   ] = useState<boolean>(false)
+  const [
+    showEditStudyModal,
+    setShowEditStudyModal
+  ] = useState<string | null>(null)
   const [ 
     studyToEdit, 
     setStudyToEdit 
   ] = useState<STUDY__DYNAMODB | null>(null)
   const [ studies, setStudies ] = useState<STUDY__DYNAMODB[] | []>([])
-  const [ showEditStudyModal, setShowEditStudyModal ] = useState<boolean>(false)
 
+
+
+
+  function handleOpenEditStudyModal(e: any, study: STUDY__DYNAMODB) {
+    setStudyToEdit(study)
+    setShowEditStudyModal(study.id)
+  }
 
   // -------------------------- Async functions --------------------------------
   async function getStudies() {
@@ -86,7 +102,7 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
   // --------------------------------- Hooks -----------------------------------
   useClickOutside(
     editStudyModalRef,
-    () => setShowEditStudyModal(false)
+    () => setShowEditStudyModal(null)
   ) 
 
   // ----------------------------- `useLayoutEffect`s --------------------------
@@ -129,17 +145,24 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
             >
               { studies 
                 ? (
-                  <StudiesTable 
-                    studies={ studies }
-                    state={{
-                      isStudyDeleted,
-                      isDeletingStudy,
-                      setIsStudyDeleted,
-                      setIsDeletingStudy,
-                      showEditStudyModal,
-                      setShowEditStudyModal,
-                    }}
-                  /> 
+                  <>
+                    <EditStudyModalContext.Provider
+                      value={{
+                        showEditStudyModal,
+                        handleOpenEditStudyModal,
+                      }}
+                    >
+                      <StudiesTable 
+                        studies={ studies }
+                        state={{
+                          isStudyDeleted,
+                          isDeletingStudy,
+                          setIsStudyDeleted,
+                          setIsDeletingStudy
+                        }}
+                      />
+                    </EditStudyModalContext.Provider>
+                  </>
                 )
                 : (
                   <>

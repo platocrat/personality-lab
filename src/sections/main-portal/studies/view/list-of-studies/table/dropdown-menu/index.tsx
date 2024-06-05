@@ -1,5 +1,5 @@
 // Externals
-import { FC } from 'react'
+import { FC, useContext } from 'react'
 // Locals
 // Components
 import ProgressBarLink from '@/components/Progress/ProgressBarLink'
@@ -9,6 +9,9 @@ import study from '@/sections/main-portal/studies/view/study'
 import { STUDY__DYNAMODB } from '@/utils'
 // CSS
 import sectionStyles from '@/sections/main-portal/studies/view/list-of-studies/ListOfStudies.module.css'
+import { EditStudyModalContext } from '@/contexts/EditStudyModalContext'
+import { StudiesTableContext } from '@/contexts/StudiesTableContext'
+import { EditStudyModalContextType, StudiesTableContextType } from '@/contexts/types'
 
 
 
@@ -17,26 +20,24 @@ type StudyDropdownMenuProps = {
   study: STUDY__DYNAMODB
   isDropdownVisible: string | null
   studyActionsDropdownRef: any
-  buttonHandlers: {
-    buttonHref: (studyId: string) => string
-    handleOpenEditStudyModal: (e: any, study: STUDY__DYNAMODB) => void
-    handleDeleteStudy: (
-      e: any,
-      id: string,
-      ownerEmail: string,
-      createdAtTimestamp: number
-    ) => void
-  }
 }
 
 
 
 const StudyDropdownMenu: FC<StudyDropdownMenuProps> = ({
   study,
-  buttonHandlers,
   isDropdownVisible,
   studyActionsDropdownRef,
 }) => {
+  // Contexts
+  const { 
+    buttonHandlers 
+  } = useContext<StudiesTableContextType>(StudiesTableContext)
+  const { 
+    handleOpenEditStudyModal 
+  } = useContext<EditStudyModalContextType>(EditStudyModalContext)
+
+
   return (
     <>
       { isDropdownVisible === study.id && (
@@ -46,7 +47,7 @@ const StudyDropdownMenu: FC<StudyDropdownMenuProps> = ({
         >
           <div className={ sectionStyles.dropdown }>
             <ProgressBarLink  
-              href={ buttonHandlers.buttonHref(study?.id.toString()) }
+              href={ buttonHandlers?.buttonHref(study?.id.toString()) ?? '' }
             >
               <button style={{ borderRadius: '4px 4px 0px 0px' }}>
                 { ` View` }
@@ -54,10 +55,9 @@ const StudyDropdownMenu: FC<StudyDropdownMenuProps> = ({
             </ProgressBarLink>
             <button
               onClick={
-                (e: any) => buttonHandlers.handleOpenEditStudyModal(
-                  e,
-                  study,
-                )
+                (e: any) => handleOpenEditStudyModal !== null 
+                  ? handleOpenEditStudyModal(e, study)
+                  : console.error('handleOpenEditStudyModal() is null')
               }
             >
               { `Edit` }
@@ -65,7 +65,7 @@ const StudyDropdownMenu: FC<StudyDropdownMenuProps> = ({
             <button
               style={{ borderRadius: '0px 0px 4px 4px' }}
               onClick={
-                (e: any) => buttonHandlers.handleDeleteStudy(
+                (e: any) => buttonHandlers?.handleDeleteStudy(
                   e,
                   study.id,
                   study.ownerEmail,
