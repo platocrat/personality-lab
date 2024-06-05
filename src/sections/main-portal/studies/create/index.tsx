@@ -174,7 +174,7 @@ const CreateStudy: FC<CreateStudyProps> = ({
         } else {
           setIsCreatingStudy(false)
 
-          const error = `Error posting study '${study.name}' to DynamoDB: `
+          const error = `Error putting study '${study.name}' to DynamoDB: `
           /**
            * @todo Handle error UI here
            */

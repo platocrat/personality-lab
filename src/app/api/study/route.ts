@@ -99,6 +99,7 @@ export async function PUT(
 }
 
 
+
 /**
  * @dev GET all studies for the `adminEmail` or get a single study by ID
  * @param req 
@@ -375,6 +376,91 @@ export async function DELETE(
         error
       )
 
+      // Something went wrong
+      return NextResponse.json(
+        { error: error },
+        {
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+    }
+  } else {
+    return NextResponse.json(
+      { error: 'Method Not Allowed' },
+      {
+        status: 405,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      },
+    )
+  }
+}
+
+
+
+/**
+ * @dev POST: Update an existing study using DynamoDB's `UpdateCommand`
+ */
+export async function POST(
+  req: NextRequest,
+  res: NextResponse,
+) {
+  if (req.method === 'POST') {
+    hasJWT(cookies)
+
+    const { study, email } = await req.json()
+
+    const study_ = study as STUDY__DYNAMODB
+    const isOwnerOrAdmin = email === study_.ownerEmail || 
+      study_.adminEmails?.includes(email)
+
+    if (!isOwnerOrAdmin) {
+      const message = 'Email provided in the request is not an owner nor admin'
+      return NextResponse.json(
+        { 
+          message: `Unauthorized: ${ message }`,
+        },
+        {
+          status: 401,
+        }
+      )
+    }
+
+
+    const TableName = DYNAMODB_TABLE_NAMES.studies
+    const Item: STUDY__DYNAMODB = {
+      ...study_,
+      updatedAtTimestamp: Date.now(),
+    }
+
+    const input: PutCommandInput = { TableName, Item }
+    const command = new PutCommand(input)
+
+    const message = `Study '${study.name}' has been updated in the '${
+      TableName
+    }' table`
+
+
+    try {
+      const response = await ddbDocClient.send(command)
+
+
+      return NextResponse.json(
+        {
+          message,
+        },
+        {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+    } catch (error: any) {
       // Something went wrong
       return NextResponse.json(
         { error: error },

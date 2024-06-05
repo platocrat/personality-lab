@@ -39,7 +39,7 @@ export function hasJWT(cookies, getJWT?: boolean) {
 
   if (!token) {
     return NextResponse.json(
-      { message: 'Unauthorized', },
+      { message: 'Unauthorized: No valid JSON web token was found in the request', },
       {
         status: 401,
       }

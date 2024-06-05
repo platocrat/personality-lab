@@ -9,9 +9,11 @@ import {
   useEffect,
 } from 'react'
 // Locals
+import Spinner from '@/components/Suspense/Spinner'
 // Contexts
-import { EditStudyModalContextType } from '@/contexts/types'
+import { SessionContext } from '@/contexts/SessionContext'
 import { EditStudyModalContext } from '@/contexts/EditStudyModalContext'
+import { EditStudyModalContextType, SessionContextType } from '@/contexts/types'
 // Utils
 import { STUDY__DYNAMODB } from '@/utils'
 // CSS
@@ -20,6 +22,7 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 import modalStyles from '@/components/Modals/Modal.module.css'
 import mainPortalStyle from '@/sections/main-portal/MainPortal.module.css'
 import createStudyStyle from '@/sections/main-portal/studies/create/CreateStudy.module.css'
+
 
 
 type EditStudyModalProps = {
@@ -44,6 +47,9 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
   const {
     setShowEditStudyModal
   } = useContext<EditStudyModalContextType>(EditStudyModalContext)
+  const { 
+    email
+  } = useContext<SessionContextType>(SessionContext)
   // States
   const [
     description,
@@ -54,6 +60,7 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
     setAdminEmails
   ] = useState(study?.adminEmails?.join(', ') || '')
   const [ name, setName ] = useState(study?.name ?? '')
+  const [ isUpdatingStudy, setIsUpdatingStudy ] = useState<boolean>(false)
   const [ showNotification, setShowNotification ] = useState<boolean>(false)
   const [ hideNotification, setHideNotification ] = useState<boolean>(false)
 
@@ -77,21 +84,62 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
 
 
   async function handleSaveChanges(e: any) {
+    const storedStudy = study as STUDY__DYNAMODB
     const updatedAdminEmails = adminEmails.split(',').map(email => email.trim())
-
-    setStudy((prevStudy: any) => ({
-      ...prevStudy,
+    const updatedStudy: STUDY__DYNAMODB = {
+      ...storedStudy,
       name,
       details: {
-        ...prevStudy.details,
+        ...storedStudy.details,
         description,
       },
       adminEmails: updatedAdminEmails,
-    }))
+    }
 
-    setShowEditStudyModal !== null ? setShowEditStudyModal(null) : null
-    setShowNotification(true)
+    await updateItemInDynamoDB(updatedStudy)
   }
+
+
+  async function updateItemInDynamoDB(study: STUDY__DYNAMODB) {
+    try {
+      const response = await fetch('/api/study', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ study, email }),
+      })
+
+      const json = await response.json()
+
+      if (response.status === 200) {
+        const message = json.message
+        
+        setIsUpdatingStudy(false)
+        setShowEditStudyModal !== null ? setShowEditStudyModal(null) : null
+        setShowNotification(true)
+
+        return message
+      } else {
+        setIsUpdatingStudy(false)
+
+        const error = `Error posting study '${study.name}' to DynamoDB: `
+        /**
+         * @todo Handle error UI here
+         */
+        throw new Error(error, json.error)
+      }
+    } catch (error: any) {
+      setIsUpdatingStudy(false)
+
+      /**
+       * @todo Handle error UI here
+       */
+      throw new Error(`Error! `, error)
+
+    }
+  }
+
 
 
 
@@ -104,7 +152,7 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
       
       return () => clearTimeout(timer)
     }
-  }, [hideNotification])
+  }, [ hideNotification ])
 
 
 
@@ -216,21 +264,37 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
                     onChange={ e => setAdminEmails(e.target.value) }
                   />
                 </div>
-                <div style={ { display: 'flex', gap: '8px' } }>
-                  <button
-                    onClick={ closeModal }
-                    className={ appStyles.button }
-                    style={ { backgroundColor: 'rgba(114, 114, 114, 0.75)' } }
-                  >
-                    { `Cancel` }
-                  </button>
-                  <button
-                    onClick={ handleSaveChanges }
-                    className={ appStyles.button }
-                  >
-                    { `Save` }
-                  </button>
-                </div>
+
+                { isUpdatingStudy ? (
+                  <>
+                    <div
+                      style={ {
+                        ...definitelyCenteredStyle,
+                        position: 'relative',
+                      } }
+                    >
+                      <Spinner height='40' width='40' />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div style={ { display: 'flex', gap: '8px' } }>
+                      <button
+                        onClick={ closeModal }
+                        className={ appStyles.button }
+                        style={ { backgroundColor: 'rgba(114, 114, 114, 0.75)' } }
+                      >
+                        { `Cancel` }
+                      </button>
+                      <button
+                        onClick={ handleSaveChanges }
+                        className={ appStyles.button }
+                      >
+                        { `Save` }
+                      </button>
+                    </div>
+                  </>
+                ) }
               </div>
             </div>
           </div>
