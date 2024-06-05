@@ -102,7 +102,10 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
   // --------------------------------- Hooks -----------------------------------
   useClickOutside(
     editStudyModalRef,
-    () => setShowEditStudyModal(null)
+    () => {
+      console.log(`Clicked outside of EditStudyModal!`)
+      return setShowEditStudyModal(null)
+    }
   ) 
 
   // ----------------------------- `useLayoutEffect`s --------------------------

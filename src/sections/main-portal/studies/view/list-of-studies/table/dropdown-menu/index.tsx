@@ -38,6 +38,22 @@ const StudyDropdownMenu: FC<StudyDropdownMenuProps> = ({
   } = useContext<EditStudyModalContextType>(EditStudyModalContext)
 
 
+  const handleDeleteClick = (e: any) => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this study?')
+
+    if (confirmDelete) {
+      buttonHandlers?.handleDeleteStudy(
+        e,
+        study.id,
+        study.ownerEmail,
+        study.createdAtTimestamp,
+      )
+    }
+  }
+
+
+
+
   return (
     <>
       { isDropdownVisible === study.id && (
@@ -63,15 +79,8 @@ const StudyDropdownMenu: FC<StudyDropdownMenuProps> = ({
               { `Edit` }
             </button>
             <button
+              onClick={ handleDeleteClick }
               style={{ borderRadius: '0px 0px 4px 4px' }}
-              onClick={
-                (e: any) => buttonHandlers?.handleDeleteStudy(
-                  e,
-                  study.id,
-                  study.ownerEmail,
-                  study.createdAtTimestamp,
-                )
-              }
             >
               { `Delete` }
             </button>
