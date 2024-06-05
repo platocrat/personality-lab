@@ -197,7 +197,7 @@ sudo docker run -it -p 3000:3000 <IMAGE_ID>
 
 > NOTE: This is required because of something that broke the GitsHub Actions automated deployment that was set up previously. -->
 
-## What to do if the SSH key ever gets lost, deleted, or corrupted
+## What to do if the SSH key ever gets lost, deleted, or corrupted?
 
 ### 1. Stop and delete the EC2 instance and launch a new one
 
@@ -205,7 +205,7 @@ Do this from the AWS Console in the browser.
 
 ### 2. In the menu to launch a new EC2 instance, create a new SSH key pair
 
-Select the encryption method that you are most comfortable with, I choose ED25519.
+RSA is not as secure as ED25519, so select ED25519 as the encryption method.
 
 ### 3. Follow the instructions on the `Connect` page to SSH into the new EC2 instance
 
@@ -234,3 +234,22 @@ where `EC2_HOSTNAME` the formatted like so:
 ```zsh
 ec2-54-198-211-160
 ```
+
+## What to do if want to use a new Elastic IP address?
+
+### 1. Release the old Elastic IP address
+
+Release the old Elastic IP address from the AWS console.
+
+### 2. Allocate a new Elastic IP address
+
+On the AWS console, on the EC2 service, under the "Network & Security" tab and under "Elastic IPs", click the orange, "Allocate Elastic IP address" button.
+
+### 3. Associate the new Elastic IP address to the EC2 instance
+
+1. Toggle the checkbox on the far left of the row of the newly allocated Elastic IP address.
+2. Then, click the "Actions" dropdown menu, and select "Associate Elastic IP Address".
+3. From this menu, for the Resource type, keep "Instance" selected.
+4. For the Instance, select the EC2 instance to associate the Elastic IP address to.
+5. Toggle the checkbox to allow reassociation.
+6. Finally, click the orange, "Associate" button.

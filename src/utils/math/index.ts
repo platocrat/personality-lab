@@ -1,4 +1,4 @@
-type StatsType = {
+export type StatsType = {
   [key: string]: {
     mean: number
     stddev: number
@@ -33,6 +33,7 @@ export function calculateMean(scores: number[]): number {
 }
 
 
+
 export function calculateStandardDeviation(
   scores: number[], 
   mean: number, 
@@ -51,4 +52,22 @@ export function calculateStandardDeviation(
     )
 
   return Math.sqrt(variance)
+}
+
+
+
+export function gaussian(distance: number): number {
+  return (
+    1 / Math.sqrt(2 * Math.PI)
+  ) * Math.exp(
+    -0.5 * (distance ** 2) 
+  )
+}
+
+
+
+export function kernelEpanechnikov(k): (v) => number {
+  return function (v): number {
+    return Math.abs((v /= k)) <= 1 ? (0.75 * (1 - v * v)) / k : 0
+  }
 }

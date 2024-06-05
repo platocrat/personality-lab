@@ -3,7 +3,7 @@ import * as d3 from 'd3'
 import { FC, useEffect, useRef } from 'react'
 // Locals
 import { 
-  generateAreaUnderCurve, 
+  generateAreaUnderNormalCurve, 
   generateNormalDistributionCurve,
 } from '@/utils'
 // CSS
@@ -34,7 +34,7 @@ const SingleNormalDistributionChart: FC<SingleNormalDistributionChartProps> = ({
     // Remove any existing svg to avoid duplicates
     d3.select(d3Container.current).select('svg').remove()
 
-    const areaData = generateAreaUnderCurve(d3, mean, stddev)
+    const areaData = generateAreaUnderNormalCurve(d3, mean, stddev)
     const data: { x: number, y: number }[] = generateNormalDistributionCurve(
       d3, 
       mean, 

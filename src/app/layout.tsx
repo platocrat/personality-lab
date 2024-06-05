@@ -1,6 +1,7 @@
 'use client'
 
 // Externals
+import * as Castle from '@castleio/castle-js'
 import { useLayoutEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 // Locals

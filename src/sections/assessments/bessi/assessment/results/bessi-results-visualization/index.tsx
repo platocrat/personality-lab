@@ -14,6 +14,17 @@ import html2canvas from 'html2canvas'
 import TitleDropdown from './title-dropdown'
 import UserVisualization from './user-visualization'
 // Components
+import RidgelinePlot, { 
+  RidgelinePlotDataType
+} from '@/components/DataViz/Ridgeline'
+import MultipleNormalDistributions, { 
+  MultipleNormalDistributionDataType 
+} from '@/components/DataViz/Distributions/Normal/MultipleNormal'
+import DemoRidgelinePlot from '@/components/DataViz/DemoRidgeline'
+import { 
+  RIDGELINE_DEMO_FACET_DATA,
+  RIDGELINE_DEMO_DOMAIN_DATA, 
+} from '@/components/DataViz/DemoRidgeline/data'
 import Title from '@/components/DataViz/Title'
 import TreeMap from '@/components/DataViz/TreeMap'
 import StellarPlot from '@/components/DataViz/StellarPlot'
@@ -24,9 +35,6 @@ import BessiRateUserResults from '@/components/Forms/BESSI/RateUserResults'
 import PersonalityVisualization from '@/components/DataViz/PersonalityVisualization'
 import ResultsVisualizationModal from '@/components/Modals/BESSI/ResultsVisualization'
 import SingleNormalDistributionChart from '@/components/DataViz/Distributions/Normal/SingleNormal'
-import MultipleNormalDistributions, { 
-  MultipleNormalDistributionDataType 
-} from '@/components/DataViz/Distributions/Normal/MultipleNormal'
 // Hooks
 import useClickOutside from '@/hooks/useClickOutside'
 // Contexts
@@ -104,7 +112,8 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
     { name: 'Radial Bar Graph', imgName: 'radial-bar-graph' },
     { name: 'Tree Map', imgName: 'tree-map' },
     { name: 'Normal Distribution', imgName: 'normal-distribution' },
-    { name: 'Multiple Normal Distributions', imgName: 'multiple-normal-distributions' },
+    { name: 'Multiple Normal Distributions Demo', imgName: 'multiple-normal-distributions-demo' },
+    { name: 'Ridgeline Plot Demo', imgName: 'ridgeline-plot-demo' },
     { name: 'Personality Visualization', imgName: 'personality-visualization' },
   ]
   
@@ -142,6 +151,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
       case 4:
       case 5:
       case 6:
+      case 7:
         return bessiSkillScores?.domainScores
           ? {
             facetScores: bessiSkillScores?.facetScores,
@@ -243,34 +253,73 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         /**
          * @todo If `isExample` is false, replace dummy data with real data
          */
-        const populationFacetScores = getDummyPopulationBessiScores(100, 'facet')
-        const populationDomainScores = getDummyPopulationBessiScores(100, 'domain')
+        const multipleNormalPopFacetScores = getDummyPopulationBessiScores(100, 'facet')
+        const multipleNormalPopDomainScores = getDummyPopulationBessiScores(100, 'domain')
 
-        const isSample = false
+        const multipleNormalIsSample = false
+
+        const multipleNormalUserData = data_(i) as {
+          facetScores: FacetFactorType,
+          domainScores: SkillDomainFactorType,
+          averages: SkillDomainFactorType,
+        }
 
         const multipleNormalDistributionData: MultipleNormalDistributionDataType = {
-          facetScores: (data_(i) as {
-            facetScores: FacetFactorType,
-            domainScores: SkillDomainFactorType,
-            averages: SkillDomainFactorType,
-          }).facetScores,
-          domainScores: (data_(i) as {
-            facetScores: FacetFactorType,
-            domainScores: SkillDomainFactorType,
-            averages: SkillDomainFactorType,
-          }).domainScores,
-          populationFacetScores,
-          populationDomainScores,
+          facetScores: multipleNormalUserData.facetScores,
+          domainScores: multipleNormalUserData.domainScores,
+          populationFacetScores: multipleNormalPopFacetScores,
+          populationDomainScores: multipleNormalPopDomainScores,
         }
 
         return (
           <MultipleNormalDistributions
-            isSample={ isSample }
+            isSample={ multipleNormalIsSample }
             isExample={ isExample }
             data={ multipleNormalDistributionData }
           />
         )
       case 6:
+        /**
+         * @todo If `isExample` is false, replace dummy data with real data
+         */
+        // const ridgelinePlotPopFacetScores = getDummyPopulationBessiScores(100, 'facet')
+        // const ridgelinePlotPopDomainScores = getDummyPopulationBessiScores(100, 'domain')
+
+        // const ridgelinePlotIsSample = false
+
+        // const ridgelinePlotUserData = data_(i) as {
+        //   facetScores: FacetFactorType,
+        //   domainScores: SkillDomainFactorType,
+        //   averages: SkillDomainFactorType,
+        // }
+
+        // const ridgelinePlotData: RidgelinePlotDataType = {
+        //   facetScores: ridgelinePlotUserData.facetScores,
+        //   domainScores: ridgelinePlotUserData.domainScores,
+        //   populationFacetScores: ridgelinePlotPopFacetScores,
+        //   populationDomainScores: ridgelinePlotPopDomainScores,
+        // }
+
+        return (
+          <>
+            {/* <RidgelinePlot
+              isSample={ ridgelinePlotIsSample }
+              isExample={ isExample }
+              data={ ridgelinePlotData }
+            /> */}
+            <DemoRidgelinePlot
+              data={ RIDGELINE_DEMO_DOMAIN_DATA }
+              height={ 400 }
+              width={ 800 }
+            />
+            <DemoRidgelinePlot
+              data={ RIDGELINE_DEMO_FACET_DATA }
+              height={ 400 }
+              width={ 800 }
+            />
+          </>
+        )
+      case 7:
         return (
           <PersonalityVisualization
             isExample={ isExample }
