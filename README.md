@@ -44,7 +44,7 @@ This project uses `next/font` to automatically optimize and load Inter, a custom
 - [What to do if want to use a new Elastic IP address?](#what-to-do-if-want-to-use-a-new-elastic-ip-address)
 - [Working with `screen` to view Next.js and Caddy logs separately](#working-with-screen-to-view-nextjs-and-caddy-logs-separately)
 
-## Launch a new EC2 instance on AWS console
+## Launch a new AWS EC2 instance on AWS console
 
 ### 1. Application and OS Images
 
@@ -67,6 +67,78 @@ Create a new security group, or use an existing security group, that has the fol
 1. `Allow SSH traffic from` (this is defaulted to `Anywhere 0.0.0.0/0` -- keep the default setting enabled)
 2. `Allow HTTPS traffic from the internet` (this is disabled by default)
 3. `Allow HTTP traffic from the internet` (this is disabled by default)
+
+## Attach an IAM Role to a newly created EC2 instance
+
+The EC2 instance uses several AWS services and thus requires AWS credentials to make API calls to leverage each of these services.
+However, managing these AWS credentials and passing them on to an application is tedious and can come with a ton of security risks.
+Thankfully, AWS provides a solution to this issue by allowing the creation of an AWS IAM Role specifically for an EC2 instance to use.
+
+> More information on "IAM roles for Amazon EC2" can be found on the [AWS's official documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html)
+
+### 1. Pre-requisites
+
+Before you create a new IAM role that will be used specifically for the EC2 instance, make sure you have the following pre-requisites:
+
+1. To create a new IAM role, make sure you have the proper permissions under your organization.
+2. Identify the AWS services, and the respective permissions per each AWS service, that your EC2 instance will require to make API calls to.
+
+### 2. Create a new IAM role
+
+Once you have the pre-requisites, you can create a new IAM role by following the steps below:
+
+1. To create a new IAM role, go to the IAM service and under `Access Management`, click on the `Roles`.
+2. Click the orange `Create role` button on the top right of the `Roles` settings-page.
+3. Under the `Select trusted entity` page, and under `Trusted entity type` menu, select `AWS service`.
+4. Under the `Use case` menu, click the `Service or use case` select-dropdown menu to choose a service. Select `EC2`.
+5. Leave the default radio option, `EC2`, toggled and click `Next`.
+
+### 3. Add permissions
+
+For the `personality-lab` Next.js project, we use 3 AWS services:
+
+1. DynamoDB
+2. EC2
+3. Systems Manager (for Parameter Store)
+
+For simplicity and to save time configuring granular custom permissions policies, we selected broad-general permissions for each of these services:
+
+1. `AmazonDynamoDBFullAccess`
+2. `AmazonEC2FullAccess`
+3. `AmazonSSMFullAccess`
+
+Add each of the three permissions policies listed above.
+Then, click the orange `Next` button on the bottom right.
+
+### 4. Name, review, and create the IAM role
+
+1. Enter a short and unique role name for the ec2 instance.
+
+    > This role name will be used later when you need to SSH in to your EC2 instance, so make sure it is short. We named it `ec2-user`
+
+2. Give it a detailed and concise description of what the new IAM role is for.
+
+    > We went with left default description, `Allows EC2 instances to call AWS services on your behalf.`
+
+3. Click the orange `Create role` button at the bottom right to finally create the new IAM role.
+
+### 5. Modify IAM role of EC2 instance
+
+Lastly, we want to have the EC2 instance use this newly created IAM role.
+To do that, we need to modify the EC2 instance's IAM Role in its settings.
+
+1. Go to the EC2 service
+2. Click on the `Instances` tab on the left-side menu
+3. Click on your target EC2 instance's ID, highlighted in blue
+4. Click on the select-dropdown menu titled, `Actions`
+5. Click on the `Security` select-dropdown menu
+6. Click on `Modify IAM role`
+7. On the `Modify IAM role` page, under the `IAM role` menu, click on the select-dropdown menu and select the IAM role that you created earlier in steps 2 through 4.
+8. Click the orange `Update IAM role` button to associate the IAM role with the EC2 instance.
+
+Now, whenever your EC2 instance is running, it will always have AWS credentials with specific permissions to make API calls to the services specified in the permissions policies you selected when created the IAM role.
+
+This saves you time and a headache from manually always having to add the AWS credentials manually or having to write your own system for managing and distributing the AWS credentials to your EC2 instance(s).
 
 ## Deploying Next.js app to AWS EC2 instance and serving it with Caddy
 
