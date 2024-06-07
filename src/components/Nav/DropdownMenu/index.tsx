@@ -52,6 +52,15 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
   useClickOutside(dropdownRef, () => setIsVisible(false))
 
 
+  useEffect(() => {
+    console.log(
+      `[${new Date().toLocaleString()} --filepath="src/components/Nav/DropdownMenu/index.tsx" --function="useEffect()"]: user: `, 
+      user
+    )
+  }, [ user ])
+
+
+
 
   return (
     <>
