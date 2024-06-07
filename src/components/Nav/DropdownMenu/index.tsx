@@ -1,3 +1,5 @@
+'use client'
+
 // Externals
 import {
   FC,
@@ -39,7 +41,7 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
   children
 }) => {
   // Auth0 
-  const { user, error, isLoading, checkSession } = useUser()
+  const { user, error, isLoading } = useUser()
   // Refs
   const dropdownRef = useRef<any>(null)
   // States
@@ -50,37 +52,7 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
   const toggleDropdown = () => setIsVisible(!isVisible)
 
 
-  async function getUser(): Promise<void> {
-    // const checkSession_ = await checkSession()
-    // console.log(
-    //   `[${new Date().toLocaleString()} --filepath="src/components/Nav/DropdownMenu/index.tsx" --function="useEffect()"]: checkSession_: `,
-    //   checkSession_
-    // )
-    console.log(
-      `[${new Date().toLocaleString()} --filepath="src/components/Nav/DropdownMenu/index.tsx" --function="useEffect()"]: user: `,
-      user
-    )
-    console.log(
-      `[${new Date().toLocaleString()} --filepath="src/components/Nav/DropdownMenu/index.tsx" --function="useEffect()"]: error: `,
-      error
-    )
-    console.log(
-      `[${new Date().toLocaleString()} --filepath="src/components/Nav/DropdownMenu/index.tsx" --function="useLayoutEffect()"]: error.name: `,
-      error?.name
-    )
-    console.log(
-      `[${new Date().toLocaleString()} --filepath="src/components/Nav/DropdownMenu/index.tsx" --function="useLayoutEffect()"]: error.message: `,
-      error?.message
-    )
-    console.log(
-      `[${new Date().toLocaleString()} --filepath="src/components/Nav/DropdownMenu/index.tsx" --function="useLayoutEffect()"]: error.cause: `,
-      error?.cause
-    )
-    console.log(
-      `[${new Date().toLocaleString()} --filepath="src/components/Nav/DropdownMenu/index.tsx" --function="useEffect()"]: isLoading: `,
-      isLoading
-    )
-
+  async function getUsername(): Promise<void> {
     setUsername(user?.name as string)
   }
 
@@ -89,13 +61,35 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
 
 
   useEffect(() => {
-    // if (!isLoading && user) {
+    if (!isLoading) {
+      console.log(
+        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: user: `,
+        user
+      )
+      console.log(
+        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error: `,
+        error
+      )
+      console.log(
+        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error.name: `,
+        error?.name
+      )
+      console.log(
+        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error.message: `,
+        error?.message
+      )
+      console.log(
+        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error.cause: `,
+        error?.cause
+      )
+
+
       const requests = [
-        getUser()
+        getUsername()
       ]
 
       Promise.all(requests)
-    // }
+    }
   }, [ user, error, isLoading ])
 
 

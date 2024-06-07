@@ -103,41 +103,6 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
     localStorage.removeItem(key)
   }
 
-
-
-  async function getUser(): Promise<void> {
-    // const checkSession_ = await checkSession()
-    // console.log(
-    //   `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: checkSession_: `,
-    //   checkSession_
-    // )
-    console.log(
-      `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: user: `,
-      user
-    )
-    console.log(
-      `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error: `,
-      error
-    )
-    console.log(
-      `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error.name: `,
-      error?.name
-    )
-    console.log(
-      `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error.message: `,
-      error?.message
-    )
-    console.log(
-      `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error.cause: `,
-      error?.cause
-    )
-    console.log(
-      `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: isLoading: `,
-      isLoading
-    )
-  }
-
-
   /**
    * @dev Request account entry from `accounts` table which has a `participant`
    *      property.
@@ -175,20 +140,35 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
   useLayoutEffect(() => {
     resetCurrentStudy()
 
-    // if (!isLoading && user) {
+    if (!isLoading) {
+      console.log(
+        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: user: `,
+        user
+      )
+      console.log(
+        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error: `,
+        error
+      )
+      console.log(
+        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error.name: `,
+        error?.name
+      )
+      console.log(
+        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error.message: `,
+        error?.message
+      )
+      console.log(
+        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error.cause: `,
+        error?.cause
+      )
+
 
       const requests = [
-        getUser()
+        // getIsParticipant()
       ]
 
       Promise.all(requests)
-
-      // const requests = [
-      //   getIsParticipant()
-      // ]
-  
-      // Promise.all(requests)
-    // }
+    }
   }, [ user, error, isLoading ])
 
 
