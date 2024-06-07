@@ -3,7 +3,7 @@
 // Externals
 import * as Castle from '@castleio/castle-js'
 import { useLayoutEffect, useState } from 'react'
-import { usePathname, useRouter } from 'next/navigation'
+// import { usePathname, useRouter } from 'next/navigation'
 import { UserProvider } from '@auth0/nextjs-auth0/client'
 // Locals
 import Header from '@/components/Header'
@@ -187,10 +187,7 @@ export default function RootLayout({
       <html lang='en'>
         <body>
           <ProgressBar>
-            <UserProvider
-              loginUrl='/api/auth/login'
-              profileUrl='/api/auth/me'
-            >
+            <UserProvider>
               <SessionContext.Provider
                 value={{
                   email,
