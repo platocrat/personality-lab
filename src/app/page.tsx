@@ -40,14 +40,11 @@ export default function Home() {
   // Hooks
   const router = useRouter()
   // State
-  const [isFetchingUser, setIsFetchingUser ] = useState(false)
   const [ isAuthenticated, setIsAuthenticated ] = useState(false)
   
   const loginHref = '/api/auth/login'
   
   useEffect(() => {
-    setIsFetchingUser(user !== undefined && error !== undefined)
-    
     if (!isLoading && !user) {
       router.push(loginHref)
     } else {
@@ -63,7 +60,7 @@ export default function Home() {
   return (
     <>
       <main>
-        { isLoading ? <Spinner_ /> : <MainPortal /> }
+        { isLoading || !user ? <Spinner_ /> :  <MainPortal /> }
       </main>
     </>
   )
