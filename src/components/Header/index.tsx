@@ -1,7 +1,7 @@
 // Externals
 import { FC} from 'react'
 // Locals
-import Nav from '../Nav'
+import Nav from '@/components/Nav'
 import DropdownMenu, { NavLink } from '../Nav/DropdownMenu'
 // CSS
 import styles from '@/components/Header/Header.module.css'
@@ -21,7 +21,6 @@ const Header: FC<HeaderProps> = ({}) => {
     { label: 'Profile', href: '/profile' },
     { label: 'Settings', href: '/settings' },
   ]
-
 
 
   return (

@@ -4,6 +4,7 @@
 import { useUser } from '@auth0/nextjs-auth0/client'
 import { FC, useLayoutEffect, useState } from 'react'
 // Locals
+import Spinner from '@/components/Suspense/Spinner'
 import PersonalityAssessments from '@/sections/assessments'
 // Components
 import LeftHandNav from '@/components/Nav/LeftHand'
@@ -107,11 +108,11 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
    * @dev Request account entry from `accounts` table which has a `participant`
    *      property.
    */
-  async function getIsParticipant() {
+  async function getIsParticipant(email: string) {
     setIsGettingParticipant(true)
 
     try {
-      const apiEndpoint = `/api/account?email=${user?.email}`
+      const apiEndpoint = `/api/account?email=${email}`
       const response = await fetch(apiEndpoint, { method: 'GET' })
 
       const json = await response.json()
@@ -140,36 +141,19 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
   useLayoutEffect(() => {
     resetCurrentStudy()
 
-    if (!isLoading) {
-      console.log(
-        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: user: `,
-        user
-      )
-      console.log(
-        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error: `,
-        error
-      )
-      console.log(
-        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error.name: `,
-        error?.name
-      )
-      console.log(
-        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error.message: `,
-        error?.message
-      )
-      console.log(
-        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error.cause: `,
-        error?.cause
-      )
-
-
+    if (!isLoading && user && user.email) {
       const requests = [
-        // getIsParticipant()
+        getIsParticipant(user.email)
       ]
 
       Promise.all(requests)
+    } else if (!isLoading && !user) {
+      console.error(
+        `Unable to get 'user' using 'useUser()'. Here is what Auth0 returned for 'user': `, 
+        user
+      )
     }
-  }, [ user, error, isLoading ])
+  }, [ isLoading ])
 
 
 
@@ -177,32 +161,48 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
   return (
     <>
       <div className={ styles.mainPortal }>
-        { isParticipant ? (
+        { isLoading || isGettingParticipant ? (
           <>
-            <div 
+            <div
               style={{
+                ...definitelyCenteredStyle,
                 position: 'relative',
-                top: '85px',
+                top: '80px',
               }}
             >
-              <ParticipantTitle 
-                titleText={ TITLE_TEXT } 
-                subtitleText={ SUBTITLE_TEXT} 
-              />
-              <PersonalityAssessments />
+              <Spinner height='40' width='40' />
             </div>
           </>
         ) : (
           <>
-            <LeftHandNav>
-              <Title text={ TITLE_TEXT } />
-              {/* Main content goes here */ }
-              <div style={{ ...definitelyCenteredStyle, margin: '48px' }}>
-                <p>
-                  { 'Notifications and other important updates go here.' }
-                </p>
-              </div>
-            </LeftHandNav>
+            { isParticipant ? (
+              <>
+                <div
+                  style={ {
+                    position: 'relative',
+                    top: '85px',
+                  } }
+                >
+                  <ParticipantTitle
+                    titleText={ TITLE_TEXT }
+                    subtitleText={ SUBTITLE_TEXT }
+                  />
+                  <PersonalityAssessments />
+                </div>
+              </>
+            ) : (
+              <>
+                <LeftHandNav>
+                  <Title text={ TITLE_TEXT } />
+                  {/* Main content goes here */ }
+                  <div style={ { ...definitelyCenteredStyle, margin: '48px' } }>
+                    <p>
+                      { 'Notifications and other important updates go here.' }
+                    </p>
+                  </div>
+                </LeftHandNav>
+              </>
+            )}
           </>
         )}
       </div>

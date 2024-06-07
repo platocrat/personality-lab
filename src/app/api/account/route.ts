@@ -8,9 +8,9 @@ import {
 import { verify } from 'jsonwebtoken'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
+import { getSession, withApiAuthRequired } from '@auth0/nextjs-auth0'
 // Locals
 import {
-  hasJWT,
   getEntryId,
   ddbDocClient,
   STUDY__DYNAMODB,
@@ -27,12 +27,27 @@ import {
  * @param res
  * @returns 
  */
-export async function GET(
-  req: NextRequest,
-  res: NextResponse,
+export const GET = withApiAuthRequired( async function getAccountEntry(
+  req: NextRequest
 ) {
   if (req.method === 'GET') {
-    hasJWT(cookies)
+    const res = new NextResponse()
+
+    // Auth0
+    const session = await getSession(req, res)
+    const user = session?.user
+
+    console.log(`user: `, user)
+
+    if (!user) {
+      const message = `Unauthorized: Auth0 found no 'user' for their session.`
+      return NextResponse.json(
+        { message },
+        {
+          status: 401,
+        }
+      )
+    }
 
     const email = req.nextUrl.searchParams.get('email')
 
@@ -135,4 +150,4 @@ export async function GET(
       },
     )
   }
-}
+})
