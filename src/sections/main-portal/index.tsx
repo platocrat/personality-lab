@@ -108,11 +108,11 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
    * @dev Request account entry from `accounts` table which has a `participant`
    *      property.
    */
-  async function getIsParticipant(email: string) {
+  async function getIsParticipant() {
     setIsGettingParticipant(true)
 
     try {
-      const apiEndpoint = `/api/account?email=${email}`
+      const apiEndpoint = `/api/account`
       const response = await fetch(apiEndpoint, { method: 'GET' })
 
       const json = await response.json()
@@ -149,7 +149,7 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
 
     if (!isLoading && user && user.email) {
       const requests = [
-        getIsParticipant(user.email)
+        getIsParticipant()
       ]
 
       Promise.all(requests)

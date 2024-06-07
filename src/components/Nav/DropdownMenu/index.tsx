@@ -7,7 +7,6 @@ import {
   useState,
   Fragment,
   ReactNode,
-  useEffect,
   } from 'react'
   import Image from 'next/image'
   import { useUser } from '@auth0/nextjs-auth0/client'
@@ -45,31 +44,11 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
   // Refs
   const dropdownRef = useRef<any>(null)
   // States
-  const [ username, setUsername ] = useState<string>('')
   const [ isVisible, setIsVisible ] = useState<boolean>(false)
-
 
   const toggleDropdown = () => setIsVisible(!isVisible)
 
-
-  async function getUsername(): Promise<void> {
-    setUsername(user?.name as string)
-  }
-
-
   useClickOutside(dropdownRef, () => setIsVisible(false))
-
-
-  useEffect(() => {
-    if (!isLoading) {
-      const requests = [
-        getUsername()
-      ]
-
-      Promise.all(requests)
-    }
-  }, [ user, error, isLoading ])
-
 
 
 

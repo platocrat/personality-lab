@@ -37,11 +37,6 @@ export const GET = withApiAuthRequired( async function getAccountEntry(
     const session = await getSession(req, res)
     const user = session?.user
 
-    console.log(
-      `[${new Date().toLocaleString()}: --filepath="src/app/api/account" --function="GET()"]: user: `, 
-      user
-    )
-
     if (!user) {
       const message = `Unauthorized: Auth0 found no 'user' for their session.`
       return NextResponse.json(
@@ -52,11 +47,12 @@ export const GET = withApiAuthRequired( async function getAccountEntry(
       )
     }
 
-    const email = req.nextUrl.searchParams.get('email')
+
+    const email = user.email
 
     if (!email) {
       return NextResponse.json(
-        { error: 'Email query parameter is required!' },
+        { error: `Unauthorized: Auth0 found no email for this user's session!` },
         {
           status: 400,
           headers: {
