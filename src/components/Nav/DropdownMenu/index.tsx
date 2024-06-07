@@ -53,14 +53,22 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
 
 
   useEffect(() => {
-    if (!isLoading && user) {
-      console.log(
-        `[${new Date().toLocaleString()} --filepath="src/components/Nav/DropdownMenu/index.tsx" --function="useEffect()"]: user: `,
-        user
-      )
+    // if (!isLoading && user) {
+    console.log(
+      `[${new Date().toLocaleString()} --filepath="src/components/Nav/DropdownMenu/index.tsx" --function="useEffect()"]: user: `,
+      user
+    )
+    console.log(
+      `[${new Date().toLocaleString()} --filepath="src/components/Nav/DropdownMenu/index.tsx" --function="useEffect()"]: error: `,
+      error
+    )
+    console.log(
+      `[${new Date().toLocaleString()} --filepath="src/components/Nav/DropdownMenu/index.tsx" --function="useEffect()"]: isLoading: `,
+      isLoading
+    )
 
-      setUsername(user?.name as string)
-    }
+    setUsername(user?.name as string)
+    // }
   }, [ user, error, isLoading ])
 
 

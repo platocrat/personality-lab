@@ -141,18 +141,26 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
   useLayoutEffect(() => {
     resetCurrentStudy()
 
-    if (!isLoading && user) {
+    // if (!isLoading && user) {
       console.log(
         `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: user: `,
         user
       )
+      console.log(
+        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error: `,
+        error
+      )
+      console.log(
+        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: isLoading: `,
+        isLoading
+      )
 
-      const requests = [
-        getIsParticipant()
-      ]
+      // const requests = [
+      //   getIsParticipant()
+      // ]
   
-      Promise.all(requests)
-    }
+      // Promise.all(requests)
+    // }
   }, [ user, error, isLoading ])
 
 
