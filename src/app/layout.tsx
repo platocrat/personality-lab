@@ -182,6 +182,7 @@ export default function RootLayout({
 
   // ------------------------------ `useEffect`s -------------------------------
   useLayoutEffect(() => {
+    setIsFetchingUser(false)
     setIsAuthenticated(true)
 
     const requests = [

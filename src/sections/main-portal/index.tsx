@@ -112,15 +112,15 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
   /**
    * @dev Used for debugging cookies
    */
-  async function _getUsernameAndEmailFromCookie() {
-    const cookieValues = await getUsernameAndEmailFromCookie()
+  // async function _getUsernameAndEmailFromCookie() {
+  //   const cookieValues = await getUsernameAndEmailFromCookie()
 
-    console.log(
-      `[${new Date().toLocaleString()} \ --filepath="src/sections/assessments/bessi/assessment/index.tsx"]:`,
-      `client-side decrypted email and username jwt-cookie ensure. Double-check that these values aren't being intercepted by hackers to change any of its values.`,
-      cookieValues
-    )
-  }
+  //   console.log(
+  //     `[${new Date().toLocaleString()} \ --filepath="src/sections/assessments/bessi/assessment/index.tsx"]:`,
+  //     `client-side decrypted email and username jwt-cookie ensure. Double-check that these values aren't being intercepted by hackers to change any of its values.`,
+  //     cookieValues
+  //   )
+  // }
 
 
   
@@ -128,10 +128,10 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
     resetCurrentStudy()
 
     const requests = [
-      _getUsernameAndEmailFromCookie,
+      // _getUsernameAndEmailFromCookie,
     ]
 
-    Promise.all(requests)
+    // Promise.all(requests)
   }, [])
 
 
