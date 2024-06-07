@@ -1,6 +1,4 @@
 // Externals
-import Link from 'next/link'
-import Image from 'next/image'
 import { 
   FC, 
   useRef, 
@@ -8,14 +6,12 @@ import {
   Fragment, 
   ReactNode, 
   useEffect,
-  useContext, 
-} from 'react'
+  } from 'react'
+import Link from 'next/link'
+import Image from 'next/image'
+import { useUser } from '@auth0/nextjs-auth0/client'
 // Locals
 import ProgressBarLink from '@/components/Progress/ProgressBarLink'
-// Contexts
-import { SessionContext } from '@/contexts/SessionContext'
-// Context types
-import { SessionContextType } from '@/contexts/types'
 // Hooks
 import useClickOutside from '@/hooks/useClickOutside'
 // Utils
@@ -43,15 +39,15 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
   links,
   children
 }) => {
-  // Contexts
-  const { username } = useContext<SessionContextType>(SessionContext)
+  // Auth0 
+  const { user, error, isLoading } = useUser()
   // Refs
   const dropdownRef = useRef<any>(null)
   // States
   const [isVisible, setIsVisible] = useState<boolean>(false)
 
-  const toggleDropdown = () => setIsVisible(!isVisible)
 
+  const toggleDropdown = () => setIsVisible(!isVisible)
 
   useClickOutside(dropdownRef, () => setIsVisible(false))
 
@@ -85,7 +81,7 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
                 }}
               >
                 <p style={ definitelyCenteredStyle }>
-                  { username }
+                  { user?.name }
                 </p>
               </div>
               { links.map((link: NavLink, i: number) => (
