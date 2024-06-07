@@ -153,7 +153,7 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
   
       Promise.all(requests)
     }
-  }, [ user ])
+  }, [ user, error, isLoading ])
 
 
 

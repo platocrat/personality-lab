@@ -53,8 +53,13 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
 
 
   useEffect(() => {
-    if (!isLoading && user?.name !== undefined && user?.name !== null) {
-      setUsername(user.name)
+    if (!isLoading && user) {
+      console.log(
+        `[${new Date().toLocaleString()} --filepath="src/components/Nav/DropdownMenu/index.tsx" --function="useEffect()"]: user: `,
+        user
+      )
+
+      setUsername(user?.name as string)
     }
   }, [ user, error, isLoading ])
 
