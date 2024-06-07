@@ -34,7 +34,7 @@ jobs:
         run: '
           touch .env.local
 
-          echo -e "AUTH0_SECRET=$AUTH0_SECRET\nAUTH0_BASE_URL=$AUTH0_BASE_URL\nAUTH0_ISSUER_BASE_URL=$AUTH0_ISSUER_BASE_URL\nAUTH0_CLIENT_ID=$AUTH0_CLIENT_ID\nAUTH0_CLIENT_SECRET$AUTH0_CLIENT_SECRET" > .env.local
+          echo -e "AUTH0_SECRET=$AUTH0_SECRET\nAUTH0_BASE_URL=$AUTH0_BASE_URL\nAUTH0_ISSUER_BASE_URL=$AUTH0_ISSUER_BASE_URL\nAUTH0_CLIENT_ID=$AUTH0_CLIENT_ID\nAUTH0_CLIENT_SECRET=$AUTH0_CLIENT_SECRET" > .env.local
         '
       # Phase 1: Build and Push Docker Image to Docker Hub Repository
       - name: 1. Login to Docker
