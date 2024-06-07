@@ -48,12 +48,12 @@ export default function Home() {
     if (!isLoading && !user) {
       router.push(loginHref)
     } else {
-      if (user !== undefined) {
+      // if (user !== undefined) {
         console.log(`user: `, user)
-        setIsAuthenticated(false)
-      }
+        // setIsAuthenticated(false)
+      // }
     }
-  }, [ isLoading, user, error, router ])
+  }, [ isLoading, user ])
 
 
 
