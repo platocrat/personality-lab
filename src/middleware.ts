@@ -1,8 +1,4 @@
-// Externals
-import { NextRequest } from 'next/server'
+// middleware.js
+import { withMiddlewareAuthRequired } from '@auth0/nextjs-auth0/edge'
 
-
-
-export async function middleware(req: NextRequest) {
-  
-} 
+export default withMiddlewareAuthRequired()
