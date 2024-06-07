@@ -1,3 +1,5 @@
+'use client'
+
 // Externals
 import { useUser } from '@auth0/nextjs-auth0/client'
 import { FC, useContext, useLayoutEffect, useState } from 'react'
