@@ -41,6 +41,8 @@ This project uses `next/font` to automatically optimize and load Inter, a custom
   - [1. Stop and delete the EC2 instance and launch a new one](#1-stop-and-delete-the-ec2-instance-and-launch-a-new-one)
   - [2. In the menu to launch a new EC2 instance, create a new SSH key pair](#2-in-the-menu-to-launch-a-new-ec2-instance-create-a-new-ssh-key-pair)
   - [3. Follow the instructions on the `Connect` page to SSH into the new EC2 instance](#3-follow-the-instructions-on-the-connect-page-to-ssh-into-the-new-ec2-instance)
+- [What to do if want to use a new Elastic IP address?](#what-to-do-if-want-to-use-a-new-elastic-ip-address)
+- [Working with `screen` to view Next.js and Caddy logs separately](#working-with-screen-to-view-nextjs-and-caddy-logs-separately)
 
 ## Launch a new EC2 instance on AWS console
 
@@ -291,3 +293,149 @@ On the AWS console, on the EC2 service, under the "Network & Security" tab and u
 4. For the Instance, select the EC2 instance to associate the Elastic IP address to.
 5. Toggle the checkbox to allow reassociation.
 6. Finally, click the orange, "Associate" button.
+
+## Working with `screen` to view Next.js and Caddy logs separately
+
+Prerequisites for the `screen` example below:
+
+1. You have an SSH key (`.pem` file) to SSH in to the EC2 instance
+2. The latest version of both `docker` and `caddy` are installed on the EC2 instance
+3. You have pulled the Next.js Docker image to run as a container
+4. You have a `Caddyfile` on the EC2 instance to start the Caddy server from
+5. You want to work with two screens: one for `nextjs` and another for `caddy`
+
+### Example workflow
+
+1. Start the screen session:
+
+```sh
+screen -S nextjs
+```
+
+2. Run the Docker container:
+
+```sh
+sudo docker run -it -p 3000:3000 <IMAGE_ID>
+```
+
+You can leave this container running since we can detach from this screen without interrupting the container.
+
+3. Detach from the `nextjs` screen session:
+
+Press `Ctrl+A` then `D`.
+
+4. Switch to a new screen session for the Caddy server:
+
+```sh
+screen -S caddy
+```
+
+5. List all screen sessions to view both the `nextjs`  and `caddy` sessions have been created:
+
+```sh
+screen -ls
+```
+
+6. Start the Caddy server:
+
+```sh
+sudo caddy run --config /etc/caddy/Caddyfile
+```
+
+You can leave the Caddy server running since we can detach from this screen without interrupting the Caddy server.
+
+7. View the current screen you are on:
+
+```sh
+echo $STY
+```
+
+This will return the screen ID and name to stdout.
+
+8. Detach from the `caddy` session:
+
+Press `Ctrl+A` then `D`.
+
+9. List all screen sessions:
+
+```sh
+screen -ls
+```
+
+You should see both sessions are in the `Detached` state, as opposed to the `Attached` state.
+
+10. In your browser, go to the domain where Caddy is serving the Next.js app
+
+Click around several pages.
+
+11. In the EC2 instance, re-attach to the `nextjs` session:
+
+```sh
+screen -r nextjs
+```
+
+You should see the logs from the Next.js server that correspond to the pages you navigated to in your browser.
+
+12. Make code changes to a file, save, commit and push them
+
+12. Stop the Caddy server and the Docker container running the Next.js app
+    1. As the GitHub Action is being run from step 12 to build, push, and pull the latest version of the Next.js Docker image to the EC2 instance, first stop the Caddy server that is serving the Next.js Docker container:
+
+        ```sh
+        screen -r caddy
+        ```
+
+        Then, press `CTL + C` to stop the Caddy server.
+
+        Then, detach from this screen by pressing `CTL + A` then `D`, or by running:
+
+        ```sh
+        screen -d
+        ```
+
+        Obviously, you can only run `screen -d` to detach from a screen when you have access to the CLI and are not blocked by a running process.
+
+    2. Next, stop the running Next.js Docker container by going back to the `nextjs` screen and then pressing `CTL + C` to interrupt the container.
+
+        ```sh
+        screen -r nextjs
+        ```
+
+    Then press `CTL + C` to interrupt the container.
+13. After the latest Docker image has been pulled, restart the Caddy server and Next.js Docker container:
+    1. Re-enter the `caddy` screen session:
+
+        ```sh
+        screen -r caddy
+        ```
+
+        Then, start the Caddy server:
+        
+        ```sh
+        sudo caddy run --config /etc/caddy/Caddyfile
+        ```
+
+        Then, detach from the `caddy` screen session, leaving the Caddy server running, by pressing `CTL + A` and then `D`.
+    
+    2. Re-enter the `nextjs` screen session:
+        ```sh
+        screen -r nextjs
+        ```
+
+        Then, start the Next.js Docker container:
+
+        ```sh
+        sudo docker run -it -p 3000:3000 <IMAGE_ID>
+        ```
+
+        Then, detach from the `nextjs` screen session, to work in a separate screen to start other processes or run other commands, or proceed to step 3.
+
+    3. From your browser, navigate to the domain where the Caddy server is serving the Next.js Docker container.
+
+        After browsing pages on the domain, go back to the EC2 instance `nextjs` screen session:
+
+        ```sh
+        screen -r nextjs
+        ```
+
+        You should see Next.js returning logs from the page(s) you viewed from your browser.
