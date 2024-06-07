@@ -42,10 +42,11 @@ export default function Home() {
   // State
   const [ isAuthenticated, setIsAuthenticated ] = useState(false)
   
-
+  const loginHref = '/api/auth/login'
+  
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push('/')
+      router.push(loginHref)
     } else {
       if (user !== undefined) {
         console.log(`user: `, user)
@@ -53,6 +54,7 @@ export default function Home() {
       }
     }
   }, [ isLoading, user, error, router ])
+
 
 
   return (

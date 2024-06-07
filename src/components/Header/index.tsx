@@ -1,13 +1,8 @@
 // Externals
-import { FC, useContext } from 'react'
-import { useRouter, usePathname } from 'next/navigation'
+import { FC} from 'react'
 // Locals
 import Nav from '../Nav'
 import DropdownMenu, { NavLink } from '../Nav/DropdownMenu'
-// Contexts
-import { SessionContext } from '@/contexts/SessionContext'
-// Context types
-import { SessionContextType } from '@/contexts/types'
 // CSS
 import styles from '@/components/Header/Header.module.css'
 
@@ -20,37 +15,13 @@ const navTitle = `Personality Lab`
 
 
 const Header: FC<HeaderProps> = ({}) => {  
-  // Contexts
-  const { setIsAuthenticated } = useContext<SessionContextType>(SessionContext)
-  // Hooks
-  const router = useRouter()
-  const pathname = usePathname()
-
+  const logoutHref = '/api/auth/logout'
 
   const links: NavLink[] = [
     { label: 'Profile', href: '/profile' },
     { label: 'Settings', href: '/settings' },
   ]
 
-  // ----------------------------- Async functions -----------------------------
-  // Handle logout logic
-  async function handleLogout() {
-    try {
-      const response = await fetch('/api/auth/logout', { method: 'DELETE' })
-
-      if (response.status === 200) {
-        // Remove authentication from user
-        setIsAuthenticated(false)
-        // Refresh page to show log-in view
-        pathname === '/' ? router.refresh() : router.push('/')
-      } else {
-        // Handle failed logout attempt (e.g., display a message)
-        throw new Error('Logout failed')
-      }
-    } catch (error: any) {
-      throw new Error('An error occurred during logout:', error)
-    }
-  }
 
 
   return (
@@ -60,7 +31,7 @@ const Header: FC<HeaderProps> = ({}) => {
         <Nav title={ navTitle }>
           <DropdownMenu links={ links }>
             <a
-              onClick={ handleLogout }
+              href={ logoutHref }
               className={ styles.dropdownLink }
               style={ { borderRadius: '0rem 0rem 1rem 1rem' } }
             >
