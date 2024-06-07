@@ -1,44 +1,43 @@
 'use client'
 
 // Externals
-import type { Metadata } from 'next'
-
-import { useState, useEffect } from 'react'
-import { usePathname, useRouter } from 'next/navigation'
+import * as Castle from '@castleio/castle-js'
+import { useLayoutEffect, useState } from 'react'
+// import { usePathname, useRouter } from 'next/navigation'
+import { UserProvider } from '@auth0/nextjs-auth0/client'
 // Locals
 import Header from '@/components/Header'
 import Spinner from '@/components/Suspense/Spinner'
+import ProgressBar from '@/components/Progress/ProgressBar'
+import BessiSkillScoresLayout from '@/components/Layouts/BessiSkillScoresLayout'
+import UserDemographicsLayout from '@/components/Layouts/UserDemographics'
 // Contexts
-import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
-import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
+import { SessionContext } from '@/contexts/SessionContext'
 // Types
-import { BessiSkillScoresType } from '@/utils'
+import {
+  ACCOUNT__DYNAMODB,
+  PARTICIPANT__DYNAMODB,
+  STUDY_SIMPLE__DYNAMODB
+} from '@/utils'
 // CSS
 import './globals.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
-import { UserDemographicContext } from '@/contexts/UserDemographicContext'
-import { 
-  Gender, 
-  YesOrNo, 
-  USState, 
-  SocialClass, 
-  RaceOrEthnicity, 
-  CurrentMaritalStatus, 
-  HighestFormalEducation,
-  CurrentEmploymentStatus,
-} from '@/utils'
 
 
 
-type UserType = { email: string, username: string, isAdmin: boolean }
-
-
-export type UserResponse = {
-  user: UserType | null
-  error: Error | null
+export type SessionType = { 
+  email: string
+  username: string 
+  isAdmin: boolean
+  isParticipant: boolean
+  studies?: STUDY_SIMPLE__DYNAMODB[] // `undefined` for a non-participant
 }
 
 
+export type SessionResponse = {
+  session: SessionType | null
+  error: Error | null
+}
 
 
 const INIT_USER = {
@@ -55,332 +54,167 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const router = useRouter()
-  const pathname = usePathname()
+  // const router = useRouter()
+  // const pathname = usePathname()
 
-  // Custom state variables
-  const [ 
-    bessiSkillScores, 
-    setBessiSkillScores 
-  ] = useState<BessiSkillScoresType | null>(null)
-  // State variables for `UserType`
+  // State variables for `SessionType`
   const [ email, setEmail ] = useState<string>('')
   const [ username, setUsername ] = useState<string>('')
   const [ isAdmin, setIsAdmin ] = useState<boolean>(false)
+  const [ isParticipant, setIsParticipant ] = useState<boolean>(false)
+  const [ userStudies, setUserStudies ] = useState<STUDY_SIMPLE__DYNAMODB[]>([])
   // Booleans for user authentication
+  const [ isInviteUrl, setIsInviteUrl] = useState<boolean>(false)
   const [ isFetchingUser, setIsFetchingUser ] = useState<boolean>(true)
   const [ isAuthenticated, setIsAuthenticated ] = useState<boolean>(false)
-  // State variables UserDemographicsContext
-  // Numbers
-  const [ age, setAge ] = useState<number>(0)
-  const [ familySize, setFamilySize ] = useState<number>(0)
-  const [
-    annualHouseholdIncome, 
-    setAnnualHouseholdIncome 
-  ] = useState<number>(0)
-  // Regular strings
-  const [
-    areaOfScienceTraining,
-    setAreaOfScienceTraining,
-  ] = useState<string>('')
-  const [ zipCode, setZipCode ] = useState<string>('')
-  const [ foreignCountry, setForeignCountry ] = useState<string>('')
-  // Enums
-  const [ isParent, setIsParent ] = useState<YesOrNo>(YesOrNo.No)
-  const [ usState, setUSState ] = useState<USState>(USState.Alabama)
-  const [ priorCompletion, setPriorCompletion ] = useState<YesOrNo>(YesOrNo.No)
-  const [
-    isFluentInEnglish,
-    setIsFluentInEnglish
-  ] = useState<YesOrNo>(YesOrNo.No)
-  const [
-    raceOrEthnicity,
-    setRaceOrEthnicity
-  ] = useState<RaceOrEthnicity[]>([ ])
-  // Generics
-  const [
-    highestFormalEducation,
-    setHighestFormalEducation
-  ] = useState<string | number>('')
-  const [
-    currentEmploymentStatus,
-    setCurrentEmploymentStatus
-  ] = useState<string | number>('')
-  const [
-    currentMaritalStatus,
-    setCurrentMaritalStatus
-  ] = useState<string | number>('')
-  const [
-    socialClass,
-    setSocialClass
-  ] = useState<SocialClass>(SocialClass.LowerMiddleClass)
-  const [ gender, setGender ] = useState<string | number>('')
-  const [ religion, setReligion ] = useState<string | number>('')
 
-
-
-  // -------------------- Form Input handler functions -------------------------
-  function onPriorCompletionChange(e: any) {
-    const value = e.target.value
-    // console.log(`e.target.value: `, e.target.value)
-    setPriorCompletion(value)
-  }
-
-  function onGenderChange(e: any) {
-    const _ = e.target.value
-    // console.log(`gender: `, _)
-    setGender(_)
-  }
-
-  function onAgeChange(e: any) {
-    const _ = e.target.value
-    // console.log(`age: `, _)
-    setAge(_)
-  }
-
-  function onRaceOrEthnicityChange(e: any) {
-    const _ = Object.values(RaceOrEthnicity)[e.target.value]
-    
-    setRaceOrEthnicity((previousState) => {
-      if (previousState.includes(_)) {
-        // console.log(`raceOrEthnicity: `, previousState.filter(item => item !== _))
-
-        // If the current state is already in the array, remove it
-        return previousState.filter(item => item !== _)
-      } else {
-        // console.log(`raceOrEthnicity: `, [...previousState, _])
-        
-        // Otherwise, add it to the array
-        return [...previousState, _]
-      }
-    })
-  }
-
-  function onEnglishFluencyChange(e: any) {
-    // console.log(`e.target.value: `, e.target.value)
-    const _ = e.target.value
-    setIsFluentInEnglish(_)
-  }
-
-  function onSocialClassChange(e: any) {
-    // console.log(`e.target.value: `, e.target.value)
-    const _ = e.target.value
-    setSocialClass(_)
-  }
-
-  function onUsLocationChange(e: any) {
-    // console.log(`e.target.value: `, e.target.value)
-    const _ = e.target.value
-    setUSState(_)
-  }
-
-  function onZipCodeChange(e: any) {
-    // console.log(`e.target.value: `, e.target.value)
-    const _ = e.target.value
-    setZipCode(_)
-  }
-
-  function onForeignLocationChange(e: any) {
-    // console.log(`e.target.value: `, e.target.value)
-    const _ = e.target.value
-    setForeignCountry(_)
-  }
-
-  function onHighestEducationLevelChange(e: any) {
-    // console.log(`e.target.value: `, e.target.value)
-    const _ = e.target.value
-    setHighestFormalEducation(_)
-  }
-
-  function onCurrentEmploymentStatusChange(e: any) {
-    // console.log(`e.target.value: `, e.target.value)
-    const _ = e.target.value
-    setCurrentEmploymentStatus(_)
-  }
-
-  function onCurrentMaritalStatusChange(e: any) {
-    // console.log(`e.target.value: `, e.target.value)
-    const _ = e.target.value
-    setCurrentMaritalStatus(_)
-  }
-
-  function onIsParentChange(e: any) {
-    // console.log(`e.target.value: `, e.target.value)
-    const _ = e.target.value
-    setIsParent(_)
-  } 
-
-  function onFamilySizeChange(e: any) {
-    const _ = e.target.value
-    setFamilySize(_)
-  }
-
-  function onReligionChange(e: any) {
-    const _ = e.target.value
-    setReligion(_)
-  }
-  
-  function onAnnualHouseholdIncomeChange(e: any) {
-    const _ = e.target.value
-    setAnnualHouseholdIncome(_)
-  }
-  
-  function onAreaOfScienceTrainingChange(e: any) {
-    const _ = e.target.value
-    setAreaOfScienceTraining(_)
-  }
 
 
   // --------------------------- Async functions -------------------------------
-  async function getUser(): Promise<UserResponse> {
-    try {
-      const response = await fetch('/api/user', { method: 'GET' })
-      const json = await response.json()
+  // async function getSession(): Promise<SessionResponse> {
+  //   try {
+  //     // First get the user's basic information from their JWT cookie
+  //     const response = await fetch('/api/auth/user', { method: 'GET' })
+  //     const json = await response.json()
 
-      if (response.status === 401) return { user: null, error: json.message }
-      if (response.status === 400) return { user: null, error: json.error }
-      return { user: json.user, error: null }
-    } catch (error: any) {
-      return { user: null, error: error }
-    }
-  }
+  //     if (response.status === 401) return { session: null, error: json.message }
+  //     if (response.status === 400) return { session: null, error: json.error }
+  //     if (response.status === 500 && json.error.name === 'TokenExpiredError')
+  //       return { session: null, error: json.error }
+
+  //     const user_ = json.user as Omit<SessionType, "studies">
+      
+  //     if (user_.isParticipant) {
+  //       const userEmail = user_.email
+  //       const userStudies_ = await getUserStudies(user_.email)
+  //       const session = { ...user_, studies: userStudies_ }
+  //       return { session, error: null }
+  //     } else {
+  //       const session = { ...user_, study: undefined }
+  //       return { session, error: null }
+  //     }
+      
+  //   } catch (error: any) {
+  //     return { session: null, error: error }
+  //   }
+  // }
 
 
   /**
-   * @dev Protects any page by restricting access to users that
-   * have already authenticated and hold a session cookie.
+   * @dev Returns `studies` for a given user's email. Called after the user has 
+   *      been authenticated with a JWT in `getSession()`.
+   * @param userEmail 
+   * @returns studies
    */
-  async function pageProtection(): Promise<void> {
-    setIsFetchingUser(true)
+  // async function getUserStudies(
+  //   userEmail: string
+  // ): Promise<STUDY_SIMPLE__DYNAMODB[] | undefined> {
+  //   try {
+  //     const apiEndpoint = `/api/account?email=${userEmail}`
+  //     const response = await fetch(apiEndpoint, { method: 'GET' })
+  //     const json = await response.json()
 
-    const { user, error } = await getUser()
+  //     if (response.status === 400) throw new Error(json.error)
+  //     if (response.status === 404) throw new Error(json.message)
+  //     if (response.status === 400) throw new Error(json.error)
+  //     if (response.status === 500) throw new Error(json.error)
+
+  //     console.log(
+  //       `[${new Date().toLocaleString() } --filepath="src/app/layout.tsx" --function="getUserStudies()"]: json: `, 
+  //       json
+  //     )
+
+  //     const account = json.account as ACCOUNT__DYNAMODB
+  //     const participant = account.participant as PARTICIPANT__DYNAMODB | undefined
+  //     const studies = participant?.studies as STUDY_SIMPLE__DYNAMODB[] | undefined
+  //     return studies
+  //   } catch (error: any) {
+  //     throw new Error(error)
+  //   }
+  // }
 
 
-    if (error) {
-      // Prompt user to log in 
-      const timeout = 200 // 100 ms
+  /**
+   * @dev Protects any page by restricting access to users that have already 
+   *      authenticated and hold a session cookie.
+   */
+  // async function pageProtection(): Promise<void> {
+  //   const { session, error } = await getSession()
 
-      if (pathname !== undefined) {
-        pathname === '/' ? router.refresh() : router.push('/')
+
+  //   if (error) {
+  //     // Prompt user to log in 
+  //     const timeout = 200 // 100 ms
+
+  //     if (pathname !== undefined) {
+  //       if (pathname.startsWith('/invite/')) {
+  //         setIsInviteUrl(true)
+  //         setIsFetchingUser(false)
+  //         // End the if/else control statement here
+  //         return 
+  //       }
+
+  //       pathname === '/' ? router.refresh() : router.push('/')
   
-        setIsAuthenticated(false)
+  //       setIsAuthenticated(false)
   
-        // Avoid flashing the blocked page for a split second
-        setTimeout(() => {
-          setIsFetchingUser(false)
-        }, timeout)
-      }
-    } else {
-      // Show the dashboard
-      setEmail((user as UserType).email)
-      setUsername((user as UserType).username)
-      setIsAdmin((user as UserType).isAdmin)
-      setIsAuthenticated(true)
-      setIsFetchingUser(false)
-    }
-  }
+  //       // Avoid flashing the blocked page for a split second
+  //       setTimeout(() => {
+  //         setIsFetchingUser(false)
+  //       }, timeout)
 
+  //       return
+  //     }
+  //   } else {
+  //     // Update state of the user's session
+  //     setEmail((session as SessionType).email)
+  //     setUsername((session as SessionType).username)
+  //     setUserStudies((session as SessionType).studies ?? [])
+  //     // Update state of the kind of user
+  //     setIsParticipant((session as SessionType).isParticipant)
+  //     setIsAdmin((session as SessionType).isAdmin)
+  //     // Show the dashboard
+  //     setIsAuthenticated(true)
+  //     setIsFetchingUser(false)
+  //   }
+  // }
 
-  // ------------------------------ `useEffect`s -------------------------------
-  useEffect(() => {
-    const requests = [
-      pageProtection(),
-    ]
-
-    Promise.all(requests).then((response: any): void => { })
-  }, [router, pathname])
 
 
 
   return (
     <>
-      { isFetchingUser ? (
-        <>
-          <html lang='en'>
-            <body>
-              <div
-                style={ {
-                  ...definitelyCenteredStyle,
-                  position: 'relative',
-                  top: '80px',
-                } }
-              >
-                <Spinner height='40' width='40' />
-              </div>
-            </body>
-          </html>
-        </>
-      ) : (
-        <>
-          <html lang='en'>
-            <body>
-              <AuthenticatedUserContext.Provider
-                value={ {
+      <html lang='en'>
+        <body>
+          <ProgressBar>
+            <UserProvider>
+              <SessionContext.Provider
+                value={{
                   email,
-                  username,
                   isAdmin,
+                  username,
                   setEmail,
                   setIsAdmin,
+                  userStudies,
                   setUsername,
+                  isParticipant,
+                  setUserStudies,
                   isAuthenticated,
+                  setIsParticipant,
                   setIsAuthenticated,
-                } }
+                }}
               >
-                  <UserDemographicContext.Provider
-                    value={ {
-                      // State variables
-                      age,
-                      gender,
-                      usState,
-                      zipCode,
-                      religion,
-                      isParent,
-                      familySize,
-                      socialClass,
-                      foreignCountry,
-                      raceOrEthnicity,
-                      priorCompletion,
-                      isFluentInEnglish,
-                      currentMaritalStatus,
-                      areaOfScienceTraining,
-                      annualHouseholdIncome,
-                      highestFormalEducation,
-                      currentEmploymentStatus,
-                      // Form input handlers
-                      onAgeChange,
-                      onGenderChange,
-                      onZipCodeChange,
-                      onReligionChange,
-                      onIsParentChange,
-                      onUsLocationChange,
-                      onFamilySizeChange,
-                      onSocialClassChange,
-                      onEnglishFluencyChange,
-                      onRaceOrEthnicityChange,
-                      onPriorCompletionChange,
-                      onForeignLocationChange,
-                      onCurrentMaritalStatusChange,
-                      onAreaOfScienceTrainingChange,
-                      onHighestEducationLevelChange,
-                      onAnnualHouseholdIncomeChange,
-                      onCurrentEmploymentStatusChange,
-                    } }
-                  >
-                    <BessiSkillScoresContext.Provider
-                      value={ {
-                        bessiSkillScores,
-                        setBessiSkillScores,
-                      } }
-                    >
-                      { isAuthenticated && <Header/> }
-                      { children }
-                    </BessiSkillScoresContext.Provider>
-                  </UserDemographicContext.Provider>
-              </AuthenticatedUserContext.Provider>
-            </body>
-          </html>
-        </>
-      ) }
+                <UserDemographicsLayout>
+                  <BessiSkillScoresLayout>
+                    <Header/>
+                    { children }
+                  </BessiSkillScoresLayout>
+                </UserDemographicsLayout>
+              </SessionContext.Provider>
+            </UserProvider>
+          </ProgressBar>
+        </body>
+      </html>
     </>
   )
 }

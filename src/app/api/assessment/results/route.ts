@@ -1,24 +1,27 @@
 // Externals
-import { NextRequest, NextResponse } from 'next/server'
-import { 
-  PutCommand, 
+import {
   QueryCommand,
-  PutCommandInput,
+  UpdateCommand,
   QueryCommandInput,
 } from '@aws-sdk/lib-dynamodb'
-import { verify } from 'jsonwebtoken'
+import { cookies } from 'next/headers'
+import { NextRequest, NextResponse } from 'next/server'
 // Locals
-import { 
+import {
+  hasJWT,
   getEntryId,
   ddbDocClient,
+  STUDY__DYNAMODB,
   RESULTS__DYNAMODB,
   DYNAMODB_TABLE_NAMES,
+  STUDY_SIMPLE__DYNAMODB,
+  BessiUserResults__DynamoDB,
 } from '@/utils'
 
 
 
 /**
- * @dev POST `userResults`
+ * @dev POST: Update `results` of study entry in the `studies` table
  * @param req 
  * @param res 
  * @returns 
@@ -28,48 +31,130 @@ export async function POST(
   res: NextResponse,
 ) {
   if (req.method === 'POST') {
+    hasJWT(cookies)
+
     const { userResults } = await req.json()
 
     const userResultsId = await getEntryId(userResults)
 
-    const TableName = DYNAMODB_TABLE_NAMES.results
-    const Item = {
+    const results: RESULTS__DYNAMODB = {
       id: userResultsId,
-      email: userResults.email,
-      timestamp: userResults.timestamp,
-      facetScores: userResults.facetScores,
-      domainScores: userResults.domainScores,
-      demographics: userResults.demographics,
-      assessmentName: userResults.assessmentName,
+      email: userResults.email as string,
+      username: userResults.username as string,
+      study: userResults.study as STUDY_SIMPLE__DYNAMODB,
+      results: userResults.results as BessiUserResults__DynamoDB,
+      timestamp: Date.now(),
     }
 
-    const input: PutCommandInput = { TableName, Item }
-    const command = new PutCommand(input)
+    const study = userResults.study as STUDY_SIMPLE__DYNAMODB
 
-    const successMessage = `User results have been added to ${
-      DYNAMODB_TABLE_NAMES.results
-    } table`
+    const ownerEmail = study.ownerEmail
+    const createdAtTimestamp = study.createdAtTimestamp
 
+
+    const TableName = DYNAMODB_TABLE_NAMES.studies
+    const KeyConditionExpression = 'ownerEmail = :ownerEmailValue'
+    const ExpressionAttributeValues = { ':ownerEmailValue': ownerEmail }
+    const input: QueryCommandInput = {
+      TableName,
+      KeyConditionExpression,
+      ExpressionAttributeValues,
+    }
+    const command: QueryCommand = new QueryCommand(input)
+    
     
     try {
-      const response = await ddbDocClient.send(command)
+      const response = await ddbDocClient.send(command)      
+      
+      if ((response.Items as STUDY__DYNAMODB[])[0].ownerEmail) {
+        const study = (response.Items as STUDY__DYNAMODB[])[0]
+        const storedResults = study.results as RESULTS__DYNAMODB[]
 
-      const message = successMessage || 'Operation successful'
+        const updatedResults = storedResults
+          ? [ ...storedResults, results ]
+          : [ results ]
 
-
-      return NextResponse.json(
-        {
-          message,
-          data: userResultsId,
-        },
-        {
-          status: 200,
-          headers: {
-            'Content-Type': 'application/json',
-          },
+        const Key = {
+          ownerEmail,
+          createdAtTimestamp
         }
-      )
+        const UpdateExpression =
+          'set results = :results, updatedAtTimestamp = :updatedAtTimestamp'
+        const ExpressionAttributeValues = {
+          ':results': updatedResults,
+          ':updatedAtTimestamp': Date.now()
+        }
+
+        const input = {
+          TableName,
+          Key,
+          UpdateExpression,
+          ExpressionAttributeValues,
+        }
+
+        const command = new UpdateCommand(input)
+
+        const successMessage = `User results have been added to ${
+          TableName
+        } table`
+
+
+        try {
+          const response = await ddbDocClient.send(command)
+
+
+          return NextResponse.json(
+            {
+              message: successMessage,
+              userResultsId,
+            },
+            {
+              status: 200,
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            }
+          )
+        } catch (error: any) {
+          console.log(
+            `Could not update user results for study ID '${
+              study.id
+            }' of the '${ TableName }' table: `, 
+            error
+          )
+
+          // Something went wrong
+          return NextResponse.json(
+            { error: error },
+            {
+              status: 500,
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            }
+          )
+        }
+      } else {
+        const error = `Owner email '${ownerEmail}' not found in '${TableName}' table`
+
+        return NextResponse.json(
+          { error },
+          {
+            status: 404,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+      }      
     } catch (error: any) {
+      console.log(
+        `Could not Query study ID '${ 
+          study.id 
+        }' using owner email '${ownerEmail}': `, 
+        error
+      )
+
       // Something went wrong
       return NextResponse.json(
         { error: error },
@@ -107,7 +192,10 @@ export async function GET(
   res: NextResponse,
 ) {
   if (req.method === 'GET') {
+    hasJWT(cookies)
+
     const email = req.nextUrl.searchParams.get('email')
+    const studyId = req.nextUrl.searchParams.get('studyId')
 
 
     if (!email) {
@@ -122,7 +210,7 @@ export async function GET(
       )
     }
 
-    const TableName: string = DYNAMODB_TABLE_NAMES.results
+    const TableName: string = DYNAMODB_TABLE_NAMES.studies
     const IndexName = 'email-timestamp-index'
     const KeyConditionExpression = 'email = :emailValue'
     const ExpressionAttributeValues = { ':emailValue': email }
@@ -137,12 +225,14 @@ export async function GET(
     const command: QueryCommand = new QueryCommand(input)
 
     const successMessage = `All user results have fetched from the ${
-      DYNAMODB_TABLE_NAMES.results
+      TableName
     } table`
 
 
     try {
       const response = await ddbDocClient.send(command)
+      
+      console.log(`response: `, response)
 
 
       if ((response.Items as RESULTS__DYNAMODB[])?.length === 0) {
@@ -166,7 +256,7 @@ export async function GET(
         return NextResponse.json(
           {
             message: successMessage,
-            data: allUserResults,
+            allUserResults,
           },
           {
             status: 200,

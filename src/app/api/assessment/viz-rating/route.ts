@@ -3,39 +3,45 @@ import {
   PutCommand,
   PutCommandInput
 } from '@aws-sdk/lib-dynamodb'
+import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 // Locals
 import {
+  hasJWT,
   getEntryId,
   ddbDocClient,
+  RATINGS__DYNAMODB,
   DYNAMODB_TABLE_NAMES,
+  STUDY_SIMPLE__DYNAMODB,
 } from '@/utils'
 
 
 /**
- * @dev POST `userResults`
+ * @dev PUT `userResults`
  * @param req 
  * @param res 
  * @returns 
  */
-export async function POST(
+export async function PUT(
   req: NextRequest,
   res: NextResponse,
 ) {
-  if (req.method === 'POST') {
+  if (req.method === 'PUT') {
+    hasJWT(cookies)
+    
     const { userVizRating } = await req.json()
 
     const userVizRatingId = await getEntryId(userVizRating)
 
     const TableName = DYNAMODB_TABLE_NAMES.vizRating
-    const Item = {
+    const Item: RATINGS__DYNAMODB = {
       id: userVizRatingId,
-      email: userVizRating.email,
-      rating: userVizRating.rating,
-      vizName: userVizRating.vizName,
-      username: userVizRating.username,
-      timestamp: userVizRating.timestamp,
-      assessmentName: userVizRating.assessmentName,
+      email: userVizRating.email as string,
+      username: userVizRating.username as string,
+      study: userVizRating.study as STUDY_SIMPLE__DYNAMODB,
+      rating: userVizRating.rating as number,
+      vizName: userVizRating.vizName as string,
+      timestamp: Date.now(),
     }
 
     const input: PutCommandInput = { TableName, Item }
@@ -55,7 +61,7 @@ export async function POST(
       return NextResponse.json(
         {
           message: message,
-          data: userVizRatingId,
+          userVizRatingId,
         },
         {
           status: 200,

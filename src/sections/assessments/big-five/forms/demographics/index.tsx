@@ -9,10 +9,11 @@ import InputWrapper from '@/components/Input/Wrapper'
 import { RadioOrCheckboxInput } from '@/components/Input'
 import TextOrNumberInput from '@/components/Input/TextOrNumber'
 // Contexts
-import { UserDemographicContext } from '@/contexts/UserDemographicContext'
+import { UserDemographicsContext } from '@/contexts/UserDemographicsContext'
 // Utils
 import {
   Religion,
+  BIG_FIVE_PATH,
   getInputLabels,
   RaceOrEthnicity,
   Gender__BigFive,
@@ -22,11 +23,9 @@ import {
   INIT__BIG_FIVE_DEMOGRAPHICS,
   CurrentEmploymentStatus__BigFive,
   HighestLevelOfEducation__BigFive,
-  BIG_FIVE_PATH,
 } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
-import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
@@ -76,7 +75,7 @@ const DemographicsForm = ({ }) => {
     onHighestEducationLevelChange,
     onAnnualHouseholdIncomeChange,
     onCurrentEmploymentStatusChange,
-  } = useContext(UserDemographicContext)
+  } = useContext(UserDemographicsContext)
   // React states
   const [
     bigFiveDemographics,

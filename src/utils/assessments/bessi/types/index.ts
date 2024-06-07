@@ -34,6 +34,7 @@ export type UserScoresType = {
 
 export type BessiSkillScoresType = {
   id: string
+  studyId: string
   accessToken: string
   facetScores: FacetFactorType,
   domainScores: SkillDomainFactorType
@@ -64,10 +65,7 @@ export type BessiUserDemographics__DynamoDB = {
 }
 
 export type BessiUserResults__DynamoDB = {
-  id: string
-  email: string
-  timestamp: number
-  facetScores: FacetFactorType,
-  domainScores: SkillDomainFactorType,
+  facetScores: FacetFactorType
+  domainScores: SkillDomainFactorType
   demographics: BessiUserDemographics__DynamoDB
 }

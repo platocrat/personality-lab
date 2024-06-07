@@ -1,3 +1,41 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.field label {
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.field input,
+.field textarea {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.field button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.field button:hover {
+  background-color: #0056b3;
+}
+
 .questionnaire_question {
   opacity: 0;
   height: 0;
@@ -41,7 +79,6 @@
   text-decoration: none;
 }
 
-
 .bessi_header2 {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 14pt;
@@ -61,7 +98,7 @@
   margin-inline-end: 0px;
 }
 
-.bessi_assessment_td {
+.bessi_assessment_table td {
   border-style: solid;
   border-width: 2;
   border-collapse: collapse;
@@ -72,13 +109,13 @@
   text-align: center;
 }
 
-.bessi_assessment_p {
+/* .bessi_assessment_table_p {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 11pt;
   text-align: center;
-}
+} */
 
-.bessi_assessment_th {
+.bessi_assessment_table th {
   border-style: solid;
   border-width: 2;
   border-collapse: collapse;
@@ -89,33 +126,13 @@
   width: 10%;
 }
 
-.bessi_assessment_tr {
+.bessi_assessment_table tr {
   display: table-row;
 }
 
-.bessi_assessment_tbody {
+.bessi_assessment_table tbody {
   display: table-row-group;
   vertical-align: middle;
-}
-
-.bessi_assessment_table_body {
-  width: 100%;
-  border-spacing: 0px;
-  border-collapse: collapse;
-
-  display: table;
-  border-collapse: separate;
-  box-sizing: border-box;
-  text-indent: initial;
-  line-height: normal;
-  font-weight: normal;
-  font-size: medium;
-  font-style: normal;
-  text-align: start;
-
-  border-color: gray;
-  white-space: normal;
-  font-variant: normal;
 }
 
 
@@ -185,13 +202,13 @@
 
 @media only screen and (min-width: 650px) {
   .assessmentWrapper {
-    max-width: 720px;
+    max-width: 900px;
   }
 }
 
 @media only screen and (max-width: 650px) {
   .assessmentWrapper {
-    max-width: max-content;
+    width: 100%;
   }
 }
 
@@ -245,12 +262,17 @@
 }
 
 @media only screen and (max-width: 700px) {
-  .radioButtonWrapper {
-    width: 20%;
-  }
-
   .radioButtonLabel {
     font-size: 10px;
+    position: relative;
+    font-size: 13px;
+  }
+  
+  .radioButtonInput {
+    font-size: 10px;
+    position: relative;
+    top: 2.5px;
+    font-size: 13px;
   }
 }
 
@@ -268,7 +290,7 @@
 }
 
 .button {
-  background-color: rgb(0, 123, 194);
+  background-color: rgb(0, 123, 194, 1);
   border-radius: 1rem;
   border-width: 1.2px;
   height: 35px;
@@ -296,12 +318,68 @@
   transition: 0.1s ease-in-out;
 }
 
+.logInSignUpButton {
+  border-radius: 1rem;
+  border-width: 1.2px;
+  height: 35px;
+  width: 100%;
+  font-size: clamp(12px, 2.5vw, 14px);
+  color: rgb(244, 244, 244);
+}
+
+.card {
+  width: 100%;
+  z-index: 1;
+  padding: 4px 18px;
+  border-radius: 1rem;
+  box-shadow: 0px 2.5px 5px rgba(80, 110, 127, 0.5);
+}
+
+
 .main {
   display: flex;
+  position: relative;
+  top: 85px;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 6rem 6rem 6rem;
+  padding: 0.5rem 1rem 1rem 1rem;
+}
+
+.main h1 {
+    font-size: 28px;
+  }
+
+.card p.entranceNote {
+    font-size: clamp(9px, 2.5vw, 12.5px); 
+  }
+
+@media (max-width: 800px) {
+  .card {
+    width: 100%;
+    margin-right: auto;
+    margin-left: auto;
+    z-index: 1;
+    padding: 6px 20px;
+    border-radius: 1rem;
+    box-shadow: 0px 2.5px 5px rgba(80, 110, 127, 0.5);
+  }
+
+  .card h2 {
+    font-size: clamp(1.1rem, 2.5vw, 2rem); 
+  }
+  
+  .card p {
+    font-size: clamp(13px, 2.5vw, 14.5px); 
+  }
+  
+  .card p.entranceNote {
+    font-size: clamp(8.5px, 2.5vw, 11px); 
+  }
+  
+  .main h1 {
+    font-size: 22px;
+  }
 }
 
 @media only screen and (max-width: 650px) {
@@ -310,8 +388,11 @@
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 2.5rem 2.5rem 2.5rem;
     min-height: 100vh;
+  }
+
+  .card p.entranceNote {
+    font-size: clamp(8.5px, 2.5vw, 11px); 
   }
 }
 

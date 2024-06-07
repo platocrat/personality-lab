@@ -1,15 +1,18 @@
+'use client'
+
 // Externals
-import Link from 'next/link'
-import Image from 'next/image'
-import { 
-  FC, 
-  useRef, 
+import {
+  FC,
+  useRef,
   useState,
-  Fragment, 
-  ReactNode, 
-  useEffect, 
-} from 'react'
+  Fragment,
+  ReactNode,
+  useEffect,
+  } from 'react'
+  import Image from 'next/image'
+  import { useUser } from '@auth0/nextjs-auth0/client'
 // Locals
+import ProgressBarLink from '@/components/Progress/ProgressBarLink'
 // Hooks
 import useClickOutside from '@/hooks/useClickOutside'
 // Utils
@@ -37,12 +40,59 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
   links,
   children
 }) => {
+  // Auth0 
+  const { user, error, isLoading } = useUser()
+  // Refs
   const dropdownRef = useRef<any>(null)
-  const [isVisible, setIsVisible] = useState<boolean>(false)
+  // States
+  const [ username, setUsername ] = useState<string>('')
+  const [ isVisible, setIsVisible ] = useState<boolean>(false)
+
 
   const toggleDropdown = () => setIsVisible(!isVisible)
 
+
+  async function getUsername(): Promise<void> {
+    setUsername(user?.name as string)
+  }
+
+
   useClickOutside(dropdownRef, () => setIsVisible(false))
+
+
+  useEffect(() => {
+    if (!isLoading) {
+      console.log(
+        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: user: `,
+        user
+      )
+      console.log(
+        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error: `,
+        error
+      )
+      console.log(
+        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error.name: `,
+        error?.name
+      )
+      console.log(
+        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error.message: `,
+        error?.message
+      )
+      console.log(
+        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error.cause: `,
+        error?.cause
+      )
+
+
+      const requests = [
+        getUsername()
+      ]
+
+      Promise.all(requests)
+    }
+  }, [ user, error, isLoading ])
+
+
 
 
   return (
@@ -65,19 +115,27 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
         { isVisible && (
           <Fragment key={ `dropdown-menu` }>
             <div className={ styles.dropdownContent }>
+              <div 
+                className={ `${styles.username}` }
+                style={{
+                  cursor: 'default',
+                  borderRadius: '1rem 1rem 0rem 0rem',
+                }}
+              >
+                <p style={ definitelyCenteredStyle }>
+                  { user?.name }
+                </p>
+              </div>
               { links.map((link: NavLink, i: number) => (
                 <Fragment
                   key={ i }
                 >
-                  <Link
+                  <ProgressBarLink
                     href={ link.href }
                     className={ styles.dropdownLink }
-                    style={{
-                      borderRadius: i === 0 ? '1rem 1rem 0rem 0rem' : ''
-                    }}
                   >
                     { link.label }
-                  </Link>
+                  </ProgressBarLink>
                 </Fragment>
               )) }
               { children }

@@ -45,7 +45,12 @@ const ResultsVisualizationModal: FC<ResultsVisualizationModalProps> = ({
 
     // Ask the user if they want to download the screenshot
     const alertMessage = `Download PNG of the ${viz_.name}?`
-    const userConfirmation = window.confirm(alertMessage)
+
+    let userConfirmation
+
+    if (window !== undefined) {
+      userConfirmation = window.confirm(alertMessage)
+    }
 
     if (userConfirmation && refs.screenshot2Ref.current) {
       html2canvas(refs.screenshot2Ref.current).then((canvas: any) => {
@@ -80,73 +85,97 @@ const ResultsVisualizationModal: FC<ResultsVisualizationModalProps> = ({
     <>
       { state.isModalVisible && (
         <>
-          <div 
-            ref={ refs.modalRef }
-            className={ `${ modalStyle.modal } ${ modalStyle.background }` }
-          >
-            <h2 
-              style={{
-                ...definitelyCenteredStyle,
-                margin: '0px 0px 24px 0px',
-              }}
+          <div style={ definitelyCenteredStyle }>
+            <div 
+              ref={ refs.modalRef }
+              className={ `${ modalStyle.modal } ${ modalStyle.background }` }
             >
-                { title }
-            </h2>
-
-            <div ref={ refs.screenshot2Ref }>
-              <Image
-                width={ 200 }
-                height={ 200 }
-                src={ screenshotUrl }
-                alt='Screenshot of Visualization'
-                style={ { width: '100%',  height: 'auto'  } } 
-              />
-
-              {/**
-                * @todo Add user metadata of strengths and things to highlight 
-                * to them to make the image more engaging to others who may view
-                * it.  
-                */}
-              {/* User Metadata section */}
-              <div
+              <h3
                 style={{
                   ...definitelyCenteredStyle,
-                  flexDirection: 'column'
+                  margin: '8px 0px 24px 0px',
                 }}
               >
-                {/* <div 
+                  { title }
+              </h3>
+
+              <div ref={ refs.screenshot2Ref }>
+                <Image
+                  width={ 200 }
+                  height={ 200 }
+                  src={ screenshotUrl }
+                  alt='Screenshot of Visualization'
+                  style={ { width: '100%',  height: 'auto'  } } 
+                />
+
+                {/**
+                  * @todo Add user metadata of strengths and things to highlight 
+                  * to them to make the image more engaging to others who may view
+                  * it.  
+                  */}
+                {/* User Metadata section */}
+                <div
                   style={{
-                    margin: '12px 0px 24px 0px'
+                    ...definitelyCenteredStyle,
+                    flexDirection: 'column'
                   }}
                 >
-                  <h3>{ `User Metadata` }</h3>
-                  <p>{ `Name: ${'name'}` }</p>
-                  <p>{ `Strengths: ${'strengths'}` }</p>
-                </div> */}
+                  {/* <div 
+                    style={{
+                      margin: '12px 0px 24px 0px'
+                    }}
+                  >
+                    <h3>{ `User Metadata` }</h3>
+                    <p>{ `Name: ${'name'}` }</p>
+                    <p>{ `Strengths: ${'strengths'}` }</p>
+                  </div> */}
+                </div>
               </div>
-            </div>
 
-            <div style={definitelyCenteredStyle}>
-              <button
-                className={ appStyles.button }
-                onClick={ handleShareScreenshot }
-                style={ {
-                  width: '60px',
-                  padding: '6px 0px 0px 0px',
-                  backgroundColor: state.isCopied ? 'rgb(18, 215, 67)' : ''
-                } }
-              >
-                <Image
-                  width={ 18 }
-                  height={ 18 }
-                  alt='Share icon to share data visualization'
-                  src={
-                    state.isCopied
-                      ? `${imgPaths().svg}white-checkmark.svg`
-                      : `${imgPaths().svg}white-share-icon.svg`
-                  }
-                />
-              </button>
+              <div style={definitelyCenteredStyle}>
+                { state.isCopied ? (
+                  <>
+                    <div
+                      style={{ 
+                        ...definitelyCenteredStyle,
+                        borderRadius: '1rem',
+                        borderWidth: '1.2px',
+                        width: '50px',
+                        height: '36px',
+                        backgroundColor: state.isCopied 
+                          ? 'rgb(18, 215, 67)' 
+                          : '',
+                      }}
+                    >
+                      <Image
+                        width={ 22 }
+                        height={ 22 }
+                        alt='Share icon to share data visualization'
+                        src={ `${imgPaths().svg}white-checkmark.svg` }
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      className={ appStyles.button }
+                      onClick={ handleShareScreenshot }
+                      style={ {
+                        width: '50px',
+                        height: '36px',
+                        padding: '6px 0px 0px 0px',
+                      } }
+                    >
+                      <Image
+                        width={ 22 }
+                        height={ 22 }
+                        alt='Share icon to share data visualization'
+                        src={ `${imgPaths().svg}download-image.svg` }
+                      />
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </>

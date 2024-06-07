@@ -1,15 +1,19 @@
 .tooltip {
   opacity: 0;
   z-index: 10;
-  width: 300px;
+  max-width: 195px;
   height: auto;
   padding: 10px;
-  border-radius: 4px;
+  border-radius: 8px;
   text-align: left;
-  position: absolute;
+  position: fixed;
   pointer-events: none;
   word-wrap: break-word;
   border: 1px solid #ddd;
   transition: opacity 0.2s;
   background: rgba(255, 255, 255, 0.95);
+}
+
+.tooltip:hover {
+  cursor: pointer;
 }

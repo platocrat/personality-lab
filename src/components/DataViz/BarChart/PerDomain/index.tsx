@@ -2,24 +2,26 @@
 import * as d3 from 'd3'
 import { FC, useEffect, useRef } from 'react'
 // Locals
-import Title from '../../Title'
+import Title from '@/components/DataViz/Title'
 import {
+  getRangeLabel,
   FacetFactorType,
   findFacetByScore,
   skillDomainMapping,
-  TargetDataStructure,
   domainToFacetMapping,
   SkillDomainFactorType,
+  BarChartTargetDataType,
   getSkillDomainAndWeight,
 } from '@/utils'
 // CSS
+import styles from '@/components/DataViz/DataViz.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
 type BarChartPerDomainType = {
   isExample: boolean
-  data: TargetDataStructure | {
+  data: BarChartTargetDataType | {
     axis: string
     value: number
   }[] | {
@@ -45,17 +47,16 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
 
     const svgWidth = 600
     const svgHeight = 400
-    const margin = { top: 20, right: 120, bottom: 90, left: 50 }
+    const margin = { top: 20, right: 83, bottom: 70, left: 50 }
     const width = svgWidth - margin.left - margin.right
     const height = svgHeight - margin.top - margin.bottom
 
 
     const svg = d3.select(d3Container.current)
       .append('svg')
-      .attr('width', svgWidth)
-      .attr('height', svgHeight)
-      .append('g')
-      .attr('transform', `translate(${margin.left},${margin.top})`)
+      .attr('preserveAspectRatio', 'xMinYMin meet')
+      .attr('viewBox', '-50 -10 605 400')
+      .classed(styles.svgContent, true)
 
 
     const color = d3.scaleLinear<string>()
@@ -64,12 +65,12 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
 
 
     const x0 = d3.scaleBand()
-      .domain([(data as TargetDataStructure).name])
+      .domain([(data as BarChartTargetDataType).name])
       .rangeRound([0, width])
       .paddingInner(0.1)
 
     const x1 = d3.scaleBand()
-      .domain((data as TargetDataStructure).facets.map(d => d.name))
+      .domain((data as BarChartTargetDataType).facets.map(d => d.name))
       .rangeRound([0, x0.bandwidth()])
       .padding(0.25)
 
@@ -80,42 +81,93 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
 
     // Create a tooltip
     const tooltip = d3.select(d3Container.current).append('div')
+      /**
+       * @todo Tooltip is not being displayed
+       */
       .attr('class', 'tooltip')
       .style('opacity', 0)
-      .style('position', 'absolute')
+      .style('position', 'fixed')
       .style('background', 'white')
+      .style('text-align', 'left')
       .style('border', '1px solid #d3d3d3')
       .style('padding', '10px')
-      .style('border-radius', '5px')
+      .style('border-radius', '8px')
+      .style('z-index', '100px')
 
     const g = svg.append('g')
 
     g.selectAll('rect')
-      .data((data as TargetDataStructure).facets)
+      .data((data as BarChartTargetDataType).facets)
       .join('rect')
       .attr('x', (d, i) => x1(d.name)!)
       .attr('y', d => y(d.score))
       .attr('width', x1.bandwidth())
       .attr('height', d => y(0)! - y(d.score))
       .attr('fill', d => color(d.score))
+      /**
+       * @todo Tooltip is not being displayed
+       */
       .on('mouseover', function (event, d) {
         tooltip.style('opacity', 1)
-        d3.select(this).style('stroke', 'black').style('opacity', 0.8)
+        
+        d3.select(this)
+          .transition()
+          .duration(100) // Duration of the transition in milliseconds
+          .style('stroke', 'black')
+          .style('opacity', 0.8)
+          .style('cursor', 'pointer')
       })
       .on('mousemove', function (event, d: any) {
         tooltip
-          .html(`Facet: ${d.name}<br/>Score: ${d.score}`)
-          .style('left', (event.pageX + 10) + 'px')
-          .style('top', (event.pageY - 10) + 'px')
+          .html(
+            `
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex;">
+                  <p style="margin-right: 4px;">
+                    Facet:
+                  </p>
+                  <p>
+                    ${d.name}
+                  </p>
+                </div>
+                <div style="display: flex; flex-direction: row;">
+                  <p style="margin-right: 4px;">
+                    Score:
+                  </p>
+                  <div style="display: flex; flex-direction: row; gap: 12px; justify-content: left; align-items: left;">
+                    <div>
+                      <p>
+                      ${ d.score }
+                      </p>
+                    </div>
+                    <div style="width: max-content; background-color: ${color(d.score)}; border-radius: 5px; padding: 0px 7.5px;">
+                      <p style="color: white; font-weight: 800; filter: drop-shadow(0px 0px 1px rgba(0, 0, 0, 1));">
+                        ${getRangeLabel(d.score) }
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `
+          )
+          .transition()
+          .duration(100) // Duration of the transition in milliseconds
+          .style('left', (event.x) + 'px')
+          .style('top', (event.y) + 'px')
       })
-      .on('mouseleave', function () {
+      .on('mouseout', function () {
         tooltip.style('opacity', 0)
-        d3.select(this).style('stroke', 'none').style('opacity', 1)
+        
+        d3.select(this)
+          .transition()
+          .duration(100) // Duration of the transition in milliseconds
+          .style('stroke', 'none')
+          .style('opacity', 1)
       })
 
     // Add facet score labels to the top of each bar
     g.selectAll('.bar-label')
-      .data((data as TargetDataStructure).facets)
+      .data((data as BarChartTargetDataType).facets)
       .join('text')
       .attr('class', 'bar-label')
       .attr('x', (d, i) => x1(d.name)! + x1.bandwidth() / 2)
@@ -146,17 +198,31 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
 
     const legendTitle = legend.append('text')
       .attr('x', 0)
-      .attr('y', -10)
+      .attr('y', -5)
       .text('Domain Score:')
+      .style('font-size', '16px')
 
-    const domainScore: any = legend.append('text')
+    const domainScore: any = legend.append('foreignObject')
+      .attr('width', 120)
+      .attr('height', 40)
       .attr('x', 0)
-      .attr('y', 10)
-      .text((data as TargetDataStructure).domainScore)
-      // Set the color here
-      .attr('fill', color((data as TargetDataStructure).domainScore))
-      .style('filter', 'url(#drop-shadow)') // Apply drop shadow filter
-      .attr('transform', 'translate(12,5)')
+      .attr('y', 8)
+      .html(
+        `
+          <div style="display: flex; flex-direction: row; gap: 8px; justify-content: left; align-items: left;">
+            <div>
+              <p style="font-size: 14px;">
+              ${ (data as BarChartTargetDataType).domainScore }
+              </p>
+            </div>
+            <div style="width: max-content; background-color: ${ color((data as BarChartTargetDataType).domainScore) }; border-radius: 5px; padding: 0px 7.5px;">
+              <p style="color: white; font-size: 14px; font-weight: 800; filter: drop-shadow(0px 0px 1px rgba(0, 0, 0, 1));">
+                ${ getRangeLabel((data as BarChartTargetDataType).domainScore) }
+              </p>
+            </div>
+          </div>
+        `
+      )
 
     // Add drop shadow filter
     svg.append('defs')
@@ -172,25 +238,14 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
     
     const scoreRangeText: any = legend.append('text')
       .attr('x', 0)
-      .attr('y', 10)
+      .attr('y', 30)
       .text(`Score Range`)
-      .attr('transform', 'translate(12,50)')
-
-    const textBBox = domainScore.node().getBBox()
-
-    legend.insert('rect', 'text')
-      .attr('x', textBBox.x - 3) // Add some padding
-      .attr('y', textBBox.y - 3) // Add some padding
-      .attr('width', textBBox.width + 30) // Add some padding
-      .attr('height', textBBox.height + 4) // Add some padding
-      .attr('fill', '#555555') // Set the background color
-      .attr('rx', 5) // Rounded corners
-      .attr('ry', 5) // Rounded corners
-      .attr('transform', 'translate(0,5)')
+      .style('font-size', '16px')
+      .attr('transform', 'translate(0,45)')
 
     const legendGradient = legend.append('g')
       .attr('class', 'legend-gradient')
-      .attr('transform', 'translate(0,71)')
+      .attr('transform', 'translate(0,90)')
 
     legendGradient.append('rect')
       .attr('width', 20)
@@ -203,7 +258,7 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
 
     const legendAxis = legend.append('g')
       .attr('class', 'legend-axis')
-      .attr('transform', 'translate(20,71)')
+      .attr('transform', 'translate(20,90)')
       .call(d3.axisRight(legendScale).ticks(5))
 
     const defs = svg.append('defs')
@@ -223,15 +278,26 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
 
   return (
     <>
-      <h4 
-        style={{ 
+      <div
+        style={ {
           ...definitelyCenteredStyle,
-          margin: '12px 0px 4px 0px',
-        }}
+          flexDirection: 'column',
+        } }
       >
-        { (data as TargetDataStructure).name }
-      </h4>
-      <div ref={ d3Container } style={ definitelyCenteredStyle } />
+        <h4 
+          style={{ 
+            ...definitelyCenteredStyle,
+            margin: '12px 0px 4px 0px',
+          }}
+        >
+          { (data as BarChartTargetDataType).name }
+        </h4>
+        <div 
+          ref={ d3Container } 
+          className={ styles.svgContainer }
+          style={{ ...definitelyCenteredStyle, maxWidth: '700px' }}
+        />
+      </div>
     </>
   )
 }

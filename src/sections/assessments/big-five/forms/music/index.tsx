@@ -1,13 +1,9 @@
 // Externals
-import { FC, Fragment, useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { FC } from 'react'
 // Locals
 import CreativityAndAchievementsFormWrapper from '@/components/Forms/BigFive/CreativityAndAchievementsWrapper'
 // Utils
 import { BIG_FIVE_ASSESSMENT_HREF } from '@/utils'
-// CSS
-import styles from '@/app/page.module.css'
-
 
 
 const href = `${BIG_FIVE_ASSESSMENT_HREF}/creative-activities-and-achievements/arts-and-crafts`

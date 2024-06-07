@@ -17,7 +17,7 @@ const Title: FC<TitleType> = ({
     <>
       { !isExample 
         && (
-          <h3 
+          <h3
             style={{
               ...definitelyCenteredStyle,
               margin: '8px 0px 24px 0px',

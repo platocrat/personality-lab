@@ -2,17 +2,18 @@
 import { decode } from 'jsonwebtoken'
 // Locals
 import { 
+  SSCrypto,
   CookieType,
   AWS_PARAMETER_NAMES,
-  SSCrypto,
 } from '@/utils'
 
 
 
 
 export async function getAccessToken(
-  assessmentName: string,
-  userResultsId: string
+  assessmentId: string,
+  userResultsId: string,
+  studyId: string,
 ) {
   if (!userResultsId) {
     /**
@@ -26,21 +27,25 @@ export async function getAccessToken(
   } else {
     try {
       const response = await fetch('/api/assessment/access-token', {
-        method: 'POST',
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ assessmentName, userResultsId }),
+        body: JSON.stringify({ 
+          assessmentId, 
+          userResultsId, 
+          studyId,
+        }),
       })
 
       const json = await response.json()
 
       if (response.status === 200) {
-        const accessToken = json.data
+        const accessToken = json.accessToken
         return accessToken
       } else {
         const error = `Error posting ${ 
-          assessmentName.toUpperCase() 
+          assessmentId.toUpperCase() 
         } results to DynamoDB: `
         /**
          * @todo Handle error UI here
@@ -65,15 +70,10 @@ export async function getAccessToken(
   */
 export async function getUsernameAndEmailFromCookie() {
   try {
-    const response = await fetch('/api/assessment/aws-parameter', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        parameterName: AWS_PARAMETER_NAMES.JWT_SECRET
-      }),
-    })
+    const apiEndpoint = `/api/assessment/aws-parameter?parameterName=${
+      AWS_PARAMETER_NAMES.JWT_SECRET
+    }`
+    const response = await fetch(apiEndpoint, { method: 'GET' })
 
     const json = await response.json()
 
@@ -126,15 +126,10 @@ export async function getUsernameAndEmailFromCookie() {
 
 export async function getCookieSecretKey() {
   try {
-    const response = await fetch('/api/assessment/aws-parameter', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        parameterName: AWS_PARAMETER_NAMES.COOKIE_ENCRYPTION_SECRET_KEY
-      }),
-    })
+    const apiEndpoint = `/api/assessment/aws-parameter?parameterName=${
+      AWS_PARAMETER_NAMES.COOKIE_ENCRYPTION_SECRET_KEY
+    }`
+    const response = await fetch(apiEndpoint, { method: 'GET' })
 
     const data = await response.json()
 
@@ -163,41 +158,31 @@ export async function getCookieSecretKey() {
 
 
 
-export async function sendEmail() {
-  const { email } = await getUsernameAndEmailFromCookie()
+export async function sendEmail(fromEmail: string) {
+  // Send email
+  try {
+    const response = await fetch('/api/assessment/results/SendGrid', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email: fromEmail }),
+    })
 
+    const data = await response.json()
 
-  if (email === undefined) {
-    /**
-     * @todo Replace the line below by handling the error UI here
-     */
-    throw new Error(`Error getting email from cookie!`)
-  } else {
-    // Send email
-    try {
-      const response = await fetch('/api/assessment/email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      })
-
-      const data = await response.json()
-
-      if (response.status === 200) {
-        return data
-      } else {
-        throw new Error(`Error getting JWT secret: ${data.error}`)
-        /**
-         * @todo Handle error UI here
-         */
-      }
-    } catch (error: any) {
-      throw new Error(`Error! ${error}`)
+    if (response.status === 200) {
+      return data
+    } else {
+      throw new Error(`Error getting JWT secret: ${data.error}`)
       /**
        * @todo Handle error UI here
        */
     }
+  } catch (error: any) {
+    throw new Error(`Error! ${error}`)
+    /**
+     * @todo Handle error UI here
+     */
   }
 }

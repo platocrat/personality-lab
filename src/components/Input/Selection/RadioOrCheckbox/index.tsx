@@ -127,7 +127,6 @@ const RadioOrCheckboxInput: FC<RadioOrCheckboxInputProps> = ({
                     <input
                       value={ i }
                       name={ inputName }
-                      // ref={ checkboxRef }
                       type={ options?.type ?? 'radio' }
                       className={ styles.radioButtonInput }
                       id={ inputId(inputLabel, itemIndex ?? 0, i) }

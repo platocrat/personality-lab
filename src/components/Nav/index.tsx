@@ -1,7 +1,7 @@
 // Externals
-import Link from 'next/link'
 import { FC, ReactNode } from 'react'
 // Locals
+import ProgressBarLink from '@/components/Progress/ProgressBarLink'
 // CSS
 import styles from '@/components/Nav/Nav.module.css'
 
@@ -22,9 +22,9 @@ const Nav: FC<NavProps> = ({
     <>
       <nav className={ styles.nav }>
         <div className={ styles.navTitle }>
-          <Link href='/'>
+          <ProgressBarLink href='/'>
             <h1>{ title }</h1>
-          </Link>
+          </ProgressBarLink>
         </div>
         { children }
       </nav>

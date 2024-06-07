@@ -5,48 +5,62 @@ import {
   FC,
   useRef,
   useState,
-  Fragment,
-  Dispatch,
   useEffect,
   useContext,
-  SetStateAction,
 } from 'react'
+import html2canvas from 'html2canvas'
 // Locals
 // Sections
 import TitleDropdown from './title-dropdown'
 import UserVisualization from './user-visualization'
 // Components
+import RidgelinePlot, { 
+  RidgelinePlotDataType
+} from '@/components/DataViz/Ridgeline'
+import MultipleNormalDistributions, { 
+  MultipleNormalDistributionDataType 
+} from '@/components/DataViz/Distributions/Normal/MultipleNormal'
+import DemoRidgelinePlot from '@/components/DataViz/DemoRidgeline'
+import { 
+  RIDGELINE_DEMO_FACET_DATA,
+  RIDGELINE_DEMO_DOMAIN_DATA, 
+} from '@/components/DataViz/DemoRidgeline/data'
 import Title from '@/components/DataViz/Title'
 import TreeMap from '@/components/DataViz/TreeMap'
 import StellarPlot from '@/components/DataViz/StellarPlot'
 import ShareResults from '@/components/DataViz/ShareResults'
-import RateUserResults from '@/components/Forms/BESSI/RateUserResults'
+import RadialBarChart from '@/components/DataViz/BarChart/Radial'
 import BarChartPerDomain from '@/components/DataViz/BarChart/PerDomain'
-import NormalDistributionChart from '@/components/DataViz/Distributions/Normal'
+import BessiRateUserResults from '@/components/Forms/BESSI/RateUserResults'
 import PersonalityVisualization from '@/components/DataViz/PersonalityVisualization'
 import ResultsVisualizationModal from '@/components/Modals/BESSI/ResultsVisualization'
+import SingleNormalDistributionChart from '@/components/DataViz/Distributions/Normal/SingleNormal'
 // Hooks
 import useClickOutside from '@/hooks/useClickOutside'
 // Contexts
+import { SessionContext } from '@/contexts/SessionContext'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
+// Context Types
+import {
+  SessionContextType,
+  BessiSkillScoresContextType, 
+} from '@/contexts/types'
 // Utils
 import {
   transformData,
-  dummyVariables,
+  calculateStats,
   FacetFactorType,
-  InputDataStructure,
-  TargetDataStructure,
-  BessiSkillScoresType,
+  RATINGS__DYNAMODB,
+  dummyUserBessiScores,
+  BarChartInputDataType,
   getRandomValueInRange,
   SkillDomainFactorType,
-  getUsernameAndEmailFromCookie,
+  BarChartTargetDataType,
+  STUDY_SIMPLE__DYNAMODB,
+  getDummyPopulationBessiScores,
 } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
-import BessiRateUserResults from '@/components/Forms/BESSI/RateUserResults'
-import RadialBarChart from '@/components/DataViz/BarChart/Radial'
-import { style } from 'd3'
-import html2canvas from 'html2canvas'
 
 
 
@@ -57,12 +71,6 @@ type BessiResultsVisualizationType = {
 }
 
 
-export type BessiSkillScoresContextType = {
-  bessiSkillScores: BessiSkillScoresType | null,
-  setBessiSkillScores: Dispatch<SetStateAction<BessiSkillScoresType | null>>
-}
-
-
 
 
 const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
@@ -70,10 +78,13 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   rateUserResults
 }) => {
   // Contexts
-  const { bessiSkillScores } = useContext<BessiSkillScoresContextType>(
-    BessiSkillScoresContext
-  )
-  
+  const {
+    email,
+    username,
+  } = useContext<SessionContextType>(SessionContext)
+  const {
+    bessiSkillScores 
+  } = useContext<BessiSkillScoresContextType>(BessiSkillScoresContext)
   // Refs
   const modalRef = useRef<any>(null)
   const screenshot1Ref = useRef<any>(null)
@@ -101,6 +112,8 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
     { name: 'Radial Bar Graph', imgName: 'radial-bar-graph' },
     { name: 'Tree Map', imgName: 'tree-map' },
     { name: 'Normal Distribution', imgName: 'normal-distribution' },
+    { name: 'Multiple Normal Distributions Demo', imgName: 'multiple-normal-distributions-demo' },
+    { name: 'Ridgeline Plot Demo', imgName: 'ridgeline-plot-demo' },
     { name: 'Personality Visualization', imgName: 'personality-visualization' },
   ]
   
@@ -117,14 +130,14 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
       case 0:
         return Object.entries(
           bessiSkillScores?.domainScores as SkillDomainFactorType
-          ?? dummyVariables.pv.data?.domainScores as SkillDomainFactorType
+          ?? dummyUserBessiScores.domainScores as SkillDomainFactorType
         ).map(([key, value]) => ({
           axis: key,
           value: value / 100
         }))
       case 1:
       case 2:
-        const inputData: InputDataStructure = {
+        const inputData: BarChartInputDataType = {
           facetScores: bessiSkillScores?.facetScores as FacetFactorType,
           domainScores: bessiSkillScores?.domainScores as SkillDomainFactorType,
         }
@@ -132,20 +145,22 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         return transformData(
           bessiSkillScores?.domainScores
             ? inputData 
-            : dummyVariables.pv.data
+            : dummyUserBessiScores
           )
       case 3:
       case 4:
       case 5:
+      case 6:
+      case 7:
         return bessiSkillScores?.domainScores
           ? {
             facetScores: bessiSkillScores?.facetScores,
             domainScores: bessiSkillScores?.domainScores,
-            averages: dummyVariables.pv.averages,
+            averages: dummyUserBessiScores.domainScores,
           }
-          : dummyVariables.pv.data
+          : dummyUserBessiScores
       default:
-        return dummyVariables.pv.data
+        return dummyUserBessiScores
     }
   }
 
@@ -160,14 +175,13 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         return <StellarPlot isExample={ isExample } data={ data_(i) } />
       case 1:
         const barChartTitle = 'BESSI Bar Chart'
-        const allData: TargetDataStructure[] = data_(i) as TargetDataStructure[]
+        const allData: BarChartTargetDataType[] = data_(i) as BarChartTargetDataType[]
 
         return (
           <>
-            <div style={{ margin: '24px 0px 0px 0px' }} />
             <Title isExample={ isExample } title={ barChartTitle } />
 
-            { allData.map((data: TargetDataStructure, i: number) => (
+            { allData.map((data: BarChartTargetDataType, i: number) => (
               <>
                 <BarChartPerDomain isExample={ isExample } data={ data } />
               </>
@@ -176,12 +190,12 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         )
       case 2:
         const radialBarChartTitle = `BESSI Radial Bar Chart`
-        const _allData = data_(i) as TargetDataStructure[]
+        const _allData = data_(i) as BarChartTargetDataType[]
 
         return (
           <>
-            <div 
-              style={{ 
+            <div
+              style={{
                 ...definitelyCenteredStyle,
                 flexDirection: 'column',
               }}
@@ -197,7 +211,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
                   (e: any) => handleOnChangeRadialBarChart(e) 
                 }
               >
-                { _allData.map((data: TargetDataStructure, i: number) => (
+                { _allData.map((data: BarChartTargetDataType, i: number) => (
                   <>
                     <option key={ i } value={ i }>
                       { data.name }
@@ -229,18 +243,88 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         console.log(`[${new Date().toLocaleString()}] stddev: `, stddev)
 
         return (
-          <NormalDistributionChart
+          <SingleNormalDistributionChart
             mean={ mean }
             stddev={ stddev }
             score={ score }
           />
         )
       case 5:
+        /**
+         * @todo If `isExample` is false, replace dummy data with real data
+         */
+        const multipleNormalPopFacetScores = getDummyPopulationBessiScores(100, 'facet')
+        const multipleNormalPopDomainScores = getDummyPopulationBessiScores(100, 'domain')
+
+        const multipleNormalIsSample = false
+
+        const multipleNormalUserData = data_(i) as {
+          facetScores: FacetFactorType,
+          domainScores: SkillDomainFactorType,
+          averages: SkillDomainFactorType,
+        }
+
+        const multipleNormalDistributionData: MultipleNormalDistributionDataType = {
+          facetScores: multipleNormalUserData.facetScores,
+          domainScores: multipleNormalUserData.domainScores,
+          populationFacetScores: multipleNormalPopFacetScores,
+          populationDomainScores: multipleNormalPopDomainScores,
+        }
+
+        return (
+          <MultipleNormalDistributions
+            isSample={ multipleNormalIsSample }
+            isExample={ isExample }
+            data={ multipleNormalDistributionData }
+          />
+        )
+      case 6:
+        /**
+         * @todo If `isExample` is false, replace dummy data with real data
+         */
+        // const ridgelinePlotPopFacetScores = getDummyPopulationBessiScores(100, 'facet')
+        // const ridgelinePlotPopDomainScores = getDummyPopulationBessiScores(100, 'domain')
+
+        // const ridgelinePlotIsSample = false
+
+        // const ridgelinePlotUserData = data_(i) as {
+        //   facetScores: FacetFactorType,
+        //   domainScores: SkillDomainFactorType,
+        //   averages: SkillDomainFactorType,
+        // }
+
+        // const ridgelinePlotData: RidgelinePlotDataType = {
+        //   facetScores: ridgelinePlotUserData.facetScores,
+        //   domainScores: ridgelinePlotUserData.domainScores,
+        //   populationFacetScores: ridgelinePlotPopFacetScores,
+        //   populationDomainScores: ridgelinePlotPopDomainScores,
+        // }
+
+        return (
+          <>
+            {/* <RidgelinePlot
+              isSample={ ridgelinePlotIsSample }
+              isExample={ isExample }
+              data={ ridgelinePlotData }
+            /> */}
+            <DemoRidgelinePlot
+              data={ RIDGELINE_DEMO_DOMAIN_DATA }
+              height={ 400 }
+              width={ 800 }
+            />
+            <DemoRidgelinePlot
+              data={ RIDGELINE_DEMO_FACET_DATA }
+              height={ 400 }
+              width={ 800 }
+            />
+          </>
+        )
+      case 7:
         return (
           <PersonalityVisualization
             isExample={ isExample }
             data={ data_(i) }
-            averages={ dummyVariables.pv.averages }
+            averages={ dummyUserBessiScores.domainScores }
           />
         )
       default:
@@ -289,33 +373,31 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
     rating: number, 
     vizName: string
   ) {
-      const CURRENT_TIMESTAMP = new Date().getTime()
-
-      const { email, username } = await getUsernameAndEmailFromCookie()
-
-
       if (email === undefined) {
         /**
          * @todo Replace the line below by handling the error on the UI here
          */
         throw new Error(`Error getting email from cookie!`)
       } else {
+        const localStorageItem = localStorage.getItem('currentStudy') as string ?? ''
+        const study = JSON.parse(localStorageItem) as STUDY_SIMPLE__DYNAMODB
+
         /**
          * @dev This is the object that we store in DynamoDB using AWS's
          * `PutItemCommand` operation.
          */
-        const userVizRating/*: BESSI__VisualizationRating__DynamoDB */ = {
-          email: email,
-          username: username,
-          timestamp: CURRENT_TIMESTAMP,
-          vizName: vizName,
-          rating: rating,
-          assessmentName: 'bessi'
+        const userVizRating: Omit<RATINGS__DYNAMODB, "id"> = {
+          email,
+          username,
+          study,
+          rating,
+          vizName,
+          timestamp: 0,
         }
 
         try {
           const response = await fetch('/api/assessment/viz-rating', {
-            method: 'POST',
+            method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
             },
@@ -325,7 +407,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
           const json = await response.json()
 
           if (response.status === 200) {
-            const userVizRatingId = json.data
+            const userVizRatingId = json.userVizRatingId
             return userVizRatingId
           } else {
             setIsRating(false)
@@ -363,11 +445,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   return (
     <>
       <div 
-        style={ { 
-          marginTop: '24px',
-          ...definitelyCenteredStyle,
-          flexDirection: 'column',
-        } }
+        style={{ marginTop: '24px' }}
       >
         <TitleDropdown
           visualizations={ visualizations }
@@ -379,16 +457,16 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         { isExample
           ? renderVisualization(isExample, currentVisualization)
           : (
-            <Fragment>
+            <>
               <ShareResults
-                state={{
+                state={ {
                   isCopied: isCopied,
                   isRating: isRating,
-                }}
-                onClick={{
+                } }
+                onClick={ {
                   handleTakeScreenshot,
                   handleRateVisualization,
-                }}
+                } }
               />
 
               <UserVisualization
@@ -399,7 +477,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
                 currentVisualization={ currentVisualization }
                 rateUserResults={ rateUserResults as boolean }
               />
-            </Fragment>
+            </>
           )
         }
 

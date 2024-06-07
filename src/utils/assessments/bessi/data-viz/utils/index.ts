@@ -3,22 +3,41 @@ import { domainToFacetMapping } from '../../constants'
 // Types
 import { 
   FacetDataType, 
-  InputDataStructure,
-  TargetDataStructure, 
+  BarChartInputDataType,
+  BarChartTargetDataType, 
 } from '../types'
 
 
 
 
-export function convertToAbbreviation(input: string): string {
-  const words = input.split(' ')
-  const abbreviation = words.map(word => word.charAt(0).toUpperCase()).join(' ')
-  return abbreviation
+// ---------------------------- Data manipulation ------------------------------
+export function transformData(
+  inputData: BarChartInputDataType
+): BarChartTargetDataType[] {
+  return Object.keys(inputData.domainScores).map(domainName => {
+    const facets: FacetDataType[] = domainToFacetMapping[domainName].map(
+      (facetName: string): FacetDataType => ({
+        name: facetName,
+        score: inputData.facetScores[facetName] || 0,
+      })
+    )
+
+    return {
+      // Use the conversion function here
+      // name: convertToAbbreviation(domainName),
+      name: domainName,
+      domainScore: inputData.domainScores[domainName],
+      facets,
+      facetScores: facets.map((facet: FacetDataType): number => facet.score)
+    }
+  })
 }
 
 
+
+// --------------------------------- Filtering ---------------------------------
 export function findFacetByScore(
-  data: TargetDataStructure[],
+  data: BarChartTargetDataType[],
   facetScore: number,
   facetScoreIndex: number
 ): FacetDataType | undefined {
@@ -42,50 +61,24 @@ export function findFacetByScore(
 }
 
 
-export function generateHighContrastColors(count: number): string[] {
-  const goldenRatioConjugate = 0.618033988749895 // Golden ratio to ensure good distribution
-  const colors: string[] = []
 
-  let hue = Math.random() // Start at a random hue
-
-  for (let i = 0; i < count; i++) {
-    hue += goldenRatioConjugate
-    hue %= 1 // Keep hue within the range [0, 1)
-
-    const color = `hsl(${hue * 360}, 70%, 50%)` // Convert to HSL format
-    colors.push(color)
+// ------------------------------- Math-related --------------------------------
+export function kernelDensityEstimator(d3, kernel, X) {
+  return function (V) {
+    return X.map(function (x) {
+      return [
+        x,
+        d3.mean(V, function (v) {
+          return kernel(x - v)
+        }),
+      ]
+    })
   }
-
-  return colors
 }
 
 
 
-export function transformData(
-  inputData: InputDataStructure
-): TargetDataStructure[] {
-  return Object.keys(inputData.domainScores).map(domainName => {
-    const facets: FacetDataType[] = domainToFacetMapping[domainName].map(
-      (facetName: string): FacetDataType => ({
-        name: facetName,
-        score: inputData.facetScores[facetName] || 0,
-      })
-    )
-
-    return {
-      // Use the conversion function here
-      // name: convertToAbbreviation(domainName),
-      name: domainName,
-      domainScore: inputData.domainScores[domainName],
-      facets,
-      facetScores: facets.map((facet: FacetDataType): number => facet.score)
-    }
-  })
-}
-
-
-
-export function generateAreaUnderCurve(
+export function generateAreaUnderNormalCurve(
   d3,
   mean: number,
   stddev: number
@@ -145,4 +138,69 @@ export function generateNormalDistributionCurve(
   )
 
   return _
+}
+
+
+
+// ----------------------------------- Text ------------------------------------
+export function convertToAbbreviation(input: string): string {
+  const words = input.split(' ')
+  const abbreviation = words.map(word => word.charAt(0).toUpperCase()).join(' ')
+  return abbreviation
+}
+
+
+
+export function getRangeLabel(score: number): 'Very Low' | 'Low' | 'Medium' | 'High' | 'Very High' | 'Out of range' {
+  const isVeryLow = score >= 0 && score <= 20
+  const isLow = score > 20 && score <= 40
+  const isMedium = score > 40 && score <= 60
+  const isHigh = score > 60 && score <= 80
+  const isVeryHigh = score > 80 && score <= 100
+
+  if (isVeryLow) {
+    return 'Very Low'
+  } else if (isLow) {
+    return 'Low'
+  } else if (isMedium) {
+    return 'Medium'
+  } else if (isHigh) {
+    return 'High'
+  } else if (isVeryHigh) {
+    return 'Very High'
+  } else {
+    return 'Out of range'
+  }
+}
+
+
+// ------------------------------------ CSS ------------------------------------
+export function generateHighContrastColors(count: number): string[] {
+  const goldenRatioConjugate = 0.618033988749895 // Golden ratio to ensure good distribution
+  const colors: string[] = []
+
+  let hue = Math.random() // Start at a random hue
+
+  for (let i = 0; i < count; i++) {
+    hue += goldenRatioConjugate
+    hue %= 1 // Keep hue within the range [0, 1)
+
+    const color = `hsl(${hue * 360}, 70%, 50%)` // Convert to HSL format
+    colors.push(color)
+  }
+
+  return colors
+}
+
+
+
+export const rgbToRgba = (rgb: string, opacity: number): string => {
+  const rgbValues = rgb.match(/\d+/g)
+
+  if (rgbValues && rgbValues.length === 3) {
+    const [r, g, b] = rgbValues
+    return `rgba(${r}, ${g}, ${b}, ${opacity})`
+  }
+
+  return rgb // Fallback to the original rgb if there's an issue
 }

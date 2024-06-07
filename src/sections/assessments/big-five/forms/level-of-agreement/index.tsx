@@ -1,15 +1,10 @@
 // Externals
-import { useRouter } from 'next/navigation'
-import { FC, Fragment, useLayoutEffect, useState } from 'react'
+import { FC } from 'react'
 // Locals
 import GeneralActivities from '@/components/Forms/BigFive/GeneralActivities'
 // Utils
 import {
-  getInputLabels,
-  radioOrCheckboxInputStyle,
-  BIG_FIVE_ACTIVITY_BANK,
-  BIG_FIVE_ASSESSMENT_HREF,
-  BIG_FIVE_ACTIVITY_BANK_LEGEND,
+  BIG_FIVE_ASSESSMENT_HREF
 } from '@/utils'
 
 

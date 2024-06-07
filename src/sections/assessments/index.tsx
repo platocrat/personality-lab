@@ -1,31 +1,38 @@
+'use client'
+
 // Externals
-import Link from 'next/link'
-import { FC, Fragment, JSX, ReactNode, useState } from 'react'
+import {
+  useState,
+  Fragment,
+  ReactNode,
+  useContext,
+  useLayoutEffect,
+} from 'react'
 // Locals
-// Components
-import Card from '@/components/Card'
-import StellarPlot from '@/components/DataViz/StellarPlot'
 // Sections
-import BessiDescription from './bessi/description'
-import BigFiveDescription from './big-five/descriptions/entrance'
-import BessiResultsVisualization from './bessi/assessment/results/bessi-results-visualization'
+import AssessmentCards from './assessment-cards'
+// Contexts
+import { SessionContext } from '@/contexts/SessionContext'
+// Context types
+import { SessionContextType } from '@/contexts/types'
+// Hooks
+import useWindowWidth from '@/hooks/useWindowWidth'
 // Utils
-import { 
-  bessiActivityBank,
-  dummyVariables,
-  SkillDomainFactorType 
+import {
+  ACCOUNT__DYNAMODB,
+  PARTICIPANT__DYNAMODB,
 } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
-import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
-type PersonalityAssessmentType = {
+export type PersonalityAssessmentType = {
+  href: string
   title: string
   buttonText: string
+  assessmentId: string
   description: string | ReactNode
-  href: string
 }
 
 
@@ -34,42 +41,28 @@ const title = `Assessments`
 
 
 
-// const YourPersonalityDescription = () => {
-//   return (
-//     <>
-//       { `Click the button below to begin to take an attachment and personality survey.` }
-//       <br />
-//       { `Please note that we do not store any information from these assessments.` }
-//     </>
-//   )
-// }
-
-
-const pAssessments: PersonalityAssessmentType[] = [
-  {
-    buttonText: `Begin`,
-    title: `Big Five, Vocational Interests, and Creativity Test`,
-    description: <BigFiveDescription />,
-    href: `/big-five`,
-  },
-  {
-    buttonText: `Begin`,
-    title: `The BESSI`,
-    description: <BessiDescription />,
-    href: `/bessi`,
-  },
-  // {
-  //   buttonText: `Begin`,
-  //   title: 'yourPersonality',
-  //   description: <YourPersonalityDescription />,
-  //   href: `/${topLevelSlug}/your-personality`
-  // },
-]
-
-
-
 
 const PersonalityAssessments = ({ }) => {
+  // Contexts
+  const { 
+    email,
+    isAdmin,
+    isParticipant,
+  } = useContext<SessionContextType>(SessionContext)
+  // Hooks
+  const windowWidth = useWindowWidth()
+  // States
+  const [ 
+    isGettingParticipant, 
+    setIsGettingParticipant
+  ] = useState<boolean>(false)
+  const [ 
+    participant, 
+    setParticipant 
+  ] = useState<PARTICIPANT__DYNAMODB | null>(null)
+
+
+  // ------------------------- Regular functions -------------------------------
   function fragmentKey(pa: PersonalityAssessmentType, i: number): string {
     const fragmentKeyBasePrefix = `personality-assessment-`
     const fragmentKeySuffix = `${pa.buttonText}-${pa.href}-${pa.title}-${i}`
@@ -77,36 +70,81 @@ const PersonalityAssessments = ({ }) => {
   }
 
 
+  // ---------------------------- Async functions ------------------------------
+  /**
+   * @dev Request account entry from `accounts` table which has a `participant`
+   *      property.
+   */
+  async function getParticipant() {
+    setIsGettingParticipant(true)
+
+    try {
+      const response = await fetch(`/api/account?email=${ email }`, { method: 'GET' })
+
+      const json = await response.json()
+
+      if (response.status === 404) throw new Error(json.error)
+      if (response.status === 400) throw new Error(json.error)
+      if (response.status === 405) throw new Error(json.error)
+      if (response.status === 500) throw new Error(json.error)
+
+      if (response.status === 200) {
+        const account: ACCOUNT__DYNAMODB = json.account
+        const participant_ = account?.participant ?? null
+        
+        setParticipant(participant_)
+        setIsGettingParticipant(false)
+      }
+    } catch (error: any) {
+      setIsGettingParticipant(false)
+      throw new Error(error)
+    }
+  }
+
+  // ---------------------------- `useLayoutEffect`s ---------------------------
+  useLayoutEffect(() => {
+    if (email) {
+      const requests = [
+        getParticipant(),
+      ]
+  
+      Promise.all(requests)
+    }
+  }, [ email, isAdmin, isParticipant ])
+
+
+
+
   return (
     <Fragment key={ `personality-assessments` }>
-      <div style={{ marginBottom: '8px' }}>
-        <h1>{ title }</h1>
-      </div>
-      <div className={ styles.assessmentWrapper }>
-        { pAssessments.map((pa: PersonalityAssessmentType, i: number) => (
-          <Fragment key={ fragmentKey(pa, i) }>
-            <Card
-              href={ pa.href }
-              title={ pa.title }
-              buttonText={ pa.buttonText }
-              description={ pa.description }
-            />
-            {
-              i !== pAssessments.length - 1
-                ? (
-                  <>
-                    <div style={ definitelyCenteredStyle }>
-                      <div className={ styles.divider } />
-                    </div>
-                  </>
-                )
-                : null
-            }
-          </Fragment>
-        )) }
+      <div 
+        className={ styles.main }
+        style={{ top: isParticipant || isAdmin ? '0' : '' }}
+      > 
+        <div 
+          style={{ 
+            marginTop: isAdmin
+              ? windowWidth > 800 
+                ? '-24px' 
+                : '-12px'
+               : '', 
+            marginBottom: '8px', 
+          }}
+        >
+          <h1>{ title }</h1>
+        </div>
+
+        <div className={ styles.assessmentWrapper }>
+          <AssessmentCards
+            fragmentKey={ fragmentKey }
+            participant={ participant }
+          />
+        </div>
+
       </div>
     </Fragment>
   )
 }
+
 
 export default PersonalityAssessments

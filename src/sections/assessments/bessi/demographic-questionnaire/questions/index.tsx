@@ -1,7 +1,5 @@
 'use client'
 
-// Externals
-import { FC, Fragment } from 'react'
 // Locals
 import BessiAge from './age'
 import BessiGender from './gender'
@@ -12,18 +10,7 @@ import BessiRaceOrEthnicity from './raceOrEthnicity'
 import BessiPriorCompletion from './prior-completion'
 import BessiEducationAndWork from './education-and-work'
 import BessiMarriageAndFamily from './marriage-and-family'
-import BessiCurrentMaritalStatus from './marriage-and-family/current-marital-status'
 // Enums
-import { 
-  Gender,
-  YesOrNo,
-  USState,
-  SocialClass,
-  RaceOrEthnicity,
-  CurrentMaritalStatus,
-  HighestFormalEducation,
-  CurrentEmploymentStatus,
-} from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 
@@ -68,14 +55,14 @@ const Questions = () => {
             */}
           <div style={{ marginBottom: '-12px' }}/>
           <BessiPriorCompletion />
-          <BessiGender />
+          {/* <BessiGender />
           <BessiAge />
           <BessiRaceOrEthnicity />
           <BessiEnglishFluency />
           <BessiSocialClass />
           <BessiLocation />
           <BessiEducationAndWork />
-          <BessiMarriageAndFamily />
+          <BessiMarriageAndFamily /> */}
         </td>
       </tr>
     </>
@@ -86,7 +73,7 @@ const Questions = () => {
 const BessiDemographicQuestions = () => {
   return (
     <>
-      <table className={ styles.bessi_assessment_table_body }>
+      <table className={ styles.bessi_assessment_table }>
         <tbody className={ styles.bessi_assessment_tbody }>
           <Title />
           <Questions />

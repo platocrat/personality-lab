@@ -1,10 +1,12 @@
 // Externals
-import React, { useRef, useEffect } from 'react'
 import * as d3 from 'd3'
+import React, { useRef, useEffect } from 'react'
 // Locals
 import Title from '../Title'
 // CSS
+import styles from '../DataViz.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+
 
 
 
@@ -12,15 +14,15 @@ const StellarPlot = ({
   isExample,
   data
 }) => {
-  const d3Container = useRef<HTMLDivElement | null>(null)
+  const d3Container = useRef<any>(null)
 
   const title = `BESSI Stellar Plot`
 
 
 
   useEffect(() => {
-    const width = 460,
-      height = 460,
+    const width = 500,
+      height = 500,
       margin = { top: 90, right: 90, bottom: 90, left: 90 },
       radius = (Math.min(width, height) / 2) - Math.max(
         ...Object.values(margin)
@@ -31,10 +33,9 @@ const StellarPlot = ({
 
     const svg = d3.select(d3Container.current)
       .append('svg')
-      .attr('width', width)
-      .attr('height', height - 60)
-      .append('g')
-      .attr('transform', `translate(${width / 2}, ${(height / 2) - 50})`)
+      .attr('preserveAspectRatio', 'xMinYMin meet')
+      .attr('viewBox', '-270 -190 540 440')
+      .classed(styles.svgContent, true)
 
     // Scale for the radius
     const rScale = d3.scaleLinear()
@@ -185,8 +186,19 @@ const StellarPlot = ({
 
   return (
     <>
-      <Title isExample={ isExample } title={ title } />
-      <div ref={ d3Container } style={ definitelyCenteredStyle } />
+      <div 
+        style={{ 
+          ...definitelyCenteredStyle,
+          flexDirection: 'column',
+        }}
+      >
+        <Title isExample={ isExample } title={ title } />
+        <div 
+          ref={ d3Container } 
+          style={ definitelyCenteredStyle } 
+          className={ styles.svgContainer }
+        />
+      </div>
     </>
   )
 }

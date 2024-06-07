@@ -38,3 +38,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Used for running Next.js on localhost with https, using 
+# `next dev --experimental-https`
+certificates

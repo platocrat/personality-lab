@@ -73,16 +73,14 @@ const TitleDropdown: FC<TitleDropdownProps> = ({
           onClick={ toggleDropdown }
           className={ styles.dropdownButton }
         >
-          <h3 
-            style={{ fontSize: '18px' }}
-          >
+          <h3>
             { title }
             <Image
               width={ 12 }
               height={ 12 }
-              alt='Dropdown-arrow-icon'
+              alt='Dropdown-arrow'
               className={ `${styles.dropdownIcon} ${isOpen ? styles.rotated : ''}` }
-              src={ `${imgPaths().png}down-arrow-icon.png` }
+              src={ `${imgPaths().png}down-arrow.png` }
             />
           </h3>
         </button>

@@ -6,13 +6,11 @@ import { FC, Fragment, useEffect, useLayoutEffect, useState } from 'react'
 // Locals
 import FormButton from '@/components/Buttons/Form'
 import { RadioOrCheckboxInput } from '@/components/Input'
-import CreativityAndAchievementsForm from '@/components/Forms/BigFive/CreativityAndAchievements'
 // Utils
-import { 
-  getInputLabels,
+import {
   BIG_FIVE_PATH,
-  BIG_FIVE_ACTIVITY_BANK, 
-  BIG_FIVE_ASSESSMENT_HREF, 
+  getInputLabels,
+  BIG_FIVE_ACTIVITY_BANK,
   BIG_FIVE_ACTIVITY_BANK_LEGEND,
   BIG_FIVE_FRAGMENT_ID_PREFACES,
 } from '@/utils'
@@ -62,9 +60,11 @@ const TaskEnjoymentForm: FC<TaskEnjoymentFormProps> = ({
 
   // Function to update question body vertical option size based on window width
   const updateQuestionBodyDisplay = () => {
-    const width = window.innerWidth
-    const innerWidth = 850
-    setIsVertical(width < innerWidth ? true : false)
+    if (window !== undefined) {
+      const width = window.innerWidth
+      const innerWidth = 850
+      setIsVertical(width < innerWidth ? true : false)
+    }
   }
 
 
@@ -106,11 +106,13 @@ const TaskEnjoymentForm: FC<TaskEnjoymentFormProps> = ({
 
   // Update font size on component mount and window resize
   useLayoutEffect(() => {
-    updateQuestionBodyDisplay()
-    window.addEventListener('resize', updateQuestionBodyDisplay)
-
-    return () => {
-      window.removeEventListener('resize', updateQuestionBodyDisplay)
+    if (window !== undefined) {
+      updateQuestionBodyDisplay()
+      window.addEventListener('resize', updateQuestionBodyDisplay)
+  
+      return () => {
+        window.removeEventListener('resize', updateQuestionBodyDisplay)
+      }
     }
   }, [])
 

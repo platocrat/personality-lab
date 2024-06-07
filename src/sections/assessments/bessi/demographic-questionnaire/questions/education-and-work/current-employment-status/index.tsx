@@ -1,9 +1,9 @@
 // Externals
-import { FC, Fragment, useContext } from 'react'
+import { Fragment, useContext } from 'react'
 // Locals
 import InputWrapper from '@/components/Input/Wrapper'
 // Contexts
-import { UserDemographicContext } from '@/contexts/UserDemographicContext'
+import { UserDemographicsContext } from '@/contexts/UserDemographicsContext'
 // Enums
 import { CurrentEmploymentStatus } from '@/utils'
 // CSS
@@ -21,7 +21,7 @@ const Label = () => {
 }
 
 const Input = () => {
-  const { onCurrentEmploymentStatusChange } = useContext(UserDemographicContext)
+  const { onCurrentEmploymentStatusChange } = useContext(UserDemographicsContext)
   const selectName = `current-employment-status`
 
   

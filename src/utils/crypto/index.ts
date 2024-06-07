@@ -19,15 +19,15 @@ export class SSCrypto {
   private static readonly ITERATIONS = 1_000_000
   private static readonly KEYLEN = 128
   private static readonly IV_LENGTH = 16
-  private static readonly ENCRYPTION_KEY_LENGTH = 16
+  private static readonly HASH_KEY_LENGTH = 16
   private static readonly ENCRYPTION_ALGORITHM = 'aes-256-cbc'
+  private static readonly ENCRYPTION_KEY_LENGTH = 32
   private static readonly HASHED_PASSWORD_ENCODING = 'hex'
-  private static readonly SYMBOLS = `#@*+-_;,.?!()/{}&'`
-  private static readonly CAPITAL_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-  private static readonly LOWERCASE_LETTERS = 'abcdefghijklmnopqrstuvwxyz'
+  // private static readonly SYMBOLS = `#@*+-_;,.?!()/{}&'`
+  // private static readonly CAPITAL_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  // private static readonly LOWERCASE_LETTERS = 'abcdefghijklmnopqrstuvwxyz'
   private static readonly NUMBERS = '0123456789'
-  private static readonly ALL_CHARS = SSCrypto.SYMBOLS 
-    + SSCrypto.CAPITAL_LETTERS + SSCrypto.LOWERCASE_LETTERS + SSCrypto.NUMBERS
+  // private static readonly ALL_CHARS = SSCrypto.SYMBOLS + SSCrypto.CAPITAL_LETTERS + SSCrypto.LOWERCASE_LETTERS + SSCrypto.NUMBERS
 
     private iv: Buffer
     private salt: string
@@ -99,7 +99,7 @@ export class SSCrypto {
     const cipher = createCipheriv(
       SSCrypto.ENCRYPTION_ALGORITHM, 
       key,
-      this.iv
+      this.iv,
     )
 
     let encryptedData = cipher.update(JSON.stringify(data), 'utf8', 'hex')
@@ -126,12 +126,20 @@ export class SSCrypto {
 
 
   // Function to create a hash
-  public createHash(data: any, algorithm = 'sha512') {
+  public createHash({
+    data,
+    algorithm,
+    outputLength,
+  }: { 
+    data: any
+    algorithm?: string
+    outputLength?: number
+  }): string {
     // Create a hash object
     const hash = createHash(
-      algorithm, 
+      algorithm ?? 'shake256', 
       { 
-        outputLength: 64,
+        outputLength: outputLength ?? SSCrypto.HASH_KEY_LENGTH 
       }
     )
 
@@ -140,5 +148,31 @@ export class SSCrypto {
 
     // Calculate the hash digest (output) in hex format
     return hash.digest('hex')
+  }
+
+
+  public async generateNewSecretKeys(): Promise<{
+    COOKIE_ENCRYPTION_SECRET_KEY: string
+    RESULTS_ENCRYPTION_SECRET_KEY: string
+    SHARE_RESULTS_ENCRYPTION_SECRET_KEY: string
+  }> {
+    let newSecretKeys = { 
+      COOKIE_ENCRYPTION_SECRET_KEY: '',
+      RESULTS_ENCRYPTION_SECRET_KEY: '',
+      SHARE_RESULTS_ENCRYPTION_SECRET_KEY: '',
+    }
+
+    const objectKeys = [
+      `COOKIE_ENCRYPTION_SECRET_KEY`,
+      `RESULTS_ENCRYPTION_SECRET_KEY`,
+      `SHARE_RESULTS_ENCRYPTION_SECRET_KEY`
+    ]
+
+    objectKeys.forEach((objKey: string): void => {
+      const secretKey = randomBytes(SSCrypto.ENCRYPTION_KEY_LENGTH)
+      newSecretKeys[objKey] = secretKey.toString('hex')
+    })
+
+    return newSecretKeys
   }
 }

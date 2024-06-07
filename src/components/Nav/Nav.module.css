@@ -28,11 +28,13 @@
 
 .nav {
   display: flex;
+  position: relative;
+  z-index: 2;
   justify-content: space-between;
   flex-direction: row;
   align-items: center;
 
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(18px);
 
   padding: 0.5rem 0.5rem 0.25rem 0.5rem;
 

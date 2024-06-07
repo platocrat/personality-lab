@@ -1,14 +1,13 @@
 // Externals
-import { FC, Fragment, useContext } from 'react'
+import { Fragment, useContext } from 'react'
 // Locals
 import InputWrapper from '@/components/Input/Wrapper'
 // Contexts
-import { UserDemographicContext } from '@/contexts/UserDemographicContext'
+import { UserDemographicsContext } from '@/contexts/UserDemographicsContext'
 // Enums
 import { RaceOrEthnicity } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
-import { inputMarginStyle } from '../..'
 
 
 
@@ -24,7 +23,7 @@ const Label = () => {
 }
 
 const Input = () => {
-  const { onRaceOrEthnicityChange } = useContext(UserDemographicContext)
+  const { onRaceOrEthnicityChange } = useContext(UserDemographicsContext)
 
   return (
     <>

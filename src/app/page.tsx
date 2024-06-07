@@ -1,36 +1,46 @@
 'use client'
 
 // Externals
-import { useContext, useMemo } from 'react'
+import { useLayoutEffect } from 'react'
+import { useUser } from '@auth0/nextjs-auth0/client'
 // Locals
-// Sections
-import AdminPortal from '@/sections/admin-portal'
-import PersonalityAssessments from '@/sections/assessments'
-import LogInOrCreateAnAccount from '@/sections/log-in-or-create-an-account'
-// Contexts
-import { AuthenticatedUserContext } from '@/contexts/AuthenticatedUserContext'
-// CSS
-import styles from '@/app/page.module.css'
-
-
-
-
+import MainPortal from '@/sections/main-portal'
 
 export default function Home() {
-  const { isAdmin, isAuthenticated } = useContext(AuthenticatedUserContext)
+  const { user, error, isLoading  } = useUser()
+
+
+  useLayoutEffect(() => {
+    if (!isLoading) {
+      console.log(
+        `[${new Date().toLocaleString()} --filepath="src/app/page.tsx" --function="useLayoutEffect()"]: user: `,
+        user
+      )
+      console.log(
+        `[${new Date().toLocaleString()} --filepath="src/app/page.tsx" --function="useLayoutEffect()"]: error: `,
+        error
+      )
+      console.log(
+        `[${new Date().toLocaleString()} --filepath="src/app/page.tsx" --function="useLayoutEffect()"]: error.name: `,
+        error?.name
+      )
+      console.log(
+        `[${new Date().toLocaleString()} --filepath="src/app/page.tsx" --function="useLayoutEffect()"]: error.message: `,
+        error?.message
+      )
+      console.log(
+        `[${new Date().toLocaleString()} --filepath="src/app/page.tsx" --function="useLayoutEffect()"]: error.cause: `,
+        error?.cause
+      )
+    }
+  }, [ user, error, isLoading ])
+
 
 
   return (
     <>
-      <main className={ `${styles.main} ` }>
-        { isAuthenticated 
-          ? (
-            <>
-              { isAdmin ? <AdminPortal /> : <PersonalityAssessments /> }
-            </>
-          )
-          : <LogInOrCreateAnAccount /> 
-        }
+      <main>
+        <MainPortal />
       </main>
     </>
   )
