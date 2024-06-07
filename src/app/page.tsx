@@ -63,7 +63,7 @@ export default function Home() {
   return (
     <>
       <main>
-        { isLoading ? <Spinner_ /> :  <MainPortal /> }
+        { isLoading ? <Spinner_ /> : <MainPortal /> }
       </main>
     </>
   )
