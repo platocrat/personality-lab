@@ -1,4 +1,5 @@
 // Externals
+import { useUser } from '@auth0/nextjs-auth0/client'
 import { FC, useContext, useLayoutEffect, useState } from 'react'
 // Locals
 import PersonalityAssessments from '@/sections/assessments'
@@ -94,7 +95,9 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
     isParticipant, 
   } = useContext<SessionContextType>(SessionContext)
 
-  const TITLE_TEXT = `Welcome, ${username}!`
+  const { user, error, isLoading } = useUser()
+
+  const TITLE_TEXT = `Welcome, ${user?.email}!`
   const SUBTITLE_TEXT = `Based on the studies you have registered for, listed below are the assessments that you may take.`
 
 

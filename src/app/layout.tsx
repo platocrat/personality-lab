@@ -1,16 +1,10 @@
 'use client'
 
 // Externals
-import { 
-  SignedIn, 
-  SignedOut, 
-  UserButton,
-  SignInButton, 
-  ClerkProvider,
-  } from '@clerk/nextjs'
 import * as Castle from '@castleio/castle-js'
 import { useLayoutEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
+import { UserProvider } from '@auth0/nextjs-auth0/client'
 // Locals
 import Header from '@/components/Header'
 import Spinner from '@/components/Suspense/Spinner'
@@ -188,8 +182,10 @@ export default function RootLayout({
 
   // ------------------------------ `useEffect`s -------------------------------
   useLayoutEffect(() => {
+    setIsAuthenticated(true)
+
     const requests = [
-      pageProtection(),
+      // pageProtection(),
     ]
 
     Promise.all(requests).then((response: any): void => { })
@@ -220,7 +216,7 @@ export default function RootLayout({
           <html lang='en'>
             <body>
               <ProgressBar>
-                <ClerkProvider>
+                <UserProvider>
                   <SessionContext.Provider
                     value={{
                       email,
@@ -244,7 +240,7 @@ export default function RootLayout({
                       </BessiSkillScoresLayout>
                     </UserDemographicsLayout>
                   </SessionContext.Provider>
-                </ClerkProvider>
+                </UserProvider>
               </ProgressBar>
             </body>
           </html>

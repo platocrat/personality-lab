@@ -45,7 +45,12 @@ const ResultsVisualizationModal: FC<ResultsVisualizationModalProps> = ({
 
     // Ask the user if they want to download the screenshot
     const alertMessage = `Download PNG of the ${viz_.name}?`
-    const userConfirmation = window.confirm(alertMessage)
+
+    let userConfirmation
+
+    if (window !== undefined) {
+      userConfirmation = window.confirm(alertMessage)
+    }
 
     if (userConfirmation && refs.screenshot2Ref.current) {
       html2canvas(refs.screenshot2Ref.current).then((canvas: any) => {

@@ -1,30 +1,64 @@
 'use client'
 
 // Externals
-import { useContext, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
+import { useUser } from '@auth0/nextjs-auth0/client'
+import { useContext, useEffect, useMemo, useState } from 'react'
 // Locals
+import Spinner from '@/components/Suspense/Spinner'
 // Sections
 import MainPortal from '@/sections/main-portal'
-import LogInOrCreateAnAccount from '@/sections/log-in-or-create-an-account'
-// Contexts
-import { SessionContext } from '@/contexts/SessionContext'
-// Context types
-import { SessionContextType } from '@/contexts/types'
 // CSS
 import styles from '@/app/page.module.css'
+import { definitelyCenteredStyle } from '@/theme/styles'
 
+
+
+
+const Spinner_ = () => {
+  return (
+    <>
+      <div
+        style={ {
+          ...definitelyCenteredStyle,
+          position: 'relative',
+          top: '80px',
+        } }
+      >
+        <Spinner height='40' width='40' />
+      </div>
+    </>
+  )
+}
 
 
 
 
 export default function Home() {
-  const { isAuthenticated } = useContext<SessionContextType>(SessionContext)
+  // Auth0
+  const { user, error, isLoading } = useUser()
+  // Hooks
+  const router = useRouter()
+  // State
+  const [ isAuthenticated, setIsAuthenticated ] = useState(false)
+  
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.push('/')
+    } else {
+      if (user !== undefined) {
+        console.log(`user: `, user)
+        setIsAuthenticated(false)
+      }
+    }
+  }, [ isLoading, user, error, router ])
 
 
   return (
     <>
       <main>
-        { isAuthenticated ? <MainPortal /> : <LogInOrCreateAnAccount /> }
+        { isLoading || !user ? <Spinner_ /> :  <MainPortal /> }
       </main>
     </>
   )

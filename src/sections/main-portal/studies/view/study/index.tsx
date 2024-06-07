@@ -204,7 +204,12 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
 
 
   async function getStudyIdAndInviteUrl() {
-    const inviteUrl_ = `${ window.location.origin }/invite/${ study?.id }`
+    let inviteUrl_
+
+    if (window !== undefined) {
+      inviteUrl_ = `${window.location.origin}/invite/${study?.id}`
+    }
+
     setInviteUrl(inviteUrl_)
   }
 
@@ -215,7 +220,12 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
 
     // Show confirmation alert
     const alertMessage = 'Download participant data as a CSV file?'
-    const shouldDownload = window.confirm(alertMessage)
+
+    let shouldDownload 
+    
+    if (window !== undefined) {
+      shouldDownload = window.confirm(alertMessage)
+    }
 
     if (!shouldDownload) return
 

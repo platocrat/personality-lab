@@ -39,7 +39,11 @@ const StudyDropdownMenu: FC<StudyDropdownMenuProps> = ({
 
 
   const handleDeleteClick = (e: any) => {
-    const confirmDelete = window.confirm('Are you sure you want to delete this study?')
+    let confirmDelete
+    
+    if (window !== undefined) {
+      confirmDelete = window.confirm('Are you sure you want to delete this study?')
+    }
 
     if (confirmDelete) {
       buttonHandlers?.handleDeleteStudy(

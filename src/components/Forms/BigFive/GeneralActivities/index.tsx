@@ -91,9 +91,11 @@ const GeneralActivities: FC<GeneralActivitiesProps> = ({
 
   // Function to update question body vertical option size based on window width
   const updateQuestionBodyDisplay = () => {
-    const width = window.innerWidth
-    const innerWidth = 780
-    setIsVertical(width < innerWidth ? true : false)
+    if (window !== undefined) {
+      const width = window.innerWidth
+      const innerWidth = 780
+      setIsVertical(width < innerWidth ? true : false)
+    }
   }
 
 
@@ -126,11 +128,13 @@ const GeneralActivities: FC<GeneralActivitiesProps> = ({
 
   // Update font size on component mount and window resize
   useLayoutEffect(() => {
-    updateQuestionBodyDisplay()
-    window.addEventListener('resize', updateQuestionBodyDisplay)
-
-    return () => {
-      window.removeEventListener('resize', updateQuestionBodyDisplay)
+    if (window !== undefined) {
+      updateQuestionBodyDisplay()
+      window.addEventListener('resize', updateQuestionBodyDisplay)
+  
+      return () => {
+        window.removeEventListener('resize', updateQuestionBodyDisplay)
+      }
     }
   }, [])
 

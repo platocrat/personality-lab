@@ -43,30 +43,32 @@ const BessiShareResultsButton = ({ }) => {
    * Toggle visibility of the URL for copying.
    */
   async function handleShareResults() {
-    const origin = window.location.origin
-
-    const baseUrl = `${ origin }/bessi/assessment`
-    // Using path segment instead of query
-    const fullUrl = `${baseUrl}/results/${id}--${accessToken}--${studyId}`
-
-    const timeout = 2_000
-    try {
-      await navigator.clipboard.writeText(fullUrl)
-
-      setIsCopied(true)
-
-      // Optionally reset the button text after a delay
-      setTimeout(() => {
+    if (window !== undefined) {
+      const origin = window.location.origin
+  
+      const baseUrl = `${ origin }/bessi/assessment`
+      // Using path segment instead of query
+      const fullUrl = `${baseUrl}/results/${id}--${accessToken}--${studyId}`
+  
+      const timeout = 2_000
+      try {
+        await navigator.clipboard.writeText(fullUrl)
+  
+        setIsCopied(true)
+  
+        // Optionally reset the button text after a delay
+        setTimeout(() => {
+          setIsCopied(false)
+        }, timeout)
+      } catch (error: any) {
+        // Handle potential errors, e.g., Clipboard API not available
+        throw new Error('Failed to copy URL:', error)
         setIsCopied(false)
-      }, timeout)
-    } catch (error: any) {
-      // Handle potential errors, e.g., Clipboard API not available
-      throw new Error('Failed to copy URL:', error)
-      setIsCopied(false)
-      
-      setTimeout(() => {
-        setIsCopied(false)
-      }, timeout)
+        
+        setTimeout(() => {
+          setIsCopied(false)
+        }, timeout)
+      }
     }
   }
 

@@ -60,9 +60,11 @@ const TaskEnjoymentForm: FC<TaskEnjoymentFormProps> = ({
 
   // Function to update question body vertical option size based on window width
   const updateQuestionBodyDisplay = () => {
-    const width = window.innerWidth
-    const innerWidth = 850
-    setIsVertical(width < innerWidth ? true : false)
+    if (window !== undefined) {
+      const width = window.innerWidth
+      const innerWidth = 850
+      setIsVertical(width < innerWidth ? true : false)
+    }
   }
 
 
@@ -104,11 +106,13 @@ const TaskEnjoymentForm: FC<TaskEnjoymentFormProps> = ({
 
   // Update font size on component mount and window resize
   useLayoutEffect(() => {
-    updateQuestionBodyDisplay()
-    window.addEventListener('resize', updateQuestionBodyDisplay)
-
-    return () => {
-      window.removeEventListener('resize', updateQuestionBodyDisplay)
+    if (window !== undefined) {
+      updateQuestionBodyDisplay()
+      window.addEventListener('resize', updateQuestionBodyDisplay)
+  
+      return () => {
+        window.removeEventListener('resize', updateQuestionBodyDisplay)
+      }
     }
   }, [])
 

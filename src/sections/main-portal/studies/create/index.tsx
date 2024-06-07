@@ -134,7 +134,12 @@ const CreateStudy: FC<CreateStudyProps> = ({
     const studyId = await storeStudyInDynamoDB()
     setIsCreatingStudy(false)
     // Generate invite link URL
-    const inviteLinkURL = `${ window.location.origin }/invite/${ studyId }`
+    let inviteLinkURL
+
+    if (window !== undefined) {
+      inviteLinkURL = `${ window.location.origin }/invite/${ studyId }`
+    }
+
     setInviteLink(inviteLinkURL)
   }
 
