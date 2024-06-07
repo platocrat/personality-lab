@@ -1,8 +1,8 @@
 // Externals
+import { useLayoutEffect } from 'react'
 import { useUser } from '@auth0/nextjs-auth0/client'
 // Locals
 import MainPortal from '@/sections/main-portal'
-import { useLayoutEffect } from 'react'
 
 export default function Home() {
   const { user, error, isLoading  } = useUser()
@@ -31,7 +31,7 @@ export default function Home() {
         error?.cause
       )
     }
-  }, [user, error, isLoading])
+  }, [ user, error, isLoading ])
 
 
 

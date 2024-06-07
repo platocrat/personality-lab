@@ -18,7 +18,7 @@ const Header: FC<HeaderProps> = ({}) => {
   const logoutHref = '/api/auth/logout'
 
   const links: NavLink[] = [
-    { label: 'Profile', href: '/profile' },
+    { label: 'Profile', href: '/api/auth/me' },
     { label: 'Settings', href: '/settings' },
   ]
 
