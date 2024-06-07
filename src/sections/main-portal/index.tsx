@@ -89,7 +89,7 @@ const ParticipantTitle = ({
 
 const MainPortal: FC<MainPortalProps> = ({ }) => {
   // Auth0
-  const { user, error, isLoading } = useUser()
+  const { user, error, isLoading, checkSession } = useUser()
   // State
   const [ isParticipant, setIsParticipant ] = useState(false)
   const [ isGettingParticipant, setIsGettingParticipant ] = useState(false)
@@ -106,6 +106,10 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
 
 
   async function getUser(): Promise<void> {
+    console.log(
+      `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: checkSession: `,
+      checkSession
+    )
     console.log(
       `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: user: `,
       user

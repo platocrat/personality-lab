@@ -39,7 +39,7 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
   children
 }) => {
   // Auth0 
-  const { user, error, isLoading } = useUser()
+  const { user, error, isLoading, checkSession } = useUser()
   // Refs
   const dropdownRef = useRef<any>(null)
   // States
@@ -51,6 +51,10 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
 
 
   async function getUser(): Promise<void> {
+    console.log(
+      `[${new Date().toLocaleString()} --filepath="src/components/Nav/DropdownMenu/index.tsx" --function="useEffect()"]: checkSession: `,
+      checkSession
+    )
     console.log(
       `[${new Date().toLocaleString()} --filepath="src/components/Nav/DropdownMenu/index.tsx" --function="useEffect()"]: user: `,
       user
