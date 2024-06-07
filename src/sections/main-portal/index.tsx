@@ -2,17 +2,13 @@
 
 // Externals
 import { useUser } from '@auth0/nextjs-auth0/client'
-import { FC, useContext, useLayoutEffect, useState } from 'react'
+import { FC, useLayoutEffect, useState } from 'react'
 // Locals
 import PersonalityAssessments from '@/sections/assessments'
 // Components
 import LeftHandNav from '@/components/Nav/LeftHand'
-// Contexts
-import { SessionContext } from '@/contexts/SessionContext'
-// Context types
-import { SessionContextType } from '@/contexts/types'
 // Utils
-import { getUsernameAndEmailFromCookie } from '@/utils'
+import { ACCOUNT__DYNAMODB } from '@/utils'
 // Styles
 import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/sections/main-portal/MainPortal.module.css'
@@ -35,6 +31,7 @@ const Title = ({ text }) => {
   )
 }
 
+
 const Subtitle = ({ text }) => {
   return (
     <>
@@ -52,6 +49,7 @@ const Subtitle = ({ text }) => {
     </>
   )
 }
+
 
 const ParticipantTitle = ({
   titleText,
@@ -90,14 +88,11 @@ const ParticipantTitle = ({
 
 
 const MainPortal: FC<MainPortalProps> = ({ }) => {
-  // Contexts
-  const { 
-    isAdmin,
-    username,
-    isParticipant, 
-  } = useContext<SessionContextType>(SessionContext)
-
+  // Auth0
   const { user, error, isLoading } = useUser()
+  // State
+  const [ isParticipant, setIsParticipant ] = useState(false)
+  const [ isGettingParticipant, setIsGettingParticipant ] = useState(false)
 
   const TITLE_TEXT = `Welcome, ${user?.email}!`
   const SUBTITLE_TEXT = `Based on the studies you have registered for, listed below are the assessments that you may take.`
@@ -110,17 +105,36 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
 
 
   /**
-   * @dev Used for debugging cookies
+   * @dev Request account entry from `accounts` table which has a `participant`
+   *      property.
    */
-  // async function _getUsernameAndEmailFromCookie() {
-  //   const cookieValues = await getUsernameAndEmailFromCookie()
+  async function getIsParticipant() {
+    setIsGettingParticipant(true)
 
-  //   console.log(
-  //     `[${new Date().toLocaleString()} \ --filepath="src/sections/assessments/bessi/assessment/index.tsx"]:`,
-  //     `client-side decrypted email and username jwt-cookie ensure. Double-check that these values aren't being intercepted by hackers to change any of its values.`,
-  //     cookieValues
-  //   )
-  // }
+    try {
+      const apiEndpoint = `/api/account?email=${user?.email}`
+      const response = await fetch(apiEndpoint, { method: 'GET' })
+
+      const json = await response.json()
+
+      if (response.status === 404) throw new Error(json.error)
+      if (response.status === 400) throw new Error(json.error)
+      if (response.status === 405) throw new Error(json.error)
+      if (response.status === 500) throw new Error(json.error)
+
+      if (response.status === 200) {
+        const account: ACCOUNT__DYNAMODB = json.account
+        const participant_ = account.participant ? true : false
+
+        setIsParticipant(participant_)
+        setIsGettingParticipant(false)
+      }
+    } catch (error: any) {
+      setIsGettingParticipant(false)
+      throw new Error(error)
+    }
+  }
+
 
 
   
@@ -128,7 +142,7 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
     resetCurrentStudy()
 
     const requests = [
-      // _getUsernameAndEmailFromCookie,
+      getIsParticipant()
     ]
 
     Promise.all(requests)
