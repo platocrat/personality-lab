@@ -1,15 +1,14 @@
 // Externals
-import { 
-  FC, 
-  useRef, 
+import {
+  FC,
+  useRef,
   useState,
-  Fragment, 
-  ReactNode, 
+  Fragment,
+  ReactNode,
   useEffect,
   } from 'react'
-import Link from 'next/link'
-import Image from 'next/image'
-import { useUser } from '@auth0/nextjs-auth0/client'
+  import Image from 'next/image'
+  import { useUser } from '@auth0/nextjs-auth0/client'
 // Locals
 import ProgressBarLink from '@/components/Progress/ProgressBarLink'
 // Hooks
@@ -17,8 +16,8 @@ import useClickOutside from '@/hooks/useClickOutside'
 // Utils
 import { imgPaths } from '@/utils'
 // CSS
-import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/components/Nav/DropdownMenu/Dropdown.module.css'
+import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
@@ -44,7 +43,8 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
   // Refs
   const dropdownRef = useRef<any>(null)
   // States
-  const [isVisible, setIsVisible] = useState<boolean>(false)
+  const [ username, setUsername ] = useState<string>('')
+  const [ isVisible, setIsVisible ] = useState<boolean>(false)
 
 
   const toggleDropdown = () => setIsVisible(!isVisible)
@@ -53,11 +53,10 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
 
 
   useEffect(() => {
-    console.log(
-      `[${new Date().toLocaleString()} --filepath="src/components/Nav/DropdownMenu/index.tsx" --function="useEffect()"]: user: `, 
-      user
-    )
-  }, [ user ])
+    if (!isLoading && user?.name !== undefined && user?.name !== null) {
+      setUsername(user.name)
+    }
+  }, [ user, error, isLoading ])
 
 
 

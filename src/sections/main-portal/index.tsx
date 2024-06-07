@@ -141,12 +141,19 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
   useLayoutEffect(() => {
     resetCurrentStudy()
 
-    const requests = [
-      getIsParticipant()
-    ]
+    if (!isLoading && user) {
+      console.log(
+        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: user: `,
+        user
+      )
 
-    Promise.all(requests)
-  }, [])
+      const requests = [
+        getIsParticipant()
+      ]
+  
+      Promise.all(requests)
+    }
+  }, [ user ])
 
 
 
