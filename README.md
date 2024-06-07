@@ -452,7 +452,7 @@ Prerequisites for the `screen` example below:
 
         Then, press `CTL + C` to stop the Caddy server.
 
-        Then, detach from this screen by pressing `CTL + A` then `D`, or by running:
+        Then, detach from this screen by running:
 
         ```sh
         screen -d
@@ -469,7 +469,11 @@ Prerequisites for the `screen` example below:
             ```
 
         2. Interrupt the container by pressing `CTL + C`.
-        3. Exit the `nextjs` screen session by pressing `CTL + A` then `D`.
+        3. Exit the `nextjs` screen session by running:
+
+            ```sh
+            screen -d
+            ```
 
     3. After the latest Docker image has been pulled, restart the Caddy server and Next.js Docker container:
         1. Re-enter the `caddy` screen session:
