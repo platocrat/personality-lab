@@ -4,7 +4,7 @@ import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb'
 // Locals
 import { 
   REGION,
-} from '..'
+} from '@/utils'
 
 const HOURS = 2
 

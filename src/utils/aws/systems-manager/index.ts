@@ -9,7 +9,7 @@ import { NextResponse } from 'next/server'
 import { 
   REGION,
   AWS_PARAMETER_NAMES, 
-} from '..'
+} from '@/utils'
 
 
 

@@ -62,28 +62,6 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
 
   useEffect(() => {
     if (!isLoading) {
-      console.log(
-        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: user: `,
-        user
-      )
-      console.log(
-        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error: `,
-        error
-      )
-      console.log(
-        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error.name: `,
-        error?.name
-      )
-      console.log(
-        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error.message: `,
-        error?.message
-      )
-      console.log(
-        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error.cause: `,
-        error?.cause
-      )
-
-
       const requests = [
         getUsername()
       ]
