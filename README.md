@@ -26,8 +26,7 @@ This project uses `next/font` to automatically optimize and load Inter, a custom
     - [1. SSH in to EC2 instance](#1-ssh-in-to-ec2-instance)
     - [2. Install Caddy from source](#2-install-caddy-from-source)
   - [2. Working with Caddy server](#2-working-with-caddy-server)
-  - [3. Add security group rule for QUIC and http3](#3-add-security-group-rule-for-quic-and-http3)
-  - [4. On EC2 instance, install Docker, login, and start the Docker daemon](#4-on-ec2-instance-install-docker-login-and-start-the-docker-daemon)
+  - [3. On EC2 instance, install Docker, login, and start the Docker daemon](#3-on-ec2-instance-install-docker-login-and-start-the-docker-daemon)
     - [1. Install Docker](#1-install-docker)
     - [2. Login to Docker](#2-login-to-docker)
     - [3. Start the Docker daemon](#3-start-the-docker-daemon)
@@ -162,7 +161,7 @@ ssh -i key-pair-name.pem EC2_USERNAME@EC2_HOSTNAME
 1. Use `curl` to download the latest version of Caddy from GitHub:
 
 ```zsh
-curl -o caddy.tar.gz -L "<https://github.com/caddyserver/caddy/releases/download/v2.8.4/caddy_2.8.4_linux_amd64.tar.gz>"
+curl -o caddy.tar.gz -L "https://github.com/caddyserver/caddy/releases/download/v2.8.4/caddy_2.8.4_linux_amd64.tar.gz"
 ```
 
 2. Extract the downloaded `.tar` file:
@@ -189,6 +188,12 @@ chmod +x /usr/local/bin/caddy
 caddy version
 ```
 
+6. Move downloaded files to `/caddy-download`
+
+```zsh
+mkdir ./caddy && mv {LICENSE,README.md,caddy.tar.gz} ./caddy-download/
+```
+
 ### 2. Working with [Caddy](http://caddyserver.com) server
 
 A Caddy server uses a `Caddyfile` to configure it, similar to how a NGINX server uses a `.conf` file, usually located somewhere like `/etc/nginx/conf.d/<APP_NAME>.conf`.
@@ -200,7 +205,7 @@ Let's create a `Caddyfile`.
 1. Create the `/etc/caddy` directory to store `Caddyfile`s
 
 ```zsh
-mkdir `/etc/caddy`
+sudo mkdir /etc/caddy
 ```
 
 2. Edit a `Caddyfile`:
@@ -232,19 +237,7 @@ After saving changes to your Caddyfile, manually start the Caddy server by runni
 sudo caddy run --config /etc/caddy/Caddyfile
 ```
 
-### 3. Add security group rule for QUIC and http3
-
-To ensure that our Caddy server can receive UDP packets, we need to add another security group rule to our EC2 instance's Security Group.
-
-1. Under the EC2 service, go to the `Security Groups` settings.
-2. Click on the security group that your EC2 instance is using.
-3. Click the `Add Rule` button at the bottom to add a new rule.
-4. For `Type`, select `Custom UDP`
-5. For `Port Range`, enter `443`, which is the port that our Caddy server will be listening on for HTTP/3 requests.
-6. For `Source`, enter `0.0.0.0/0` to allow for requests from the range of all IP addresses.
-7. Click `Save` to save the changes.
-
-### 4. On EC2 instance, install Docker, login, and start the Docker daemon
+### 3. On EC2 instance, install Docker, login, and start the Docker daemon
 
 #### 1. Install Docker
 
