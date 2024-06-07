@@ -196,57 +196,37 @@ export default function RootLayout({
 
   return (
     <>
-      { isFetchingUser ? (
-        <>
-          <html lang='en'>
-            <body>
-              <div
-                style={ {
-                  ...definitelyCenteredStyle,
-                  position: 'relative',
-                  top: '80px',
-                } }
+      <html lang='en'>
+        <body>
+          <ProgressBar>
+            <UserProvider>
+              <SessionContext.Provider
+                value={{
+                  email,
+                  isAdmin,
+                  username,
+                  setEmail,
+                  setIsAdmin,
+                  userStudies,
+                  setUsername,
+                  isParticipant,
+                  setUserStudies,
+                  isAuthenticated,
+                  setIsParticipant,
+                  setIsAuthenticated,
+                }}
               >
-                <Spinner height='40' width='40' />
-              </div>
-            </body>
-          </html>
-        </>
-      ) : (
-        <>
-          <html lang='en'>
-            <body>
-              <ProgressBar>
-                <UserProvider>
-                  <SessionContext.Provider
-                    value={{
-                      email,
-                      isAdmin,
-                      username,
-                      setEmail,
-                      setIsAdmin,
-                      userStudies,
-                      setUsername,
-                      isParticipant,
-                      setUserStudies,
-                      isAuthenticated,
-                      setIsParticipant,
-                      setIsAuthenticated,
-                    }}
-                  >
-                    <UserDemographicsLayout>
-                      <BessiSkillScoresLayout>
-                        { isAuthenticated && <Header/> }
-                        { children }
-                      </BessiSkillScoresLayout>
-                    </UserDemographicsLayout>
-                  </SessionContext.Provider>
-                </UserProvider>
-              </ProgressBar>
-            </body>
-          </html>
-        </>
-      ) }
+                <UserDemographicsLayout>
+                  <BessiSkillScoresLayout>
+                    <Header/>
+                    { children }
+                  </BessiSkillScoresLayout>
+                </UserDemographicsLayout>
+              </SessionContext.Provider>
+            </UserProvider>
+          </ProgressBar>
+        </body>
+      </html>
     </>
   )
 }

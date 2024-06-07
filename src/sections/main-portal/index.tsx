@@ -131,7 +131,7 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
       // _getUsernameAndEmailFromCookie,
     ]
 
-    // Promise.all(requests)
+    Promise.all(requests)
   }, [])
 
 
