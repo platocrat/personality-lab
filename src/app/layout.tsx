@@ -1,6 +1,13 @@
 'use client'
 
 // Externals
+import { 
+  SignedIn, 
+  SignedOut, 
+  UserButton,
+  SignInButton, 
+  ClerkProvider,
+  } from '@clerk/nextjs'
 import * as Castle from '@castleio/castle-js'
 import { useLayoutEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
@@ -213,29 +220,31 @@ export default function RootLayout({
           <html lang='en'>
             <body>
               <ProgressBar>
-                <SessionContext.Provider
-                  value={{
-                    email,
-                    isAdmin,
-                    username,
-                    setEmail,
-                    setIsAdmin,
-                    userStudies,
-                    setUsername,
-                    isParticipant,
-                    setUserStudies,
-                    isAuthenticated,
-                    setIsParticipant,
-                    setIsAuthenticated,
-                  }}
-                >
-                  <UserDemographicsLayout>
-                    <BessiSkillScoresLayout>
-                      { isAuthenticated && <Header/> }
-                      { children }
-                    </BessiSkillScoresLayout>
-                  </UserDemographicsLayout>
-                </SessionContext.Provider>
+                <ClerkProvider>
+                  <SessionContext.Provider
+                    value={{
+                      email,
+                      isAdmin,
+                      username,
+                      setEmail,
+                      setIsAdmin,
+                      userStudies,
+                      setUsername,
+                      isParticipant,
+                      setUserStudies,
+                      isAuthenticated,
+                      setIsParticipant,
+                      setIsAuthenticated,
+                    }}
+                  >
+                    <UserDemographicsLayout>
+                      <BessiSkillScoresLayout>
+                        { isAuthenticated && <Header/> }
+                        { children }
+                      </BessiSkillScoresLayout>
+                    </UserDemographicsLayout>
+                  </SessionContext.Provider>
+                </ClerkProvider>
               </ProgressBar>
             </body>
           </html>
