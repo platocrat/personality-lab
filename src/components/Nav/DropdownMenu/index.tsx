@@ -51,11 +51,11 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
 
 
   async function getUser(): Promise<void> {
-    const checkSession_ = await checkSession()
-    console.log(
-      `[${new Date().toLocaleString()} --filepath="src/components/Nav/DropdownMenu/index.tsx" --function="useEffect()"]: checkSession_: `,
-      checkSession_
-    )
+    // const checkSession_ = await checkSession()
+    // console.log(
+    //   `[${new Date().toLocaleString()} --filepath="src/components/Nav/DropdownMenu/index.tsx" --function="useEffect()"]: checkSession_: `,
+    //   checkSession_
+    // )
     console.log(
       `[${new Date().toLocaleString()} --filepath="src/components/Nav/DropdownMenu/index.tsx" --function="useEffect()"]: user: `,
       user
