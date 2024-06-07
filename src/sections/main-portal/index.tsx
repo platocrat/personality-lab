@@ -124,6 +124,12 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
 
       if (response.status === 200) {
         const account: ACCOUNT__DYNAMODB = json.account
+
+        console.log(
+          `[${ new Date().toLocaleString()}: --filepath="src/sections/main-portal/index.tsx" --function="getIsParticipant()"]: `, 
+          account
+        )
+
         const participant_ = account.participant ? true : false
 
         setIsParticipant(participant_)

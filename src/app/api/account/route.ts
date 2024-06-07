@@ -37,7 +37,10 @@ export const GET = withApiAuthRequired( async function getAccountEntry(
     const session = await getSession(req, res)
     const user = session?.user
 
-    console.log(`user: `, user)
+    console.log(
+      `[${new Date().toLocaleString()}: --filepath="src/app/api/account" --function="GET()"]: user: `, 
+      user
+    )
 
     if (!user) {
       const message = `Unauthorized: Auth0 found no 'user' for their session.`
