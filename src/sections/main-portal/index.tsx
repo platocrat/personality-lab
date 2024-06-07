@@ -104,6 +104,35 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
   }
 
 
+
+  async function getUser(): Promise<void> {
+    console.log(
+      `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: user: `,
+      user
+    )
+    console.log(
+      `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error: `,
+      error
+    )
+    console.log(
+      `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error.name: `,
+      error?.name
+    )
+    console.log(
+      `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error.message: `,
+      error?.message
+    )
+    console.log(
+      `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error.cause: `,
+      error?.cause
+    )
+    console.log(
+      `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: isLoading: `,
+      isLoading
+    )
+  }
+
+
   /**
    * @dev Request account entry from `accounts` table which has a `participant`
    *      property.
@@ -142,18 +171,12 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
     resetCurrentStudy()
 
     // if (!isLoading && user) {
-      console.log(
-        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: user: `,
-        user
-      )
-      console.log(
-        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error: `,
-        error
-      )
-      console.log(
-        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: isLoading: `,
-        isLoading
-      )
+
+      const requests = [
+        getUser()
+      ]
+
+      Promise.all(requests)
 
       // const requests = [
       //   getIsParticipant()
@@ -201,5 +224,6 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
     </>
   )
 }
+
 
 export default MainPortal

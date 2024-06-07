@@ -16,8 +16,8 @@ import useClickOutside from '@/hooks/useClickOutside'
 // Utils
 import { imgPaths } from '@/utils'
 // CSS
-import styles from '@/components/Nav/DropdownMenu/Dropdown.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+import styles from '@/components/Nav/DropdownMenu/Dropdown.module.css'
 
 
 
@@ -49,11 +49,8 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
 
   const toggleDropdown = () => setIsVisible(!isVisible)
 
-  useClickOutside(dropdownRef, () => setIsVisible(false))
 
-
-  useEffect(() => {
-    // if (!isLoading && user) {
+  async function getUser(): Promise<void> {
     console.log(
       `[${new Date().toLocaleString()} --filepath="src/components/Nav/DropdownMenu/index.tsx" --function="useEffect()"]: user: `,
       user
@@ -63,11 +60,36 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
       error
     )
     console.log(
+      `[${new Date().toLocaleString()} --filepath="src/components/Nav/DropdownMenu/index.tsx" --function="useLayoutEffect()"]: error.name: `,
+      error?.name
+    )
+    console.log(
+      `[${new Date().toLocaleString()} --filepath="src/components/Nav/DropdownMenu/index.tsx" --function="useLayoutEffect()"]: error.message: `,
+      error?.message
+    )
+    console.log(
+      `[${new Date().toLocaleString()} --filepath="src/components/Nav/DropdownMenu/index.tsx" --function="useLayoutEffect()"]: error.cause: `,
+      error?.cause
+    )
+    console.log(
       `[${new Date().toLocaleString()} --filepath="src/components/Nav/DropdownMenu/index.tsx" --function="useEffect()"]: isLoading: `,
       isLoading
     )
 
     setUsername(user?.name as string)
+  }
+
+
+  useClickOutside(dropdownRef, () => setIsVisible(false))
+
+
+  useEffect(() => {
+    // if (!isLoading && user) {
+      const requests = [
+        getUser()
+      ]
+
+      Promise.all(requests)
     // }
   }, [ user, error, isLoading ])
 
