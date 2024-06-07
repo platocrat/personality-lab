@@ -1,0 +1,17 @@
+# docker-compose.yml
+services:
+  nextjs:
+    build:
+      context: ./nextjs
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    image: platocrat/personality-lab-nextjs:latest
+  
+  caddy:
+    build:
+      context: ./caddy
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    image: platocrat/personality-lab-caddy:latest

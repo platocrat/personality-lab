@@ -1,0 +1,8 @@
+{$DOMAIN:localhost} {
+        encode gzip
+        header {
+                Strict-Transport-Security "max-age=31536000;"
+                Access-Control-Allow-Origin "*"
+        }
+        reverse_proxy localhost:3000
+}

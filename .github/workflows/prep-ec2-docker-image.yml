@@ -30,27 +30,28 @@ jobs:
         with:
           node-version: '20.14.0'
       # Phase 0: Create `.env.local` file from Auth0 environment variables
-      - name: 0. Extract Auth0 environment variables to create .env.local file
+      - name: 0. Extract Auth0 environment variables to create `.env.local` file
         run: '
-          touch .env.local
+          touch ./nextjs/.env.local
 
-          echo -e "AUTH0_SECRET=$AUTH0_SECRET\nAUTH0_BASE_URL=$AUTH0_BASE_URL\nAUTH0_ISSUER_BASE_URL=$AUTH0_ISSUER_BASE_URL\nAUTH0_CLIENT_ID=$AUTH0_CLIENT_ID\nAUTH0_CLIENT_SECRET=$AUTH0_CLIENT_SECRET" > .env.local
+          echo -e "AUTH0_SECRET=$AUTH0_SECRET\nAUTH0_BASE_URL=$AUTH0_BASE_URL\nAUTH0_ISSUER_BASE_URL=$AUTH0_ISSUER_BASE_URL\nAUTH0_CLIENT_ID=$AUTH0_CLIENT_ID\nAUTH0_CLIENT_SECRET=$AUTH0_CLIENT_SECRET" > ./nextjs/.env.local
         '
-      # Phase 1: Build and Push Docker Image to Docker Hub Repository
+      # Phase 1: Build and Push Docker images to Docker Hub Repository
       - name: 1. Login to Docker
         run: docker login -u $DOCKER_USERNAME -p $DOCKER_HUB_ACCESS_TOKEN
-      - name: 2. Build the Docker image
-        run: docker build -t personality-lab-app .
-      - name: 3. Tag newly built image
-        run: docker tag personality-lab-app $DOCKER_HUB_REPOSITORY
-      - name: 4. Push Docker image to private repository
-        run: docker push $DOCKER_HUB_REPOSITORY
-      # Phase 2: Pull Docker image on EC2 instance and start NextJS app
-      - name: 5. Create SSH key
+      - name: 2. Build the Docker images
+        run: docker-compose build -pull
+      - name: 3. Push Docker images to private repositories
+        run: docker-compose push
+      # Phase 2: Pull Docker image on to EC2 instance
+      - name: 4. Create SSH key
         run: echo "$SSH_KEY" > ssh_key && chmod 600 ssh_key
-      - name: 6. SSH into EC2 instance, prune Docker system data, and pull Docker image
-        # sudo docker system prune -a -f && # No longer compatible with older Docker version
+      # Make sure to use 2 private repositories with Docker Pro (it's $5/month)
+      - name: 5. SSH into EC2 instance, prune Docker system data, and pull Docker image
         run: ssh -o StrictHostKeyChecking=no -i ssh_key $EC2_USERNAME@$EC2_HOSTNAME '
+          sudo docker stop $(docker ps -a -q) &&
+          sudo docker rm $(docker ps -a -q) &&
           sudo docker system prune -a -f &&
-          sudo docker pull platocrat/personality-lab-app
+          sudo docker pull platocrat/personality-lab-nextjs &&
+          sudo docker pull platocrat/personality-lab-caddy
           '
