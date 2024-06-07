@@ -180,18 +180,6 @@ export default function RootLayout({
   }
 
 
-  // ------------------------------ `useEffect`s -------------------------------
-  useLayoutEffect(() => {
-    setIsFetchingUser(false)
-    setIsAuthenticated(true)
-
-    const requests = [
-      // pageProtection(),
-    ]
-
-    Promise.all(requests).then((response: any): void => { })
-  }, [router, pathname])
-
 
 
   return (
