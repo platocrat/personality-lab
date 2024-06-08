@@ -1,15 +1,14 @@
 // Externals
 import {
   PutCommand,
-  ScanCommand,
   QueryCommand,
+  ScanCommand,
   DeleteCommand,
   PutCommandInput,
   ScanCommandInput,
   QueryCommandInput,
   DeleteCommandInput,
   } from '@aws-sdk/lib-dynamodb'
-  import { cookies } from 'next/headers'
   import { NextRequest, NextResponse } from 'next/server'
   import { getSession, withApiAuthRequired } from '@auth0/nextjs-auth0'
 // Locals
@@ -18,7 +17,6 @@ import {
   ddbDocClient,
   STUDY__DYNAMODB,
   DYNAMODB_TABLE_NAMES,
-  hasJWT,
 } from '@/utils'
 
 
@@ -29,12 +27,25 @@ import {
  * @param res 
  * @returns 
  */
-export async function PUT(
-  req: NextRequest,
-  res: NextResponse,
+export const PUT = withApiAuthRequired(async function putStudy(
+  req: NextRequest
 ) {
   if (req.method === 'PUT') {
-    hasJWT(cookies)
+    const res = new NextResponse()
+
+    // Auth0
+    const session = await getSession(req, res)
+    const user = session?.user
+
+    if (!user) {
+      const message = `Unauthorized: Auth0 found no 'user' for their session.`
+      return NextResponse.json(
+        { message },
+        {
+          status: 401,
+        }
+      )
+    }
 
     const { study } = await req.json()
 
@@ -96,7 +107,7 @@ export async function PUT(
       },
     )
   }
-}
+})
 
 
 
@@ -343,11 +354,26 @@ export const GET = withApiAuthRequired(async function getStudy(
  * @param res 
  * @returns 
  */
-export async function DELETE(
-  req: NextRequest,
-  res: NextResponse,
+export const DELETE = withApiAuthRequired(async function deleteStudy(
+  req: NextRequest
 ) {
   if (req.method === 'DELETE') {
+    const res = new NextResponse()
+
+    // Auth0
+    const session = await getSession(req, res)
+    const user = session?.user
+
+    if (!user) {
+      const message = `Unauthorized: Auth0 found no 'user' for their session.`
+      return NextResponse.json(
+        { message },
+        {
+          status: 401,
+        }
+      )
+    }
+
     const { 
       studyId,
       ownerEmail,
@@ -415,7 +441,7 @@ export async function DELETE(
       },
     )
   }
-}
+})
 
 
 

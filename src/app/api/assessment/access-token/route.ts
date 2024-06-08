@@ -18,15 +18,29 @@ import {
   DYNAMODB_TABLE_NAMES,
   USER_RESULTS_ACCESS_TOKENS__DYNAMODB,
 } from '@/utils'
+import { withApiAuthRequired, getSession } from '@auth0/nextjs-auth0'
 
 
 
-export async function PUT(
-  req: NextRequest, 
-  res: NextResponse, 
-) {
+export const PUT = withApiAuthRequired(async function putAccessToken(
+  req: NextRequest
+): Promise<any> {
   if (req.method === 'PUT') {
-    hasJWT(cookies)
+    const res = new NextResponse()
+
+    // Auth0
+    const session = await getSession(req, res)
+    const user = session?.user
+
+    if (!user) {
+      const message = `Unauthorized: Auth0 found no 'user' for their session.`
+      return NextResponse.json(
+        { message },
+        {
+          status: 401,
+        }
+      )
+    }
 
     const { 
       assessmentId, 
@@ -112,7 +126,7 @@ export async function PUT(
       },
     )
   }
-}
+})
 
 
 
@@ -122,12 +136,25 @@ export async function PUT(
  * @param res 
  * @returns 
  */
-export async function GET(
-  req: NextRequest,
-  res: NextResponse,
+export const GET = withApiAuthRequired(async function getAccessToken(
+  req: NextRequest
 ) {
   if (req.method === 'GET') {
-    hasJWT(cookies)
+    const res = new NextResponse()
+
+    // Auth0
+    const session = await getSession(req, res)
+    const user = session?.user
+
+    if (!user) {
+      const message = `Unauthorized: Auth0 found no 'user' for their session.`
+      return NextResponse.json(
+        { message },
+        {
+          status: 401,
+        }
+      )
+    }
 
     const { assessmentId, id } = await req.json()
 
@@ -198,4 +225,4 @@ export async function GET(
       },
     )
   }
-}
+})

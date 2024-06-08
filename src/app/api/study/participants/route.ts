@@ -1,17 +1,15 @@
 // Externals
-import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
+import { getSession, withApiAuthRequired } from '@auth0/nextjs-auth0'
 // Locals
 import {
-  hasJWT,
   ddbDocClient,
-  ParticipantType,
   ACCOUNT__DYNAMODB,
   DYNAMODB_TABLE_NAMES,
   PARTICIPANT__DYNAMODB,
 } from '@/utils'
-import { 
-  ScanCommand, 
+import {
+  ScanCommand,
   ScanCommandInput,
 } from '@aws-sdk/lib-dynamodb'
 
@@ -22,12 +20,25 @@ import {
  * @param res 
  * @returns 
  */
-export async function GET(
-  req: NextRequest,
-  res: NextResponse,
+export const GET = withApiAuthRequired(async function getParticipants(
+  req: NextRequest
 ) {
   if (req.method === 'GET') {
-    hasJWT(cookies)
+    const res = new NextResponse()
+
+    // Auth0
+    const session = await getSession(req, res)
+    const user = session?.user
+
+    if (!user) {
+      const message = `Unauthorized: Auth0 found no 'user' for their session.`
+      return NextResponse.json(
+        { message },
+        {
+          status: 401,
+        }
+      )
+    }
 
     const TableName = DYNAMODB_TABLE_NAMES.accounts
     const FilterExpression = 'attribute_exists(participant)'
@@ -103,4 +114,4 @@ export async function GET(
       },
     )
   }
-}
+})

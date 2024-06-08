@@ -5,6 +5,7 @@ import {
 } from '@aws-sdk/lib-dynamodb'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
+import { withApiAuthRequired, getSession } from '@auth0/nextjs-auth0'
 // Locals
 import {
   hasJWT,
@@ -17,17 +18,30 @@ import {
 
 
 /**
- * @dev PUT `userResults`
+ * @dev PUT `userVizRating`
  * @param req 
  * @param res 
  * @returns 
  */
-export async function PUT(
-  req: NextRequest,
-  res: NextResponse,
+export const GET = withApiAuthRequired(async function putUserVizRating(
+  req: NextRequest
 ) {
-  if (req.method === 'PUT') {
-    hasJWT(cookies)
+  if (req.method === 'GET') {
+    const res = new NextResponse()
+
+    // Auth0
+    const session = await getSession(req, res)
+    const user = session?.user
+
+    if (!user) {
+      const message = `Unauthorized: Auth0 found no 'user' for their session.`
+      return NextResponse.json(
+        { message },
+        {
+          status: 401,
+        }
+      )
+    }
     
     const { userVizRating } = await req.json()
 
@@ -93,4 +107,4 @@ export async function PUT(
       },
     )
   }
-}
+})

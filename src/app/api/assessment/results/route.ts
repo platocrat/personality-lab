@@ -6,9 +6,9 @@ import {
 } from '@aws-sdk/lib-dynamodb'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
+import { getSession, withApiAuthRequired } from '@auth0/nextjs-auth0'
 // Locals
 import {
-  hasJWT,
   getEntryId,
   ddbDocClient,
   STUDY__DYNAMODB,
@@ -26,12 +26,25 @@ import {
  * @param res 
  * @returns 
  */
-export async function POST(
-  req: NextRequest,
-  res: NextResponse,
+export const POST = withApiAuthRequired(async function updateResults(
+  req: NextRequest
 ) {
   if (req.method === 'POST') {
-    hasJWT(cookies)
+    const res = new NextResponse()
+
+    // Auth0
+    const session = await getSession(req, res)
+    const user = session?.user
+
+    if (!user) {
+      const message = `Unauthorized: Auth0 found no 'user' for their session.`
+      return NextResponse.json(
+        { message },
+        {
+          status: 401,
+        }
+      )
+    }
 
     const { userResults } = await req.json()
 
@@ -177,7 +190,7 @@ export async function POST(
       },
     )
   }
-}
+})
 
 
 
@@ -187,12 +200,25 @@ export async function POST(
  * @param res 
  * @returns 
  */
-export async function GET(
-  req: NextRequest,
-  res: NextResponse,
+export const GET = withApiAuthRequired(async function getResults(
+  req: NextRequest
 ) {
   if (req.method === 'GET') {
-    hasJWT(cookies)
+    const res = new NextResponse()
+
+    // Auth0
+    const session = await getSession(req, res)
+    const user = session?.user
+
+    if (!user) {
+      const message = `Unauthorized: Auth0 found no 'user' for their session.`
+      return NextResponse.json(
+        { message },
+        {
+          status: 401,
+        }
+      )
+    }
 
     const email = req.nextUrl.searchParams.get('email')
     const studyId = req.nextUrl.searchParams.get('studyId')
@@ -290,4 +316,4 @@ export async function GET(
       }
     )
   }
-}
+})

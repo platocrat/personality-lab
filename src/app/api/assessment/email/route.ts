@@ -2,6 +2,7 @@
 import sgMail from '@sendgrid/mail'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
+import { withApiAuthRequired, getSession } from '@auth0/nextjs-auth0'
 import { GetParameterCommandInput, GetParameterCommand } from '@aws-sdk/client-ssm'
 // Locals
 import { 
@@ -13,12 +14,25 @@ import {
 
 
 
-export async function POST(
-  req: NextRequest,
-  res: NextResponse,
+export const POST = withApiAuthRequired(async function sendEmail(
+  req: NextRequest
 ) {
   if (req.method === 'POST') {
-    hasJWT(cookies)
+    const res = new NextResponse()
+
+    // Auth0
+    const session = await getSession(req, res)
+    const user = session?.user
+
+    if (!user) {
+      const message = `Unauthorized: Auth0 found no 'user' for their session.`
+      return NextResponse.json(
+        { message },
+        {
+          status: 401,
+        }
+      )
+    }
 
     const { email } = await req.json()
 
@@ -79,4 +93,4 @@ export async function POST(
       { status: 405 },
     )
   }
-}
+})
