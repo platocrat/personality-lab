@@ -271,7 +271,6 @@ export const GET = withApiAuthRequired(async function getStudy(
     } else {
       const id = req.nextUrl.searchParams.get('id')
 
-
       const TableName = DYNAMODB_TABLE_NAMES.studies
       const IndexName = 'id-index'
       const KeyConditionExpression = 'id = :idValue'
@@ -303,6 +302,12 @@ export const GET = withApiAuthRequired(async function getStudy(
             },
           )
         } else {
+          const studies = (response.Items as STUDY__DYNAMODB[])
+          console.log(
+            `[${new Date().toLocaleString()}: --filepath="src/app/api/study/route.ts" --function="getStudy()"]: studies: `,
+            studies
+          )
+
           const study = (response.Items as STUDY__DYNAMODB[])[0]
 
 
