@@ -67,7 +67,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
 
   // ------------------------- Memoized constants ------------------------------
   const showPageNav = useMemo((): boolean => {
-    return results !== null
+    return !!results
   }, [ participants ])
 
   // -------------------------- Async functions functions ------------------------------

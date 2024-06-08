@@ -517,7 +517,7 @@ Prerequisites for the `screen` example below:
 
 ## Auth0: Set up Database Connection for DynamoDB
 
-Follow the this [amazing Medium post](https://medium.com/@thedreamsaver/using-amazon-dynamodb-as-a-custom-database-connection-in-auth0-1ec43b8d4c8c) by a that walks through step-by-step how to set up a Database Connection in Auth0 for DynamoDB, from start to finish.
+Follow this [Medium post](https://medium.com/@thedreamsaver/using-amazon-dynamodb-as-a-custom-database-connection-in-auth0-1ec43b8d4c8c) by a that walks through step-by-step how to set up a Database Connection in Auth0 for DynamoDB, from start to finish.
 
 ### Specify DynamoDB table for IAM User
 

@@ -43,12 +43,12 @@ const useAccount = () => {
       )
       
       const participant = account.participant
-      const participant_ = account.participant ? true : false
-      const isAdmin_ = account.isAdmin ? true : false
+      const isParticiapnt = !!account.participant // Convert to boolean
+      const isAdmin_ = !!account.isAdmin // Convert to boolean
       const studies = participant?.studies as STUDY_SIMPLE__DYNAMODB[] | undefined
 
       setParticipant(participant)
-      setIsParticipant(participant_)
+      setIsParticipant(isParticiapnt)
       setIsAdmin(isAdmin_)
       setUserStudies(studies)
     } catch (error: any) {
