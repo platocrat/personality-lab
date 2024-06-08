@@ -130,10 +130,3 @@ export type CookieType = {
   isParticipant: EncryptedCookieFieldType
   timestamp: EncryptedCookieFieldType
 }
-
-
-export type ParticipantType = {
-  email: string
-  username: string
-  studies: STUDY_SIMPLE__DYNAMODB[]
-}
