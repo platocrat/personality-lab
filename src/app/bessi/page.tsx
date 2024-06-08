@@ -72,26 +72,27 @@ export default function _() {
   }
 
 
-
   useLayoutEffect(() => {
     if (!isLoading && user && user.email) {
       getAccount()
-
-      if (userStudies) {
-        getStudiesForAssessment()
-
-        const timeout = 300
-    
-        const updateIsGettingStudiesTimeout = setTimeout(() => {
-          setIsGettingStudiesForAssessment(false)
-        }, timeout)
-    
-        return () => {
-          updateIsGettingStudiesTimeout
-        }
-      }
     }
   }, [ isLoading ])
+
+  useLayoutEffect(() => {
+    if (userStudies) {
+      getStudiesForAssessment()
+
+      const timeout = 300
+  
+      const updateIsGettingStudiesTimeout = setTimeout(() => {
+        setIsGettingStudiesForAssessment(false)
+      }, timeout)
+  
+      return () => {
+        updateIsGettingStudiesTimeout
+      }
+    }
+  }, [ userStudies ])
 
 
 
