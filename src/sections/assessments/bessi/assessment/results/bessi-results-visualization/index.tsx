@@ -113,13 +113,55 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   
   
   // ------------------------- Regular functions -------------------------------
+  // ~~~~~~~~ Event handlers ~~~~~~~~
   function handleOnChangeRadialBarChart(e: any) {
     const { value } = e.target
     setSelectedRadialBarChart(value)
   }
 
+  const handleTakeScreenshot = () => {
+    if (screenshot1Ref.current) {
+      html2canvas(
+        screenshot1Ref.current,
+        {
+          logging: true,
+          useCORS: true,
+        }
+      ).then((canvas: any) => {
+        canvas.toBlob((blob: any) => {
+          if (blob) {
+            const url = URL.createObjectURL(blob)
+            setScreenshotUrl(url)
+            setIsModalVisible(true) // Show modal after taking screenshot
+          }
+        }, 'image/png')
+      })
+    }
+  }
 
-  const data_ = (i: number) => {
+  // ~~~~~~~~ Utilities ~~~~~~~~
+  function getCurrentStudy(): {
+    isNonStudy: boolean,
+    study: STUDY_SIMPLE__DYNAMODB | undefined
+  } {
+    const key = 'currentStudy'
+    const localStorageItem = localStorage.getItem(key) ?? ''
+
+    if (localStorageItem === '') {
+      return {
+        isNonStudy: false,
+        study: undefined,
+      }
+    } else {
+      const currentStudy = JSON.parse(localStorageItem) as STUDY_SIMPLE__DYNAMODB
+      return {
+        isNonStudy: false,
+        study: currentStudy,
+      }
+    }
+  }
+
+  const getData = (i: number) => {
     switch (i) {
       case 0:
         return Object.entries(
@@ -166,10 +208,10 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   ) => {
     switch (i) {
       case 0:
-        return <StellarPlot isExample={ isExample } data={ data_(i) } />
+        return <StellarPlot isExample={ isExample } data={ getData(i) } />
       case 1:
         const barChartTitle = 'BESSI Bar Chart'
-        const allData: BarChartTargetDataType[] = data_(i) as BarChartTargetDataType[]
+        const allData: BarChartTargetDataType[] = getData(i) as BarChartTargetDataType[]
 
         return (
           <>
@@ -184,7 +226,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         )
       case 2:
         const radialBarChartTitle = `BESSI Radial Bar Chart`
-        const _allData = data_(i) as BarChartTargetDataType[]
+        const _allData = getData(i) as BarChartTargetDataType[]
 
         return (
           <>
@@ -222,7 +264,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
           </>
         )
       case 3:
-        return <TreeMap isExample={ isExample } data={ data_(i) } />
+        return <TreeMap isExample={ isExample } data={ getData(i) } />
       case 4:
         /**
          * @todo Get `mean` from data 
@@ -252,7 +294,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
 
         const multipleNormalIsSample = false
 
-        const multipleNormalUserData = data_(i) as {
+        const multipleNormalUserData = getData(i) as {
           facetScores: FacetFactorType,
           domainScores: SkillDomainFactorType,
           averages: SkillDomainFactorType,
@@ -281,7 +323,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
 
         // const ridgelinePlotIsSample = false
 
-        // const ridgelinePlotUserData = data_(i) as {
+        // const ridgelinePlotUserData = getData(i) as {
         //   facetScores: FacetFactorType,
         //   domainScores: SkillDomainFactorType,
         //   averages: SkillDomainFactorType,
@@ -317,7 +359,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         return (
           <PersonalityVisualization
             isExample={ isExample }
-            data={ data_(i) }
+            data={ getData(i) }
             averages={ dummyUserBessiScores.domainScores }
           />
         )
@@ -327,27 +369,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   }
 
 
-  const handleTakeScreenshot = () => {
-    if (screenshot1Ref.current) {
-      html2canvas(
-        screenshot1Ref.current,
-        { 
-          logging: true, 
-          useCORS: true,
-        }
-      ).then((canvas: any) => {
-        canvas.toBlob((blob: any) => {
-          if (blob) {
-            const url = URL.createObjectURL(blob)
-            setScreenshotUrl(url)
-            setIsModalVisible(true) // Show modal after taking screenshot
-          }
-        }, 'image/png')
-      })
-    }
-  }
-
-
+  // ------------------------------ Async functions ----------------------------
   async function handleRateVisualization (
     e: any, 
     positiveOrNegative: 'positive' | 'negative',
@@ -367,20 +389,31 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
     rating: number, 
     vizName: string
   ) {
-    const localStorageItem = localStorage.getItem('currentStudy') as string ?? ''
-    const study = JSON.parse(localStorageItem) as STUDY_SIMPLE__DYNAMODB
+    const { study, isNonStudy } = getCurrentStudy()
 
+    let userVizRating: Omit<RATINGS__DYNAMODB, "id">
+    
     /**
      * @dev This is the object that we store in DynamoDB using AWS's
      * `PutItemCommand` operation.
      */
-    const userVizRating: Omit<RATINGS__DYNAMODB, "id"> = {
-      email: user?.email ?? '',
-      study,
-      rating,
-      vizName,
-      timestamp: 0,
+    if (isNonStudy) {
+      userVizRating = {
+        email: user?.email ?? '',
+        rating,
+        vizName,
+        timestamp: 0,
+      }
+    } else {
+      userVizRating = {
+        email: user?.email ?? '',
+        study,
+        rating,
+        vizName,
+        timestamp: 0,
+      }
     }
+
 
     try {
       const response = await fetch('/api/assessment/viz-rating', {
@@ -412,7 +445,6 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
        * @todo Handle error UI here
        */
       throw new Error(`Error! `, error)
-
     }
   }
 

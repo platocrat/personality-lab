@@ -36,7 +36,7 @@ const RateDataViz: FC<RateDataVizProps> = ({
                     position: 'relative',
                     top: '3px',
                   } }
-                  alt='Share icon to share data visualization'
+                  alt='White checkmark to confirm that a rating was made for a visualization'
                   src={ `${imgPaths().svg}white-checkmark.svg` }
                 />
               </div>
@@ -67,7 +67,7 @@ const RateDataViz: FC<RateDataVizProps> = ({
                     position: 'relative',
                     transform: 'scaleX(-1)',
                   } }
-                  alt='Share icon to share data visualization'
+                  alt='Thumbs up icon'
                   src={ `${imgPaths().svg}thumbs-up.svg` }
                 />
               </button>
@@ -91,7 +91,7 @@ const RateDataViz: FC<RateDataVizProps> = ({
                   width={ 16 }
                   height={ 16 }
                   style={{ position: 'relative', top: '1.75px' }}
-                  alt='Share icon to share data visualization'
+                  alt='Thumbs down icon'
                   src={ `${imgPaths().svg}thumbs-down.svg` }
                 />
               </button>

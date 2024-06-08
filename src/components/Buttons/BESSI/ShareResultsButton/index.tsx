@@ -93,7 +93,7 @@ const BessiShareResultsButton = ({ }) => {
               <Image
                 width={ 18 }
                 height={ 18 }
-                alt='Share icon to share data visualization'
+                alt='White checkmark to confirm that an URL was copied'
                 src={ `${imgPaths().svg}white-checkmark.svg` }
               />
             </div>

@@ -13,7 +13,7 @@ import {
 export async function getAccessToken(
   assessmentId: string,
   userResultsId: string,
-  studyId: string,
+  studyId?: string,
 ) {
   if (!userResultsId) {
     /**

@@ -22,10 +22,10 @@ import {
  * @param res 
  * @returns 
  */
-export const GET = withApiAuthRequired(async function putUserVizRating(
+export const PUT = withApiAuthRequired(async function putUserVizRating(
   req: NextRequest
 ) {
-  if (req.method === 'GET') {
+  if (req.method === 'PUT') {
     const res = new NextResponse()
 
     // Auth0
@@ -47,19 +47,34 @@ export const GET = withApiAuthRequired(async function putUserVizRating(
     const userVizRatingId = await getEntryId(userVizRating)
 
     const TableName = DYNAMODB_TABLE_NAMES.vizRating
-    const Item: RATINGS__DYNAMODB = {
-      id: userVizRatingId,
-      email: userVizRating.email as string,
-      study: userVizRating.study as STUDY_SIMPLE__DYNAMODB,
-      rating: userVizRating.rating as number,
-      vizName: userVizRating.vizName as string,
-      timestamp: Date.now(),
+    
+    let Item: RATINGS__DYNAMODB
+
+    const study = userVizRating.study as STUDY_SIMPLE__DYNAMODB
+
+    if (study) {
+      Item = {
+        id: userVizRatingId,
+        email: userVizRating.email as string,
+        study: userVizRating.study as STUDY_SIMPLE__DYNAMODB,
+        rating: userVizRating.rating as number,
+        vizName: userVizRating.vizName as string,
+        timestamp: Date.now(),
+      }
+    } else {
+      Item = {
+        id: userVizRatingId,
+        email: userVizRating.email as string,
+        rating: userVizRating.rating as number,
+        vizName: userVizRating.vizName as string,
+        timestamp: Date.now(),
+      }
     }
 
     const input: PutCommandInput = { TableName, Item }
     const command = new PutCommand(input)
 
-    const successMessage = `User data visualization rating has been added to ${
+    const message = `User data visualization rating has been added to ${
       DYNAMODB_TABLE_NAMES.vizRating
     } table`
 
@@ -67,12 +82,10 @@ export const GET = withApiAuthRequired(async function putUserVizRating(
     try {
       const response = await ddbDocClient.send(command)
 
-      const message = successMessage || 'Operation successful'
-
 
       return NextResponse.json(
         {
-          message: message,
+          message,
           userVizRatingId,
         },
         {

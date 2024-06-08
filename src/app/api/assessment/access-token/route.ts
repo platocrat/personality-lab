@@ -44,7 +44,7 @@ export const PUT = withApiAuthRequired(async function putAccessToken(
     const { 
       assessmentId, 
       userResultsId, 
-      studyId, 
+      studyId,
     } = await req.json()
 
     const JWT_SECRET = await fetchAwsParameter(AWS_PARAMETER_NAMES.JWT_SECRET)
@@ -66,8 +66,8 @@ export const PUT = withApiAuthRequired(async function putAccessToken(
       const Item: USER_RESULTS_ACCESS_TOKENS__DYNAMODB = {
         accessToken, // Partition/Primary Key
         id: userResultsId, // Sort Key
-        studyId,
         assessmentId,
+        studyId,
       }
 
       // Write to table of `id` and `accessToken` in DynamoDB

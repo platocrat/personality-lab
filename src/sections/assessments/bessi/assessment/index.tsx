@@ -93,11 +93,25 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
 
 
   //------------------------- Regular function handlers ----------------------
-  function getCurrentStudy(): STUDY_SIMPLE__DYNAMODB {
+  function getCurrentStudy(): { 
+    isNonStudy: boolean, 
+    study: STUDY_SIMPLE__DYNAMODB | undefined 
+  } {
     const key = 'currentStudy'
     const localStorageItem = localStorage.getItem(key) ?? ''
-    const currentStudy = JSON.parse(localStorageItem) as STUDY_SIMPLE__DYNAMODB
-    return currentStudy
+
+    if (localStorageItem === '') {
+      return {
+        isNonStudy: false,
+        study: undefined,
+      }
+    } else {
+      const currentStudy = JSON.parse(localStorageItem) as STUDY_SIMPLE__DYNAMODB
+      return  {
+        isNonStudy: false,
+        study: currentStudy,
+      }
+    }
   }
 
 
@@ -196,18 +210,29 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
       demographics: DEMOGRAPHICS,
     }
     
-    const study = getCurrentStudy()
+    const { study, isNonStudy } = getCurrentStudy()
+
+    let userResults: Omit<RESULTS__DYNAMODB, "id">
 
     /**
      * @dev This is the object that we store in DynamoDB using AWS's 
      * `PutItemCommand` operation.
      */
-    const userResults: Omit<RESULTS__DYNAMODB, "id"> = {
-      email: user?.email ?? '',
-      study,
-      timestamp: 0,
-      results: bessiUserResults
+    if (isNonStudy) {
+      userResults = {
+        email: user?.email ?? '',
+        timestamp: 0,
+        results: bessiUserResults
+      }
+    } else {
+      userResults = {
+        email: user?.email ?? '',
+        study,
+        timestamp: 0,
+        results: bessiUserResults
+      }
     }
+
 
     try {
       const response = await fetch('/api/assessment/results', {
@@ -227,7 +252,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
         const accessToken = await getAccessToken(
           ASSESSMENT_ID,
           userResultsId,
-          study.id
+          study?.id
         )
 
         // 5. Create new object with final scores and access token to cache 
@@ -237,7 +262,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
           ...finalScores,
           id: userResultsId,
           accessToken: accessToken,
-          studyId: study.id,
+          studyId: study?.id,
         }
 
         // 5. Store final scores in React state

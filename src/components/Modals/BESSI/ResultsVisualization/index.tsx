@@ -150,7 +150,7 @@ const ResultsVisualizationModal: FC<ResultsVisualizationModalProps> = ({
                       <Image
                         width={ 22 }
                         height={ 22 }
-                        alt='Share icon to share data visualization'
+                        alt='White checkmark to confirm that a screenshot was copied'
                         src={ `${imgPaths().svg}white-checkmark.svg` }
                       />
                     </div>
@@ -169,7 +169,7 @@ const ResultsVisualizationModal: FC<ResultsVisualizationModalProps> = ({
                       <Image
                         width={ 22 }
                         height={ 22 }
-                        alt='Share icon to share data visualization'
+                        alt='Icon to download an image'
                         src={ `${imgPaths().svg}download-image.svg` }
                       />
                     </button>
