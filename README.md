@@ -16,7 +16,7 @@ This project uses `next/font` to automatically optimize and load Inter, a custom
 
 ## Table of Contents
 
-- [Launch a new EC2 instance on AWS console](#launch-a-new-ec2-instance-on-aws-console)
+- [Launch a new AWS EC2 instance on the AWS console](#launch-a-new-aws-ec2-instance-on-the-aws-console)
   - [1. Application and OS Images](#1-application-and-os-images)
   - [2. Instance Type](#2-instance-type)
   - [3. Key pair (login)](#3-key-pair-login)
@@ -42,8 +42,9 @@ This project uses `next/font` to automatically optimize and load Inter, a custom
   - [3. Follow the instructions on the `Connect` page to SSH into the new EC2 instance](#3-follow-the-instructions-on-the-connect-page-to-ssh-into-the-new-ec2-instance)
 - [What to do if want to use a new Elastic IP address?](#what-to-do-if-want-to-use-a-new-elastic-ip-address)
 - [Working with `screen` to view Next.js and Caddy logs separately](#working-with-screen-to-view-nextjs-and-caddy-logs-separately)
+- [Auth0: Set up Database Connection for DynamoDB](#auth0-set-up-database-connection-for-dynamodb)
 
-## Launch a new AWS EC2 instance on AWS console
+## Launch a new AWS EC2 instance on the AWS console
 
 ### 1. Application and OS Images
 
@@ -513,3 +514,386 @@ Prerequisites for the `screen` example below:
             ```
 
             You should see Next.js returning logs from the page(s) you viewed from your browser.
+
+## Auth0: Set up Database Connection for DynamoDB
+
+Follow the this [amazing Medium post](https://medium.com/@thedreamsaver/using-amazon-dynamodb-as-a-custom-database-connection-in-auth0-1ec43b8d4c8c) by a that walks through step-by-step how to set up a Database Connection in Auth0 for DynamoDB, from start to finish.
+
+### Database Action Scripts
+
+As a reference, here are the relevant and modifed Database Action Scripts that I made, using the tutorial as a guide:
+
+#### Login
+
+```js
+function login (email, password, callback) {
+  const AWS = require('aws-sdk');
+  const { createHash, pbkdf2Sync } = require('crypto');
+
+  const ITERATIONS = 1000000; // 1_000_000
+  const KEYLEN = 128;
+  const HASH_ALGORITHM = 'sha512';
+
+  AWS.config.update({
+    accessKeyId: configuration.accessKeyId,
+    secretAccessKey: configuration.secretAccessKey,
+    region: configuration.region
+  });
+
+  const docClient = new AWS.DynamoDB.DocumentClient();
+
+  const params = {
+    TableName: configuration.dynamoDBTable,
+    KeyConditionExpression: 'email = :email',
+    ExpressionAttributeValues: {
+      ':email': email
+    }
+  };
+
+  docClient.query(params, function (err, data) {
+    if (err) {
+      return callback(err);
+    } else {
+      if (data.Items.length === 0) {
+        return callback(new WrongUsernameOrPasswordError(email));
+      } else {
+        const account = data.Items[0];
+
+        // Use `crypto` to compare the provided password with the hashed 
+        // password stored in DynamoDB
+        try {
+          const salt = account.password.salt;
+
+          const hashToVerify = pbkdf2Sync(
+            password,
+            salt,
+            ITERATIONS,
+            KEYLEN,
+            HASH_ALGORITHM
+          ).toString('hex');
+  
+          const hash = account.password.hash;
+          const isMatch = hash === account.password.hash;
+  
+          // Passwords match, return the user profile
+          if (isMatch) {
+            const email_ = account.email;
+            // Depending on your user schema, you might want to use a different unique identifier
+            const user_id = createHash('shake256', 16).update(account.email).digest('hex');
+            const userProfile = {
+              user_id,
+              email: email_,
+              // Add additional user profile information here as needed
+            };
+            
+            return callback(null, userProfile);
+          } else {
+            return callback(new WrongUsernameOrPasswordError(email));
+          }
+        } catch (error) {
+          return callback(err);
+        }
+      }
+    }
+  });
+}
+```
+
+#### Create
+
+```js
+function create (user, callback) {
+  const AWS = require('aws-sdk');
+  const { randomBytes, pbkdf2Sync } = require('crypto');
+
+  AWS.config.update({
+    accessKeyId: configuration.accessKeyId,
+    secretAccessKey: configuration.secretAccessKey,
+    region: configuration.region
+  });
+
+  const ACCOUNT_ADMINS = [
+    {
+      email: 'bwrobrts@illinois.edu',
+      name: 'Brent Roberts',
+    },
+    {
+      email: 'jlmaldo2@illinois.edu',
+      name: 'Jack Winfield',
+    },
+  ];
+
+  const isAdmin = ACCOUNT_ADMINS.some(admin => admin.email === user.email);
+
+  // Generate a salt and hash the password
+  const salt = randomBytes(16).toString('hex');
+  const ITERATIONS = 1000000; // 1_000_000
+  const KEY_LENGTH = 128;
+  const HASH_ALGORITHM = 'sha512';
+
+  const hash = pbkdf2Sync(
+    user.password,
+    salt,
+    ITERATIONS,
+    KEY_LENGTH,
+    HASH_ALGORITHM
+  ).toString('hex');
+
+  const email_ = user.email;
+  const password = { hash, salt };
+  const updatedAtTimestamp = 0;
+  const hasVerifiedEmail = false;
+  const createdAtTimestamp = Date.now();
+
+  const docClient = new AWS.DynamoDB.DocumentClient();
+
+  const params = {
+    TableName: configuration.dynamoDBTable,
+    Item: {
+      email: email_,
+      isAdmin,
+      password,
+      updatedAtTimestamp,
+      hasVerifiedEmail,
+      createdAtTimestamp,
+      // Add any other user attributes here
+    },
+    ConditionExpression: 'attribute_not_exists(email)' // Ensure the user does not already exist
+  };
+
+  docClient.put(params, function (err, data) {
+    if (err) {
+      if (err.code === 'ConditionalCheckFailedException') {
+        // This error means the user already exists
+        callback(new Error('User already exists'));
+      } else {
+        callback(err);
+      }
+    } else {
+      // User was created successfully
+      callback(null);
+    }
+  });
+}
+```
+
+#### Verify
+
+```js
+function verify (email, callback) {
+  const AWS = require('aws-sdk');
+
+  AWS.config.update({
+    accessKeyId: configuration.accessKeyId,
+    secretAccessKey: configuration.secretAccessKey,
+    region: configuration.region
+  });
+
+  const docClient = new AWS.DynamoDB.DocumentClient();
+
+  const queryParams = {
+    TableName: configuration.dynamoDBTable,
+    KeyConditionExpression: 'email = :email',
+    ExpressionAttributeValues: {
+      ':email': email
+    },
+  };
+
+  docClient.query(queryParams, function (err, data) {
+    if (err) {
+      return callback(err);
+    } else {
+      if (data.Items.length === 0) {
+        return callback(new WrongUsernameOrPasswordError(email));
+      } else {
+        const account = data.Items[0];
+        const createdAtTimestamp = account.createdAtTimestamp;
+
+        const updateParams = {
+          TableName: configuration.dynamoDBTable,
+          Key: {
+            email,
+            createdAtTimestamp,
+          },
+          UpdateExpression: 'set hasVerifiedEmail = :hasVerifiedEmail',
+          ExpressionAttributeValues: {
+            ':hasVerifiedEmail': true
+          },
+          ReturnValues: 'UPDATED_NEW',
+          // Check if user email exists
+          ConditionExpression: 'attribute_exists(email)'
+        };
+
+        docClient.update(updateParams, function (err, data) {
+          if (err) {
+            callback(err);
+          } else {
+            callback(null, data);
+          }
+        });
+      }
+    }
+  });
+}
+```
+
+#### Change Password
+
+```js
+function changePassword (email, newPassword, callback) {
+  const AWS = require('aws-sdk');
+  const { randomBytes, pbkdf2Sync } = require('crypto');
+
+  AWS.config.update({
+    accessKeyId: configuration.accessKeyId,
+    secretAccessKey: configuration.secretAccessKey,
+    region: configuration.region
+  });
+
+  const docClient = new AWS.DynamoDB.DocumentClient();
+
+  // First, hash the new password
+  const salt = randomBytes(16).toString('hex');
+  const ITERATIONS = 1000000; // 1_000_000
+  const KEYLEN = 128;
+  const HASH_ALGORITHM = 'sha512';
+
+  const hash = pbkdf2Sync(
+    newPassword,
+    salt,
+    ITERATIONS,
+    KEYLEN,
+    HASH_ALGORITHM
+  ).toString('hex');
+
+  const updatedPassword = { hash, salt };
+
+  const queryParams = {
+    TableName: configuration.dynamoDBTable,
+    KeyConditionExpression:  'email = :email',
+    ExpressionAttributeValues: {
+      ':email': email
+    },
+  };
+
+  // Perform query to get the `createdAtTimestamp` which is required for 
+  // Put, Post, and Update operations on the `accounts` table
+  docClient.query(queryParams, function (err, data) {
+    if (err) {
+      return callback(err);
+    } else {
+      if (data.Items.length === 0) {
+        return callback(new WrongUsernameOrPasswordError(email));
+      } else {
+        const account = data.Items[0];
+        const createdAtTimestamp = account.createdAtTimestamp;
+
+        const updateParams = {
+          TableName: configuration.dynamoDBTable,
+          Key: {
+            email,
+            createdAtTimestamp,
+          },
+          UpdateExpression: 'set password = :password',
+          ExpressionAttributeValues: {
+            ':password': updatedPassword
+          },
+          ReturnValues: 'UPDATED_NEW'
+        };
+
+        // Next, update the old password
+        docClient.update(updateParams, function (err, data) {
+          if (err) {
+            callback(err);
+          } else {
+            callback(null, data);
+          }
+        });
+      }
+    }
+  });
+}
+```
+
+#### Get User
+
+```js
+function getByEmail(email, callback) {
+  const AWS = require('aws-sdk');
+  const { createHash } = require('crypto');
+
+  AWS.config.update({
+    accessKeyId: configuration.accessKeyId,
+    secretAccessKey: configuration.secretAccessKey,
+    region: configuration.region
+  });
+
+  const docClient = new AWS.DynamoDB.DocumentClient();
+
+  const params = {
+    TableName: configuration.dynamoDBTable,
+    KeyConditionExpression: 'email = :email',
+    ExpressionAttributeValues: {
+      ':email': email
+    }
+  };
+
+  docClient.query(params, function (err, data) {
+    if (err) {
+      callback(err);
+    } else {
+      if (data.Items.length === 0) {
+        callback(null);
+      } else {
+        const account = data.Items[0];
+        const email_ = account.email;
+        const email_verified = account.email_verified;
+        // Use a unique identifier for the user_id
+        const user_id = createHash('shake256', 16).update(account.email).digest('hex');
+        const userProfile = {
+          user_id,
+          email: email_,
+          email_verified,
+          // Add other user attributes here as needed
+        };
+
+        // Return the user profile. Adjust the returned attributes as needed.
+        callback(null, userProfile);
+      }
+    }
+  });
+}
+```
+
+#### Delete
+
+```js
+function deleteUser(email, callback) {
+  const AWS = require('aws-sdk');
+
+  AWS.config.update({
+    accessKeyId: configuration.accessKeyId,
+    secretAccessKey: configuration.secretAccessKey,
+    region: configuration.region
+  });
+
+  const docClient = new AWS.DynamoDB.DocumentClient();
+
+  const params = {
+    TableName: configuration.dynamoDBTable,
+    Key: {
+      email: email
+    },
+    ConditionExpression: 'attribute_exists(email)'
+  };
+
+  docClient.delete(params, function (err, data) {
+    if (err) {
+      callback(err);
+    } else {
+      // Successfully deleted the user
+      callback(null);
+    }
+  });
+}
+```
