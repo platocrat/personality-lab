@@ -8,6 +8,7 @@ import {
   ParticipantType,
   ACCOUNT__DYNAMODB,
   DYNAMODB_TABLE_NAMES,
+  PARTICIPANT__DYNAMODB,
 } from '@/utils'
 import { 
   ScanCommand, 
@@ -60,7 +61,7 @@ export async function GET(
       } else {
         const participants = (response.Items as ACCOUNT__DYNAMODB[])?.map((
           account: ACCOUNT__DYNAMODB
-        ): ParticipantType | undefined => {
+        ): PARTICIPANT__DYNAMODB | undefined => {
             return account.participant
           }
         )
