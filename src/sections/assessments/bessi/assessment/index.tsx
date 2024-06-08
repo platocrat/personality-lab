@@ -31,7 +31,6 @@ import {
   BessiUserResults__DynamoDB,
   wellnessRatingDescriptions,
   BessiUserDemographics__DynamoDB,
-  getUsernameAndEmailFromCookie,
 } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
@@ -214,20 +213,10 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
        */
       const userResults: Omit<RESULTS__DYNAMODB, "id"> = {
         email,
-        username,
         study,
         timestamp: 0,
         results: bessiUserResults
       }
-
-      const cookieValues = await getUsernameAndEmailFromCookie()
-
-      console.log(
-        `[${new Date().toLocaleString()} \ --filepath="src/sections/assessments/bessi/assessment/index.tsx"]:`,
-        `client-side decrypted email and username jwt-cookie ensure. Double-check that these values aren't being intercepted by hackers to change any of its values.`,
-        cookieValues
-      )
-
 
       try {
         const response = await fetch('/api/assessment/results', {

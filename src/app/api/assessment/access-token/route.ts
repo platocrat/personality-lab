@@ -10,7 +10,6 @@ import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 // Locals
 import { 
-  hasJWT,
   MAX_AGE,
   ddbDocClient,
   fetchAwsParameter,

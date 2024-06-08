@@ -4,7 +4,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { QueryCommand, QueryCommandInput } from '@aws-sdk/lib-dynamodb'
 // Locals
 import { 
-  hasJWT, 
   ddbDocClient,
   ACCOUNT__DYNAMODB,
   DYNAMODB_TABLE_NAMES,

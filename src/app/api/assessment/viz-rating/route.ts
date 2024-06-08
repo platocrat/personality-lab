@@ -8,7 +8,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { withApiAuthRequired, getSession } from '@auth0/nextjs-auth0'
 // Locals
 import {
-  hasJWT,
   getEntryId,
   ddbDocClient,
   RATINGS__DYNAMODB,

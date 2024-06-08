@@ -188,6 +188,11 @@ export default function RootLayout({
         <body>
           <ProgressBar>
             <UserProvider>
+              {/**
+                * @todo Finish Auth0 integration by replacing everywhere 
+                *       necessary the use of the custom`SessionContext` with 
+                *       Auth0's `useUser()` hook.
+                */}
               <UserDemographicsLayout>
                 <BessiSkillScoresLayout>
                   <Header/>

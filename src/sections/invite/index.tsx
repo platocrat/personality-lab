@@ -79,7 +79,6 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
     // 2. Construct new `participant` to store in DynamoDB
     const participant: Omit<PARTICIPANT__DYNAMODB, "id"> = {
       email: participantEmail,
-      username: participantUsername,
       timestamp: 0,
       /**
        * @dev Update `studies` with pre-existing `studies` when updating

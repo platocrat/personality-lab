@@ -6,7 +6,6 @@ import { withApiAuthRequired, getSession } from '@auth0/nextjs-auth0'
 import { GetParameterCommandInput, GetParameterCommand } from '@aws-sdk/client-ssm'
 // Locals
 import { 
-  hasJWT,
   ssmClient,
   fetchAwsParameter, 
   AWS_PARAMETER_NAMES,
