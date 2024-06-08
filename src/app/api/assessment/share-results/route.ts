@@ -52,7 +52,8 @@ export async function GET(
       return await verfiyAccessTokenAndFetchUserResults(
         id,
         accessToken,
-        JWT_SECRET
+        JWT_SECRET,
+        req,
       )
     } else { // Return the error in the json of the `NextResponse`
       return JWT_SECRET as NextResponse<{ error: string }>

@@ -1,6 +1,6 @@
 // Externals
 import { verify } from 'jsonwebtoken'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import {
   GetCommand,
   QueryCommand,
@@ -16,7 +16,9 @@ import {
   DYNAMODB_TABLE_NAMES,
   BessiUserResults__DynamoDB,
   USER_RESULTS_ACCESS_TOKENS__DYNAMODB,
+  ACCOUNT__DYNAMODB,
 } from '@/utils'
+import { getSession } from '@auth0/nextjs-auth0'
 
 
 
@@ -32,6 +34,7 @@ export async function verfiyAccessTokenAndFetchUserResults(
   id: string,
   accessToken: string,
   JWT_SECRET: string,
+  req: NextRequest,
 ) {
   try {
     // 3. If verification of `accessToken` using JWT secret is successful,
@@ -49,7 +52,7 @@ export async function verfiyAccessTokenAndFetchUserResults(
     // 4. Send the `GetCommand` to fetch the `id` from the 
     //    `user-results-access-tokens` table, then try to fetch user's `results`
     //    from the `studies` table
-    return await fetchUserResultsIdAndUserResults(command)
+    return await fetchUserResultsIdAndUserResults(command, req)
   } catch (error: any) {
     if (error.message === jwtErrorMessages.expiredJWT) {
       /**
@@ -92,7 +95,8 @@ export async function verfiyAccessTokenAndFetchUserResults(
  * @returns 
 */
 export async function fetchUserResultsIdAndUserResults(
-  command: GetCommand
+  command: GetCommand,
+  req: NextRequest,
 ) {
   try {
     const response = await ddbDocClient.send(command)
@@ -117,11 +121,11 @@ export async function fetchUserResultsIdAndUserResults(
       // 6. Get the user's results `id` and `studyId` if the access token exists
       const item = response.Item as USER_RESULTS_ACCESS_TOKENS__DYNAMODB
       
-      const studyId = item.studyId
+      const studyId = item.studyId // possibly `undefined`
       const userResultsId = item.id
 
       // 7. Use `userResultsId` to fetch `userResults`
-      return fetchUserResults(studyId, userResultsId)
+      return fetchUserResults(userResultsId, req, studyId)
     }
   } catch (error: any) {
     const errorMessage = `Failed fetching 'id' using 'accessToken'`
@@ -143,48 +147,189 @@ export async function fetchUserResultsIdAndUserResults(
 
 
 /**
- * @dev Returns `userResults` if they are in `studies` DynamoDB table for a 
- *      given `id`.
+ * @dev Returns `userResults` if they are either in the `studies` table or the 
+ *      `accounts` table for a  given study ID and results ID.
  * @param userResultsId
  * @returns 
  */
 export async function fetchUserResults(
-  studyId: string,
   userResultsId: string,
+  req: NextRequest,
+  studyId?: string,
 ) {
-  // 8. Build `QueryCommand` to fetch the user's `results` from the `studies` 
-  //    table.
-  const TableName = DYNAMODB_TABLE_NAMES.studies
-  const IndexName = 'id-index'
-  const KeyConditionExpression = 'id = :idValue'
-  const ExpressionAttributeValues = { ':idValue': studyId }
+  // If `studyId` is not undefined, fetch user's `results` from the `studies` 
+  // table.
+  if (studyId) {
+    // 8. Build `QueryCommand` to fetch the user's `results` from the `studies` 
+    //    table.
+    const TableName = DYNAMODB_TABLE_NAMES.studies
+    const IndexName = 'id-index'
+    const KeyConditionExpression = 'id = :idValue'
+    const ExpressionAttributeValues = { ':idValue': studyId }
 
-  const input: QueryCommandInput = {
-    TableName,
-    IndexName,
-    KeyConditionExpression,
-    ExpressionAttributeValues,
-  }
+    const input: QueryCommandInput = {
+      TableName,
+      IndexName,
+      KeyConditionExpression,
+      ExpressionAttributeValues,
+    }
 
-  const command = new QueryCommand(input)
-
-
-  try {
-    const response = await ddbDocClient.send(command)
+    const command = new QueryCommand(input)
 
 
-    if (response.Items && response.Items.length > 0) { 
-      if ((response.Items[0] as STUDY__DYNAMODB)) {
-        const study = response.Items[0] as STUDY__DYNAMODB
-        const results = study.results as RESULTS__DYNAMODB[] | undefined
+    try {
+      const response = await ddbDocClient.send(command)
 
+
+      if (response.Items && response.Items.length > 0) {
+        if ((response.Items[0] as STUDY__DYNAMODB)) {
+          const study = response.Items[0] as STUDY__DYNAMODB
+          const results = study.results as RESULTS__DYNAMODB[] | undefined
+
+          const userResults = results?.find(result => result.id === userResultsId)
+
+
+          if (userResults) {
+            return NextResponse.json(
+              {
+                message: `Found results for results ID '${
+                  userResults
+                }' and study ID '${studyId}'`,
+                userResults,
+              },
+              {
+                status: 200,
+                headers: {
+                  'Content-Type': 'application/json'
+                }
+              },
+            )
+          } else {
+            return NextResponse.json(
+              { message: `User results with ID '${userResultsId}' was not found` },
+              {
+                status: 200,
+                headers: {
+                  'Content-Type': 'application/json'
+                }
+              },
+            )
+          }
+        } else {
+          /**
+           * @dev This if/else statement is necessary so that the type signature 
+           * of this function is:
+           * 
+           * Promise<NextResponse<{ message: string }> | NextResponse<{ error: any }>>
+           * 
+           * and not:
+           * 
+           * Promise<NextResponse<{ message: string }> | NextResponse<{ error: any }> | undefined> 
+           */
+          return NextResponse.json(
+            { message: `Study with ID '${studyId}' was not found` },
+            {
+              status: 200,
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            },
+          )
+        }
+      } else {
+        return NextResponse.json(
+          { message: `Study with ID '${studyId}' was not found` },
+          {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          },
+        )
+      }
+    } catch (error: any) {
+      const errorMessage = `Failed getting study entry with ID '${studyId
+      }' from the '${
+          TableName
+      }' table`
+
+      console.error(`${errorMessage}: `, error)
+
+      // Something went wrong
+      return NextResponse.json(
+        { error: `${errorMessage}: ${error}` },
+        {
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        },
+      )
+    }
+    // If `studyId` is `undefined`, fetch user's results from the `accounts` 
+    // table.
+  } else {
+    const res = new NextResponse()
+
+    // Auth0
+    const session = await getSession(req, res)
+    const user = session?.user
+
+    if (!user) {
+      const message = `Unauthorized: Auth0 found no 'user' for their session.`
+      return NextResponse.json(
+        { message },
+        {
+          status: 401,
+        }
+      )
+    }
+
+    const email = user.email as string
+
+    if (!email) {
+      return NextResponse.json(
+        { error: `Unauthorized: Auth0 found no email for this user's session!` },
+        {
+          status: 401,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+    }
+
+    const TableName = DYNAMODB_TABLE_NAMES.accounts
+    const KeyConditionExpression: string = 'email = :emailValue'
+    const ExpressionAttributeValues = { ':emailValue': email }
+
+    const input: QueryCommandInput = {
+      TableName,
+      KeyConditionExpression,
+      ExpressionAttributeValues,
+    }
+    const command: QueryCommand = new QueryCommand(input)
+
+    const message = `Found results for account with email '${
+      email
+    }' in the ${TableName} table`
+
+
+    try {
+      const response = await ddbDocClient.send(command)
+
+      if (
+        response.Items &&
+        (response.Items[0] as ACCOUNT__DYNAMODB).email
+      ) {
+        const account = (response.Items[0] as ACCOUNT__DYNAMODB)
+        const results = account.results as RESULTS__DYNAMODB[] | undefined
         const userResults = results?.find(result => result.id === userResultsId)
-
 
         if (userResults) {
           return NextResponse.json(
             {
-              message: 'id exists',
+              message,
               userResults,
             },
             {
@@ -196,7 +341,7 @@ export async function fetchUserResults(
           )
         } else {
           return NextResponse.json(
-            { message: `User results with ID '${userResultsId}' was not found` },
+            { message: `User results for '${email}' with ID '${userResultsId}' was not found` },
             {
               status: 200,
               headers: {
@@ -206,55 +351,38 @@ export async function fetchUserResults(
           )
         }
       } else {
-        /**
-         * @dev This if/else statement is necessary so that the type signature 
-         * of this function is:
-         * 
-         * Promise<NextResponse<{ message: string }> | NextResponse<{ error: any }>>
-         * 
-         * and not:
-         * 
-         * Promise<NextResponse<{ message: string }> | NextResponse<{ error: any }> | undefined> 
-         */
+        const message = `No account found for '${email}' in '${TableName}' table`
+
         return NextResponse.json(
-          { message: `Study with ID '${studyId}' was not found` },
+          { message: message },
           {
-            status: 200,
+            status: 404,
             headers: {
               'Content-Type': 'application/json'
             }
           },
         )
       }
-    } else {
+    } catch (error: any) {
+      console.log(
+        `Error getting account entry for email '${
+          email
+        }' from the '${
+          TableName
+        }' table: `,
+        error
+      )
+
+      // Something went wrong
       return NextResponse.json(
-        { message: `Study with ID '${studyId}' was not found` },
+        { error: error },
         {
-          status: 200,
+          status: 500,
           headers: {
-            'Content-Type': 'application/json'
-          }
-        },
+            'Content-Type': 'application/json',
+          },
+        }
       )
     }
-  } catch (error: any) {
-    const errorMessage = `Failed getting study entry with ID '${
-      studyId
-    }' from the '${
-      TableName
-    }' table`
-
-    console.error(`${errorMessage}: `, error)
-
-    // Something went wrong
-    return NextResponse.json(
-      { error: `${errorMessage}: ${error}` },
-      {
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      },
-    )
   }
 }
