@@ -3,6 +3,7 @@
 // Externals
 // import * as Castle from '@castleio/castle-js'
 import { useLayoutEffect, useState } from 'react'
+// import { usePathname, useRouter } from 'next/navigation'
 import { UserProvider } from '@auth0/nextjs-auth0/client'
 // Locals
 import Header from '@/components/Header'

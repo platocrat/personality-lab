@@ -9,6 +9,7 @@ import {
 
 
 const useAccount = () => {
+  // Customs
   const [
     participant, 
     setParticipant,
@@ -17,10 +18,13 @@ const useAccount = () => {
     userStudies,
     setUserStudies,
   ] = useState<STUDY_SIMPLE__DYNAMODB[] | undefined>(undefined)
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null)
-  const [isFetchingAccount, setIsFetchingAccount] = useState(false)
-  const [acccountError, setAccountError] = useState<string | null>(null)
-  const [isParticipant, setIsParticipant] = useState<boolean | null>(null)
+  // Strings
+  const [acccountError, setAccountError] = useState<string>('')
+  // Booleans
+  const [isAdmin, setIsAdmin] = useState<boolean>(false)
+  const [isParticipant, setIsParticipant] = useState<boolean>(false)
+  const [isFetchingAccount, setIsFetchingAccount] = useState<boolean>(false)
+
 
   const getAccount = useCallback(async () => {
     setIsFetchingAccount(true)
@@ -38,7 +42,7 @@ const useAccount = () => {
       const account: ACCOUNT__DYNAMODB = json.account
 
       console.log(
-        `[${new Date().toLocaleString()}: --filepath="src/hooks/useAccount.ts" --function="fetchAccountStatus()"]: `,
+        `[${new Date().toLocaleString()}: --filepath="src/hooks/useAccount.ts" --function="fetchAccountStatus()"]: account`,
         account
       )
       
@@ -46,6 +50,23 @@ const useAccount = () => {
       const isParticiapnt_ = participant ? true : false
       const isAdmin_ = account.isAdmin
       const studies = participant?.studies as STUDY_SIMPLE__DYNAMODB[] | undefined
+
+      console.log(
+        `[${new Date().toLocaleString()}: --filepath="src/hooks/useAccount.ts" --function="fetchAccountStatus()"]: participant`, 
+        participant
+      )
+      console.log(
+        `[${new Date().toLocaleString()}: --filepath="src/hooks/useAccount.ts" --function="fetchAccountStatus()"]: isParticiapnt_`, 
+        isParticiapnt_
+      )
+      console.log(
+        `[${new Date().toLocaleString()}: --filepath="src/hooks/useAccount.ts" --function="fetchAccountStatus()"]: isAdmin_`, 
+        isAdmin_
+      )
+      console.log(
+        `[${new Date().toLocaleString()}: --filepath="src/hooks/useAccount.ts" --function="fetchAccountStatus()"]: studies`, 
+        studies
+      )
 
       setParticipant(participant)
       setIsParticipant(isParticiapnt_)
@@ -57,6 +78,8 @@ const useAccount = () => {
       setIsFetchingAccount(false)
     }
   }, [])
+
+
 
   return { 
     isAdmin, 

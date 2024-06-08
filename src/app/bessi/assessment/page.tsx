@@ -40,11 +40,22 @@ const BessiAssessment: FC<BessiAssessmentProps> = ({ }) => {
 
   useLayoutEffect(() => {
     if (!isLoading && user && user.email) {
-      getAccount()
+      const requests = [
+        getAccount()
+      ]
 
-      const key = 'currentStudy'
-      const currentStudy = localStorage.getItem(key)
+      Promise.all(requests)
+    } else if (!isLoading && !user) {
+      console.error(
+        `Auth0 couldn't get 'user' from useUser(): `,
+        error
+      )
+    }
+  }, [ isLoading ])
 
+
+  useLayoutEffect(() => {
+    if (!isFetchingAccount) {
       console.log(
         `[${new Date().toLocaleString()}: --filepath="src/app/bessi/assessment/page.tsx" --function="useLayoutEffect()"]: isAdmin: `,
         isAdmin
@@ -60,6 +71,9 @@ const BessiAssessment: FC<BessiAssessmentProps> = ({ }) => {
         isFetchingAccount
       )
 
+      const key = 'currentStudy'
+      const currentStudy = localStorage.getItem(key)
+
       if (isParticipant) {
         if (!currentStudy) {
           router.push('/bessi')
@@ -72,7 +86,7 @@ const BessiAssessment: FC<BessiAssessmentProps> = ({ }) => {
         router.push('/bessi')
       } 
     }
-  }, [ isLoading, router ])
+  }, [ isAdmin, isParticipant, isFetchingAccount ])
 
 
 
