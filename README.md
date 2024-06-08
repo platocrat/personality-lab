@@ -519,6 +519,11 @@ Prerequisites for the `screen` example below:
 
 Follow the this [amazing Medium post](https://medium.com/@thedreamsaver/using-amazon-dynamodb-as-a-custom-database-connection-in-auth0-1ec43b8d4c8c) by a that walks through step-by-step how to set up a Database Connection in Auth0 for DynamoDB, from start to finish.
 
+### Specify DynamoDB table for IAM User
+
+When creating the custom permission policy for the `Auth0DynamoDBUser` IAM User, make sure to copy and paste the ARN of the DynamoDB table of the `accounts` table for the `Resource` under the property of the permissions policy's JSON.
+
+
 ### Database Action Scripts
 
 As a reference, here are the relevant and modifed Database Action Scripts that I made, using the tutorial as a guide:
