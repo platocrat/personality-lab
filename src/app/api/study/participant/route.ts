@@ -60,7 +60,6 @@ export const POST = withApiAuthRequired(async function updateAccountAndStudy(
     const participant_: PARTICIPANT__DYNAMODB = {
       id: participantId,
       email: participant.email,
-      username: participant.username,
       studies: participant.studies,
       timestamp: Date.now(),
     }

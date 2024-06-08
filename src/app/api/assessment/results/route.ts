@@ -53,7 +53,6 @@ export const POST = withApiAuthRequired(async function updateResults(
     const results: RESULTS__DYNAMODB = {
       id: userResultsId,
       email: userResults.email as string,
-      username: userResults.username as string,
       study: userResults.study as STUDY_SIMPLE__DYNAMODB,
       results: userResults.results as BessiUserResults__DynamoDB,
       timestamp: Date.now(),

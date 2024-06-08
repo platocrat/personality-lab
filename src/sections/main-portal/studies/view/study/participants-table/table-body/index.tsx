@@ -35,9 +35,6 @@ const ParticipantsTableBody: FC<ParticipantsTableBodyProps> = ({
                 <p>{ i }</p>
               </td>
               <td style={{ width: isFullWidthTd }}>
-                <p>{ participant.username }</p>
-              </td>
-              <td style={{ width: isFullWidthTd }}>
                 <p>{ participant.email }</p>
               </td>
             </tr>

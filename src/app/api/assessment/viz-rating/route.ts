@@ -51,7 +51,6 @@ export const GET = withApiAuthRequired(async function putUserVizRating(
     const Item: RATINGS__DYNAMODB = {
       id: userVizRatingId,
       email: userVizRating.email as string,
-      username: userVizRating.username as string,
       study: userVizRating.study as STUDY_SIMPLE__DYNAMODB,
       rating: userVizRating.rating as number,
       vizName: userVizRating.vizName as string,
