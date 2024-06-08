@@ -45,6 +45,21 @@ const BessiAssessment: FC<BessiAssessmentProps> = ({ }) => {
       const key = 'currentStudy'
       const currentStudy = localStorage.getItem(key)
 
+      console.log(
+        `[${new Date().toLocaleString()}: --filepath="src/app/bessi/assessment/page.tsx" --function="useLayoutEffect()"]: isAdmin: `,
+        isAdmin
+      )
+
+      console.log(
+        `[${new Date().toLocaleString()}: --filepath="src/app/bessi/assessment/page.tsx" --function="useLayoutEffect()"]: isParticipant: `,
+        isParticipant
+      )
+
+      console.log(
+        `[${new Date().toLocaleString()}: --filepath="src/app/bessi/assessment/page.tsx" --function="useLayoutEffect()"]: isFetchingAccount: `,
+        isFetchingAccount
+      )
+
       if (isParticipant) {
         if (!currentStudy) {
           router.push('/bessi')
