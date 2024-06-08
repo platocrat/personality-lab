@@ -86,26 +86,28 @@ const StudyInvite: FC<StudyInviteProps> = ({
   useLayoutEffect(() => {
     setIsLoadingStudy(true)
 
-    if (
-      isAdmin || 
-      (!isAdmin && isParticipant)
-    ) {
-      router.push('/')
-    } else {
-      if (!id) {
-        /**
-         * @todo Replace the line below by handling the error on the UI here
-         */
-        throw new Error(`Error: 'id' is invalid , see ${id}`)
+    if (!isFetchingAccount) {
+      if (
+        isAdmin || 
+        (!isAdmin && isParticipant)
+      ) {
+        router.push('/')
       } else {
-        const requests = [
-          getStudy()
-        ]
+        if (!id) {
+          /**
+           * @todo Replace the line below by handling the error on the UI here
+           */
+          throw new Error(`Error: 'id' is invalid , see ${id}`)
+        } else {
+          const requests = [
+            getStudy()
+          ]
 
-        Promise.all(requests).then((response: any) => {})
+          Promise.all(requests).then((response: any) => {})
+        }
       }
     }
-  }, [ isFetchingAccount ])
+  }, [ isAdmin, isParticipant ])
 
 
 

@@ -80,24 +80,26 @@ export default function _() {
   }, [ isLoading ])
 
   useLayoutEffect(() => {
-    if (!isAdmin) {
-      if (userStudies) {
-        getStudiesForAssessment()
+    if (!isFetchingAccount) {
+      if (!isAdmin) {
+        if (userStudies) {
+          getStudiesForAssessment()
 
-        const timeout = 300
-    
-        const updateIsGettingStudiesTimeout = setTimeout(() => {
-          setIsGettingStudiesForAssessment(false)
-        }, timeout)
-    
-        return () => {
-          updateIsGettingStudiesTimeout
+          const timeout = 300
+      
+          const updateIsGettingStudiesTimeout = setTimeout(() => {
+            setIsGettingStudiesForAssessment(false)
+          }, timeout)
+      
+          return () => {
+            updateIsGettingStudiesTimeout
+          }
         }
+      } else {
+        setIsGettingStudiesForAssessment(false)
       }
-    } else {
-      setIsGettingStudiesForAssessment(false)
     }
-  }, [ isFetchingAccount ])
+  }, [ isAdmin, userStudies ])
 
 
 
