@@ -80,10 +80,12 @@ const BessiAssessment: FC<BessiAssessmentProps> = ({ }) => {
         } else {
           setIsGettingCurrentStudy(false)
         }
-      } else if (isAdmin) {
-        setIsGettingCurrentStudy(false)
       } else {
-        router.push('/bessi')
+        if (isAdmin) {
+          setIsGettingCurrentStudy(false)
+        } else {
+          router.push('/bessi')
+        }
       } 
     }
   }, [ isAdmin, isParticipant, isFetchingAccount ])
