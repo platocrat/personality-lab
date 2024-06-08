@@ -7,6 +7,7 @@ import {
   useState,
   useEffect,
   useContext,
+  useLayoutEffect,
   } from 'react'
   import html2canvas from 'html2canvas'
   import { useUser } from '@auth0/nextjs-auth0/client'
@@ -73,7 +74,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   rateUserResults
 }) => {
   // Auth0
-  const { user } = useUser()
+  const { user, error, isLoading } = useUser()
   // Contexts
   const {
     bessiSkillScores 
@@ -366,70 +367,74 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
     rating: number, 
     vizName: string
   ) {
-      if (user?.email) {
-        /**
-         * @todo Replace the line below by handling the error on the UI here
-         */
-        throw new Error(`Error getting email from cookie!`)
+    const localStorageItem = localStorage.getItem('currentStudy') as string ?? ''
+    const study = JSON.parse(localStorageItem) as STUDY_SIMPLE__DYNAMODB
+
+    /**
+     * @dev This is the object that we store in DynamoDB using AWS's
+     * `PutItemCommand` operation.
+     */
+    const userVizRating: Omit<RATINGS__DYNAMODB, "id"> = {
+      email: user?.email ?? '',
+      study,
+      rating,
+      vizName,
+      timestamp: 0,
+    }
+
+    try {
+      const response = await fetch('/api/assessment/viz-rating', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userVizRating }),
+      })
+
+      const json = await response.json()
+
+      if (response.status === 200) {
+        const userVizRatingId = json.userVizRatingId
+        return userVizRatingId
       } else {
-        const localStorageItem = localStorage.getItem('currentStudy') as string ?? ''
-        const study = JSON.parse(localStorageItem) as STUDY_SIMPLE__DYNAMODB
+        setIsRating(false)
 
+        const error = `Error posting ${ 'viz rating' } to DynamoDB: `
         /**
-         * @dev This is the object that we store in DynamoDB using AWS's
-         * `PutItemCommand` operation.
+         * @todo Handle error UI here
          */
-        const userVizRating: Omit<RATINGS__DYNAMODB, "id"> = {
-          email: user?.email ?? '',
-          study,
-          rating,
-          vizName,
-          timestamp: 0,
-        }
-
-        try {
-          const response = await fetch('/api/assessment/viz-rating', {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ userVizRating }),
-          })
-
-          const json = await response.json()
-
-          if (response.status === 200) {
-            const userVizRatingId = json.userVizRatingId
-            return userVizRatingId
-          } else {
-            setIsRating(false)
-
-            const error = `Error posting ${ 'viz rating' } to DynamoDB: `
-            /**
-             * @todo Handle error UI here
-             */
-            throw new Error(error, json.error)
-          }
-        } catch (error: any) {
-          setIsRating(false)
-
-          /**
-           * @todo Handle error UI here
-           */
-          throw new Error(`Error! `, error)
-
-        }
+        throw new Error(error, json.error)
       }
+    } catch (error: any) {
+      setIsRating(false)
+
+      /**
+       * @todo Handle error UI here
+       */
+      throw new Error(`Error! `, error)
+
+    }
   }
 
   
   // ---------------------------------- Hooks ----------------------------------
   useClickOutside(modalRef, () => setIsModalVisible(false))
 
-  
   useEffect(() => {
     setIsRating(false)
   }, [ currentVisualization ])
+
+  useLayoutEffect(() => {
+    if (!isLoading && user && user.email) {
+      // Do nothing if Auth0 found the user's email
+    } else if (!isLoading && !user) {
+      // Silently log the error to the browser's console
+      console.error(
+        `Auth0 couldn't get 'user' from useUser(): `,
+        error
+      )
+    }
+  }, [isLoading])
 
 
 

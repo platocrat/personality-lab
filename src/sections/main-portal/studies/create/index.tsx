@@ -139,63 +139,57 @@ const CreateStudy: FC<CreateStudyProps> = ({
 
 
   async function storeStudyInDynamoDB() {
-    if (user?.email) {
-      /**
-       * @todo Replace the line below by handling the error on the UI here
-       */
-      throw new Error(`Error getting email from cookie!`)
-    } else {
-      /**
-       * @dev This is the object that we store in DynamoDB using AWS's 
-       * `PutItemCommand` operation.
-       */
-      const study_: STUDY__DYNAMODB = {
-        ...study,
-        isActive: true,
-        ownerEmail: user?.email ?? '',
-        adminEmails: study ? study.adminEmails : [ '' ],
-      }
-      
-      try {
-        const response = await fetch('/api/study', {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ study: study_ }),
-        })
+    /**
+     * @dev This is the object that we store in DynamoDB using AWS's 
+     * `PutItemCommand` operation.
+     */
+    const study_: STUDY__DYNAMODB = {
+      ...study,
+      isActive: true,
+      ownerEmail: user?.email ?? '',
+      adminEmails: study ? study.adminEmails : [ '' ],
+    }
+    
+    try {
+      const response = await fetch('/api/study', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ study: study_ }),
+      })
 
-        const json = await response.json()
+      const json = await response.json()
 
-        if (response.status === 200) {
-          const studyId = json.studyId
-          return studyId
-        } else {
-          setIsCreatingStudy(false)
-
-          const error = `Error putting study '${study.name}' to DynamoDB: `
-          /**
-           * @todo Handle error UI here
-           */
-          throw new Error(error, json.error)
-        }
-      } catch (error: any) {
+      if (response.status === 200) {
+        const studyId = json.studyId
+        return studyId
+      } else {
         setIsCreatingStudy(false)
 
+        const error = `Error putting study '${study.name}' to DynamoDB: `
         /**
          * @todo Handle error UI here
          */
-        throw new Error(`Error! `, error)
-
+        throw new Error(error, json.error)
       }
+    } catch (error: any) {
+      setIsCreatingStudy(false)
+
+      /**
+       * @todo Handle error UI here
+       */
+      throw new Error(`Error! `, error)
+
     }
   }
 
   
   useLayoutEffect(() => {
     if (!isLoading && user && user.email) {
-
+      // Do nothing if Auth0 found the user's email
     } else if (!isLoading && !user) {
+      // Silently log the error to the browser's console
       console.error(
         `Auth0 couldn't get 'user' from useUser(): `,
         error

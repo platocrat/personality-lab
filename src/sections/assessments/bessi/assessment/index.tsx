@@ -3,7 +3,7 @@
 // Externals
 import { useRouter } from 'next/navigation'
 import { useUser } from '@auth0/nextjs-auth0/client'
-import { FC, Fragment, useContext, useState } from 'react'
+import { FC, Fragment, useContext, useLayoutEffect, useState } from 'react'
 // Locals
 import BessiAssessmentInstructions from './instructions'
 import BessiDemographicQuestionnaire from '../demographic-questionnaire'
@@ -49,7 +49,7 @@ const ASSESSMENT_ID = 'bessi'
 
 const BessiAssessment: FC<BessiProps> = ({ }) => {
   // Auth0
-  const { user } = useUser()
+  const { user, error, isLoading } = useUser()
   // Hooks
   const router = useRouter()
   // Contexts
@@ -186,106 +186,112 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
       currentEmploymentStatus: currentEmploymentStatus,
     }
 
-    if (user?.email) {
-      /**
-       * @todo Replace the line below by handling the error on the UI here
-       */
-      throw new Error(`Error getting email from cookie!`)
-    } else {
-      /**
-       * @dev This is the object that we store in DynamoDB using AWS's 
-       * `PutItemCommand` operation.
-       */
-      const bessiUserResults: BessiUserResults__DynamoDB = {
-        facetScores: finalScores.facetScores,
-        domainScores: finalScores.domainScores,
-        demographics: DEMOGRAPHICS,
-      }
-      
-      const study = getCurrentStudy()
+    /**
+     * @dev This is the object that we store in DynamoDB using AWS's 
+     * `PutItemCommand` operation.
+     */
+    const bessiUserResults: BessiUserResults__DynamoDB = {
+      facetScores: finalScores.facetScores,
+      domainScores: finalScores.domainScores,
+      demographics: DEMOGRAPHICS,
+    }
+    
+    const study = getCurrentStudy()
 
-      /**
-       * @dev This is the object that we store in DynamoDB using AWS's 
-       * `PutItemCommand` operation.
-       */
-      const userResults: Omit<RESULTS__DYNAMODB, "id"> = {
-        email: user?.email ?? '',
-        study,
-        timestamp: 0,
-        results: bessiUserResults
-      }
+    /**
+     * @dev This is the object that we store in DynamoDB using AWS's 
+     * `PutItemCommand` operation.
+     */
+    const userResults: Omit<RESULTS__DYNAMODB, "id"> = {
+      email: user?.email ?? '',
+      study,
+      timestamp: 0,
+      results: bessiUserResults
+    }
 
-      try {
-        const response = await fetch('/api/assessment/results', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ userResults }),
-        })
+    try {
+      const response = await fetch('/api/assessment/results', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userResults }),
+      })
 
-        const json = await response.json()
+      const json = await response.json()
 
-        if (response.status === 200 ) {
-          const userResultsId = json.userResultsId
+      if (response.status === 200 ) {
+        const userResultsId = json.userResultsId
 
-          // 4. Use ID of `userResults` to generate access token
-          const accessToken = await getAccessToken(
-            ASSESSMENT_ID,
-            userResultsId,
-            study.id
-          )
+        // 4. Use ID of `userResults` to generate access token
+        const accessToken = await getAccessToken(
+          ASSESSMENT_ID,
+          userResultsId,
+          study.id
+        )
 
-          // 5. Create new object with final scores and access token to cache 
-          //    on the client so that we can use the access token to share the 
-          //    user's results to others.
-          finalScores= {
-            ...finalScores,
-            id: userResultsId,
-            accessToken: accessToken,
-            studyId: study.id,
-          }
-
-          // 5. Store final scores in React state
-          setBessiSkillScores(finalScores)
-          // 6.  Navigate to the results page
-          const href = `/${ASSESSMENT_ID}/assessment/results`
-
-          /**
-           * @dev Refactor `sendEmail()` function to use SendGrid instead of
-           * Postmark. Reach out to Dr. Roberts to get the API key necessary for
-           * this.
-           */
-          // // 7. Send the users results to their account email address
-          // await sendEmail()
-
-          // 8. Use router to route the user the results page
-          router.push(href)
-          
-          // 9. Reset current study
-          resetCurrentStudy()
-        } else {
-          setIsLoadingResults(false)
-          
-          const error = `Error posting ${ 
-            ASSESSMENT_ID.toUpperCase() 
-          } results to DynamoDB: `
-          /**
-           * @todo Handle error UI here
-           */
-          throw new Error(error, json.error)
+        // 5. Create new object with final scores and access token to cache 
+        //    on the client so that we can use the access token to share the 
+        //    user's results to others.
+        finalScores= {
+          ...finalScores,
+          id: userResultsId,
+          accessToken: accessToken,
+          studyId: study.id,
         }
-      } catch (error: any) {
-        setIsLoadingResults(false)
 
+        // 5. Store final scores in React state
+        setBessiSkillScores(finalScores)
+        // 6.  Navigate to the results page
+        const href = `/${ASSESSMENT_ID}/assessment/results`
+
+        /**
+         * @dev Refactor `sendEmail()` function to use SendGrid instead of
+         * Postmark. Reach out to Dr. Roberts to get the API key necessary for
+         * this.
+         */
+        // // 7. Send the users results to their account email address
+        // await sendEmail()
+
+        // 8. Use router to route the user the results page
+        router.push(href)
+        
+        // 9. Reset current study
+        resetCurrentStudy()
+      } else {
+        setIsLoadingResults(false)
+        
+        const error = `Error posting ${ 
+          ASSESSMENT_ID.toUpperCase() 
+        } results to DynamoDB: `
         /**
          * @todo Handle error UI here
          */
-        throw new Error(`Error! `, error)
-
+        throw new Error(error, json.error)
       }
+    } catch (error: any) {
+      setIsLoadingResults(false)
+
+      /**
+       * @todo Handle error UI here
+       */
+      throw new Error(`Error! `, error)
+
     }
   }
+
+
+  useLayoutEffect(() => {
+    if (!isLoading && user && user.email) {
+      // Do nothing if Auth0 found the user's email
+    } else if (!isLoading && !user) {
+      // Silently log the error to the browser's console
+      console.error(
+        `Auth0 couldn't get 'user' from useUser(): `,
+        error
+      )
+    }
+  }, [isLoading])
 
 
 
