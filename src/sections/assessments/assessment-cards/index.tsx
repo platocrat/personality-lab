@@ -1,4 +1,5 @@
 // Externals
+import { useUser } from '@auth0/nextjs-auth0/client'
 import { FC, useContext, useMemo, Fragment, useLayoutEffect } from 'react'
 // Locals
 // Components
@@ -6,17 +7,14 @@ import Card from '@/components/Card'
 // Sections
 import BessiDescription from '../bessi/description'
 import BigFiveDescription from '../big-five/descriptions/entrance'
-// Contexts
-import { SessionContext } from '@/contexts/SessionContext'
-// Context types
-import { SessionContextType } from '@/contexts/types'
+// Hooks
+import useAccount from '@/hooks/useAccount'
 // Types
 import { PersonalityAssessmentType } from '..'
 // CSS
 import styles from '@/app/page.module.css'
 import { PARTICIPANT__DYNAMODB } from '@/utils'
 import { definitelyCenteredStyle } from '@/theme/styles'
-import useAccount from '@/hooks/useAccount'
 
 
 
@@ -58,7 +56,10 @@ const AssessmentCards: FC<AssessmentCardsProps> = ({
   participant,
   fragmentKey,
 }) => {
-  const { isAdmin, isFetchingAccount, getAccount } = useAccount()
+  // Auth0
+  const { user, error, isLoading } = useUser()
+  // Hooks
+  const { isAdmin, getAccount } = useAccount()
 
   // ----------------------- Memoized constants --------------------------------
   const participantAssessmentIds: string[] = useMemo((): string[] => {
@@ -78,12 +79,14 @@ const AssessmentCards: FC<AssessmentCardsProps> = ({
 
 
   useLayoutEffect(() => {
-    const requests = [
-      getAccount()
-    ]
-
-    Promise.all(requests)
-  }, [ isAdmin, isFetchingAccount ])
+    if (!isLoading && user && user.email) {
+      const requests = [
+        getAccount()
+      ]
+    
+      Promise.all(requests)
+    }
+  }, [ isLoading ])
 
 
 

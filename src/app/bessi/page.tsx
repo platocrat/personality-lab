@@ -27,7 +27,7 @@ export default function _() {
     getAccount,
     userStudies,
     isParticipant, 
-    isFetchingAccount, 
+    // isFetchingAccount,
   } = useAccount()
   // States
   const [
@@ -74,7 +74,7 @@ export default function _() {
 
 
   useLayoutEffect(() => {
-    if (!isLoading) {
+    if (!isLoading && user && user.email) {
       const requests = [
         getAccount(),
         getStudiesForAssessment(),
@@ -92,7 +92,7 @@ export default function _() {
         updateIsGettingStudiesTimeout
       }
     }
-  }, [ isLoading, isParticipant, userStudies, isFetchingAccount, ])
+  }, [ isLoading ])
 
 
 

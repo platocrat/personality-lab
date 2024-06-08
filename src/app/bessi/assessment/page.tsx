@@ -7,6 +7,7 @@ import {
   useLayoutEffect,
   } from 'react'
 import { useRouter } from 'next/navigation'
+import { useUser } from '@auth0/nextjs-auth0/client'
 // Locals
 import Spinner from '@/components/Suspense/Spinner'
 // Sections
@@ -23,6 +24,8 @@ type BessiAssessmentProps = {}
 
 
 const BessiAssessment: FC<BessiAssessmentProps> = ({ }) => {
+  // Auth0
+  const { user, error, isLoading } = useUser()
   // Hooks
   const { 
     isAdmin,
@@ -30,36 +33,37 @@ const BessiAssessment: FC<BessiAssessmentProps> = ({ }) => {
     isParticipant,
     isFetchingAccount,
   } = useAccount()
-  // Hooks
   const router = useRouter()
   // States
   const [ isGettingCurrentStudy, setIsGettingCurrentStudy ] = useState(true)
 
 
   useLayoutEffect(() => {
-    const key = 'currentStudy'
-    const currentStudy = localStorage.getItem(key)
+    if (!isLoading && user && user.email) {
+      const key = 'currentStudy'
+      const currentStudy = localStorage.getItem(key)
 
-    const requests = [
-      getAccount(),
-    ]
+      const requests = [
+        getAccount(),
+      ]
 
-    Promise.all(requests)
-    
-    if (isAdmin) {
-      setIsGettingCurrentStudy(false)
-    } else {
-      if (isParticipant) {
-        if ( !currentStudy) {
-          router.push('/bessi')
-        } else {
-          setIsGettingCurrentStudy(false)
-        }
+      Promise.all(requests)
+
+      if (isAdmin) {
+        setIsGettingCurrentStudy(false)
       } else {
-        router.push('/bessi')
+        if (isParticipant) {
+          if (!currentStudy) {
+            router.push('/bessi')
+          } else {
+            setIsGettingCurrentStudy(false)
+          }
+        } else {
+          router.push('/bessi')
+        }
       }
-    }
-  }, [ isAdmin, isParticipant, router, isFetchingAccount ])
+    } 
+  }, [ isLoading, router ])
 
 
 

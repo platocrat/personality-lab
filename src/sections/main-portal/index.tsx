@@ -95,7 +95,7 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
   const { 
     getAccount,
     isParticipant,
-    isFetchingAccount, 
+    isFetchingAccount,
   } = useAccount()
 
   const TITLE_TEXT = `Welcome, ${user?.name}!`
@@ -123,13 +123,7 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
         error
       )
     }
-  }, [ 
-    user, 
-    error, 
-    isLoading, 
-    isParticipant,
-    isFetchingAccount, 
-  ])
+  }, [ isLoading ])
 
 
 

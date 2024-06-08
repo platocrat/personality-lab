@@ -50,7 +50,6 @@ const PersonalityAssessments = ({ }) => {
     getAccount,
     participant,
     isParticipant,
-    isFetchingAccount,
   } = useAccount()
   // Hooks
   const windowWidth = useWindowWidth()
@@ -67,21 +66,14 @@ const PersonalityAssessments = ({ }) => {
   // ---------------------------- Async functions ------------------------------
   // ---------------------------- `useLayoutEffect`s ---------------------------
   useLayoutEffect(() => {
-    if (isLoading) {
+    if (!isLoading && user && user.email) {
       const requests = [
         getAccount(),
       ]
   
       Promise.all(requests)
     }
-  }, [ 
-    user,
-    isAdmin,
-    isLoading,
-    participant,
-    isParticipant,
-    isFetchingAccount
-  ])
+  }, [ isLoading ])
 
 
 
