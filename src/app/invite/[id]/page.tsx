@@ -2,15 +2,13 @@
 
 // Externals
 import { useRouter } from 'next/navigation'
-import { FC, useContext, useLayoutEffect, useState } from 'react'
+import { FC, useLayoutEffect, useState } from 'react'
 // Locals
 import StudyInviteSection from '@/sections/invite'
 // Components
 import Spinner from '@/components/Suspense/Spinner'
-// Contexts
-import { SessionContext } from '@/contexts/SessionContext'
-// Context types
-import { SessionContextType } from '@/contexts/types'
+// Hooks
+import useAccount from '@/hooks/useAccount'
 // Utils
 import { STUDY__DYNAMODB } from '@/utils'
 // CSS
@@ -34,8 +32,10 @@ const StudyInvite: FC<StudyInviteProps> = ({
   // Contexts
   const { 
     isAdmin, 
-    isParticipant 
-  } = useContext<SessionContextType>(SessionContext)
+    getAccount,
+    isParticipant,
+    isFetchingAccount,
+  } = useAccount()
   // Hooks
   const router = useRouter()
   // States
@@ -84,13 +84,14 @@ const StudyInvite: FC<StudyInviteProps> = ({
         throw new Error(`Error: 'id' is invalid , see ${id}`)
       } else {
         const requests = [
+          getAccount(),
           getStudy()
         ]
 
         Promise.all(requests).then((response: any) => {})
       }
     }
-  }, [ isAdmin, isParticipant, id, ])
+  }, [ isAdmin, isParticipant, id, isFetchingAccount ])
 
 
 

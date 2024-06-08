@@ -1,5 +1,5 @@
 // Externals
-import { FC, useContext, useMemo, Fragment } from 'react'
+import { FC, useContext, useMemo, Fragment, useLayoutEffect } from 'react'
 // Locals
 // Components
 import Card from '@/components/Card'
@@ -16,11 +16,12 @@ import { PersonalityAssessmentType } from '..'
 import styles from '@/app/page.module.css'
 import { PARTICIPANT__DYNAMODB } from '@/utils'
 import { definitelyCenteredStyle } from '@/theme/styles'
+import useAccount from '@/hooks/useAccount'
 
 
 
 type AssessmentCardsProps = {
-  participant: PARTICIPANT__DYNAMODB | null
+  participant: PARTICIPANT__DYNAMODB | undefined
   fragmentKey: (pa: PersonalityAssessmentType, i: number) => string
 }
 
@@ -57,7 +58,7 @@ const AssessmentCards: FC<AssessmentCardsProps> = ({
   participant,
   fragmentKey,
 }) => {
-  const { isAdmin } = useContext<SessionContextType>(SessionContext)
+  const { isAdmin, isFetchingAccount, getAccount } = useAccount()
 
   // ----------------------- Memoized constants --------------------------------
   const participantAssessmentIds: string[] = useMemo((): string[] => {
@@ -74,6 +75,16 @@ const AssessmentCards: FC<AssessmentCardsProps> = ({
 
 
   const PAs = isAdmin ? pAssessments : PPAs
+
+
+  useLayoutEffect(() => {
+    const requests = [
+      getAccount()
+    ]
+
+    Promise.all(requests)
+  }, [ isAdmin, isFetchingAccount ])
+
 
 
 

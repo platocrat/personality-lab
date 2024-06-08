@@ -7,30 +7,28 @@ import {
   useState,
   useEffect,
   useContext,
-} from 'react'
-import html2canvas from 'html2canvas'
-// Locals
-// Sections
+  } from 'react'
+  import html2canvas from 'html2canvas'
+  import { useUser } from '@auth0/nextjs-auth0/client'
+  // Locals
+  // Sections
 import TitleDropdown from './title-dropdown'
 import UserVisualization from './user-visualization'
 // Components
-import RidgelinePlot, { 
-  RidgelinePlotDataType
-} from '@/components/DataViz/Ridgeline'
-import MultipleNormalDistributions, { 
-  MultipleNormalDistributionDataType 
-} from '@/components/DataViz/Distributions/Normal/MultipleNormal'
+import RadialBarChart from '@/components/DataViz/BarChart/Radial'
 import DemoRidgelinePlot from '@/components/DataViz/DemoRidgeline'
-import { 
+import BarChartPerDomain from '@/components/DataViz/BarChart/PerDomain'
+import {
+  RIDGELINE_DEMO_DOMAIN_DATA,
   RIDGELINE_DEMO_FACET_DATA,
-  RIDGELINE_DEMO_DOMAIN_DATA, 
 } from '@/components/DataViz/DemoRidgeline/data'
+import MultipleNormalDistributions, {
+  MultipleNormalDistributionDataType
+} from '@/components/DataViz/Distributions/Normal/MultipleNormal'
 import Title from '@/components/DataViz/Title'
 import TreeMap from '@/components/DataViz/TreeMap'
 import StellarPlot from '@/components/DataViz/StellarPlot'
 import ShareResults from '@/components/DataViz/ShareResults'
-import RadialBarChart from '@/components/DataViz/BarChart/Radial'
-import BarChartPerDomain from '@/components/DataViz/BarChart/PerDomain'
 import BessiRateUserResults from '@/components/Forms/BESSI/RateUserResults'
 import PersonalityVisualization from '@/components/DataViz/PersonalityVisualization'
 import ResultsVisualizationModal from '@/components/Modals/BESSI/ResultsVisualization'
@@ -38,23 +36,20 @@ import SingleNormalDistributionChart from '@/components/DataViz/Distributions/No
 // Hooks
 import useClickOutside from '@/hooks/useClickOutside'
 // Contexts
-import { SessionContext } from '@/contexts/SessionContext'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // Context Types
 import {
-  SessionContextType,
-  BessiSkillScoresContextType, 
+  BessiSkillScoresContextType
 } from '@/contexts/types'
 // Utils
 import {
   transformData,
-  calculateStats,
   FacetFactorType,
   RATINGS__DYNAMODB,
   dummyUserBessiScores,
-  BarChartInputDataType,
-  getRandomValueInRange,
   SkillDomainFactorType,
+  getRandomValueInRange,
+  BarChartInputDataType,
   BarChartTargetDataType,
   STUDY_SIMPLE__DYNAMODB,
   getDummyPopulationBessiScores,
@@ -77,10 +72,9 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   isExample,
   rateUserResults
 }) => {
+  // Auth0
+  const { user } = useUser()
   // Contexts
-  const {
-    email,
-  } = useContext<SessionContextType>(SessionContext)
   const {
     bessiSkillScores 
   } = useContext<BessiSkillScoresContextType>(BessiSkillScoresContext)
@@ -372,7 +366,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
     rating: number, 
     vizName: string
   ) {
-      if (email === undefined) {
+      if (user?.email) {
         /**
          * @todo Replace the line below by handling the error on the UI here
          */
@@ -386,7 +380,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
          * `PutItemCommand` operation.
          */
         const userVizRating: Omit<RATINGS__DYNAMODB, "id"> = {
-          email,
+          email: user?.email ?? '',
           study,
           rating,
           vizName,

@@ -6,7 +6,6 @@ import {
   useMemo,
   useState,
   Fragment,
-  useContext,
   useLayoutEffect,
 } from 'react'
 // Locals
@@ -15,11 +14,6 @@ import ParticipantsTable from './participants-table'
 // Components
 import LeftHandNav from '@/components/Nav/LeftHand'
 import Spinner from '@/components/Suspense/Spinner'
-// Contexts
-import { SessionContext } from '@/contexts/SessionContext'
-// Context types
-import { SessionContextType } from '@/contexts/types'
-// Hooks
 // Utils
 import {
   STUDY__DYNAMODB,
@@ -30,8 +24,8 @@ import {
 } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
-import pageStyles from '@/sections/main-portal/studies/view/study/ViewStudy.module.css'
 import viewStudiesStyles from '@/sections/main-portal/studies/view/ViewStudies.module.css'
+import pageStyles from '@/sections/main-portal/studies/view/study/ViewStudy.module.css'
 
 
 
@@ -47,10 +41,6 @@ type ViewStudySectionProps = {
 const ViewStudySection: FC<ViewStudySectionProps> = ({
   study
 }) => {
-  // Contexts
-  const { 
-    email,
-  } = useContext<SessionContextType>(SessionContext)
   // States
   // Strings
   const [inviteUrl, setInviteUrl] = useState<string>('')

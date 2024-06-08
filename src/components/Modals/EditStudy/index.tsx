@@ -1,19 +1,18 @@
 // Externals
 import {
   FC,
+  useRef,
   useState,
   Dispatch,
-  SetStateAction,
-  useContext,
-  useRef,
   useEffect,
+  useContext,
+  SetStateAction,
 } from 'react'
 // Locals
 import Spinner from '@/components/Suspense/Spinner'
 // Contexts
-import { SessionContext } from '@/contexts/SessionContext'
+import { EditStudyModalContextType } from '@/contexts/types'
 import { EditStudyModalContext } from '@/contexts/EditStudyModalContext'
-import { EditStudyModalContextType, SessionContextType } from '@/contexts/types'
 // Utils
 import { STUDY__DYNAMODB } from '@/utils'
 // CSS
@@ -47,9 +46,6 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
   const {
     setShowEditStudyModal
   } = useContext<EditStudyModalContextType>(EditStudyModalContext)
-  const { 
-    email
-  } = useContext<SessionContextType>(SessionContext)
   // States
   const [
     description,

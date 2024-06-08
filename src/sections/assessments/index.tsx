@@ -8,13 +8,12 @@ import {
   useContext,
   useLayoutEffect,
 } from 'react'
+import { useUser } from '@auth0/nextjs-auth0/client'
 // Locals
 // Sections
 import AssessmentCards from './assessment-cards'
-// Contexts
-import { SessionContext } from '@/contexts/SessionContext'
-// Context types
-import { SessionContextType } from '@/contexts/types'
+// Hooks
+import useAccount from '@/hooks/useAccount'
 // Hooks
 import useWindowWidth from '@/hooks/useWindowWidth'
 // Utils
@@ -43,23 +42,18 @@ const title = `Assessments`
 
 
 const PersonalityAssessments = ({ }) => {
+  // Auth0 
+  const { user, error, isLoading } = useUser()
   // Contexts
   const { 
-    email,
     isAdmin,
+    getAccount,
+    participant,
     isParticipant,
-  } = useContext<SessionContextType>(SessionContext)
+    isFetchingAccount,
+  } = useAccount()
   // Hooks
   const windowWidth = useWindowWidth()
-  // States
-  const [ 
-    isGettingParticipant, 
-    setIsGettingParticipant
-  ] = useState<boolean>(false)
-  const [ 
-    participant, 
-    setParticipant 
-  ] = useState<PARTICIPANT__DYNAMODB | null>(null)
 
 
   // ------------------------- Regular functions -------------------------------
@@ -71,46 +65,23 @@ const PersonalityAssessments = ({ }) => {
 
 
   // ---------------------------- Async functions ------------------------------
-  /**
-   * @dev Request account entry from `accounts` table which has a `participant`
-   *      property.
-   */
-  async function getParticipant() {
-    setIsGettingParticipant(true)
-
-    try {
-      const response = await fetch(`/api/account?email=${ email }`, { method: 'GET' })
-
-      const json = await response.json()
-
-      if (response.status === 404) throw new Error(json.error)
-      if (response.status === 400) throw new Error(json.error)
-      if (response.status === 405) throw new Error(json.error)
-      if (response.status === 500) throw new Error(json.error)
-
-      if (response.status === 200) {
-        const account: ACCOUNT__DYNAMODB = json.account
-        const participant_ = account?.participant ?? null
-        
-        setParticipant(participant_)
-        setIsGettingParticipant(false)
-      }
-    } catch (error: any) {
-      setIsGettingParticipant(false)
-      throw new Error(error)
-    }
-  }
-
   // ---------------------------- `useLayoutEffect`s ---------------------------
   useLayoutEffect(() => {
-    if (email) {
+    if (isLoading) {
       const requests = [
-        getParticipant(),
+        getAccount(),
       ]
   
       Promise.all(requests)
     }
-  }, [ email, isAdmin, isParticipant ])
+  }, [ 
+    user,
+    isAdmin,
+    isLoading,
+    participant,
+    isParticipant,
+    isFetchingAccount
+  ])
 
 
 

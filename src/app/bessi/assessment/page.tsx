@@ -5,17 +5,14 @@ import {
   FC,
   useState,
   useLayoutEffect,
-  useContext,
-} from 'react'
+  } from 'react'
 import { useRouter } from 'next/navigation'
 // Locals
 import Spinner from '@/components/Suspense/Spinner'
 // Sections
 import BessiAssessmentSection from '@/sections/assessments/bessi/assessment'
-// Contexts
-import { SessionContext } from '@/contexts/SessionContext'
-// Context types
-import { SessionContextType } from '@/contexts/types'
+// Hooks
+import useAccount from '@/hooks/useAccount'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -26,11 +23,13 @@ type BessiAssessmentProps = {}
 
 
 const BessiAssessment: FC<BessiAssessmentProps> = ({ }) => {
-  // Contexts
+  // Hooks
   const { 
     isAdmin,
-    isParticipant
-  } = useContext<SessionContextType>(SessionContext)
+    getAccount,
+    isParticipant,
+    isFetchingAccount,
+  } = useAccount()
   // Hooks
   const router = useRouter()
   // States
@@ -40,6 +39,12 @@ const BessiAssessment: FC<BessiAssessmentProps> = ({ }) => {
   useLayoutEffect(() => {
     const key = 'currentStudy'
     const currentStudy = localStorage.getItem(key)
+
+    const requests = [
+      getAccount(),
+    ]
+
+    Promise.all(requests)
     
     if (isAdmin) {
       setIsGettingCurrentStudy(false)
@@ -54,7 +59,7 @@ const BessiAssessment: FC<BessiAssessmentProps> = ({ }) => {
         router.push('/bessi')
       }
     }
-  }, [])
+  }, [ isAdmin, isParticipant, router, isFetchingAccount ])
 
 
 

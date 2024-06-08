@@ -1,15 +1,14 @@
 'use client'
 
 // Externals
-import { Fragment, useContext, useLayoutEffect, useState } from 'react'
+import { useUser } from '@auth0/nextjs-auth0/client'
+import { Fragment, useLayoutEffect, useState } from 'react'
 // Locals
 import Spinner from '@/components/Suspense/Spinner'
 // Sections
 import Bessi from '@/sections/assessments/bessi'
-// Contexts
-import { SessionContextType } from '@/contexts/types'
-// Context Types
-import { SessionContext } from '@/contexts/SessionContext'
+// Hooks
+import useAccount from '@/hooks/useAccount'
 // Utils
 import { STUDY_SIMPLE__DYNAMODB } from '@/utils'
 // CSS
@@ -21,11 +20,15 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 export default function _() {
-  // Contexts
-  const {
+  // Auth0
+  const { user, error, isLoading } = useUser()
+  // Hooks
+  const { 
+    getAccount,
     userStudies,
-    isParticipant,
-  } = useContext<SessionContextType>(SessionContext)
+    isParticipant, 
+    isFetchingAccount, 
+  } = useAccount()
   // States
   const [
     studiesForAssessment,
@@ -71,18 +74,25 @@ export default function _() {
 
 
   useLayoutEffect(() => {
-    getStudiesForAssessment()
+    if (!isLoading) {
+      const requests = [
+        getAccount(),
+        getStudiesForAssessment(),
+      ]
 
-    const timeout = 300
-
-    const updateIsGettingStudiesTimeout = setTimeout(() => {
-      setIsGettingStudiesForAssessment(false)
-    }, timeout)
-
-    return () => {
-      updateIsGettingStudiesTimeout
+      Promise.all(requests)
+  
+      const timeout = 300
+  
+      const updateIsGettingStudiesTimeout = setTimeout(() => {
+        setIsGettingStudiesForAssessment(false)
+      }, timeout)
+  
+      return () => {
+        updateIsGettingStudiesTimeout
+      }
     }
-  }, [ userStudies ])
+  }, [ isLoading, isParticipant, userStudies, isFetchingAccount, ])
 
 
 

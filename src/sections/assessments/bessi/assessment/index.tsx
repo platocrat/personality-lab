@@ -2,6 +2,7 @@
 
 // Externals
 import { useRouter } from 'next/navigation'
+import { useUser } from '@auth0/nextjs-auth0/client'
 import { FC, Fragment, useContext, useState } from 'react'
 // Locals
 import BessiAssessmentInstructions from './instructions'
@@ -11,11 +12,9 @@ import FormButton from '@/components/Buttons/Form'
 import Spinner from '@/components/Suspense/Spinner'
 import Questionnaire from '@/components/Questionnaire'
 // Contexts
-import { SessionContext } from '@/contexts/SessionContext'
-import { UserDemographicsContext } from '@/contexts/UserDemographicsContext'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
+import { UserDemographicsContext } from '@/contexts/UserDemographicsContext'
 // Context types 
-import { SessionContextType } from '@/contexts/types'
 // Utilities
 import {
   getFacet,
@@ -28,8 +27,8 @@ import {
   SkillDomainFactorType,
   STUDY_SIMPLE__DYNAMODB,
   getSkillDomainAndWeight,
-  BessiUserResults__DynamoDB,
   wellnessRatingDescriptions,
+  BessiUserResults__DynamoDB,
   BessiUserDemographics__DynamoDB,
 } from '@/utils'
 // CSS
@@ -49,12 +48,11 @@ const ASSESSMENT_ID = 'bessi'
 
 
 const BessiAssessment: FC<BessiProps> = ({ }) => {
+  // Auth0
+  const { user } = useUser()
   // Hooks
   const router = useRouter()
   // Contexts
-  const { 
-    email,
-  } = useContext<SessionContextType>(SessionContext)
   const { setBessiSkillScores } = useContext(BessiSkillScoresContext)
   const { 
     // State variables
@@ -188,7 +186,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
       currentEmploymentStatus: currentEmploymentStatus,
     }
 
-    if (email === undefined) {
+    if (user?.email) {
       /**
        * @todo Replace the line below by handling the error on the UI here
        */
@@ -211,7 +209,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
        * `PutItemCommand` operation.
        */
       const userResults: Omit<RESULTS__DYNAMODB, "id"> = {
-        email,
+        email: user?.email ?? '',
         study,
         timestamp: 0,
         results: bessiUserResults
