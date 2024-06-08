@@ -68,7 +68,7 @@ const BessiAssessment: FC<BessiAssessmentProps> = ({ }) => {
         }
       }
     }
-  }, [ isAdmin, isParticipant, router ])
+  }, [ isAdmin, isParticipant, router, isFetchingAccount ])
 
 
 

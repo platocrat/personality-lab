@@ -107,7 +107,7 @@ const StudyInvite: FC<StudyInviteProps> = ({
         }
       }
     }
-  }, [ isAdmin, isParticipant ])
+  }, [ isAdmin, isParticipant, isFetchingAccount ])
 
 
 

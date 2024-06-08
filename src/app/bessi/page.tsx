@@ -99,7 +99,7 @@ export default function _() {
         setIsGettingStudiesForAssessment(false)
       }
     }
-  }, [ isAdmin, userStudies ])
+  }, [ isAdmin, userStudies, isFetchingAccount ])
 
 
 
