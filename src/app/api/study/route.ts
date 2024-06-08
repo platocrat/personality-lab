@@ -1,24 +1,24 @@
 // Externals
 import {
   PutCommand,
-  QueryCommand,
   ScanCommand,
-  UpdateCommand,
+  QueryCommand,
   DeleteCommand,
   PutCommandInput,
   ScanCommandInput,
   QueryCommandInput,
   DeleteCommandInput,
-} from '@aws-sdk/lib-dynamodb'
-import { cookies } from 'next/headers'
-import { NextRequest, NextResponse } from 'next/server'
+  } from '@aws-sdk/lib-dynamodb'
+  import { cookies } from 'next/headers'
+  import { NextRequest, NextResponse } from 'next/server'
+  import { getSession, withApiAuthRequired } from '@auth0/nextjs-auth0'
 // Locals
 import {
-  hasJWT,
   getEntryId,
   ddbDocClient,
   STUDY__DYNAMODB,
   DYNAMODB_TABLE_NAMES,
+  hasJWT,
 } from '@/utils'
 
 
@@ -106,14 +106,27 @@ export async function PUT(
  * @param res 
  * @returns 
  */
-export async function GET(
-  req: NextRequest,
-  res: NextResponse,
+export const GET = withApiAuthRequired(async function getStudy(
+  req: NextRequest
 ) {
   if (req.method === 'GET') {
-    hasJWT(cookies)
+    const res = new NextResponse()
 
-    const adminEmail = req.nextUrl.searchParams.get('adminEmail')
+    // Auth0
+    const session = await getSession(req, res)
+    const user = session?.user
+
+    if (!user) {
+      const message = `Unauthorized: Auth0 found no 'user' for their session.`
+      return NextResponse.json(
+        { message },
+        {
+          status: 401,
+        }
+      )
+    }
+
+    const adminEmail = user.email as string
 
     // 1.0 Handle the case where adminEmail exists
     if (adminEmail) {
@@ -129,9 +142,11 @@ export async function GET(
         command: ScanCommand | QueryCommand = new ScanCommand(input)
 
 
-      const successMessage = `Scanned the '${TableName
-        }' table and retrieved all studies for '${adminEmail
-        }'`
+      const successMessage = `Scanned the '${
+        TableName
+      }' table and retrieved all studies for '${
+        adminEmail
+      }'`
 
 
       try {
@@ -154,9 +169,11 @@ export async function GET(
           command = new QueryCommand(input)
 
 
-          const successMessage = `Fetched all studies from the '${TableName
-            }' table for the owner email '${adminEmail
-            }'`
+          const successMessage = `Fetched all studies from the '${
+            TableName
+          }' table for the owner email '${
+            adminEmail
+          }'`
 
 
           try {
@@ -316,7 +333,7 @@ export async function GET(
       },
     )
   }
-}
+})
 
 
 
@@ -405,14 +422,41 @@ export async function DELETE(
 /**
  * @dev POST: Update an existing study using DynamoDB's `UpdateCommand`
  */
-export async function POST(
-  req: NextRequest,
-  res: NextResponse,
+export const POST = withApiAuthRequired(async function updateStudy(
+  req: NextRequest
 ) {
   if (req.method === 'POST') {
-    hasJWT(cookies)
+    const res = new NextResponse()
 
-    const { study, email } = await req.json()
+    // Auth0
+    const session = await getSession(req, res)
+    const user = session?.user
+
+    if (!user) {
+      const message = `Unauthorized: Auth0 found no 'user' for their session.`
+      return NextResponse.json(
+        { message },
+        {
+          status: 401,
+        }
+      )
+    }
+
+    const email = user.email as string
+
+    if (!email) {
+      return NextResponse.json(
+        { error: `Unauthorized: Auth0 found no email for this user's session!` },
+        {
+          status: 401,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+    }
+
+    const { study } = await req.json()
 
     const study_ = study as STUDY__DYNAMODB
     const isOwnerOrAdmin = email === study_.ownerEmail || 
@@ -483,4 +527,4 @@ export async function POST(
       },
     )
   }
-}
+})

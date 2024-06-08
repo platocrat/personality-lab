@@ -95,7 +95,7 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
   const [ isParticipant, setIsParticipant ] = useState(false)
   const [ isGettingParticipant, setIsGettingParticipant ] = useState(false)
 
-  const TITLE_TEXT = `Welcome, ${user?.email}!`
+  const TITLE_TEXT = `Welcome, ${user?.name}!`
   const SUBTITLE_TEXT = `Based on the studies you have registered for, listed below are the assessments that you may take.`
 
 
@@ -142,8 +142,6 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
   }
 
 
-
-  
   useLayoutEffect(() => {
     resetCurrentStudy()
 
@@ -155,8 +153,8 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
       Promise.all(requests)
     } else if (!isLoading && !user) {
       console.error(
-        `Unable to get 'user' using 'useUser()'. Here is what Auth0 returned for 'user': `, 
-        user
+        `Auth0 couldn't get 'user' from useUser(): `, 
+        error
       )
     }
   }, [ isLoading ])

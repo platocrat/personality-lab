@@ -11,16 +11,14 @@ import {
   useLayoutEffect,
   SetStateAction,
 } from 'react'
+import { useUser } from '@auth0/nextjs-auth0/client'
 // Locals
 import StudiesTable from './table'
 // Components
 import Spinner from '@/components/Suspense/Spinner'
 import EditStudyModal from '@/components/Modals/EditStudy'
 // Contexts
-import { SessionContext } from '@/contexts/SessionContext'
 import { EditStudyModalContext } from '@/contexts/EditStudyModalContext'
-// Context types
-import { SessionContextType } from '@/contexts/types'
 // Hooks
 import useClickOutside from '@/hooks/useClickOutside'
 // Utils
@@ -45,7 +43,7 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
   // Refs
   const editStudyModalRef = useRef<any>(null)
   // Contexts
-  const { email } = useContext<SessionContextType>(SessionContext)
+  const { user, error, isLoading } = useUser()
   // States
   const [ 
     isLoadingStudies, 
@@ -82,9 +80,8 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
     setIsLoadingStudies(true)
 
     try {
-      const response = await fetch(`/api/study?adminEmail=${ email }`, {
-        method: 'GET',
-      })
+      const apiEndpoint = `/api/study`
+      const response = await fetch(apiEndpoint, { method: 'GET' })
 
       const json = await response.json()
 
@@ -110,12 +107,19 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
 
   // ----------------------------- `useLayoutEffect`s --------------------------
   useLayoutEffect(() => {
-    const requests = [
-      getStudies(),
-    ]
-
-    Promise.all(requests)
-  }, [ email, isStudyDeleted ])
+    if (!isLoading && user && user.email) {
+      const requests = [
+        getStudies(),
+      ]
+    
+      Promise.all(requests)
+    } else if (!isLoading && !user) {
+      console.error(
+        `Auth0 couldn't get 'user' from useUser(): `,
+        error
+      )
+    }
+  }, [ isLoading, isStudyDeleted ])
 
 
 
@@ -153,8 +157,7 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
                 whiteSpace: 'nowrap',
               }}
             >
-              { studies 
-                ? (
+              { studies ? (
                   <>
                     <StudiesTable 
                       studies={ studies }

@@ -2,16 +2,15 @@
 
 import {
   FC,
-  useContext,
+  useLayoutEffect,
   useState,
 } from 'react'
+import { useUser } from '@auth0/nextjs-auth0/client'
 import { usePathname, useRouter } from 'next/navigation'
 // Locals
-import CreateStudyForm from './form'
-// Contexts
-import { SessionContext } from '@/contexts/SessionContext'
-// Context types
-import { SessionContextType } from '@/contexts/types'
+import Spinner from '@/components/Suspense/Spinner'
+// Sections
+import CreateStudyForm from '@/sections/main-portal/studies/create/form'
 // Utils
 import {
   STUDY__DYNAMODB,
@@ -33,10 +32,7 @@ const CreateStudy: FC<CreateStudyProps> = ({
 
 }) => {
   // Contexts
-  const {
-    email,
-    username,
-  } = useContext<SessionContextType>(SessionContext)
+  const { user, error, isLoading } = useUser()
   // Hooks
   const router = useRouter()
   const pathname = usePathname()
@@ -66,11 +62,9 @@ const CreateStudy: FC<CreateStudyProps> = ({
   const [ isCreatingStudy, setIsCreatingStudy ] = useState<boolean>(false)
 
 
-
   // ---------------------------- Regular functions ----------------------------
   const handleChange = (e: any) => {
     const { name, value, type, checked } = e.target
-
 
     if (name === 'assessmentId') {
       setStudy((prevData) => ({
@@ -145,7 +139,7 @@ const CreateStudy: FC<CreateStudyProps> = ({
 
 
   async function storeStudyInDynamoDB() {
-    if (email === undefined) {
+    if (user?.email) {
       /**
        * @todo Replace the line below by handling the error on the UI here
        */
@@ -158,7 +152,7 @@ const CreateStudy: FC<CreateStudyProps> = ({
       const study_: STUDY__DYNAMODB = {
         ...study,
         isActive: true,
-        ownerEmail: email,
+        ownerEmail: user?.email ?? '',
         adminEmails: study ? study.adminEmails : [ '' ],
       }
       
@@ -197,62 +191,90 @@ const CreateStudy: FC<CreateStudyProps> = ({
     }
   }
 
+  
+  useLayoutEffect(() => {
+    if (!isLoading && user && user.email) {
+
+    } else if (!isLoading && !user) {
+      console.error(
+        `Auth0 couldn't get 'user' from useUser(): `,
+        error
+      )
+    }
+  }, [ isLoading ])
+
 
 
 
 
   return (
     <>
-      <div className={ sectionStyles['form-container'] }>
-        {/* Display invite link */ }
-        { inviteLink ? (
-          <>
-            <div style={ { ...definitelyCenteredStyle, marginBottom: '24px' } }>
-              <h3>{ `Your study was created!` }</h3>
-            </div>
+      { isLoading ? (
+        <>
+          <div
+            style={ {
+              ...definitelyCenteredStyle,
+              position: 'relative',
+              top: '80px',
+            } }
+          >
+            <Spinner height='40' width='40' />
+          </div>
+        </>
+      ) : (
+        <>  
+          <div className={ sectionStyles['form-container'] }>
+            {/* Display invite link */ }
+            { inviteLink ? (
+              <>
+                <div style={ { ...definitelyCenteredStyle, marginBottom: '24px' } }>
+                  <h3>{ `Your study was created!` }</h3>
+                </div>
 
-            <div>
-              <p style={{ marginBottom: '8px' }}>
-                { `Here's your invite link:` }
-              </p>
-              <input
-                type='text'
-                value={ inviteLink }
-                readOnly
-                onClick={ (e) => {
-                  e.preventDefault()
-                  e.currentTarget.select()
-                } }
-              />
-            </div>
-          </>
-        ) : (
-          <>
-            <div style={ { ...definitelyCenteredStyle, marginBottom: '12px' } }>
-              <h3>{ `Create a new study` }</h3>
-            </div>
+                <div>
+                  <p style={ { marginBottom: '8px' } }>
+                    { `Here's your invite link:` }
+                  </p>
+                  <input
+                    type='text'
+                    value={ inviteLink }
+                    readOnly
+                    onClick={ (e) => {
+                      e.preventDefault()
+                      e.currentTarget.select()
+                    } }
+                  />
+                </div>
+              </>
+            ) : (
+              <>
+                <div style={ { ...definitelyCenteredStyle, marginBottom: '12px' } }>
+                  <h3>{ `Create a new study` }</h3>
+                </div>
 
-            <CreateStudyForm
-              study={ study }
-              onSubmit={ handleCreateStudy }
-              states={ {
-                newAdminEmail,
-                isCreatingStudy,
-                newStudyCreated,
-                invalidEmailMessage,
-              } }
-              onClickHandlers={ {
-                addAdminEmail,
-                removeAdminEmail
-              } }
-              onChangeHandlers={ {
-                handleChange,
-                handleAdminEmailChange,
-              } }
-            />
-          </>
-        )}
-      </div>
+                <CreateStudyForm
+                  study={ study }
+                  onSubmit={ handleCreateStudy }
+                  states={ {
+                    newAdminEmail,
+                    isCreatingStudy,
+                    newStudyCreated,
+                    invalidEmailMessage,
+                  } }
+                  onClickHandlers={ {
+                    addAdminEmail,
+                    removeAdminEmail
+                  } }
+                  onChangeHandlers={ {
+                    handleChange,
+                    handleAdminEmailChange,
+                  } }
+                />
+              </>
+            ) }
+          </div>
+        </>
+      )}
     </>
   )
 }

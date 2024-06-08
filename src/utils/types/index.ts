@@ -63,7 +63,7 @@ export type HASHED_PASSWORD__DYNAMODB = {
 export type ACCOUNT__DYNAMODB = {
   email: string // Partition/Primary Key
   createdAtTimestamp: number // Sort Key
-  username: string
+  hasVerifiedEmail: boolean // Auth0
   isAdmin: boolean
   password: HASHED_PASSWORD__DYNAMODB
   participant?: PARTICIPANT__DYNAMODB // `undefined` for a non-participant account
@@ -74,7 +74,7 @@ export type ACCOUNT__DYNAMODB = {
 export type PARTICIPANT__DYNAMODB = {
   id: string
   email: string
-  username: string
+  username?: string
   studies: STUDY_SIMPLE__DYNAMODB[]
   timestamp: number
 }

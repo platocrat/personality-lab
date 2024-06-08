@@ -1,23 +1,17 @@
 // Externals
 import {
   QueryCommand,
-  UpdateCommand,
-  QueryCommandInput,
-  UpdateCommandInput,
-} from '@aws-sdk/lib-dynamodb'
-import { verify } from 'jsonwebtoken'
-import { cookies } from 'next/headers'
-import { NextRequest, NextResponse } from 'next/server'
-import { getSession, withApiAuthRequired } from '@auth0/nextjs-auth0'
+  QueryCommandInput
+  } from '@aws-sdk/lib-dynamodb'
+  import { NextRequest, NextResponse } from 'next/server'
+  import { getSession, withApiAuthRequired } from '@auth0/nextjs-auth0'
 // Locals
 import {
-  getEntryId,
   ddbDocClient,
-  STUDY__DYNAMODB,
   ACCOUNT__DYNAMODB,
   DYNAMODB_TABLE_NAMES,
-  PARTICIPANT__DYNAMODB,
 } from '@/utils'
+import { randomBytes } from 'crypto'
 
 
 
@@ -27,7 +21,7 @@ import {
  * @param res
  * @returns 
  */
-export const GET = withApiAuthRequired( async function getAccountEntry(
+export const GET = withApiAuthRequired(async function getAccountEntry(
   req: NextRequest
 ) {
   if (req.method === 'GET') {
@@ -47,14 +41,13 @@ export const GET = withApiAuthRequired( async function getAccountEntry(
       )
     }
 
-
-    const email = user.email
+    const email = user.email as string
 
     if (!email) {
       return NextResponse.json(
         { error: `Unauthorized: Auth0 found no email for this user's session!` },
         {
-          status: 400,
+          status: 401,
           headers: {
             'Content-Type': 'application/json',
           },

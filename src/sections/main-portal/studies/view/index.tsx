@@ -10,12 +10,8 @@ import LeftHandNav from '@/components/Nav/LeftHand'
 import styles from '@/sections/main-portal/studies/view/ViewStudies.module.css'
 
 
-
 type ViewStudiesProps = {
-
 }
-
-  
 
 
 const ViewStudies: FC<ViewStudiesProps> = ({

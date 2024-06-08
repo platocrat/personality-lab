@@ -188,29 +188,12 @@ export default function RootLayout({
         <body>
           <ProgressBar>
             <UserProvider>
-              <SessionContext.Provider
-                value={{
-                  email,
-                  isAdmin,
-                  username,
-                  setEmail,
-                  setIsAdmin,
-                  userStudies,
-                  setUsername,
-                  isParticipant,
-                  setUserStudies,
-                  isAuthenticated,
-                  setIsParticipant,
-                  setIsAuthenticated,
-                }}
-              >
-                <UserDemographicsLayout>
-                  <BessiSkillScoresLayout>
-                    <Header/>
-                    { children }
-                  </BessiSkillScoresLayout>
-                </UserDemographicsLayout>
-              </SessionContext.Provider>
+              <UserDemographicsLayout>
+                <BessiSkillScoresLayout>
+                  <Header/>
+                  { children }
+                </BessiSkillScoresLayout>
+              </UserDemographicsLayout>
             </UserProvider>
           </ProgressBar>
         </body>

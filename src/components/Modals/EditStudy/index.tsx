@@ -107,7 +107,7 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ study, email }),
+        body: JSON.stringify({ study }),
       })
 
       const json = await response.json()
