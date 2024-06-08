@@ -24,10 +24,11 @@ export default function _() {
   const { user, error, isLoading } = useUser()
   // Hooks
   const { 
+    isAdmin,
     getAccount,
     userStudies,
     isParticipant, 
-    // isFetchingAccount,
+    isFetchingAccount,
   } = useAccount()
   // States
   const [
@@ -79,20 +80,22 @@ export default function _() {
   }, [ isLoading ])
 
   useLayoutEffect(() => {
-    if (userStudies) {
-      getStudiesForAssessment()
+    if (!isAdmin) {
+      if (userStudies) {
+        getStudiesForAssessment()
 
-      const timeout = 300
-  
-      const updateIsGettingStudiesTimeout = setTimeout(() => {
-        setIsGettingStudiesForAssessment(false)
-      }, timeout)
-  
-      return () => {
-        updateIsGettingStudiesTimeout
+        const timeout = 300
+    
+        const updateIsGettingStudiesTimeout = setTimeout(() => {
+          setIsGettingStudiesForAssessment(false)
+        }, timeout)
+    
+        return () => {
+          updateIsGettingStudiesTimeout
+        }
       }
     }
-  }, [ userStudies ])
+  }, [ isFetchingAccount ])
 
 
 

@@ -2,6 +2,7 @@
 
 // Externals
 import { useRouter } from 'next/navigation'
+import { useUser } from '@auth0/nextjs-auth0/client'
 import { FC, useLayoutEffect, useState } from 'react'
 // Locals
 import StudyInviteSection from '@/sections/invite'
@@ -13,6 +14,7 @@ import useAccount from '@/hooks/useAccount'
 import { STUDY__DYNAMODB } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
+
 
 
 
@@ -29,6 +31,8 @@ const StudyInvite: FC<StudyInviteProps> = ({
 }) => {
   // URL params
   const { id } = params
+  // Auth0
+  const { user, error, isLoading } = useUser()
   // Contexts
   const { 
     isAdmin, 
@@ -69,6 +73,17 @@ const StudyInvite: FC<StudyInviteProps> = ({
 
   // ----------------------------- `useLayoutEffect`s --------------------------
   useLayoutEffect(() => {
+    if (!isLoading && user && user.email) {
+      const requests = [
+        getAccount(),
+      ]
+
+      Promise.all(requests)
+    }
+  }, [ isLoading, router, id ])
+
+
+  useLayoutEffect(() => {
     setIsLoadingStudy(true)
 
     if (
@@ -84,14 +99,13 @@ const StudyInvite: FC<StudyInviteProps> = ({
         throw new Error(`Error: 'id' is invalid , see ${id}`)
       } else {
         const requests = [
-          getAccount(),
           getStudy()
         ]
 
         Promise.all(requests).then((response: any) => {})
       }
     }
-  }, [ isAdmin, isParticipant, id, isFetchingAccount ])
+  }, [ isFetchingAccount ])
 
 
 

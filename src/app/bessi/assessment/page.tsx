@@ -40,30 +40,34 @@ const BessiAssessment: FC<BessiAssessmentProps> = ({ }) => {
 
   useLayoutEffect(() => {
     if (!isLoading && user && user.email) {
-      const key = 'currentStudy'
-      const currentStudy = localStorage.getItem(key)
-
       const requests = [
         getAccount(),
       ]
 
       Promise.all(requests)
-
-      if (isAdmin) {
-        setIsGettingCurrentStudy(false)
-      } else {
-        if (isParticipant) {
-          if (!currentStudy) {
-            router.push('/bessi')
-          } else {
-            setIsGettingCurrentStudy(false)
-          }
-        } else {
-          router.push('/bessi')
-        }
-      }
     } 
   }, [ isLoading, router ])
+
+
+  useLayoutEffect(() => {
+    const key = 'currentStudy'
+    const currentStudy = localStorage.getItem(key)
+
+    if (isAdmin) {
+      setIsGettingCurrentStudy(false)
+    } else {
+      if (isParticipant) {
+        if (!currentStudy) {
+          router.push('/bessi')
+        } else {
+          setIsGettingCurrentStudy(false)
+        }
+      } else {
+        router.push('/bessi')
+      }
+    }
+  }, [ isFetchingAccount, router ])
+
 
 
 
