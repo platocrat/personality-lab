@@ -172,14 +172,7 @@ export const GET = withApiAuthRequired(async function getStudy(
             },
           )
         } else {
-          const studies = (response.Items as STUDY__DYNAMODB[])
-          console.log(
-            `[${new Date().toLocaleString()}: --filepath="src/app/api/study/route.ts" --function="getStudy()"]: studies: `,
-            studies
-          )
-
           const study = (response.Items as STUDY__DYNAMODB[])[0]
-
 
           return NextResponse.json(
             {
@@ -194,7 +187,7 @@ export const GET = withApiAuthRequired(async function getStudy(
           )
         }
       } catch (error: any) {
-        console.log(`Error fetching study ID '${id}': `, error)
+        console.error(`Error fetching study ID '${id}': `, error)
 
         // Something went wrong
         return NextResponse.json(
@@ -225,16 +218,15 @@ export const GET = withApiAuthRequired(async function getStudy(
         command: ScanCommand | QueryCommand = new ScanCommand(input)
 
 
-      const successMessage = `Scanned the '${TableName
-        }' table and retrieved all studies for '${adminEmail
-        }'`
+      const message = `Scanned the '${
+        TableName
+      }' table and retrieved all studies for '${
+        adminEmail
+      }'`
 
 
       try {
         const response = await ddbDocClient.send(command)
-
-        const message = successMessage || 'Operation successful'
-
 
         // 1.1 Search `ownerEmail` for `adminEmail`
         if (response.Items?.length === 0) {
@@ -250,22 +242,22 @@ export const GET = withApiAuthRequired(async function getStudy(
           command = new QueryCommand(input)
 
 
-          const successMessage = `Fetched all studies from the '${TableName
-            }' table for the owner email '${adminEmail
-            }'`
+          const message = `Fetched all studies from the '${
+            TableName
+          }' table for the owner email '${
+            adminEmail
+          }'`
 
 
           try {
             const response = await ddbDocClient.send(command)
 
-
             if (response.Items && response.Items.length > 0) {
               const studies = (response.Items as STUDY__DYNAMODB[])
 
-
               return NextResponse.json(
                 {
-                  message: successMessage,
+                  message,
                   studies,
                 },
                 {
@@ -276,8 +268,9 @@ export const GET = withApiAuthRequired(async function getStudy(
                 }
               )
             } else {
-              const message = `'No studies found for '${adminEmail
-                }' in the ${TableName} table`
+              const message = `'No studies found for '${
+                adminEmail
+              }' in the ${TableName} table`
 
               // Something went wrong
               return NextResponse.json(
@@ -307,10 +300,9 @@ export const GET = withApiAuthRequired(async function getStudy(
           //     `adminEmails` attribute
           const studies = (response.Items as STUDY__DYNAMODB[])
 
-
           return NextResponse.json(
             {
-              message: successMessage,
+              message,
               studies,
             },
             {
@@ -401,8 +393,6 @@ export const DELETE = withApiAuthRequired(async function deleteStudy(
     
     try {
       const response = await ddbDocClient.send(command)
-
-      console.log(`response: `, response)
       
       // Success
       return NextResponse.json(
@@ -415,7 +405,7 @@ export const DELETE = withApiAuthRequired(async function deleteStudy(
         }
       )
     } catch (error: any) {
-      console.log(
+      console.error(
         `Could not delete study ID '${studyId}' from the '${TableName}' table: `,
         error
       )
