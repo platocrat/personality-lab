@@ -25,7 +25,6 @@ export default function _() {
   // Hooks
   const { 
     isAdmin,
-    getAccount,
     userStudies,
     isParticipant, 
     isFetchingAccount,
@@ -72,12 +71,6 @@ export default function _() {
     setStudiesForAssessment(filteredStudies)
   }
 
-
-  useLayoutEffect(() => {
-    if (!isLoading && user && user.email) {
-      getAccount()
-    }
-  }, [ isLoading ])
 
   useLayoutEffect(() => {
     if (!isFetchingAccount) {

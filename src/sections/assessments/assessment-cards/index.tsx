@@ -59,7 +59,7 @@ const AssessmentCards: FC<AssessmentCardsProps> = ({
   // Auth0
   const { user, error, isLoading } = useUser()
   // Hooks
-  const { isAdmin, getAccount } = useAccount()
+  const { isAdmin } = useAccount()
 
   // ----------------------- Memoized constants --------------------------------
   const participantAssessmentIds: string[] = useMemo((): string[] => {
@@ -76,17 +76,6 @@ const AssessmentCards: FC<AssessmentCardsProps> = ({
 
 
   const PAs = isAdmin ? pAssessments : PPAs
-
-
-  useLayoutEffect(() => {
-    if (!isLoading && user && user.email) {
-      const requests = [
-        getAccount()
-      ]
-    
-      Promise.all(requests)
-    }
-  }, [ isLoading ])
 
 
 

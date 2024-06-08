@@ -47,7 +47,6 @@ const PersonalityAssessments = ({ }) => {
   // Contexts
   const { 
     isAdmin,
-    getAccount,
     participant,
     isParticipant,
   } = useAccount()
@@ -61,20 +60,6 @@ const PersonalityAssessments = ({ }) => {
     const fragmentKeySuffix = `${pa.buttonText}-${pa.href}-${pa.title}-${i}`
     return fragmentKeyBasePrefix + fragmentKeySuffix
   }
-
-
-  // ---------------------------- Async functions ------------------------------
-  // ---------------------------- `useLayoutEffect`s ---------------------------
-  useLayoutEffect(() => {
-    if (!isLoading && user && user.email) {
-      const requests = [
-        getAccount(),
-      ]
-  
-      Promise.all(requests)
-    }
-  }, [ isLoading ])
-
 
 
 

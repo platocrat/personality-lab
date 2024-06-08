@@ -1,5 +1,5 @@
 // Externals
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useLayoutEffect } from 'react'
 // Locals
 import { 
   ACCOUNT__DYNAMODB, 
@@ -8,7 +8,17 @@ import {
 } from '@/utils'
 
 
-const useAccount = () => {
+type UseAccountType = {
+  isAdmin: boolean
+  isParticipant: boolean
+  isFetchingAccount: boolean
+  participant: PARTICIPANT__DYNAMODB
+  userStudies: STUDY_SIMPLE__DYNAMODB
+}
+
+
+
+function useAccount() {
   // Customs
   const [
     participant, 
@@ -26,7 +36,7 @@ const useAccount = () => {
   const [isFetchingAccount, setIsFetchingAccount] = useState<boolean>(false)
 
 
-  const getAccount = useCallback(async () => {
+  async function getAccount(): Promise<void> {
     setIsFetchingAccount(true)
 
     try {
@@ -46,44 +56,32 @@ const useAccount = () => {
         account
       )
       
+      const isAdmin_ = account.isAdmin
       const participant = account.participant
       const isParticiapnt_ = participant ? true : false
-      const isAdmin_ = account.isAdmin
       const studies = participant?.studies as STUDY_SIMPLE__DYNAMODB[] | undefined
-
-      console.log(
-        `[${new Date().toLocaleString()}: --filepath="src/hooks/useAccount.ts" --function="fetchAccountStatus()"]: participant`, 
-        participant
-      )
-      console.log(
-        `[${new Date().toLocaleString()}: --filepath="src/hooks/useAccount.ts" --function="fetchAccountStatus()"]: isParticiapnt_`, 
-        isParticiapnt_
-      )
-      console.log(
-        `[${new Date().toLocaleString()}: --filepath="src/hooks/useAccount.ts" --function="fetchAccountStatus()"]: isAdmin_`, 
-        isAdmin_
-      )
-      console.log(
-        `[${new Date().toLocaleString()}: --filepath="src/hooks/useAccount.ts" --function="fetchAccountStatus()"]: studies`, 
-        studies
-      )
 
       setParticipant(participant)
       setIsParticipant(isParticiapnt_)
-      setIsAdmin(isAdmin_)
+      setIsAdmin(account.isAdmin)
       setUserStudies(studies)
     } catch (error: any) {
       setAccountError(error.message)
     } finally {
       setIsFetchingAccount(false)
     }
+  }
+
+  
+  useLayoutEffect(() => {
+    getAccount()
   }, [])
+
 
 
 
   return { 
     isAdmin, 
-    getAccount,
     userStudies, 
     participant,
     isParticipant, 

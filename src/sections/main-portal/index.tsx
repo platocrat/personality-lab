@@ -93,7 +93,6 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
   const { user, error, isLoading, checkSession } = useUser()
   // Hooks
   const { 
-    getAccount,
     isParticipant,
     isFetchingAccount,
   } = useAccount()
@@ -110,20 +109,7 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
 
   useLayoutEffect(() => {
     resetCurrentStudy()
-
-    if (!isLoading && user && user.email) {
-      const requests = [
-        getAccount()
-      ]
-
-      Promise.all(requests)
-    } else if (!isLoading && !user) {
-      console.error(
-        `Auth0 couldn't get 'user' from useUser(): `, 
-        error
-      )
-    }
-  }, [ isLoading ])
+  }, [ ])
 
 
 

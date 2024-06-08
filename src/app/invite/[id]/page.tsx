@@ -36,7 +36,6 @@ const StudyInvite: FC<StudyInviteProps> = ({
   // Contexts
   const { 
     isAdmin, 
-    getAccount,
     isParticipant,
     isFetchingAccount,
   } = useAccount()
@@ -72,17 +71,6 @@ const StudyInvite: FC<StudyInviteProps> = ({
 
 
   // ----------------------------- `useLayoutEffect`s --------------------------
-  useLayoutEffect(() => {
-    if (!isLoading && user && user.email) {
-      const requests = [
-        getAccount(),
-      ]
-
-      Promise.all(requests)
-    }
-  }, [ isLoading, router, id ])
-
-
   useLayoutEffect(() => {
     setIsLoadingStudy(true)
 
