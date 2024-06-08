@@ -1,5 +1,5 @@
 // Externals
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useLayoutEffect } from 'react'
 // Locals
 import { 
   ACCOUNT__DYNAMODB, 
@@ -7,15 +7,6 @@ import {
   STUDY_SIMPLE__DYNAMODB,
 } from '@/utils'
 
-
-type UseAccountType = {
-  isAdmin: boolean
-  accountError: string
-  isParticipant: boolean
-  isFetchingAccount: boolean
-  participant: PARTICIPANT__DYNAMODB
-  userStudies: STUDY_SIMPLE__DYNAMODB
-}
 
 
 
@@ -34,12 +25,10 @@ function useAccount() {
   // Booleans
   const [isAdmin, setIsAdmin] = useState<boolean>(false)
   const [isParticipant, setIsParticipant] = useState<boolean>(false)
-  const [isFetchingAccount, setIsFetchingAccount] = useState<boolean>(false)
+  const [isFetchingAccount, setIsFetchingAccount] = useState<boolean>(true)
 
 
   async function getAccount(): Promise<void> {
-    setIsFetchingAccount(true)
-
     try {
       const apiEndpoint = `/api/account`
       const response = await fetch(apiEndpoint, { method: 'GET' })
@@ -56,11 +45,16 @@ function useAccount() {
         `[${new Date().toLocaleString()}: --filepath="src/hooks/useAccount.ts" --function="fetchAccountStatus()"]: account`,
         account
       )
+      
+      const isAdmin_ = account.isAdmin
+      const participant = account.participant
+      const isParticiapnt_ = participant ? true : false
+      const studies = participant?.studies as STUDY_SIMPLE__DYNAMODB[] | undefined
 
-      setParticipant(account.participant)
-      setIsParticipant(participant ? true : false)
-      setIsAdmin(account.isAdmin)
-      setUserStudies(participant?.studies as STUDY_SIMPLE__DYNAMODB[] | undefined)
+      setParticipant(participant)
+      setIsParticipant(isParticiapnt_)
+      setIsAdmin(isAdmin_)
+      setUserStudies(studies)
     } catch (error: any) {
       setAccountError(error.message)
     } finally {
@@ -69,8 +63,12 @@ function useAccount() {
   }
 
   
-  useEffect(() => {
-    getAccount()
+  useLayoutEffect(() => {
+    const requests = [
+      getAccount(),
+    ]
+
+    Promise.all(requests)
   }, [])
 
 

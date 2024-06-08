@@ -26,7 +26,7 @@ export default function _() {
   const { 
     isAdmin,
     userStudies,
-    isParticipant, 
+    isParticipant,
     isFetchingAccount,
   } = useAccount()
   // States
