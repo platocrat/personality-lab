@@ -4,15 +4,10 @@ import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb'
 // Locals
 import { 
   REGION,
-  CREDENTIALS,
-} from '../constants/'
+} from '@/utils'
 
 const HOURS = 2
 
-// const ddbClient = new DynamoDBClient({ region: REGION })
-const ddbClient = new DynamoDBClient({ 
-  region: REGION,
-  credentials: CREDENTIALS
-})
+const ddbClient = new DynamoDBClient({ region: REGION })
 
 export const ddbDocClient = DynamoDBDocumentClient.from(ddbClient)
