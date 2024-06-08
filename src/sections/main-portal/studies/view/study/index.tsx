@@ -24,8 +24,8 @@ import {
 } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
-import viewStudiesStyles from '@/sections/main-portal/studies/view/ViewStudies.module.css'
 import pageStyles from '@/sections/main-portal/studies/view/study/ViewStudy.module.css'
+import viewStudiesStyles from '@/sections/main-portal/studies/view/ViewStudies.module.css'
 
 
 
@@ -67,7 +67,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
 
   // ------------------------- Memoized constants ------------------------------
   const showPageNav = useMemo((): boolean => {
-    return !!results
+    return results !== null && results !== undefined
   }, [ participants ])
 
   // -------------------------- Async functions functions ------------------------------
