@@ -39,6 +39,21 @@ const BessiAssessment: FC<BessiAssessmentProps> = ({ }) => {
 
   useLayoutEffect(() => {
     if (!isFetchingAccount) {
+      console.log(
+        `[${new Date().toLocaleString()}: --filepath="src/app/bessi/assessment/page.tsx" --function="useLayoutEffect()"]: isAdmin: `,
+        isAdmin
+      )
+
+      console.log(
+        `[${new Date().toLocaleString()}: --filepath="src/app/bessi/assessment/page.tsx" --function="useLayoutEffect()"]: isParticipant: `,
+        isParticipant
+      )
+
+      console.log(
+        `[${new Date().toLocaleString()}: --filepath="src/app/bessi/assessment/page.tsx" --function="useLayoutEffect()"]: isFetchingAccount: `,
+        isFetchingAccount
+      )
+
       const key = 'currentStudy'
       const currentStudy = localStorage.getItem(key)
 

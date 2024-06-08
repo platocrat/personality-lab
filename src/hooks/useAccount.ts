@@ -1,5 +1,5 @@
 // Externals
-import { useState, useCallback, useLayoutEffect } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 // Locals
 import { 
   ACCOUNT__DYNAMODB, 
@@ -10,6 +10,7 @@ import {
 
 type UseAccountType = {
   isAdmin: boolean
+  accountError: string
   isParticipant: boolean
   isFetchingAccount: boolean
   participant: PARTICIPANT__DYNAMODB
@@ -29,7 +30,7 @@ function useAccount() {
     setUserStudies,
   ] = useState<STUDY_SIMPLE__DYNAMODB[] | undefined>(undefined)
   // Strings
-  const [acccountError, setAccountError] = useState<string>('')
+  const [accountError, setAccountError] = useState<string>('')
   // Booleans
   const [isAdmin, setIsAdmin] = useState<boolean>(false)
   const [isParticipant, setIsParticipant] = useState<boolean>(false)
@@ -55,16 +56,11 @@ function useAccount() {
         `[${new Date().toLocaleString()}: --filepath="src/hooks/useAccount.ts" --function="fetchAccountStatus()"]: account`,
         account
       )
-      
-      const isAdmin_ = account.isAdmin
-      const participant = account.participant
-      const isParticiapnt_ = participant ? true : false
-      const studies = participant?.studies as STUDY_SIMPLE__DYNAMODB[] | undefined
 
-      setParticipant(participant)
-      setIsParticipant(isParticiapnt_)
+      setParticipant(account.participant)
+      setIsParticipant(participant ? true : false)
       setIsAdmin(account.isAdmin)
-      setUserStudies(studies)
+      setUserStudies(participant?.studies as STUDY_SIMPLE__DYNAMODB[] | undefined)
     } catch (error: any) {
       setAccountError(error.message)
     } finally {
@@ -73,7 +69,7 @@ function useAccount() {
   }
 
   
-  useLayoutEffect(() => {
+  useEffect(() => {
     getAccount()
   }, [])
 
@@ -84,6 +80,7 @@ function useAccount() {
     isAdmin, 
     userStudies, 
     participant,
+    accountError,
     isParticipant, 
     isFetchingAccount, 
   }
