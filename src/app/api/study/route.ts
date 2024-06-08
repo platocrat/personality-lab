@@ -136,11 +136,83 @@ export const GET = withApiAuthRequired(async function getStudy(
         }
       )
     }
+    
+    const id = req.nextUrl.searchParams.get('id')
 
-    const adminEmail = user.email as string
+    // 1.0 Handle the case where `id` exists
+    if (id) {
+      const TableName = DYNAMODB_TABLE_NAMES.studies
+      const IndexName = 'id-index'
+      const KeyConditionExpression = 'id = :idValue'
+      const ExpressionAttributeValues = { ':idValue': id }
 
-    // 1.0 Handle the case where adminEmail exists
-    if (adminEmail) {
+      const input: QueryCommandInput = {
+        TableName,
+        IndexName,
+        KeyConditionExpression,
+        ExpressionAttributeValues,
+      }
+
+      const command: QueryCommand = new QueryCommand(input)
+
+
+      try {
+        const response = await ddbDocClient.send(command)
+
+        if (!(response.Items as STUDY__DYNAMODB[])) {
+          const message = `No ID found in ${TableName} table`
+
+          return NextResponse.json(
+            { message: message },
+            {
+              status: 404,
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            },
+          )
+        } else {
+          const studies = (response.Items as STUDY__DYNAMODB[])
+          console.log(
+            `[${new Date().toLocaleString()}: --filepath="src/app/api/study/route.ts" --function="getStudy()"]: studies: `,
+            studies
+          )
+
+          const study = (response.Items as STUDY__DYNAMODB[])[0]
+
+
+          return NextResponse.json(
+            {
+              study,
+            },
+            {
+              status: 200,
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            }
+          )
+        }
+      } catch (error: any) {
+        console.log(`Error fetching study ID '${id}': `, error)
+
+        // Something went wrong
+        return NextResponse.json(
+          { error: `Error fetching study ID '${id}': ${error.message}` },
+          {
+            status: 500,
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          },
+        )
+      }
+
+    // 2.0 Handle the case where `adminEmail` does not exist and `id` is used 
+    //     as a GSI
+    } else {
+      const adminEmail = user.email as string
+
       const TableName = DYNAMODB_TABLE_NAMES.studies
       const FilterExpression = 'contains(adminEmails, :email)'
 
@@ -153,11 +225,9 @@ export const GET = withApiAuthRequired(async function getStudy(
         command: ScanCommand | QueryCommand = new ScanCommand(input)
 
 
-      const successMessage = `Scanned the '${
-        TableName
-      }' table and retrieved all studies for '${
-        adminEmail
-      }'`
+      const successMessage = `Scanned the '${TableName
+        }' table and retrieved all studies for '${adminEmail
+        }'`
 
 
       try {
@@ -180,11 +250,9 @@ export const GET = withApiAuthRequired(async function getStudy(
           command = new QueryCommand(input)
 
 
-          const successMessage = `Fetched all studies from the '${
-            TableName
-          }' table for the owner email '${
-            adminEmail
-          }'`
+          const successMessage = `Fetched all studies from the '${TableName
+            }' table for the owner email '${adminEmail
+            }'`
 
 
           try {
@@ -208,9 +276,8 @@ export const GET = withApiAuthRequired(async function getStudy(
                 }
               )
             } else {
-              const message = `'No studies found for '${
-                adminEmail
-              }' in the ${TableName} table`
+              const message = `'No studies found for '${adminEmail
+                }' in the ${TableName} table`
 
               // Something went wrong
               return NextResponse.json(
@@ -264,82 +331,6 @@ export const GET = withApiAuthRequired(async function getStudy(
               'Content-Type': 'application/json',
             },
           }
-        )
-      }
-    // 2.0 Handle the case where `adminEmail` does not exist and `id` is used 
-    //     as a GSI
-    } else {
-      const id = req.nextUrl.searchParams.get('id')
-
-      console.log(
-        `[${new Date().toLocaleString()}: --filepath="src/app/api/study/route.ts" --function="getStudy()"]: id: `,
-        id
-      )
-
-      const TableName = DYNAMODB_TABLE_NAMES.studies
-      const IndexName = 'id-index'
-      const KeyConditionExpression = 'id = :idValue'
-      const ExpressionAttributeValues = { ':idValue': id }
-
-      const input: QueryCommandInput = { 
-        TableName, 
-        IndexName,
-        KeyConditionExpression,
-        ExpressionAttributeValues,
-      }
-
-      const command: QueryCommand = new QueryCommand(input)
-
-
-      try {
-        const response = await ddbDocClient.send(command)
-
-        if (!(response.Items as STUDY__DYNAMODB[])) {
-          const message = `No ID found in ${TableName} table`
-
-          return NextResponse.json(
-            { message: message },
-            {
-              status: 404,
-              headers: {
-                'Content-Type': 'application/json'
-              }
-            },
-          )
-        } else {
-          const studies = (response.Items as STUDY__DYNAMODB[])
-          console.log(
-            `[${new Date().toLocaleString()}: --filepath="src/app/api/study/route.ts" --function="getStudy()"]: studies: `,
-            studies
-          )
-
-          const study = (response.Items as STUDY__DYNAMODB[])[0]
-
-
-          return NextResponse.json(
-            { 
-              study,
-            },
-            {
-              status: 200,
-              headers: {
-                'Content-Type': 'application/json'
-              }
-            }
-          )
-        }
-      } catch (error: any) {
-        console.log(`Error fetching study ID '${id}': `, error)
-
-        // Something went wrong
-        return NextResponse.json(
-          { error: `Error fetching study ID '${id}': ${error.message}` },
-          {
-            status: 500,
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          },
         )
       }
     }

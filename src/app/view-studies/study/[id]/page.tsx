@@ -36,11 +36,6 @@ const ViewStudy: FC<ViewStudyProps> = ({
 
   // --------------------------- Async functions -------------------------------
   async function getStudy() {
-    console.log(
-      `[${new Date().toLocaleString()}: --filepath="src/app/view-studies/study/[id]/page.tsx" --function="getStudy()"]: id: `,
-      id
-    )
-
     try {
       const response = await fetch(`/api/study?id=${ id }`, {
         method: 'GET',
@@ -68,11 +63,6 @@ const ViewStudy: FC<ViewStudyProps> = ({
     } else {
       if (!isLoading && user && user.email) {
         setIsLoadingStudy(true)
-        
-        console.log(
-          `[${new Date().toLocaleString()}: --filepath="src/app/view-studies/study/[id]/page.tsx" --function="useLayoutEffect()"]: id: `,
-          id
-        )
 
         const requests = [
           getStudy()
