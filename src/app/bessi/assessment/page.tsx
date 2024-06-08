@@ -50,25 +50,36 @@ const BessiAssessment: FC<BessiAssessmentProps> = ({ }) => {
 
 
   useLayoutEffect(() => {
-    if (!isFetchingAccount) {
-      const key = 'currentStudy'
-      const currentStudy = localStorage.getItem(key)
+    const key = 'currentStudy'
+    const currentStudy = localStorage.getItem(key)
 
-      if (isAdmin) {
-        setIsGettingCurrentStudy(false)
+    console.log(
+      `[${new Date().toLocaleString()}: --filepath="src/app/bessi/assessment/page.tsx" --function="useLayoutEffect()"]: isAdmin: `, 
+      isAdmin
+    )
+    
+    console.log(
+      `[${new Date().toLocaleString()}: --filepath="src/app/bessi/assessment/page.tsx" --function="useLayoutEffect()"]: isParticipant: `, 
+      isParticipant
+    )
+    
+    console.log(
+      `[${new Date().toLocaleString()}: --filepath="src/app/bessi/assessment/page.tsx" --function="useLayoutEffect()"]: isFetchingAccount: `, 
+      isFetchingAccount
+    )
+
+    if (isParticipant) {
+      if (!currentStudy) {
+        router.push('/bessi')
       } else {
-        if (isParticipant) {
-          if (!currentStudy) {
-            router.push('/bessi')
-          } else {
-            setIsGettingCurrentStudy(false)
-          }
-        } else {
-          router.push('/bessi')
-        }
+        setIsGettingCurrentStudy(false)
       }
-    }
-  }, [ isAdmin, isParticipant, router, isFetchingAccount ])
+    } else if (isAdmin) {
+      setIsGettingCurrentStudy(false)
+    } else {
+      router.push('/bessi')
+    } 
+  }, [ isAdmin, isParticipant, router ])
 
 
 

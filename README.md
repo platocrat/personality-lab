@@ -902,3 +902,43 @@ function deleteUser(email, callback) {
   });
 }
 ```
+
+## Docker containers
+
+### Enter a Docker container's shell
+
+Sometimes you may want to work within a Docker container.
+To do that, you will want to access you access the Docker container's shell by running the following commands:
+
+  1. Start the Docker container in detached mode (assumes your app is running on port 3000):
+
+      ```zsh
+      sudo docker run -d -it -p 3000:3000 <IMAGE_ID>
+      ```
+
+  2. Get the newly running container's ID:
+
+      ```zsh
+      sudo docker ps
+      ```
+
+      Copy the ID value to use in the next step.
+
+  3. Step inside of the container's shell:
+
+      ```zsh
+      sudo docker exec -it <CONTAINER_ID> /bin/sh
+      ```
+
+      Then make your changes within the container.
+      Make sure to restart any services or apps within the container.
+
+      ```zsh
+      sudo docker container stop <CONTAINER_ID>
+      ```
+
+      Then restart the container normally without the detached-mode, `-d`, flag.
+
+For example, when working inside of an AWS EC2 instance and running your containers within it, instead of waiting for time-consuming CI/CD builds to complete, you may just want to debug your code within the container itself by stepping inside of it and making the necessary changes.
+
+Stepping inside of a Docker container's shell and making quick changes to debug your container may help to speed up your workflow.
