@@ -46,6 +46,11 @@ const ViewStudy: FC<ViewStudyProps> = ({
       if (response.status === 500) throw new Error(json.error)
       if (response.status === 405) throw new Error(json.error)
 
+      console.log(
+        `[${ new Date().toLocaleString() }: --filepath="src/app/view-studies/study/[id]/page.tsx" --function="getStudy()"]: json.study: `, 
+        json.study
+      )
+
       setStudy(json.study)
     } catch (error: any) {
       throw new Error(error.message)

@@ -3,8 +3,6 @@ import { FC, useContext } from 'react'
 // Locals
 // Components
 import ProgressBarLink from '@/components/Progress/ProgressBarLink'
-// Sections
-import study from '@/sections/main-portal/studies/view/study'
 // Utils
 import { STUDY__DYNAMODB } from '@/utils'
 // CSS
