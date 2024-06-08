@@ -59,7 +59,6 @@ export default function RootLayout({
 
   // State variables for `SessionType`
   const [ email, setEmail ] = useState<string>('')
-  const [ username, setUsername ] = useState<string>('')
   const [ isAdmin, setIsAdmin ] = useState<boolean>(false)
   const [ isParticipant, setIsParticipant ] = useState<boolean>(false)
   const [ userStudies, setUserStudies ] = useState<STUDY_SIMPLE__DYNAMODB[]>([])

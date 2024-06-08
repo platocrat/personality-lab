@@ -1,15 +1,14 @@
 'use client'
 
+import Image from 'next/image'
 import {
   FC,
-  useRef,
   useMemo,
   useState,
   Fragment,
   useContext,
   useLayoutEffect,
 } from 'react'
-import Image from 'next/image'
 // Locals
 import StudyHeader from './header'
 import ParticipantsTable from './participants-table'
@@ -21,10 +20,8 @@ import { SessionContext } from '@/contexts/SessionContext'
 // Context types
 import { SessionContextType } from '@/contexts/types'
 // Hooks
-import useClickOutside from '@/hooks/useClickOutside'
 // Utils
 import {
-  ParticipantType,
   STUDY__DYNAMODB,
   RESULTS__DYNAMODB,
   PARTICIPANT__DYNAMODB,
@@ -32,7 +29,6 @@ import {
   BessiUserResults__DynamoDB,
 } from '@/utils'
 // CSS
-import appStyles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
 import pageStyles from '@/sections/main-portal/studies/view/study/ViewStudy.module.css'
 import viewStudiesStyles from '@/sections/main-portal/studies/view/ViewStudies.module.css'
@@ -54,22 +50,12 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
   // Contexts
   const { 
     email,
-    username,
   } = useContext<SessionContextType>(SessionContext)
-  // Refs
-  const viewResultsModalRef = useRef<any>(null)
-  const downloadDataModalRef = useRef<any>(null)
-  const createParticipantModalRef = useRef<any>(null)
   // States
   // Strings
   const [inviteUrl, setInviteUrl] = useState<string>('')
   const [participantEmail, setParticipantEmail] = useState<string>('')
-  const [participantUsername, setParticipantUsername] = useState<string>('')
   // Booleans
-  const [
-    isCreatingParticipant,
-    setIsCreatingParticipant
-  ] = useState(false)
   const [
     isWaitingForResponse,
     setIsWaitingForResponse
@@ -85,10 +71,6 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
     participants,
     setParticipants
   ] = useState<PARTICIPANT__DYNAMODB[] | null>(null)
-  const [
-    selectedParticipant,
-    setSelectedParticipant
-  ] = useState<ParticipantType | null>(null)
   const [ results, setResults ] = useState<RESULTS__DYNAMODB[] | null>(null)
 
 
@@ -107,11 +89,6 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
   }
 
   // ~~~~~~ Input handlers ~~~~~~
-  function onUsernameChange(e: any) {
-    const { value } = e.target
-    setParticipantUsername(value)
-  }
-
   function onEmailChange(e: any) {
     const { value } = e.target
     setParticipantEmail(value)

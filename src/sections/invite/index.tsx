@@ -58,7 +58,6 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
   ] = useState<string>('')
   const [ participantId, setParticipantId ] = useState<string>('')
   const [ participantEmail, setParticipantEmail ] = useState<string>('')
-  const [ participantUsername, setParticipantUsername ] = useState<string>('')
 
 
   const studyAssessmentName = AVAILABLE_ASSESSMENTS.find((
@@ -236,9 +235,7 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
                   onSubmit={ handleOnRegisterForAssessment }
                   state={{
                     participantEmail,
-                    participantUsername,
                     setParticipantEmail,
-                    setParticipantUsername,
                   }}
                 />
               </>

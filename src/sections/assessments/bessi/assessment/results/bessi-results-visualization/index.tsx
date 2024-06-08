@@ -80,7 +80,6 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   // Contexts
   const {
     email,
-    username,
   } = useContext<SessionContextType>(SessionContext)
   const {
     bessiSkillScores 
@@ -388,7 +387,6 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
          */
         const userVizRating: Omit<RATINGS__DYNAMODB, "id"> = {
           email,
-          username,
           study,
           rating,
           vizName,

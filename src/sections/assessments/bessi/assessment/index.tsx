@@ -54,7 +54,6 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
   // Contexts
   const { 
     email,
-    username,
   } = useContext<SessionContextType>(SessionContext)
   const { setBessiSkillScores } = useContext(BessiSkillScoresContext)
   const { 
