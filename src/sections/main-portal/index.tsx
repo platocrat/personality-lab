@@ -123,7 +123,7 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
               style={{
                 ...definitelyCenteredStyle,
                 position: 'relative',
-                top: '80px',
+                top: '100px',
               }}
             >
               <Spinner height='40' width='40' />

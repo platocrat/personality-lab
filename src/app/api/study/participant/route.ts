@@ -5,7 +5,6 @@ import {
   QueryCommandInput,
   UpdateCommandInput,
   } from '@aws-sdk/lib-dynamodb'
-import { getSession, withApiAuthRequired } from '@auth0/nextjs-auth0'
 import { NextRequest, NextResponse } from 'next/server'
 // Locals
 import {
@@ -30,26 +29,10 @@ import {
  * @param res
  * @returns 
  */
-export const POST = withApiAuthRequired(async function updateAccountAndStudy(
+export async function POST(
   req: NextRequest
 ): Promise<any> {
   if (req.method === 'POST') {
-    const res = new NextResponse()
-
-    // Auth0
-    const session = await getSession(req, res)
-    const user = session?.user
-
-    if (!user) {
-      const message = `Unauthorized: Auth0 found no 'user' for their session.`
-      return NextResponse.json(
-        { message },
-        {
-          status: 401,
-        }
-      )
-    }
-
     const { participant, studyId } = await req.json()
 
     /**
@@ -582,4 +565,4 @@ export const POST = withApiAuthRequired(async function updateAccountAndStudy(
       },
     )
   }
-})
+}

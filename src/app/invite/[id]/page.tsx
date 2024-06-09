@@ -42,14 +42,14 @@ const StudyInvite: FC<StudyInviteProps> = ({
   // Hooks
   const router = useRouter()
   // States
-  const [isLoadingStudy, setIsLoadingStudy] = useState(false)
+  const [isLoadingStudy, setIsLoadingStudy] = useState(true)
   const [study, setStudy] = useState<STUDY__DYNAMODB | null>(null)
 
 
   // --------------------------- Async functions -------------------------------
   async function getStudy() {
     try {
-      const response = await fetch(`/api/study?id=${id}`, {
+      const response = await fetch(`/api/invite?id=${id}`, {
         method: 'GET',
       })
 
@@ -72,8 +72,6 @@ const StudyInvite: FC<StudyInviteProps> = ({
 
   // ----------------------------- `useLayoutEffect`s --------------------------
   useLayoutEffect(() => {
-    setIsLoadingStudy(true)
-
     if (!isFetchingAccount) {
       if (
         isAdmin || 
@@ -87,6 +85,7 @@ const StudyInvite: FC<StudyInviteProps> = ({
            */
           throw new Error(`Error: 'id' is invalid , see ${id}`)
         } else {
+          console.log(`Unregistered user detected! Fetching study for ID '${id}'...`)
           const requests = [
             getStudy()
           ]
@@ -108,7 +107,7 @@ const StudyInvite: FC<StudyInviteProps> = ({
             style={{
               ...definitelyCenteredStyle,
               position: 'relative',
-              top: !isAdmin && !isParticipant ? '80px' : '',
+              top: !isAdmin && !isParticipant ? '100px' : '',
             }}
           >
             <Spinner height='40' width='40' />

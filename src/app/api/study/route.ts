@@ -112,17 +112,17 @@ export const PUT = withApiAuthRequired(async function putStudy(
 
 
 /**
- * @dev GET all studies for the `adminEmail` or get a single study by ID
+ * @dev GET all studies for the `adminEmail` or get a single study by `id`
  * @param req 
  * @param res 
  * @returns 
  */
 export const GET = withApiAuthRequired(async function getStudy(
   req: NextRequest
-) {
+) { 
   if (req.method === 'GET') {
     const res = new NextResponse()
-
+    
     // Auth0
     const session = await getSession(req, res)
     const user = session?.user
@@ -136,7 +136,7 @@ export const GET = withApiAuthRequired(async function getStudy(
         }
       )
     }
-    
+
     const id = req.nextUrl.searchParams.get('id')
 
     // 1.0 Handle the case where `id` exists
