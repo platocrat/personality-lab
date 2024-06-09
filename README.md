@@ -100,16 +100,34 @@ Then fill in the parameters environment variables with the appropriate values:
 
         4. For cloud-development, make sure to add the `NEXT_PUBLIC_SHARE_RESULTS_ENCRYPTION_KEY` and `NEXT_PUBLIC_SHARE_RESULTS_ENCRYPTION_IV` variables as GitHub Secrets to the GitHub repository.
 
-```env
-# use [openssl rand -hex 32] to generate a 32 bytes value
-AUTH0_SECRET=''
-AUTH0_BASE_URL=''
-AUTH0_ISSUER_BASE_URL=''
-AUTH0_CLIENT_ID=''
-AUTH0_CLIENT_SECRET=''
-NEXT_PUBLIC_SHARE_RESULTS_ENCRYPTION_KEY=''
-NEXT_PUBLIC_SHARE_RESULTS_ENCRYPTION_IV=''
+### AWS Credentials
+
+Get AWS credentials your `AWS access portal`. They look something like the following:
+
+```zsh
+[ROLE_NAME]
+aws_access_key_id=ASIA4ID7IBTSMB46LGC4
+aws_secret_access_key=6Mu1cPzUz+9yGP12dUBo7HsdVi89bea39YfWUblj
+aws_session_token=IQoJb3JpZ2luX2VjEJn//////////wEaCXVzLWVhc3QtMSJIMEYCIQDQoeNwakI4MRGcm110T8pff5htfppKbf7fqUdPMX5e/AIhAIVrV4QclSkNQaajoZklUTX8nNwb2o5auK5mgJV6OVSvKucCCDEQABoMODQyMDgwNDU1OTA4Igwt7f5xGprEfuSyfAwqxALhwKJY/KDqMjaau6Zx4AlpWLIS2rU1vNHg8ADUKI+Lchw2S574eIH7bab2HrtIZIwDRKbOL1ykGeDLkDOvwYiOW4SsnBgLMOcqhmz8ORrgIpQE+NQZkCIezVUaQs8uOTK0jah6Q48Apwc3LRFx5s0hEzr+dV2Vlnyt/qHHskD9SSeGfCFmhTxhyKZdlAiLjRvuMe6D9Aue+vHQadoY4xC3Zx0GtVFeTJZkMPOsaUxKz3WEjZTBIhPO0EoKtafIM5EyfH4TM079XD+69x39BcdMlprLE/AWfeUGdTOzwTUZE5yRMHBrGavUsoqcO/5wP3PF3nfSQWxdYXP64pJniehxp6nFk6vlJmJfi5RzaPdUR1dBYtIc4ex7sT+klLX4qOVA/8Yx5UBiEk1NN49e31yu663303lVj7G/EPbeTdMN4pRnk3kwr6WXswY6pgGxGMrDyA5QxW2yUaDR4nStfNRojzocfeLhvTbxDztGfRU/QtI0p7qPDig3FCetgvrcYFDiFPwQ9iddtaDb418y7mjKMHHYenVSaHY55Iz4rfozMAuHf6jqWMAlBrqMYObP7WDQpSAiFogDAeconLw5Ti/DsS/S9bRF1lhXsckayfPsX6jUOrh0iiDQIxQLqTALgCCXSPUszfUVOhD8PFYq6nRH8loP
 ```
+
+Copy and paste these values to [`src/utils/aws/constants/index.ts`](./src/utils/aws/constants//index.ts) as shown in the example below:
+
+```ts
+const credentials_ = {
+  aws_access_key_id: `ASIA4ID7IBTSMB46LGC4`,
+  aws_secret_access_key: `6Mu1cPzUz+9yGP12dUBo7HsdVi89bea39YfWUblj`,
+  aws_session_token: `IQoJb3JpZ2luX2VjEJn//////////wEaCXVzLWVhc3QtMSJIMEYCIQDQoeNwakI4MRGcm110T8pff5htfppKbf7fqUdPMX5e/AIhAIVrV4QclSkNQaajoZklUTX8nNwb2o5auK5mgJV6OVSvKucCCDEQABoMODQyMDgwNDU1OTA4Igwt7f5xGprEfuSyfAwqxALhwKJY/KDqMjaau6Zx4AlpWLIS2rU1vNHg8ADUKI+Lchw2S574eIH7bab2HrtIZIwDRKbOL1ykGeDLkDOvwYiOW4SsnBgLMOcqhmz8ORrgIpQE+NQZkCIezVUaQs8uOTK0jah6Q48Apwc3LRFx5s0hEzr+dV2Vlnyt/qHHskD9SSeGfCFmhTxhyKZdlAiLjRvuMe6D9Aue+vHQadoY4xC3Zx0GtVFeTJZkMPOsaUxKz3WEjZTBIhPO0EoKtafIM5EyfH4TM079XD+69x39BcdMlprLE/AWfeUGdTOzwTUZE5yRMHBrGavUsoqcO/5wP3PF3nfSQWxdYXP64pJniehxp6nFk6vlJmJfi5RzaPdUR1dBYtIc4ex7sT+klLX4qOVA/8Yx5UBiEk1NN49e31yu663303lVj7G/EPbeTdMN4pRnk3kwr6WXswY6pgGxGMrDyA5QxW2yUaDR4nStfNRojzocfeLhvTbxDztGfRU/QtI0p7qPDig3FCetgvrcYFDiFPwQ9iddtaDb418y7mjKMHHYenVSaHY55Iz4rfozMAuHf6jqWMAlBrqMYObP7WDQpSAiFogDAeconLw5Ti/DsS/S9bRF1lhXsckayfPsX6jUOrh0iiDQIxQLqTALgCCXSPUszfUVOhD8PFYq6nRH8loP`,
+}
+
+
+export const CREDENTIALS = {
+  accessKeyId: credentials_.aws_access_key_id,
+  secretAccessKey: credentials_.aws_secret_access_key,
+  sessionToken: credentials_.aws_session_token
+```
+
+### Start Next.js app
 
 ## Launch a new AWS EC2 instance on the AWS console
 
