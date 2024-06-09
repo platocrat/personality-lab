@@ -1,21 +1,22 @@
 # personality-lab
 
-## Getting started
+[Next.js](https://nextjs.org) application for [Dr. Brent Roberts](https://psychology.illinois.edu/directory/profile/bwrobrts), a Professor of Psychology at the University of Illinois at Urbana-Champaign, and his research labs.
 
-First, run the development server:
-
-```zsh
-npx turbo dev
-```
-
-Open <http://localhost:3000> with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses `next/font` to automatically optimize and load Inter, a custom Google Font.
+> "[Brent W. Roberts](https://psychology.illinois.edu/directory/profile/bwrobrts) is a Professor of Psychology and at the University of Illinois at Urbana-Champaign, he holds the Gutsgell Endowed Professorship at the University of Illinois, is designated as a Health Innovation Professor in the Carle-Illinois College of Medicine, and is a Distinguished Guest Professor at the Hector Research Institute of Education Sciences and Psychology at the University of Tübingen, Germany."
+>
+> — University of Illinois at Urbana-Champaign
 
 ## Table of Contents
 
+- [0. Project Goals](#0-project-goals)
+  - [0.1 Reference Models](#01-reference-models)
+    - [0.1.1. yourPersonality.net](#011-yourpersonalitynet)
+    - [0.1.2. what-is-my-personality.com](#012-what-is-my-personalitycom)
+    - [0.1.3. The Social-Emotional-Behavioral (SEB) Skills Lab](#013-the-social-emotional-behavioral-seb-skills-lab)
+    - [0.1.4. Qualtrics](#014-qualtrics)
+    - [0.1.5. Prolific](#015-prolific)
+    - [0.1.6. Linkedin](#016-linkedin)
+    - [0.1.7. Kahoot](#017-kahoot)
 - [1. Local development](#1-local-development)
 - [2. Launch a new AWS EC2 instance on the AWS console](#2-launch-a-new-aws-ec2-instance-on-the-aws-console)
   - [2.1. Application and OS Images](#21-application-and-os-images)
@@ -50,6 +51,100 @@ This project uses `next/font` to automatically optimize and load Inter, a custom
     - [8.1.1 Specify DynamoDB table for IAM User](#811-specify-dynamodb-table-for-iam-user)
     - [8.1.2 Database Action Scripts](#812-database-action-scripts)
 - [9. Working with Docker containers](#9-working-with-docker-containers)
+
+## 0. Project Goals
+
+To build a modular personality assessment platform.
+
+### 0.1 Reference Models
+
+The personality platform has or is being modeled after the following websites or platforms:
+
+#### 0.1.1. [yourPersonality.net](https://dream-owl.com/attachment/)
+
+This is a site of [Dr. R. Chris Fraley]((https://psychology.illinois.edu/directory/profile/rcfraley)), a Professor at the Department of Psychology at the University of Illinois at Urbana-Champaign.
+
+**Visualization of Test/Assessment Results Over Time:**
+- Incorporate a visualization of the user's test/assessment results over time to clearly show a user's changes to their personality profile over time.
+
+#### 0.1.2. [what-is-my-personality.com](https://www.what-is-my-personality.com)
+
+This is a site of Dr. Brent Roberts.
+
+**Default Available Assessments:**
+
+- Incorporate _cohesively_ as many of the various assessments offered on this site as possible.
+
+**Structure of Assessments:**
+
+- Reuse components to simplify the integration of the handful of assessments
+
+#### 0.1.3. [The Social-Emotional-Behavioral (SEB) Skills Lab](https://sebskills.weebly.com)
+
+This is another site of Dr. Brent Roberts.
+    - **Default Available Assessments:**
+      - Incorporate the scoring information and various forms of the BESSI
+      - Incorporate the German, Italian, and Spanish translations of the BESSI
+
+#### 0.1.4. [Qualtrics](https://www.qualtrics.com/)
+
+**Modularity:**
+
+- Building a survey from scratch or from a template in Qualtrics should be used to partially model the study or assessment builder in `personality-lab`.
+- `personality-lab` lays out a broad list of personality measures and allows administrators to select from the list to create an assessment for their study.
+
+#### 0.1.5. [Prolific](https://www.prolific.com/)
+
+**Structure of Assessments:**
+
+- The creation and management of a research study should be modeled after Prolific's study feature.
+
+**Modularity:**
+
+- Invite-only to each study
+  - Participant invitations to a study should be modeled after Prolific, ensuring that a respondent is invited before they participant in completing an assessment for a study.
+- Downloadable participant data
+  - Participants' test/assessment data may be downloaded as a `.csv` file by a study's administrators.
+- Human-readable study IDs
+  - Each study is represented by a human-readable ID. Each studyID is generated using a strong and custom form of string compression.
+  - Examples:
+    - YouTube:
+      - URL:
+        - `https://www.youtube.com/watch?v=Xg_9F2h89TE`
+      - URL slugs, separators, and identifiers:
+        - `/watch`: slug to indicate that the user viewing a video
+        - `?v=`: separator used to identify a unique video ID
+        - `Xg_9F2h89TE`: represents the unique ID of the video being watched
+    - Spotify:
+      - URL:
+        `https://open.spotify.com/track/7KA4W4McWYRpgf0fWsJZWB?si=7f7ae9e0d8b74484`
+      - URL slugs, separators, and identifiers:
+        - `track/`: slug to indicate that the user is viewing a track
+        - `7KA4W4McWYRpgf0fWsJZWB`: unique ID that identifies the page of the specific track's page
+        - `?si=`: separator used to indicate the referral method to the specific track's page
+        - `7f7ae9e0d8b74484`: represents the unique ID of the referral method
+
+#### 0.1.6. [Linkedin](https://linkedin.com)
+
+**Social:**
+
+- Share test/assessment results on social media:
+  - Respondents may share a visualization of their test/assessment results to Linkedin to attract more users to the platform.
+- Rate others' test/assessment results
+  - Respondents may share a short URL on Linkedin to invite others to view and/or rate their test/assessment results.
+- Credential or Certificate of Completion
+  - Respondents may share a credential or certificate of completion on Linkedin, a credential/certificate that provides evidence of their completion of multiple test/assessment results on `personality-lab`.
+
+#### 0.1.7. [Kahoot](https://kahoot.com/)
+
+> Kahoot's short and gamified quizzes can be used to model shareable personality quizzes on `personality-lab`.
+
+**Social:**
+
+- Individual gamified personality quizzes
+  - Respondents may share a link to their results as a shareable URL for friends and  family to access their results and simply rate them or play a short personality quiz.
+- Gamified studies
+  - Administrators may enable the sharing of the test/assessment results of participants' of a study
 
 ## 1. Local development
 
