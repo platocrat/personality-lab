@@ -16,41 +16,48 @@ This project uses `next/font` to automatically optimize and load Inter, a custom
 
 ## Table of Contents
 
-- [Launch a new AWS EC2 instance on the AWS console](#launch-a-new-aws-ec2-instance-on-the-aws-console)
-  - [1. Application and OS Images](#1-application-and-os-images)
-  - [2. Instance Type](#2-instance-type)
-  - [3. Key pair (login)](#3-key-pair-login)
-  - [4. Network Settings](#4-network-settings)
-- [Deploying Next.js app to AWS EC2 instance and serving it with Caddy](#deploying-nextjs-app-to-aws-ec2-instance-and-serving-it-with-caddy)
-  - [1. Set up Caddy](#1-set-up-caddy)
-    - [1. SSH in to EC2 instance](#1-ssh-in-to-ec2-instance)
-    - [2. Install Caddy from source](#2-install-caddy-from-source)
-  - [2. Working with Caddy server](#2-working-with-caddy-server)
-  - [3. On EC2 instance, install Docker, login, and start the Docker daemon](#3-on-ec2-instance-install-docker-login-and-start-the-docker-daemon)
-    - [1. Install Docker](#1-install-docker)
-    - [2. Login to Docker](#2-login-to-docker)
-    - [3. Start the Docker daemon](#3-start-the-docker-daemon)
-    - [4. Prune all data from Docker](#4-prune-all-data-from-docker)
-  - [7. Push new commits to GitHub to see the GitHub Action automate the deployment process](#7-push-new-commits-to-github-to-see-the-github-action-automate-the-deployment-process)
-  - [8. Manually start the Next.js app by running the image](#8-manually-start-the-nextjs-app-by-running-the-image)
-    - [1. Make sure the Docker daemon is running](#1-make-sure-the-docker-daemon-is-running)
-    - [2. Run the image of the Next.js app in detached mode](#2-run-the-image-of-the-nextjs-app-in-detached-mode)
-    - [3. Start the Caddy server](#3-start-the-caddy-server)
-- [What to do if the SSH key ever gets lost, deleted, or corrupted](#what-to-do-if-the-ssh-key-ever-gets-lost-deleted-or-corrupted)
-  - [1. Stop and delete the EC2 instance and launch a new one](#1-stop-and-delete-the-ec2-instance-and-launch-a-new-one)
-  - [2. In the menu to launch a new EC2 instance, create a new SSH key pair](#2-in-the-menu-to-launch-a-new-ec2-instance-create-a-new-ssh-key-pair)
-  - [3. Follow the instructions on the `Connect` page to SSH into the new EC2 instance](#3-follow-the-instructions-on-the-connect-page-to-ssh-into-the-new-ec2-instance)
-- [What to do if want to use a new Elastic IP address?](#what-to-do-if-want-to-use-a-new-elastic-ip-address)
-- [Working with `screen` to view Next.js and Caddy logs separately](#working-with-screen-to-view-nextjs-and-caddy-logs-separately)
-- [Auth0: Set up Database Connection for DynamoDB](#auth0-set-up-database-connection-for-dynamodb)
+- [1. Local development](#1-local-development)
+- [2. Launch a new AWS EC2 instance on the AWS console](#2-launch-a-new-aws-ec2-instance-on-the-aws-console)
+  - [2.1. Application and OS Images](#21-application-and-os-images)
+  - [2.2 Instance Type](#22-instance-type)
+  - [2.3. Key pair (login)](#23-key-pair-login)
+  - [2.4. Network Settings](#24-network-settings)
+- [3. Attach an IAM Role to a newly created EC2 instance](#3-attach-an-iam-role-to-a-newly-created-ec2-instance)
+- [4. Deploying the Next.js app to AWS EC2 instance and serving it with Caddy](#4-deploying-the-nextjs-app-to-aws-ec2-instance-and-serving-it-with-caddy)
+  - [4.1. Set up a Caddy server](#41-set-up-a-caddy-server)
+    - [4.1.1. SSH in to EC2 instance](#411-ssh-in-to-ec2-instance)
+    - [4.1.2. Install `caddy` from source](#412-install-caddy-from-source)
+  - [4.2. Working with Caddy server](#42-working-with-caddy-server)
+  - [4.3. On EC2 instance, install Docker, login, and start the Docker daemon](#43-on-ec2-instance-install-docker-login-and-start-the-docker-daemon)
+    - [4.3.1. Install `docker`](#431-install-docker)
+    - [4.3.2. Login to Docker](#432-login-to-docker)
+    - [4.3.3. Start the Docker daemon](#433-start-the-docker-daemon)
+    - [4.3.4. Prune all data from Docker](#434-prune-all-data-from-docker)
+  - [4.4. Push new commits to GitHub to see the GitHub Action automate the deployment process](#44-push-new-commits-to-github-to-see-the-github-action-automate-the-deployment-process)
+  - [4.5. Manually start the Next.js app by running the image](#45-manually-start-the-nextjs-app-by-running-the-image)
+    - [4.5.1. Make sure the Docker daemon is running](#451-make-sure-the-docker-daemon-is-running)
+    - [4.5.2. Run the image of the Next.js app in detached mode](#452-run-the-image-of-the-nextjs-app-in-detached-mode)
+    - [4.5.3. Start the Caddy server](#453-start-the-caddy-server)
+- [5. What to do if the SSH key ever gets lost, deleted, or corrupted](#5-what-to-do-if-the-ssh-key-ever-gets-lost-deleted-or-corrupted)
+  - [5.1. Stop and delete the EC2 instance and launch a new one](#51-stop-and-delete-the-ec2-instance-and-launch-a-new-one)
+  - [5.2. In the menu to launch a new EC2 instance, create a new SSH key pair](#52-in-the-menu-to-launch-a-new-ec2-instance-create-a-new-ssh-key-pair)
+  - [5.3. Follow the instructions on the `Connect` page to SSH into the new EC2 instance](#53-follow-the-instructions-on-the-connect-page-to-ssh-into-the-new-ec2-instance)
+- [6. What to do if you want to use a new Elastic IP address?](#6-what-to-do-if-you-want-to-use-a-new-elastic-ip-address)
+- [7. Working with `screen` to view Next.js and Caddy logs separately](#7-working-with-screen-to-view-nextjs-and-caddy-logs-separately)
+  - [7.1 Example workflow with `screen`](#71-example-workflow-with-screen)
+- [8. Auth0](#8-auth0)
+  - [8.1 Set up a Database Connection for DynamoDB](#81-set-up-a-database-connection-for-dynamodb)
+    - [8.1.1 Specify DynamoDB table for IAM User](#811-specify-dynamodb-table-for-iam-user)
+    - [8.1.2 Database Action Scripts](#812-database-action-scripts)
+- [9. Working with Docker containers](#9-working-with-docker-containers)
 
-## Local development
+## 1. Local development
 
 Make sure to set up the following for local development:
 
 ### `.env.local`
 
-Create an `.env.local` file by running the following command:
+Create an `.env.local` file by running the following command on the CLI:
 
 ```zsh
 cp .env-example.local .env.local
@@ -59,6 +66,29 @@ cp .env-example.local .env.local
 Then fill in the parameters environment variables with the appropriate values:
 
 1. Get the `AUTH0_*` variables from your Auth0 `Applications` settings, under the `Basic Information` menu
+
+    1. As a pre-requisite, make sure to update the `Allowed Callback URLs` and `Allowed Logout URLs` in your Auth0's `Applications` settings to include `localhost`:
+
+        - Allowed Callback URLs:
+
+            ```env
+            https://example.com/api/auth/callback,
+            https://localhost:3000/api/auth/callback
+            ```
+
+        - Allowed Logout URLs:
+
+            ```env
+            https://example.com,
+            https://localhost:3000
+            ```
+
+    2. Then, update the `AUTH0_BASE_URL` to `localhost` in your `.env.local` file, like so:
+
+        ```env
+        AUTH0_BASE_URL='https://localhost:3000'
+        ```
+
 2. The `encryptCompressEncode()` and `decodeDecompressDecrypt()` functions of the `CSCrypto` (i.e. Client-Side Crypto) class are used to encrypt the shareable ID string, which is used in the shareable link to share a user's assessment results. To encrypt strings on the client, create an initialization vector, i.e. `iv`, and an asymmetric encryption key:
 
     1. You will need an `iv` and `key` to encrypt the `str` argument.
@@ -113,6 +143,8 @@ aws_session_token=IQoJb3JpZ2luX2VjEJn//////////wEaCXVzLWVhc3QtMSJIMEYCIQDQoeNwak
 
 Copy and paste these values to [`src/utils/aws/constants/index.ts`](./src/utils/aws/constants//index.ts) as shown in the example below:
 
+> NOTE: **NEVER commit AWS credentials!**
+
 ```ts
 const credentials_ = {
   aws_access_key_id: `ASIA4ID7IBTSMB46LGC4`,
@@ -125,27 +157,65 @@ export const CREDENTIALS = {
   accessKeyId: credentials_.aws_access_key_id,
   secretAccessKey: credentials_.aws_secret_access_key,
   sessionToken: credentials_.aws_session_token
+}
+```
+
+Then, call use `CREDENTIALS` in [`src/utils/aws/dynamodb/index.ts`](src/utils/aws/dynamodb/index.ts) and [`src/utils/aws/systems-manager/index.ts`](src/utils/aws/systems-manager/index.ts) like so:
+
+```ts
+/* src/utils/aws/dynamodb/index.ts */
+import { 
+  REGION,
+  CREDENTIALS,
+} from '../constants'
+
+// const ddbClient = new DynamoDBClient({ region: REGION })
+const ddbClient = new DynamoDBClient({ 
+  region: REGION,
+  credentials: CREDENTIALS
+})
+```
+
+```ts
+/* src/utils/aws/systems-manager/index.ts */
+import { 
+  REGION,
+  CREDENTIALS,
+  AWS_PARAMETER_NAMES,
+} from '../constants'
+
+// export const ssmClient = new SSMClient({ region: REGION })
+export const ssmClient = new SSMClient({ 
+  region: REGION,
+  credentials: CREDENTIALS,
+})
 ```
 
 ### Start Next.js app
 
-## Launch a new AWS EC2 instance on the AWS console
+To start the Next.js web application, run the following command on the CLI:
 
-### 1. Application and OS Images
+```zsh
+npx turbo dev
+```
+
+## 2. Launch a new AWS EC2 instance on the AWS console
+
+### 2.1. Application and OS Images
 
 1. When launching a new EC2 instance on the AWS console, be sure to use one of the Amazon Machine Images (AMIs). I chose Amazon linux 2023 AMI because it is the fastest.
 2. Avoid using 64-bit (Arm) CPU architecture because most software libraries and packages have most of their infrastructure having been tested on use x86 CPU architectures and not on Arm.
 
-### 2. Instance Type
+### 2.2. Instance Type
 
 Select `t2.micro` because it is uses the lowest vCPU (1vCPU) and GiB Memory (1 GiB Memory)
 
-### 3. Key pair (login)
+### 2.3. Key pair (login)
 
 1. Specify a key-pair which is used later for remotely SSH'ing in to the EC2 instance from your machine.
 2. Make sure to select `Create a new key pair` whenever you launch a new instance; otherwise, you risk getting confused when you use the same key for more than one EC2 instance, and you have to manage the keys in the appropriate SSH configuration files (e.g. `.ssh`, `authorized_hosts`, `known_hosts` etc.).
 
-### 4. Network Settings
+### 2.4. Network Settings
 
 Create a new security group, or use an existing security group, that has the following three options enabled:
 
@@ -153,7 +223,7 @@ Create a new security group, or use an existing security group, that has the fol
 2. `Allow HTTPS traffic from the internet` (this is disabled by default)
 3. `Allow HTTP traffic from the internet` (this is disabled by default)
 
-## Attach an IAM Role to a newly created EC2 instance
+## 3. Attach an IAM Role to a newly created EC2 instance
 
 The EC2 instance uses several AWS services and thus requires AWS credentials to make API calls to leverage each of these services.
 However, managing these AWS credentials and passing them on to an application is tedious and can come with a ton of security risks.
@@ -161,14 +231,14 @@ Thankfully, AWS provides a solution to this issue by allowing the creation of an
 
 > More information on "IAM roles for Amazon EC2" can be found on the [AWS's official documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html)
 
-### 1. Pre-requisites
+### 3.1. Pre-requisites
 
 Before you create a new IAM role that will be used specifically for the EC2 instance, make sure you have the following pre-requisites:
 
 1. To create a new IAM role, make sure you have the proper permissions under your organization.
 2. Identify the AWS services, and the respective permissions per each AWS service, that your EC2 instance will require to make API calls to.
 
-### 2. Create a new IAM role
+### 3.2. Create a new IAM role
 
 Once you have the pre-requisites, you can create a new IAM role by following the steps below:
 
@@ -178,7 +248,7 @@ Once you have the pre-requisites, you can create a new IAM role by following the
 4. Under the `Use case` menu, click the `Service or use case` select-dropdown menu to choose a service. Select `EC2`.
 5. Leave the default radio option, `EC2`, toggled and click `Next`.
 
-### 3. Add permissions
+### 3.3. Add permissions
 
 For the `personality-lab` Next.js project, we use 3 AWS services:
 
@@ -195,7 +265,7 @@ For simplicity and to save time configuring granular custom permissions policies
 Add each of the three permissions policies listed above.
 Then, click the orange `Next` button on the bottom right.
 
-### 4. Name, review, and create the IAM role
+### 3.4. Name, review, and create the IAM role
 
 1. Enter a short and unique role name for the ec2 instance.
 
@@ -207,7 +277,7 @@ Then, click the orange `Next` button on the bottom right.
 
 3. Click the orange `Create role` button at the bottom right to finally create the new IAM role.
 
-### 5. Modify IAM role of EC2 instance
+### 3.5. Modify IAM role of EC2 instance
 
 Lastly, we want to have the EC2 instance use this newly created IAM role.
 To do that, we need to modify the EC2 instance's IAM Role in its settings.
@@ -225,11 +295,11 @@ Now, whenever your EC2 instance is running, it will always have AWS credentials 
 
 This saves you time and a headache from manually always having to add the AWS credentials manually or having to write your own system for managing and distributing the AWS credentials to your EC2 instance(s).
 
-## Deploying Next.js app to AWS EC2 instance and serving it with Caddy
+## 4. Deploying the Next.js app to AWS EC2 instance and serving it with Caddy
 
-### 1. Set up Caddy
+### 4.1. Set up a [Caddy](https://caddyserver.com) server
 
-#### 1. SSH in to EC2 instance
+#### 4.1.1. SSH in to EC2 instance
 
 <!-- 
 
@@ -242,7 +312,7 @@ EC2_HOSTNAME = 54.198.211.160
 ssh -i key-pair-name.pem EC2_USERNAME@EC2_HOSTNAME
 ```
 
-#### 2. Install [Caddy](https://caddyserver.com) from source
+#### 4.1.2. Install `caddy` from source
 
 1. Use `curl` to download the latest version of Caddy from GitHub:
 
@@ -280,7 +350,7 @@ ssh -i key-pair-name.pem EC2_USERNAME@EC2_HOSTNAME
     mkdir ./caddy && mv {LICENSE,README.md,caddy.tar.gz} ./caddy-download/
     ```
 
-### 2. Working with [Caddy](http://caddyserver.com) server
+### 4.2. Working with [Caddy](http://caddyserver.com) server
 
 A Caddy server uses a `Caddyfile` to configure it, similar to how a NGINX server uses a `.conf` file, usually located somewhere like `/etc/nginx/conf.d/<APP_NAME>.conf`.
 
@@ -323,15 +393,15 @@ example.com {
     sudo caddy run --config /etc/caddy/Caddyfile
     ```
 
-### 3. On EC2 instance, install Docker, login, and start the Docker daemon
+### 4.3. On EC2 instance, install Docker, login, and start the Docker daemon
 
-#### 1. Install Docker
+#### 4.3.1. Install `docker`
 
 ```zsh
 sudo yum install docker -y
 ```
 
-#### 2. Login to Docker
+#### 4.3.2. Login to Docker
 
 After you have installed Docker, login with your username.
 
@@ -343,29 +413,29 @@ sudo docker login -u <USERNAME>
 
 When prompted for a password, enter your personal access token that you get from Docker Hub
 
-#### 3. Start the Docker daemon
+#### 4.3.3. Start the Docker daemon
 
 ```zsh
 sudo systemctl restart docker
 ```
 
-#### 4. Prune all data from Docker
+#### 4.3.4. Prune all data from Docker
 
 ```zsh
 sudo docker system prune -a
 ```
 
-### 7. Push new commits to GitHub to see the GitHub Action automate the deployment process
+### 4.4. Push new commits to GitHub to see the GitHub Action automate the deployment process
 
-### 8. Manually start the Next.js app by running the image
+### 4.5. Manually start the Next.js app by running the image
 
-#### 1. Make sure the Docker daemon is running
+#### 4.5.1. Make sure the Docker daemon is running
 
 ```zsh
 sudo systemctl restart docker
 ```
 
-#### 2. Run the image of the Next.js app in detached mode
+#### 4.5.2. Run the image of the Next.js app in detached mode
 
 Make sure to specify the correct port number that is exposed in the [`Dockerfile`](./Dockerfile).
 
@@ -377,7 +447,7 @@ sudo docker run -d -it -p 3000:3000 <IMAGE_ID>
 
 Make sure to include the `-d` flag to run the container in "detached" mode, so that we can run other commands while the container is running.
 
-#### 3. Start the Caddy server
+#### 4.5.3. Start the Caddy server
 
 Finally, we can serve the dockerized version of our the Next.js app by starting the Caddy server.
 Run the command below to start the Caddy server.
@@ -388,17 +458,17 @@ sudo caddy run --config /etc/caddy/Caddyfile
 
 Then, navigate to your domain to see the hosted site.
 
-## What to do if the SSH key ever gets lost, deleted, or corrupted?
+## 5. What to do if the SSH key ever gets lost, deleted, or corrupted?
 
-### 1. Stop and delete the EC2 instance and launch a new one
+### 5.1. Stop and delete the EC2 instance and launch a new one
 
 Do this from the AWS Console in the browser.
 
-### 2. In the menu to launch a new EC2 instance, create a new SSH key pair
+### 5.2. In the menu to launch a new EC2 instance, create a new SSH key pair
 
 RSA is not as secure as ED25519, so select ED25519 as the encryption method.
 
-### 3. Follow the instructions on the `Connect` page to SSH into the new EC2 instance
+### 5.3. Follow the instructions on the `Connect` page to SSH into the new EC2 instance
 
 1. Open an SSH client.
 2. Locate your private key file. The key used to launch this instance is personality-lab-app.pem
@@ -426,17 +496,17 @@ where `EC2_HOSTNAME` the formatted like so:
 ec2-54-198-211-160
 ```
 
-## What to do if want to use a new Elastic IP address?
+## 6. What to do if you want to use a new Elastic IP address?
 
-### 1. Release the old Elastic IP address
+### 6.1. Release the old Elastic IP address
 
 Release the old Elastic IP address from the AWS console.
 
-### 2. Allocate a new Elastic IP address
+### 6.2. Allocate a new Elastic IP address
 
 On the AWS console, on the EC2 service, under the "Network & Security" tab and under "Elastic IPs", click the orange, "Allocate Elastic IP address" button.
 
-### 3. Associate the new Elastic IP address to the EC2 instance
+### 6.3. Associate the new Elastic IP address to the EC2 instance
 
 1. Toggle the checkbox on the far left of the row of the newly allocated Elastic IP address.
 2. Then, click the "Actions" dropdown menu, and select "Associate Elastic IP Address".
@@ -445,7 +515,7 @@ On the AWS console, on the EC2 service, under the "Network & Security" tab and u
 5. Toggle the checkbox to allow reassociation.
 6. Finally, click the orange, "Associate" button.
 
-## Working with `screen` to view Next.js and Caddy logs separately
+## 7. Working with `screen` to view Next.js and Caddy logs separately
 
 Prerequisites for the `screen` example below:
 
@@ -455,7 +525,7 @@ Prerequisites for the `screen` example below:
 4. You have a `Caddyfile` on the EC2 instance to start the Caddy server from
 5. You want to work with two screens: one for `nextjs` and another for `caddy`
 
-### Example workflow
+### 7.1 Example workflow with `screen`
 
 1. Start the screen session:
 
@@ -600,19 +670,21 @@ Prerequisites for the `screen` example below:
 
             You should see Next.js returning logs from the page(s) you viewed from your browser.
 
-## Auth0: Set up Database Connection for DynamoDB
+## 8. Auth0
+
+### 8.1 Set up a Database Connection for DynamoDB
 
 Follow this [Medium post](https://medium.com/@thedreamsaver/using-amazon-dynamodb-as-a-custom-database-connection-in-auth0-1ec43b8d4c8c) by a that walks through step-by-step how to set up a Database Connection in Auth0 for DynamoDB, from start to finish.
 
-### Specify DynamoDB table for IAM User
+#### 8.1.1 Specify DynamoDB table for IAM User
 
 When creating the custom permission policy for the `Auth0DynamoDBUser` IAM User, make sure to copy and paste the ARN of the DynamoDB table of the `accounts` table for the `Resource` under the property of the permissions policy's JSON.
 
-### Database Action Scripts
+#### 8.1.2 Database Action Scripts
 
 As a reference, here are the relevant and modifed Database Action Scripts that I made, using the tutorial as a guide:
 
-#### Login
+##### 8.2.1.1. Login
 
 ```js
 function login (email, password, callback) {
@@ -688,7 +760,7 @@ function login (email, password, callback) {
 }
 ```
 
-#### Create
+##### 8.1.2.2 Create
 
 ```js
 function create (user, callback) {
@@ -766,7 +838,7 @@ function create (user, callback) {
 }
 ```
 
-#### Verify
+##### 8.1.2.3 Verify
 
 ```js
 function verify (email, callback) {
@@ -826,7 +898,7 @@ function verify (email, callback) {
 }
 ```
 
-#### Change Password
+##### 8.1.2.4 Change Password
 
 ```js
 function changePassword (email, newPassword, callback) {
@@ -904,7 +976,7 @@ function changePassword (email, newPassword, callback) {
 }
 ```
 
-#### Get User
+##### 8.1.2.5 Get User
 
 ```js
 function getByEmail(email, callback) {
@@ -954,7 +1026,7 @@ function getByEmail(email, callback) {
 }
 ```
 
-#### Delete
+##### 8.1.2.6 Delete
 
 ```js
 function deleteUser(email, callback) {
@@ -987,9 +1059,9 @@ function deleteUser(email, callback) {
 }
 ```
 
-## Docker containers
+## 9. Working with Docker containers
 
-### Enter a Docker container's shell
+### 9.1 Enter a Docker container's shell
 
 Sometimes you may want to work within a Docker container.
 To do that, you will want to access you access the Docker container's shell by running the following commands:
@@ -1023,6 +1095,8 @@ To do that, you will want to access you access the Docker container's shell by r
 
       Then restart the container normally without the detached-mode, `-d`, flag.
 
-For example, when working inside of an AWS EC2 instance and running your containers within it, instead of waiting for time-consuming CI/CD builds to complete, you may just want to debug your code within the container itself by stepping inside of it and making the necessary changes.
+#### 9.1.1 Use cases
+
+When working inside of an AWS EC2 instance and running your containers within it, instead of waiting for time-consuming CI/CD builds to complete, you may just want to debug your code within the container itself by stepping inside of it and making the necessary changes.
 
 Stepping inside of a Docker container's shell and making quick changes to debug your container may help to speed up your workflow.
