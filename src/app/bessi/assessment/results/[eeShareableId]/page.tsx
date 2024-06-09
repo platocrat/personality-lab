@@ -138,7 +138,7 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
 
   
   async function getDecryptedShareableId(): Promise<string> {
-    return await CSCrypto.decodeAndDecrypt(eeShareableId)
+    return await CSCrypto.decodeThenDecrypt(eeShareableId)
   }
 
   

@@ -24,7 +24,7 @@ export async function GET(
     const name = 'eeShareableId'
     const eeShareableId = req.nextUrl.searchParams.get(name) ?? ''
 
-    const decryptedDhareableId = await CSCrypto.decodeAndDecrypt(eeShareableId)
+    const decryptedDhareableId = await CSCrypto.decodeThenDecrypt(eeShareableId)
 
     // Split the string by the separator '--'
     const parts = (decryptedDhareableId as string).split('--')

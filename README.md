@@ -44,6 +44,73 @@ This project uses `next/font` to automatically optimize and load Inter, a custom
 - [Working with `screen` to view Next.js and Caddy logs separately](#working-with-screen-to-view-nextjs-and-caddy-logs-separately)
 - [Auth0: Set up Database Connection for DynamoDB](#auth0-set-up-database-connection-for-dynamodb)
 
+## Local development
+
+Make sure to set up the following for local development:
+
+### `.env.local`
+
+Create an `.env.local` file by running the following command:
+
+```zsh
+cp .env-example.local .env.local
+```
+
+Then fill in the parameters environment variables with the appropriate values:
+
+1. Get the `AUTH0_*` variables from your Auth0 `Applications` settings, under the `Basic Information` menu
+2. To use `crypto.subtle` on the client, create an initialization vector, i.e. `iv`, and an asymmetric encryption key:
+
+    1. You will need an `iv` and `key` to encrypt the `str` argument.
+
+        1. Note that we we are generating a 128-bit key length because it results in a shorter shareable ID that we place in the shareable URL. (You can generate a key with a 256-bit key length by using a 32-byte initialization vector, i.e. `iv`.):
+
+            ```ts
+            // 1. Set the size of the key to 16 bytes
+            const bytesSize = new Uint8Array(16)
+            
+            // 2. Create an initialization vector of 128 bit-length
+            const iv = crypto.getRandomValues(bytesSize).toString()
+            console.log(`iv:`, iv)
+
+            // 3. Generate a new asymmetric key
+            const key = await crypto.subtle.generateKey(
+            {
+                name: 'AES-GCM',
+                length: 128
+            },
+            true,
+            ['encrypt', 'decrypt']
+            )
+
+            // 4. Export the `CryptoKey`
+            const jwk = await crypto.subtle.exportKey('jwk', key)
+            const serializedJwk = JSON.stringify(jwk)
+            console.log(`serializedJwk:`, serializedJwk)
+            ```
+
+        2. Copy the logged `iv` and `serializedJwk` values.
+        3. Set these values in your `.env.local` like so:
+
+            ```zsh
+            // The values below are merely an example
+            NEXT_PUBLIC_SHARE_RESULTS_ENCRYPTION_KEY="{"alg":"A128GCM","ext":true,"k":"8_kB0wHsI43JNuUhoXPu5g","key_ops":["encrypt","decrypt"],"kty":"oct"}"
+            NEXT_PUBLIC_SHARE_RESULTS_ENCRYPTION_IV="129,226,226,155,222,189,77,19,14,94,116,195,86,198,192,117"
+            ```
+
+        4. For cloud-development, make sure to add the `NEXT_PUBLIC_SHARE_RESULTS_ENCRYPTION_KEY` and `NEXT_PUBLIC_SHARE_RESULTS_ENCRYPTION_IV` variables as GitHub Secrets to the GitHub repository.
+
+```env
+# use [openssl rand -hex 32] to generate a 32 bytes value
+AUTH0_SECRET=''
+AUTH0_BASE_URL=''
+AUTH0_ISSUER_BASE_URL=''
+AUTH0_CLIENT_ID=''
+AUTH0_CLIENT_SECRET=''
+NEXT_PUBLIC_SHARE_RESULTS_ENCRYPTION_KEY=''
+NEXT_PUBLIC_SHARE_RESULTS_ENCRYPTION_IV=''
+```
+
 ## Launch a new AWS EC2 instance on the AWS console
 
 ### 1. Application and OS Images
@@ -522,7 +589,6 @@ Follow this [Medium post](https://medium.com/@thedreamsaver/using-amazon-dynamod
 ### Specify DynamoDB table for IAM User
 
 When creating the custom permission policy for the `Auth0DynamoDBUser` IAM User, make sure to copy and paste the ARN of the DynamoDB table of the `accounts` table for the `Resource` under the property of the permissions policy's JSON.
-
 
 ### Database Action Scripts
 

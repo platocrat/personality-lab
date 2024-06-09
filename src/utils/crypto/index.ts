@@ -180,7 +180,10 @@ export class SSCrypto {
 
 
 
-
+/**
+ * @dev Client-side cryptography using Node.js's built-in `crypto.subtle` 
+ *      library
+ */
 export class CSCrypto {
   static arrayBufferToBase64(buffer: ArrayBufferLike): string {
     const uint8Array = new Uint8Array(buffer)
@@ -347,7 +350,7 @@ export class CSCrypto {
 
 
 
-  static async decodeAndDecrypt(encoded: string): Promise<string> {
+  static async decodeThenDecrypt(encoded: string): Promise<string> {
     const jwk = JSON.parse(process.env.NEXT_PUBLIC_SHARE_RESULTS_ENCRYPTION_KEY)
     const iv = Buffer.from(process.env.NEXT_PUBLIC_SHARE_RESULTS_ENCRYPTION_IV)
 
