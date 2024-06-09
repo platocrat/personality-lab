@@ -59,7 +59,7 @@ cp .env-example.local .env.local
 Then fill in the parameters environment variables with the appropriate values:
 
 1. Get the `AUTH0_*` variables from your Auth0 `Applications` settings, under the `Basic Information` menu
-2. The `encryptThenDecode()` and `decodeThenDecrypt()` functions of the `CSCrypto` (i.e. Client-Side Crypto) class are used to encrypt the shareable ID string, which is used in the shareable link to share a user's assessment results. To encrypt strings on the client, create an initialization vector, i.e. `iv`, and an asymmetric encryption key:
+2. The `encryptCompressEncode()` and `decodeDecompressDecrypt()` functions of the `CSCrypto` (i.e. Client-Side Crypto) class are used to encrypt the shareable ID string, which is used in the shareable link to share a user's assessment results. To encrypt strings on the client, create an initialization vector, i.e. `iv`, and an asymmetric encryption key:
 
     1. You will need an `iv` and `key` to encrypt the `str` argument.
 

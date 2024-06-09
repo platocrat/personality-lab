@@ -55,16 +55,16 @@ const BessiShareResultsButton = ({ }) => {
 
       // Use client-side crypto class to encrypt and encode the concatenated 
       // identifiers that will be used in the shareable URL.
-      const { encryptThenEncode, decodeThenDecrypt } = CSCrypto
+      const { encryptCompressEncode } = CSCrypto
       
       // Encrypted and encoded concatenated string of `id` and `accessToken`
       if (studyId) {
         const shareableId = `${id}--${accessToken}--${studyId}`
-        const eeShareableId = await encryptThenEncode(shareableId)
+        const eeShareableId = await encryptCompressEncode(shareableId)
         fullUrl = `${baseUrl}/results/${eeShareableId}`
       } else {
         const shareableId = `${id}--${accessToken}`
-        const eeShareableId = await encryptThenEncode(shareableId)
+        const eeShareableId = await encryptCompressEncode(shareableId)
         fullUrl = `${baseUrl}/results/${eeShareableId}`
       }
 

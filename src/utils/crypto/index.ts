@@ -183,6 +183,9 @@ export class SSCrypto {
 /**
  * @dev Client-side cryptography using Node.js's built-in `crypto.subtle` 
  *      library
+ * @notice See the `README.md` for how to generate an asymmmetric key and 
+ *         initialization vector to use the `encryptThenEncode` and 
+ *         `decodeThenDecrypt` functions.
  */
 export class CSCrypto {
   static arrayBufferToBase64(buffer: ArrayBufferLike): string {
@@ -282,48 +285,14 @@ export class CSCrypto {
 
 
   /**
-   * @dev You cannot replace `crypto.subtle` with an import of `subtle`;
-   *      otherwise, you will get an error
-   * ### To decompress
-   * 
-   * ```ts
-   * const decompressed = await decodeAndDecompressFromBase64(
-   *   compressedAndBase64Encoded
-   * )
-   * // OPTIONAL: Confirm that the decryption the file can be successfully 
-   * //           decompressed
-   * console.log(
-   *   `decompressed === encrypted: `,
-   *   compareArrayBuffers(decompressed, encrypted)
-   * )
-   * ```
-   * 
-   * ### Steps to generate a random initialization vector and asymmetric key
-   * You will need an `iv` and `key` to encrypt the `str` argument:
-   *
-   * ```ts
-   * // 1. Set the size of the key to 16 bytes
-   * const bytesSize = new Uint8Array(16)
-   * // 2. Create an initialization vector of 128 bit-length
-   * const iv = crypto.getRandomValues(bytesSize).toString()
-   * console.log(`iv: `, iv)
-   * 
-   * // 3. Generate a new asymmetric key
-   * const key = await crypto.subtle.generateKey(
-   *   {
-   *     name: 'AES-GCM',
-   *     length: 128
-   *   },
-   *   true,
-   *   ['encrypt', 'decrypt']
-   * )
-   * // 4. Export the `CryptoKey`
-   * const jwk = await crypto.subtle.exportKey('jwk', key) 
-   * const stringSerializedJwk = JSON.stringify(jwk)
-   * console.log(`stringSerializedJwk: `, stringSerializedJwk)
-   * ```
+   * @dev Encrypts the `input` string to an `ArrayBuffer`, then compresses and 
+   *      and encodes it to a base64 string.
+   * @notice See the `README.md` for how to generate an initialization vector
+   *         and asymmetric key that are required as environment variables.
+   * @notice You cannot replace `crypto.subtle` with an import of `subtle`;
+   *         otherwise, you will get an error
    */
-  static async encryptThenEncode(str: string): Promise<string> {
+  static async encryptCompressEncode(str: string): Promise<string> {
     const jwk = JSON.parse(process.env.NEXT_PUBLIC_SHARE_RESULTS_ENCRYPTION_KEY)
     const iv = Buffer.from(process.env.NEXT_PUBLIC_SHARE_RESULTS_ENCRYPTION_IV)
     const encode = (str: string): Uint8Array => new TextEncoder().encode(str)
@@ -342,15 +311,21 @@ export class CSCrypto {
       encode(str)
     )
 
-    const encryptedBase64 = CSCrypto.arrayBufferToBase64(encrypted)
     const compressed = await CSCrypto.compressAndEncodeToBase64(encrypted)
-
     return compressed
   }
 
 
 
-  static async decodeThenDecrypt(encoded: string): Promise<string> {
+  /**
+   * @dev Decodes and decompresses the `compressed` base64-string-argument and 
+   *      then decrypts it.
+   * @notice See the `README.md` for how to generate an initialization vector
+   *         and asymmetric key that are required as environment variables.
+   * @param compressed
+   * @returns 
+   */
+  static async decodeDecompressDecrypt(compressed: string): Promise<string> {
     const jwk = JSON.parse(process.env.NEXT_PUBLIC_SHARE_RESULTS_ENCRYPTION_KEY)
     const iv = Buffer.from(process.env.NEXT_PUBLIC_SHARE_RESULTS_ENCRYPTION_IV)
 
@@ -362,7 +337,7 @@ export class CSCrypto {
       ['encrypt', 'decrypt']
     )
 
-    const decompressed = await CSCrypto.decodeAndDecompressFromBase64(encoded)
+    const decompressed = await CSCrypto.decodeAndDecompressFromBase64(compressed)
     const decrypted = await crypto.subtle.decrypt(
       { name: 'AES-GCM', iv: iv },
       key,
