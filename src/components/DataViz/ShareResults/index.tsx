@@ -65,7 +65,7 @@ const ShareResults: FC<ShareResultsProps> = ({
                 <Image
                   width={ 18 }
                   height={ 18 }
-                  alt='White checkmark to confirm that an image was copied'
+                  alt='White checkmark'
                   src={ `${imgPaths().svg}white-checkmark.svg` }
                 />
               </div>
@@ -86,7 +86,7 @@ const ShareResults: FC<ShareResultsProps> = ({
                 <Image
                   width={ 17 }
                   height={ 17 }
-                  alt='Share icon to share data visualization'
+                  alt='Download icon'
                   src={ `${imgPaths().svg}download-image.svg` }
                 />
               </button>

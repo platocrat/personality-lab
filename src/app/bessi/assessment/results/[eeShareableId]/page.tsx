@@ -24,6 +24,7 @@ import { BessiSkillScoresContextType } from '@/contexts/types'
 import {
   RESULTS__DYNAMODB,
   BessiUserResults__DynamoDB,
+  CSCrypto,
 } from '@/utils'
 // Types
 import {
@@ -40,7 +41,7 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 
 type BessiUserSharedResultsType = {
   params: {
-    id_accessToken_studyId: string
+    eeShareableId: string
   }
 }
 
@@ -55,7 +56,7 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
   params 
 }) => {
   // Param
-  const { id_accessToken_studyId } = params
+  const { eeShareableId } = params
   // Contexts
   const { 
     bessiSkillScores,
@@ -64,20 +65,12 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
     BessiSkillScoresContext
   )
   // State
+  const [ id, setId ] = useState<string>('')
+  const [ studyId, setStudyId ] = useState<string>('')
+  const [ accessToken, setAccessToken ] = useState<string>('')
   const [ isDataLoading, setIsDataLoading ] = useState(false)
   const [ isAccessTokenExpired, setIsAccessTokenExpired ] = useState(false)
-  
 
-  // Split the string by the separator '--'
-  const parts = (id_accessToken_studyId as string).split('--')
-
-  if (parts.length !== 3) {
-    throw new Error('Unexpected format: expected exactly 3 parts')
-  }
-
-  const id = parts[0]
-  const accessToken = parts[1]
-  const studyId = parts[2]
   
   const errorMessage =  isAccessTokenExpired 
     ? `Access token expired!`
@@ -93,8 +86,8 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
   // --------------------------- Async functions -------------------------------
   async function getUserResults() {
     try {
-      const apiEndpoint = `/api/assessment/share-results?id_accessToken_studyId=${ 
-        id_accessToken_studyId 
+      const apiEndpoint = `/api/assessment/share-results?eeShareableId=${ 
+        eeShareableId 
       }`
       const response = await fetch(apiEndpoint, { method: 'GET' })
 
@@ -144,7 +137,39 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
   }
 
   
+  async function getDecryptedShareableId(): Promise<string> {
+    return await CSCrypto.decodeAndDecrypt(eeShareableId)
+  }
+
+  
   // ----------------------------- `useLayoutEffect`s --------------------------
+  useLayoutEffect(() => {
+    getDecryptedShareableId().then((shareableId: string) => {
+      // Split the string by the separator '--'
+      const parts = (shareableId as string).split('--')
+
+      let id_ = '',
+        accessToken_ = '',
+        studyId_ = ''
+
+      if (parts.length === 2) {
+        id_ = parts[0]
+        accessToken_ = parts[1]
+      } 
+      
+      if (parts.length === 3) {
+        id_ = parts[0]
+        accessToken_ = parts[1]
+        studyId_ = parts[2]
+      }
+
+      setId(id_)
+      setAccessToken(accessToken_)
+      setStudyId(studyId_)
+    })
+  }, [ eeShareableId ])
+
+
   useLayoutEffect(() => {
     if (!id || !accessToken || !studyId) {
       /**

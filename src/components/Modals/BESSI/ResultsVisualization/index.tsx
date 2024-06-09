@@ -150,7 +150,7 @@ const ResultsVisualizationModal: FC<ResultsVisualizationModalProps> = ({
                       <Image
                         width={ 22 }
                         height={ 22 }
-                        alt='White checkmark to confirm that a screenshot was copied'
+                        alt='White checkmark'
                         src={ `${imgPaths().svg}white-checkmark.svg` }
                       />
                     </div>

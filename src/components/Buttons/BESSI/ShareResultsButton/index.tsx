@@ -4,7 +4,7 @@
 import Image from 'next/image'
 import { useContext, useMemo, useState } from 'react'
 // Locals
-import { imgPaths } from '@/utils'
+import { CSCrypto, LibsodiumUtils, imgPaths } from '@/utils'
 // Contexts
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // Types
@@ -12,6 +12,8 @@ import { BessiSkillScoresContextType } from '@/contexts/types'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+import { timeout } from 'd3'
+import { gunzip, gzip } from 'zlib'
 
 
 
@@ -38,19 +40,35 @@ const BessiShareResultsButton = ({ }) => {
     return bessiSkillScores?.studyId
   }, [ bessiSkillScores ])
 
+
   /**
    * Handle sharing results by generating a URL with the access token.
    * Toggle visibility of the URL for copying.
    */
   async function handleShareResults() {
     if (window !== undefined) {
-      const origin = window.location.origin
-  
-      const baseUrl = `${ origin }/bessi/assessment`
-      // Using path segment instead of query
-      const fullUrl = `${baseUrl}/results/${id}--${accessToken}--${studyId}`
-  
+      let fullUrl = ''
+
       const timeout = 2_000
+      const origin = window.location.origin
+      const baseUrl = `${origin}/bessi/assessment`
+
+      // Use client-side crypto class to encrypt and encode the concatenated 
+      // identifiers that will be used in the shareable URL.
+      const { encryptThenEncode, decodeAndDecrypt } = CSCrypto
+      
+      // Encrypted and encoded concatenated string of `id` and `accessToken`
+      if (studyId) {
+        const shareableId = `${id}--${accessToken}--${studyId}`
+        const eeShareableId = await encryptThenEncode(shareableId)
+        fullUrl = `${baseUrl}/results/${eeShareableId}`
+      } else {
+        const shareableId = `${id}--${accessToken}`
+        const eeShareableId = await encryptThenEncode(shareableId)
+        fullUrl = `${baseUrl}/results/${eeShareableId}`
+      }
+
+
       try {
         await navigator.clipboard.writeText(fullUrl)
   
@@ -93,7 +111,7 @@ const BessiShareResultsButton = ({ }) => {
               <Image
                 width={ 18 }
                 height={ 18 }
-                alt='White checkmark to confirm that an URL was copied'
+                alt='White checkmark'
                 src={ `${imgPaths().svg}white-checkmark.svg` }
               />
             </div>
@@ -115,7 +133,7 @@ const BessiShareResultsButton = ({ }) => {
                   className={ styles.img }
                   onClick={ handleShareResults }
                   src={ `${imgPaths().svg}white-share.svg` }
-                  alt='Share icon to share data visualization'
+                  alt='Share icon'
                 />
               </div>
             </button>

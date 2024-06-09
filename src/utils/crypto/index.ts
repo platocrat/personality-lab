@@ -1,4 +1,5 @@
 import {
+  subtle,
   CipherKey,
   pbkdf2Sync,
   scryptSync,
@@ -174,5 +175,197 @@ export class SSCrypto {
     })
 
     return newSecretKeys
+  }
+}
+
+
+
+
+export class CSCrypto {
+  static arrayBufferToBase64(buffer: ArrayBufferLike): string {
+    const uint8Array = new Uint8Array(buffer)
+    const binaryString = String.fromCharCode(...uint8Array)
+    return Buffer.from(binaryString, 'binary').toString('hex')
+  }
+
+
+  static base64ToArrayBuffer(base64: string): ArrayBufferLike {
+    const binaryString = Buffer.from(base64, 'hex').toString('binary')
+    const len = binaryString.length
+    const bytes = new Uint8Array(len)
+
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binaryString.charCodeAt(i)
+    }
+
+    return bytes.buffer
+  }
+
+
+
+  static async compressAndEncodeToBase64(buffer: ArrayBufferLike): Promise<string> {
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(new Uint8Array(buffer))
+        controller.close()
+      }
+    })
+
+    const compressedStream = stream.pipeThrough(new CompressionStream('gzip'))
+    const reader = compressedStream.getReader()
+    const chunks: any = []
+
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      chunks.push(value)
+    }
+
+    const compressed = new Uint8Array(
+      chunks.reduce((acc, chunk) => acc.concat(Array.from(chunk)), [])
+    )
+
+    return this.arrayBufferToBase64(compressed.buffer)
+  }
+
+
+
+  static async decodeAndDecompressFromBase64(encoded): Promise<ArrayBufferLike> {
+    const compressed = new Uint8Array(CSCrypto.base64ToArrayBuffer(encoded))
+
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(compressed)
+        controller.close()
+      }
+    })
+
+    const decompressedStream = stream.pipeThrough(new DecompressionStream('gzip'))
+    const reader = decompressedStream.getReader()
+    const chunks: any = []
+
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      chunks.push(value)
+    }
+
+    const decompressed = new Uint8Array(chunks.reduce(
+      (acc, chunk) => acc.concat(Array.from(chunk)), [])
+    )
+
+    return decompressed.buffer
+  }
+
+
+
+  static compareArrayBuffers(
+    buffer1: ArrayBufferLike, 
+    buffer2: ArrayBufferLike
+  ): boolean {
+    if (buffer1.byteLength !== buffer2.byteLength) return false
+
+    const view1 = new Uint8Array(buffer1)
+    const view2 = new Uint8Array(buffer2)
+
+    for (let i = 0; i < buffer1.byteLength; i++) {
+      if (view1[i] !== view2[i]) {
+        return false
+      }
+    }
+
+    return true
+  }
+
+
+  /**
+   * @dev You cannot replace `crypto.subtle` with an import of `subtle`;
+   *      otherwise, you will get an error
+   * ### To decompress
+   * 
+   * ```ts
+   * const decompressed = await decodeAndDecompressFromBase64(
+   *   compressedAndBase64Encoded
+   * )
+   * // OPTIONAL: Confirm that the decryption the file can be successfully 
+   * //           decompressed
+   * console.log(
+   *   `decompressed === encrypted: `,
+   *   compareArrayBuffers(decompressed, encrypted)
+   * )
+   * ```
+   * 
+   * ### Steps to generate a random initialization vector and asymmetric key
+   * You will need an `iv` and `key` to encrypt the `str` argument:
+   *
+   * ```ts
+   * // 1. Set the size of the key to 16 bytes
+   * const bytesSize = new Uint8Array(16)
+   * // 2. Create an initialization vector of 128 bit-length
+   * const iv = crypto.getRandomValues(bytesSize).toString()
+   * console.log(`iv: `, iv)
+   * 
+   * // 3. Generate a new asymmetric key
+   * const key = await crypto.subtle.generateKey(
+   *   {
+   *     name: 'AES-GCM',
+   *     length: 128
+   *   },
+   *   true,
+   *   ['encrypt', 'decrypt']
+   * )
+   * // 4. Export the `CryptoKey`
+   * const jwk = await crypto.subtle.exportKey('jwk', key) 
+   * const stringSerializedJwk = JSON.stringify(jwk)
+   * console.log(`stringSerializedJwk: `, stringSerializedJwk)
+   * ```
+   */
+  static async encryptThenEncode(str: string): Promise<string> {
+    const jwk = JSON.parse(process.env.NEXT_PUBLIC_SHARE_RESULTS_ENCRYPTION_KEY)
+    const iv = Buffer.from(process.env.NEXT_PUBLIC_SHARE_RESULTS_ENCRYPTION_IV)
+    const encode = (str: string): Uint8Array => new TextEncoder().encode(str)
+
+    const key = await crypto.subtle.importKey(
+      'jwk',
+      jwk,
+      { name: 'AES-GCM', length: 128 },
+      true,
+      ['encrypt', 'decrypt']
+    )
+
+    const encrypted = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv: iv },
+      key,
+      encode(str)
+    )
+
+    const encryptedBase64 = CSCrypto.arrayBufferToBase64(encrypted)
+    const compressed = await CSCrypto.compressAndEncodeToBase64(encrypted)
+
+    return compressed
+  }
+
+
+
+  static async decodeAndDecrypt(encoded: string): Promise<string> {
+    const jwk = JSON.parse(process.env.NEXT_PUBLIC_SHARE_RESULTS_ENCRYPTION_KEY)
+    const iv = Buffer.from(process.env.NEXT_PUBLIC_SHARE_RESULTS_ENCRYPTION_IV)
+
+    const key = await crypto.subtle.importKey(
+      'jwk',
+      jwk,
+      { name: 'AES-GCM', length: 128 },
+      true,
+      ['encrypt', 'decrypt']
+    )
+
+    const decompressed = await CSCrypto.decodeAndDecompressFromBase64(encoded)
+    const decrypted = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv: iv },
+      key,
+      decompressed
+    )
+
+    return new TextDecoder().decode(decrypted)
   }
 }

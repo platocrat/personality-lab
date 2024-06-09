@@ -36,7 +36,7 @@ const RateDataViz: FC<RateDataVizProps> = ({
                     position: 'relative',
                     top: '3px',
                   } }
-                  alt='White checkmark to confirm that a rating was made for a visualization'
+                  alt='White checkmark'
                   src={ `${imgPaths().svg}white-checkmark.svg` }
                 />
               </div>
