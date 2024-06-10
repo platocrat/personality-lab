@@ -7,6 +7,7 @@ import {
   useEffect,
   useContext,
   SetStateAction,
+  useLayoutEffect,
 } from 'react'
 // Locals
 import Spinner from '@/components/Suspense/Spinner'
@@ -40,22 +41,16 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
   setStudy,
   isModalVisible,
 }) => {
-  // Refs
-  const notificationRef = useRef<HTMLDivElement | null>(null)
   // Contexts
   const {
     setShowEditStudyModal
   } = useContext<EditStudyModalContextType>(EditStudyModalContext)
   // States
-  const [
-    description,
-    setDescription
-  ] = useState(study?.details.description ?? '')
-  const [
-    adminEmails,
-    setAdminEmails
-  ] = useState(study?.adminEmails?.join(', ') || '')
-  const [ name, setName ] = useState(study?.name ?? '')
+  const [ name, setName ] = useState('')
+  const [ description, setDescription ] = useState('')
+  const [ adminEmails, setAdminEmails ] = useState('')
+  const [ isSaveDisabled, setIsSaveDisabled ] = useState<boolean>(true)
+  const [ isDefaultStudy, setIsDefaultStudy ] = useState<boolean>(true)
   const [ isUpdatingStudy, setIsUpdatingStudy ] = useState<boolean>(false)
   const [ showNotification, setShowNotification ] = useState<boolean>(false)
   const [ hideNotification, setHideNotification ] = useState<boolean>(false)
@@ -92,7 +87,10 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
       adminEmails: updatedAdminEmails,
     }
 
-    await updateItemInDynamoDB(updatedStudy)
+    // await updateItemInDynamoDB(updatedStudy)
+    setIsUpdatingStudy(false)
+    setShowEditStudyModal !== null ? setShowEditStudyModal(null) : null
+    setShowNotification(true)
   }
 
 
@@ -137,10 +135,33 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
   }
 
 
+  useEffect(() => {
+    if (isModalVisible) {
+      if (
+        isDefaultStudy ||
+        (
+          name === study?.name &&
+          description === study?.details.description &&
+          adminEmails === study?.adminEmails?.join(', ')
+        )
+      ) {
+        setIsSaveDisabled(true)
+      } else {
+        setIsSaveDisabled(false)
+      }
+    }
+  }, [ 
+    name, 
+    study,
+    description, 
+    adminEmails, 
+    isModalVisible, 
+    isDefaultStudy, 
+  ])
 
 
   useEffect(() => {
-    if (hideNotification && notificationRef.current) {
+    if (hideNotification) {
       const timer = setTimeout(() => {
         setShowNotification(false)
         setHideNotification(false)
@@ -149,6 +170,21 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
       return () => clearTimeout(timer)
     }
   }, [ hideNotification ])
+
+
+  // This `useLayoutEffect()` is required because `study` is updated after the 
+  // `user` has been detected with Auth0
+  useLayoutEffect(() => {
+    if (isModalVisible) {
+      if (study && study.adminEmails)  {
+        setIsDefaultStudy(true)
+
+        setName(study?.name)
+        setDescription(study?.details.description)
+        setAdminEmails(study?.adminEmails?.join(', '))
+      }
+    }
+  }, [ study, isModalVisible ])
 
 
 
@@ -236,7 +272,10 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
                     id='name'
                     type='text'
                     value={ name }
-                    onChange={ e => setName(e.target.value) }
+                    onChange={ e => {
+                      setName(e.target.value)
+                      setIsDefaultStudy(false)
+                    }}
                   />
                 </div>
                 <div className={ appStyles.field }>
@@ -246,7 +285,10 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
                   <textarea
                     id='description'
                     value={ description }
-                    onChange={ e => setDescription(e.target.value) }
+                    onChange={ e => {
+                      setDescription(e.target.value)
+                      setIsDefaultStudy(false)
+                    }}
                   />
                 </div>
                 <div className={ appStyles.field }>
@@ -257,7 +299,10 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
                     type='text'
                     id='adminEmails'
                     value={ adminEmails }
-                    onChange={ e => setAdminEmails(e.target.value) }
+                    onChange={ e => {
+                      setAdminEmails(e.target.value)
+                      setIsDefaultStudy(false)
+                    }}
                   />
                 </div>
 
@@ -283,8 +328,21 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
                         { `Cancel` }
                       </button>
                       <button
+                        disabled={ isSaveDisabled }
                         onClick={ handleSaveChanges }
-                        className={ appStyles.button }
+                        style={{ 
+                          backgroundColor: isSaveDisabled
+                            ? 'rgba(114, 114, 114, 0.35)'
+                            : '',
+                          borderRadius: `1rem`,
+                          borderWidth: `1.2px`,
+                          height: `35px`, 
+                          width: `100%`,
+                          fontSize: `14px`,
+                          color: `rgb(244, 244, 244)`,
+                          boxShadow: isSaveDisabled ? 'none' : '',
+                        }}
+                        className={ isSaveDisabled ? '' :  appStyles.button }
                       >
                         { `Save` }
                       </button>
