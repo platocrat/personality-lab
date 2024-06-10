@@ -188,15 +188,15 @@ export class SSCrypto {
  *         `decodeThenDecrypt` functions.
  */
 export class CSCrypto {
-  static arrayBufferToBase64(buffer: ArrayBufferLike): string {
+  static arrayBufferToHex(buffer: ArrayBufferLike): string {
     const uint8Array = new Uint8Array(buffer)
     const binaryString = String.fromCharCode(...uint8Array)
     return Buffer.from(binaryString, 'binary').toString('hex')
   }
 
 
-  static base64ToArrayBuffer(base64: string): ArrayBufferLike {
-    const binaryString = Buffer.from(base64, 'hex').toString('binary')
+  static hexToArrayBuffer(hex: string): ArrayBufferLike {
+    const binaryString = Buffer.from(hex, 'hex').toString('binary')
     const len = binaryString.length
     const bytes = new Uint8Array(len)
 
@@ -209,7 +209,7 @@ export class CSCrypto {
 
 
 
-  static async compressAndEncodeToBase64(buffer: ArrayBufferLike): Promise<string> {
+  static async compressAndEncodeToHex(buffer: ArrayBufferLike): Promise<string> {
     const stream = new ReadableStream({
       start(controller) {
         controller.enqueue(new Uint8Array(buffer))
@@ -231,13 +231,13 @@ export class CSCrypto {
       chunks.reduce((acc, chunk) => acc.concat(Array.from(chunk)), [])
     )
 
-    return this.arrayBufferToBase64(compressed.buffer)
+    return this.arrayBufferToHex(compressed.buffer)
   }
 
 
 
-  static async decodeAndDecompressFromBase64(encoded): Promise<ArrayBufferLike> {
-    const compressed = new Uint8Array(CSCrypto.base64ToArrayBuffer(encoded))
+  static async decodeAndDecompressFromHex(encoded): Promise<ArrayBufferLike> {
+    const compressed = new Uint8Array(CSCrypto.hexToArrayBuffer(encoded))
 
     const stream = new ReadableStream({
       start(controller) {
@@ -286,7 +286,7 @@ export class CSCrypto {
 
   /**
    * @dev Encrypts the `input` string to an `ArrayBuffer`, then compresses and 
-   *      and encodes it to a base64 string.
+   *      and encodes it to a hex string.
    * @notice See the `README.md` for how to generate an initialization vector
    *         and asymmetric key that are required as environment variables.
    * @notice You cannot replace `crypto.subtle` with an import of `subtle`;
@@ -311,14 +311,14 @@ export class CSCrypto {
       encode(str)
     )
 
-    const compressed = await CSCrypto.compressAndEncodeToBase64(encrypted)
+    const compressed = await CSCrypto.compressAndEncodeToHex(encrypted)
     return compressed
   }
 
 
 
   /**
-   * @dev Decodes and decompresses the `compressed` base64-string-argument and 
+   * @dev Decodes and decompresses the `compressed` hex-string-argument and 
    *      then decrypts it.
    * @notice See the `README.md` for how to generate an initialization vector
    *         and asymmetric key that are required as environment variables.
@@ -337,7 +337,7 @@ export class CSCrypto {
       ['encrypt', 'decrypt']
     )
 
-    const decompressed = await CSCrypto.decodeAndDecompressFromBase64(compressed)
+    const decompressed = await CSCrypto.decodeAndDecompressFromHex(compressed)
     const decrypted = await crypto.subtle.decrypt(
       { name: 'AES-GCM', iv: iv },
       key,

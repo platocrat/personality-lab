@@ -113,7 +113,7 @@ This is another site of Dr. Brent Roberts.
         - `https://www.youtube.com/watch?v=Xg_9F2h89TE`
       - URL slugs, separators, and identifiers:
         - `/watch`: slug to indicate that the user viewing a video
-        - `?v=`: separator used to identify a unique video ID
+        - `?v=`: query string separator used to identify a unique video ID
         - `Xg_9F2h89TE`: represents the unique ID of the video being watched
     - Spotify:
       - URL:
@@ -121,7 +121,7 @@ This is another site of Dr. Brent Roberts.
       - URL slugs, separators, and identifiers:
         - `track/`: slug to indicate that the user is viewing a track
         - `7KA4W4McWYRpgf0fWsJZWB`: unique ID that identifies the page of the specific track's page
-        - `?si=`: separator used to indicate the referral method to the specific track's page
+        - `?si=`: query string separator used to indicate the referral method to the specific track's page
         - `7f7ae9e0d8b74484`: represents the unique ID of the referral method
 
 #### 0.1.6. [Linkedin](https://linkedin.com)
