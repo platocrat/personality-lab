@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useLayoutEffect } from 'react'
 
 
 function useWindowWidth () {
-  const [windowWidth, setWindowWidth] = useState(window?.innerWidth)
+  const [windowWidth, setWindowWidth] = useState(0)
 
   useEffect(() => {
     if (window !== undefined) {
@@ -18,6 +18,13 @@ function useWindowWidth () {
       }
     }
   }, [])
+
+  useLayoutEffect(() => {
+    if (window !== undefined) {
+      setWindowWidth(window.innerWidth)
+    }
+  }, [])
+
 
   return windowWidth
 }

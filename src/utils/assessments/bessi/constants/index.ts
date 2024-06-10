@@ -43,7 +43,7 @@ export const imgPaths = () => {
 
 
 /**
- * # Dummy variables for BESSI assessment results
+ * Dummy variables for BESSI assessment results
  */
 export const dummyUserBessiScores = {
   domainScores: {

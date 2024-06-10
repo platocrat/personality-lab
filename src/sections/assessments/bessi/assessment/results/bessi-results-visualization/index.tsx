@@ -161,7 +161,16 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
     }
   }
 
-  const getData = (i: number) => {
+  const getData = (i: number): { 
+    axis: string 
+    value: number
+  }[] | 
+  BarChartTargetDataType[] | 
+  {
+    domainScores: SkillDomainFactorType
+    facetScores: FacetFactorType,
+    averages?: SkillDomainFactorType
+  } => {
     switch (i) {
       case 0:
         return Object.entries(
@@ -208,7 +217,8 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   ) => {
     switch (i) {
       case 0:
-        return <StellarPlot isExample={ isExample } data={ getData(i) } />
+        const stellarPlotData = getData(i) as { axis: string, value: number }[]
+        return <StellarPlot isExample={ isExample } data={ stellarPlotData } />
       case 1:
         const barChartTitle = 'BESSI Bar Chart'
         const allData: BarChartTargetDataType[] = getData(i) as BarChartTargetDataType[]

@@ -79,7 +79,7 @@ const StudyHeader: FC<StudyHeaderProps> = ({
           style={ {
             fontSize: '14px',
             textAlign: 'left',
-            margin: '12px 48px 0px 48px',
+            margin: '12px 48px 24px 48px',
           } }
         >
           <p>{ `${study?.details.description}` }</p>

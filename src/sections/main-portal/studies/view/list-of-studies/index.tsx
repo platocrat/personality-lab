@@ -48,7 +48,7 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
   const [ 
     isLoadingStudies, 
     setIsLoadingStudies 
-  ] = useState<boolean>(false)
+  ] = useState<boolean>(true)
   const [ 
     isDeletingStudy, 
     setIsDeletingStudy 
@@ -126,7 +126,7 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
 
   return (
     <>
-      { isLoadingStudies || isDeletingStudy ? (
+      { isLoading || isLoadingStudies || isDeletingStudy ? (
         <>
           <div
             style={ {

@@ -90,7 +90,7 @@ const ParticipantTitle = ({
 
 const MainPortal: FC<MainPortalProps> = ({ }) => {
   // Auth0
-  const { user, error, isLoading, checkSession } = useUser()
+  const { user, error, isLoading } = useUser()
   // Hooks
   const { 
     isParticipant,

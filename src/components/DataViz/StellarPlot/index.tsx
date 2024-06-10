@@ -1,18 +1,32 @@
 // Externals
 import * as d3 from 'd3'
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useEffect, FC } from 'react'
 // Locals
 import Title from '../Title'
 // CSS
 import styles from '../DataViz.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+import { 
+  FacetFactorType,
+  SkillDomainFactorType, 
+  BarChartTargetDataType, 
+} from '@/utils'
 
 
 
+type StellarPlotProps = {
+  isExample: boolean
+  data: {
+    axis: string
+    value: number
+  }[]
+}
 
-const StellarPlot = ({ 
+
+
+const StellarPlot: FC<StellarPlotProps> = ({ 
+  data,
   isExample,
-  data
 }) => {
   const d3Container = useRef<any>(null)
 
