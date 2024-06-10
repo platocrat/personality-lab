@@ -8,6 +8,8 @@ import {
   useContext,
   SetStateAction,
   useLayoutEffect,
+  useMemo,
+  CSSProperties,
 } from 'react'
 // Locals
 import Spinner from '@/components/Suspense/Spinner'
@@ -46,9 +48,12 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
     setShowEditStudyModal
   } = useContext<EditStudyModalContextType>(EditStudyModalContext)
   // States
+  // Strings
   const [ name, setName ] = useState('')
   const [ description, setDescription ] = useState('')
   const [ adminEmails, setAdminEmails ] = useState('')
+  const [ invalidEmailMessage, setInvalidEmailMessage ] = useState<string>('')
+  // Booleans
   const [ isSaveDisabled, setIsSaveDisabled ] = useState<boolean>(true)
   const [ isDefaultStudy, setIsDefaultStudy ] = useState<boolean>(true)
   const [ isUpdatingStudy, setIsUpdatingStudy ] = useState<boolean>(false)
@@ -57,9 +62,43 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
 
   
   const title = `Edit Study`
-  const refClassName = `${modalStyles.modal} ${modalStyles.background} ${createStudyStyle['form-container']}`
+  const refClassName: string = `${modalStyles.modal} ${modalStyles.background} ${createStudyStyle['form-container']}`
 
 
+  const saveButtonStyle = useMemo((): CSSProperties => {
+    const style: CSSProperties = {
+      backgroundColor: isSaveDisabled
+        ? 'rgba(114, 114, 114, 0.35)'
+        : '',
+      borderRadius: `1rem`,
+      borderWidth: `1.2px`,
+      height: `35px`,
+      width: `100%`,
+      fontSize: `14px`,
+      color: `rgb(244, 244, 244)`,
+      boxShadow: isSaveDisabled ? 'none' : '',
+    } 
+
+    return style
+  }, [ isSaveDisabled ])
+
+
+  // -------------------------- Regular functions ------------------------------
+  const handleOnNameChange = (e) => {
+    setName(e.target.value)
+    setIsDefaultStudy(false)
+  }
+  
+  const handleOnDescriptionChange = (e) => {
+    setDescription(e.target.value)
+    setIsDefaultStudy(false)
+  }
+  
+  const handleOnAdminEmailsChange = (e) => {
+    setAdminEmails(e.target.value)
+    setIsDefaultStudy(false)
+    setInvalidEmailMessage('')
+  }
 
   function closeModal(e: any) {
     return setShowEditStudyModal
@@ -73,8 +112,19 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
   }
 
 
-
+  // ---------------------------- Async functions ------------------------------
   async function handleSaveChanges(e: any) {
+    const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/
+
+    const emails = adminEmails.split(',').map(email => email.trim())
+    
+    for (const email of emails) {
+      if (!emailRegex.test(email)) {
+        setInvalidEmailMessage('Please enter a valid email address')
+        return
+      }
+    }
+
     const storedStudy = study as STUDY__DYNAMODB
     const updatedAdminEmails = adminEmails.split(',').map(email => email.trim())
     const updatedStudy: STUDY__DYNAMODB = {
@@ -135,6 +185,7 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
   }
 
 
+  // ------------------------------ `useEffect`s -------------------------------
   useEffect(() => {
     if (isModalVisible) {
       if (
@@ -172,6 +223,7 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
   }, [ hideNotification ])
 
 
+  // ------------------------- `useLayoutEffect`s ------------------------------
   // This `useLayoutEffect()` is required because `study` is updated after the 
   // `user` has been detected with Auth0
   useLayoutEffect(() => {
@@ -272,10 +324,7 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
                     id='name'
                     type='text'
                     value={ name }
-                    onChange={ e => {
-                      setName(e.target.value)
-                      setIsDefaultStudy(false)
-                    }}
+                    onChange={ (e) => handleOnNameChange }
                   />
                 </div>
                 <div className={ appStyles.field }>
@@ -285,10 +334,9 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
                   <textarea
                     id='description'
                     value={ description }
-                    onChange={ e => {
-                      setDescription(e.target.value)
-                      setIsDefaultStudy(false)
-                    }}
+                    onChange={ 
+                      (e) => handleOnDescriptionChange 
+                    }
                   />
                 </div>
                 <div className={ appStyles.field }>
@@ -299,12 +347,22 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
                     type='text'
                     id='adminEmails'
                     value={ adminEmails }
-                    onChange={ e => {
-                      setAdminEmails(e.target.value)
-                      setIsDefaultStudy(false)
-                    }}
+                    onChange={ (e) => handleOnAdminEmailsChange(e) }
                   />
                 </div>
+                
+                { invalidEmailMessage && (
+                  <p 
+                    style={{ 
+                      ...definitelyCenteredStyle,
+                      color: 'red', 
+                      margin: '-8px 0px 12px 0px',
+                      fontSize: '12px',
+                    }}
+                  >
+                    { invalidEmailMessage }
+                  </p>
+                )}
 
                 { isUpdatingStudy ? (
                   <>
@@ -328,27 +386,16 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
                         { `Cancel` }
                       </button>
                       <button
+                        style={ saveButtonStyle }
                         disabled={ isSaveDisabled }
                         onClick={ handleSaveChanges }
-                        style={{ 
-                          backgroundColor: isSaveDisabled
-                            ? 'rgba(114, 114, 114, 0.35)'
-                            : '',
-                          borderRadius: `1rem`,
-                          borderWidth: `1.2px`,
-                          height: `35px`, 
-                          width: `100%`,
-                          fontSize: `14px`,
-                          color: `rgb(244, 244, 244)`,
-                          boxShadow: isSaveDisabled ? 'none' : '',
-                        }}
                         className={ isSaveDisabled ? '' :  appStyles.button }
                       >
                         { `Save` }
                       </button>
                     </div>
                   </>
-                ) }
+                )}
               </div>
             </div>
           </div>
