@@ -137,7 +137,7 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
       adminEmails: updatedAdminEmails,
     }
 
-    // await updateItemInDynamoDB(updatedStudy)
+    await updateItemInDynamoDB(updatedStudy)
     setIsUpdatingStudy(false)
     setShowEditStudyModal !== null ? setShowEditStudyModal(null) : null
     setShowNotification(true)
