@@ -3,8 +3,8 @@ import { CSSProperties, FC, Fragment, ReactNode } from 'react'
 // Locals
 import ProgressBarLink from '@/components/Progress/ProgressBarLink'
 // CSS
-import styles from '@/components/Nav/LeftHand/LeftHandNav.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+import styles from '@/components/Nav/LeftHand/LeftHandNav.module.css'
 
 
 type LeftHandNavProps = {
