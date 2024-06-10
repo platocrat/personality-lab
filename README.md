@@ -17,6 +17,8 @@
     - [0.1.5. Prolific](#015-prolific)
     - [0.1.6. Linkedin](#016-linkedin)
     - [0.1.7. Kahoot](#017-kahoot)
+    - [0.1.8 Inclivio](#018-inclivio)
+    - [0.1.9 In8ness](#019-in8ness)
 - [1. Local development](#1-local-development)
 - [2. Launch a new AWS EC2 instance on the AWS console](#2-launch-a-new-aws-ec2-instance-on-the-aws-console)
   - [2.1. Application and OS Images](#21-application-and-os-images)
@@ -64,7 +66,8 @@ The personality platform has or is being modeled after the following websites or
 
 This is a site of [Dr. R. Chris Fraley]((https://psychology.illinois.edu/directory/profile/rcfraley)), a Professor at the Department of Psychology at the University of Illinois at Urbana-Champaign.
 
-**Visualization of Test/Assessment Results Over Time:**
+**Longitudinal Data Visualization:**
+
 - Incorporate a visualization of the user's test/assessment results over time to clearly show a user's changes to their personality profile over time.
 
 #### 0.1.2. [what-is-my-personality.com](https://www.what-is-my-personality.com)
@@ -145,6 +148,37 @@ This is another site of Dr. Brent Roberts.
   - Respondents may share a link to their results as a shareable URL for friends and  family to access their results and simply rate them or play a short personality quiz.
 - Gamified studies
   - Administrators may enable the sharing of the test/assessment results of participants' of a study
+
+#### 0.1.8. [Inclivio](https://inclivio.com)
+
+**Platform:**
+
+- Longitudinal research
+  - Model the ability to create longitudinal research designs and conduct them
+
+**Pricing:**
+
+- Price per invite or price per license:
+  - Use their pricing model as a reference to build the pricing/licensing model for `personality-lab`
+
+#### 0.1.9 [In8ness](https://www.in8ness.com)
+
+**User engagement:**
+
+- Engage users after completion of test/assessment
+  - Use the [Pop Personality Profiles](https://www.in8ness.com/articles/7) and [Character Personality Comparison](https://www.in8ness.com/articles/8) as a reference to create fictional characters
+    - Create personality profiles and test/assessment results of fictional characters using generative AI
+    - Offer a user the ability to compare and visualize their test/assessment results and personality profile against fictional characters
+    - Offer a user to ask an AI chatbot which fictional characters they would like to compare their personality profile to
+
+**Data visualization:**
+
+- Create and display similar grouped bar plots and radar plots
+
+**Platform:**
+
+- Personality Profile Report
+  - Reference In8ness's "Dynamic Web Reports" and "Downloadable PDF Reports" to generate a detailed report of a user's personality profile and/or test/assessment results
 
 ## 1. Local development
 
