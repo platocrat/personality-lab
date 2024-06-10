@@ -8,8 +8,8 @@ import useWindowWidth from '@/hooks/useWindowWidth'
 // Utils
 import { BarChartTargetDataType, getRangeLabel } from '@/utils'
 // CSS
-import dataVizStyles from '../../DataViz.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+import dataVizStyles from '@/components/DataViz/DataViz.module.css'
 import styles from '@/components/DataViz/BarChart/Radial/Radial.module.css'
 
 

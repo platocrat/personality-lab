@@ -28,15 +28,35 @@
   height: auto;
   padding: 10px;
   text-align: left;
+  font-size: 12px;
   position: fixed;
   pointer-events: none;
   border-radius: 8px;
   word-wrap: break-word;
   border: 1px solid #ddd;
   transition: opacity 0.2s;
-  background: rgba(255, 255, 255, 0.9);
+  background: lightsteelblue;
 }
 
 .tooltip:hover {
+  cursor: pointer;
+}
+
+.scoreTooltip {
+  opacity: 0;
+  z-index: 10;
+  height: auto;
+  padding: 10px;
+  position: fixed;
+  text-align: left;
+  font-size: 12px;
+  pointer-events: none;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  transition: opacity 0.2s;
+  background: lightcoral;
+}
+
+.scoreTooltip:hover {
   cursor: pointer;
 }

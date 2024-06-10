@@ -3,7 +3,7 @@ import * as d3 from 'd3'
 import React, { useEffect, useRef } from 'react'
 // Locals
 // CSS
-import './Histogram.css'
+// import './Histogram.css'
 import dataVizStyles from '@/components/DataViz/DataViz.module.css'
 import histogramStyles from '@/components/DataViz/Histogram/Histogram.module.css'
 
@@ -38,18 +38,21 @@ const Histogram = ({ data, title, score }) => {
         .domain([0, d3.max(bins, d => d.length)] as any)
         .range([height, 0])
 
-      const tooltip = d3.select('body').append('div')
-        .style('position', 'absolute')
-        .style('text-align', 'center')
-        .style('width', 'auto')
-        .style('height', 'auto')
-        .style('padding', '8px')
-        .style('font', '12px sans-serif')
-        .style('background', 'lightsteelblue')
-        .style('border', '1px solid #aaa')
-        .style('border-radius', '5px')
-        .style('pointer-events', 'none')
-        .style('opacity', 0)
+      const tooltip = d3
+        .select('#tooltip')
+        // .select('body')
+        // .append('div')
+        // .style('position', 'absolute')
+        // .style('text-align', 'center')
+        // .style('width', 'auto')
+        // .style('height', 'auto')
+        // .style('padding', '8px')
+        // .style('font', '12px sans-serif')
+        // .style('background', 'lightsteelblue')
+        // .style('border', '1px solid #aaa')
+        // .style('border-radius', '5px')
+        // .style('pointer-events', 'none')
+        // .style('opacity', 0)
 
       svg.selectAll('rect')
         .data(bins)
@@ -110,20 +113,25 @@ const Histogram = ({ data, title, score }) => {
         .attr('stroke', 'red')
         .attr('stroke-width', 2)
 
-      const scoreTooltip = d3.select('body').append('div')
-        .style('position', 'absolute')
-        .style('text-align', 'center')
-        .style('width', '100px')
-        .style('height', '28px')
-        .style('padding', '2px')
-        .style('font', '12px sans-serif')
-        .style('background', 'lightcoral')
-        .style('border', '0px')
-        .style('border-radius', '8px')
-        .style('pointer-events', 'none')
-        .style('opacity', 0)
+      const scoreTooltip = d3
+        .select('#scoreTooltip')
+        // .select('body')
+        // .append('div')
+        // .style('position', 'absolute')
+        // .style('text-align', 'center')
+        // .style('width', '100px')
+        // .style('height', '28px')
+        // .style('padding', '2px')
+        // .style('font', '12px sans-serif')
+        // .style('background', 'lightcoral')
+        // .style('border', '0px')
+        // .style('border-radius', '8px')
+        // .style('pointer-events', 'none')
+        // .style('opacity', 0)
 
-      const circleGroup = svg.append('g').attr('class', 'circle-group')
+      const circleGroup = svg
+        .append('g')
+        .attr('class', histogramStyles['circle-group'])
 
       circleGroup.append('circle')
         .attr('cx', x(score))
@@ -156,7 +164,7 @@ const Histogram = ({ data, title, score }) => {
         })
 
       circleGroup.append('circle')
-        .attr('class', 'beacon')
+        .attr('class', histogramStyles.beacon)
         .attr('cx', x(score))
         .attr('cy', 0)
         .attr('r', 10)
@@ -170,14 +178,18 @@ const Histogram = ({ data, title, score }) => {
 
   return (
     <>
-      <div ref={ d3Container }>
+      <div 
+        ref={ d3Container }
+        style={{ maxWidth: '450px' }}
+        className={ dataVizStyles.svgContainer }
+      >
         <div
           id='tooltip'
-          // className={ histogramStyles.tooltip }
+          className={ histogramStyles.tooltip }
         />
         <div
           id='scoreTooltip'
-          // className={ histogramStyles.scoreTooltip }
+          className={ histogramStyles.scoreTooltip }
         />
       </div>
     </>
