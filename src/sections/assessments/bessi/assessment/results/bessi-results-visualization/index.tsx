@@ -16,6 +16,7 @@ import {
 import TitleDropdown from './title-dropdown'
 import UserVisualization from './user-visualization'
 // Components
+import Histogram from '@/components/DataViz/Histogram'
 import RadialBarChart from '@/components/DataViz/BarChart/Radial'
 import DemoRidgelinePlot from '@/components/DataViz/DemoRidgeline'
 import BarChartPerDomain from '@/components/DataViz/BarChart/PerDomain'
@@ -105,10 +106,11 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
     { name: 'Bar Graph', imgName: 'bar-graph ' },
     { name: 'Radial Bar Graph', imgName: 'radial-bar-graph' },
     { name: 'Tree Map', imgName: 'tree-map' },
+    { name: 'Personality Visualization', imgName: 'personality-visualization' },
     { name: 'Normal Distribution', imgName: 'normal-distribution' },
     { name: 'Multiple Normal Distributions Demo', imgName: 'multiple-normal-distributions-demo' },
     { name: 'Ridgeline Plot Demo', imgName: 'ridgeline-plot-demo' },
-    { name: 'Personality Visualization', imgName: 'personality-visualization' },
+    { name: 'Histogram', imgName: 'histogram' },
   ]
   
   
@@ -161,7 +163,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
     }
   }
 
-  const getData = (i: number): { 
+  const getUserData = (i: number): { 
     axis: string 
     value: number
   }[] | 
@@ -217,11 +219,11 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   ) => {
     switch (i) {
       case 0:
-        const stellarPlotData = getData(i) as { axis: string, value: number }[]
+        const stellarPlotData = getUserData(i) as { axis: string, value: number }[]
         return <StellarPlot isExample={ isExample } data={ stellarPlotData } />
       case 1:
         const barChartTitle = 'BESSI Bar Chart'
-        const allData: BarChartTargetDataType[] = getData(i) as BarChartTargetDataType[]
+        const allData: BarChartTargetDataType[] = getUserData(i) as BarChartTargetDataType[]
 
         return (
           <>
@@ -236,7 +238,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         )
       case 2:
         const radialBarChartTitle = `BESSI Radial Bar Chart`
-        const _allData = getData(i) as BarChartTargetDataType[]
+        const _allData = getUserData(i) as BarChartTargetDataType[]
 
         return (
           <>
@@ -274,8 +276,16 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
           </>
         )
       case 3:
-        return <TreeMap isExample={ isExample } data={ getData(i) } />
+        return <TreeMap isExample={ isExample } data={ getUserData(i) } />
       case 4:
+        return (
+          <PersonalityVisualization
+            isExample={ isExample }
+            data={ getUserData(i) }
+            averages={ dummyUserBessiScores.domainScores }
+          />
+        )
+      case 5:
         /**
          * @todo Get `mean` from data 
          */
@@ -295,7 +305,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
             score={ score }
           />
         )
-      case 5:
+      case 6:
         /**
          * @todo If `isExample` is false, replace dummy data with real data
          */
@@ -304,7 +314,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
 
         const multipleNormalIsSample = false
 
-        const multipleNormalUserData = getData(i) as {
+        const multipleNormalUserData = getUserData(i) as {
           facetScores: FacetFactorType,
           domainScores: SkillDomainFactorType,
           averages: SkillDomainFactorType,
@@ -324,7 +334,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
             data={ multipleNormalDistributionData }
           />
         )
-      case 6:
+      case 7:
         /**
          * @todo If `isExample` is false, replace dummy data with real data
          */
@@ -333,7 +343,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
 
         // const ridgelinePlotIsSample = false
 
-        // const ridgelinePlotUserData = getData(i) as {
+        // const ridgelinePlotUserData = getUserData(i) as {
         //   facetScores: FacetFactorType,
         //   domainScores: SkillDomainFactorType,
         //   averages: SkillDomainFactorType,
@@ -354,24 +364,59 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
               data={ ridgelinePlotData }
             /> */}
             <DemoRidgelinePlot
-              data={ RIDGELINE_DEMO_DOMAIN_DATA }
+              data={ RIDGELINE_DEMO_DOMAIN_DATA(100) }
               height={ 400 }
               width={ 800 }
             />
             <DemoRidgelinePlot
-              data={ RIDGELINE_DEMO_FACET_DATA }
+              data={ RIDGELINE_DEMO_FACET_DATA(100) }
               height={ 400 }
               width={ 800 }
             />
           </>
         )
-      case 7:
+      case 8:
+        /**
+         * @todo Get real data from DynamoDB
+         */
+        const histogramPopulationData = {
+          facetScores: getDummyPopulationBessiScores(100, 'facet'),
+          domainScores: getDummyPopulationBessiScores(100, 'domain')
+        }
+
+        console.log(`histogramPopulationData: `, histogramPopulationData)
+
+        const histogramUserData = getUserData(i) as {
+          facetScores: FacetFactorType,
+          domainScores: SkillDomainFactorType,
+          averages: SkillDomainFactorType,
+        }
+
         return (
-          <PersonalityVisualization
-            isExample={ isExample }
-            data={ getData(i) }
-            averages={ dummyUserBessiScores.domainScores }
-          />
+          <>
+            { Object.entries(
+              histogramPopulationData.facetScores
+            ).map(([key, scoresArray]) => (
+              <div key={ `facet-${key}` }>
+                <Histogram 
+                  data={ scoresArray } 
+                  title={ `Facet Score: ${key}` } 
+                  score={ histogramUserData.facetScores[key] } 
+                />
+              </div>
+            )) }
+            { Object.entries(
+              histogramPopulationData.domainScores
+            ).map(([key, scoresArray]) => (
+              <div key={ `domain-${key}` }>
+                <Histogram 
+                  data={ scoresArray } 
+                  title={ `Domain Score: ${key}` } 
+                  score={ histogramUserData.domainScores[key] } 
+                />
+              </div>
+            )) }
+          </>
         )
       default:
         return null

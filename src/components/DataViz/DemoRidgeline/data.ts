@@ -38,20 +38,20 @@ const domains = [
   "Innovation Skills"
 ]
 
-function generateRandomValues() {
+export function generateRandomBessiScores(n: number) {
   const values: any[] = []
-  for (let i = 0; i < 42; i++) {
+  for (let i = 0; i < n; i++) {
     values.push(Math.floor(Math.random() * 100))
   }
   return values
 }
 
-export const RIDGELINE_DEMO_FACET_DATA = facets.map(facet => ({
+export const RIDGELINE_DEMO_FACET_DATA = (n: number) => facets.map(facet => ({
   key: facet,
-  values: generateRandomValues(),
+  values: generateRandomBessiScores(n),
 }))
 
-export const RIDGELINE_DEMO_DOMAIN_DATA = domains.map(domain => ({
+export const RIDGELINE_DEMO_DOMAIN_DATA = (n: number) => domains.map(domain => ({
   key: domain,
-  values: generateRandomValues(),
+  values: generateRandomBessiScores(n),
 }))

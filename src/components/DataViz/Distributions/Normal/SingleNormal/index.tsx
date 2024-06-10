@@ -3,13 +3,14 @@ import * as d3 from 'd3'
 import { FC, useEffect, useRef } from 'react'
 // Locals
 import { 
-  generateAreaUnderNormalCurve, 
-  generateNormalDistributionCurve,
+  // generateAreaUnderNormalCurve, 
+  // generateNormalDistributionCurve,
 } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/components/DataViz/DataViz.module.css'
 import '@/components/DataViz/Distributions/Normal/SingleNormal'
+import { px } from 'framer-motion'
 
 
 
@@ -21,8 +22,74 @@ type SingleNormalDistributionChartProps = {
 }
 
 
+
+export function generateAreaUnderNormalCurve(
+  d3,
+  mean: number,
+  stddev: number
+): { x: number, y: number }[] {
+  const xValues = d3.range(
+    mean - 3 * stddev,
+    mean + 3 * stddev,
+    stddev / 50
+  )
+
+  const yValues = xValues.map(
+    x => (
+      1 / (
+        stddev * Math.sqrt(2 * Math.PI)
+      )
+    ) * Math.exp(
+      -0.5 * (
+        (x - mean) / stddev
+      ) ** 2
+    )
+  )
+
+  const _: { x: number, y: number }[] = xValues.map(
+    (x: number, i: number): { x: number, y: number } => ({ x, y: yValues[i] })
+  )
+
+  return _
+}
+
+
+
+// Function to generate the normal distribution curve
+export function generateNormalDistributionCurve(
+  d3,
+  mean: number,
+  stddev: number
+): { x: number, y: number }[] {
+  const xValues = d3.range(
+    mean - 3 * stddev,
+    mean + 3 * stddev, stddev / 50
+  )
+
+  const yValues = xValues.map(
+    x => (
+      1 / (
+        stddev * Math.sqrt(2 * Math.PI)
+      )
+    ) * Math.exp(
+      -0.5 * (
+        (x - mean) / stddev
+      ) ** 2
+    )
+  )
+
+  const _: { x: number, y: number }[] = xValues.map(
+    (x: number, i: number): { x: number, y: number } => ({ x, y: yValues[i] })
+  )
+
+  return _
+}
+
+
+
+
 const SingleNormalDistributionChart: FC<SingleNormalDistributionChartProps> = ({ 
-  mean, 
+  mean,
   score,
   stddev,
 }) => {
@@ -185,13 +252,18 @@ const SingleNormalDistributionChart: FC<SingleNormalDistributionChartProps> = ({
         
         tooltip.html(
           `
-          <div style="width: 180px">         
+          <div style="width: 80px">         
             <div style="display: flex; justify-content: space-between;">
               <p>Score:</p>
               <p>${d.x.toFixed(2)}</p>
             </div>
             <div style="display: flex; justify-content: space-between;">
-              <p>Probability Density:</p>
+              <p>
+                <em>
+                  f(x)
+                </em>
+                :
+              </p>
               <p>${yValue.toFixed(4)}</p>
             </div>
           </div>
@@ -260,13 +332,18 @@ const SingleNormalDistributionChart: FC<SingleNormalDistributionChartProps> = ({
 
         scoreTooltip.html(
           `
-          <div style="width: 180px">         
+          <div style="width: 80px">         
             <div style="display: flex; justify-content: space-between;">
               <p>Score:</p>
               <p>${score.toFixed(2)}</p>
             </div>
             <div style="display: flex; justify-content: space-between;">
-              <p>Probability Density:</p>
+              <p>
+                <em>
+                  f(x)
+                </em>
+                :
+              </p>
               <p>${yValue.toFixed(4)}</p>
             </div>
           </div>

@@ -111,7 +111,7 @@ export function getDummyPopulationBessiScores(
     // For each domain name
     keys.forEach((key: string) => {
       // Push the user's score to the array of scores for this key.
-      const value = getRandomValueInRange(40, 80)
+      const value = getRandomValueInRange(0, 100)
       const values = populationScores[key] 
         ? [ ...populationScores[key], value ] 
         : [ value ]

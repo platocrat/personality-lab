@@ -1,0 +1,23 @@
+@keyframes beacon {
+  0%, 100% {
+    r: 5;
+    opacity: 0;
+  }
+  25% {
+    r: 9;
+    opacity: 0.1;
+  }
+  50% {
+    r: 14;
+    opacity: 0.3;
+  }
+  100% {
+    r: 22;
+    opacity: 0.5;
+  }
+}
+
+.circle-group .beacon {
+  animation: beacon 1s infinite; /* Total animation time for each cycle is 1 seconds */
+  animation-timing-function: steps(50, start);
+}
