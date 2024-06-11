@@ -15,14 +15,17 @@ import styles from '@/components/DataViz/PersonalityVisualization/PersonalityVis
 const PersonalityVisualization = ({
   isExample,
   data,
-  averages,
 }) => {
   const d3Container = useRef<any>(null)
   const [ activeDomain, setActiveDomain ] = useState('Self-Management Skills')
 
   const title = `BESSI Personality Visualization`
 
-
+  /**
+   * @todo Fetch the results of the dataset from DynamoDB to obtain the average
+   *       domain scores.
+   */
+  const averages = data.domainScores
 
   // Calculating averages is not depicted in this snippet
   const averageScore = averages[activeDomain]

@@ -36,6 +36,11 @@ import BessiRateUserResults from '@/components/Forms/BESSI/RateUserResults'
 import PersonalityVisualization from '@/components/DataViz/PersonalityVisualization'
 import ResultsVisualizationModal from '@/components/Modals/BESSI/ResultsVisualization'
 import SingleNormalDistributionChart from '@/components/DataViz/Distributions/Normal/Single'
+// Dummy data
+import {
+  DUMMY_BESSI_USER_SCORES,
+  generateDummyBessiUserScores,
+} from '@/components/DataViz/BarChart/PerDomain/data'
 // Hooks
 import useClickOutside from '@/hooks/useClickOutside'
 // Contexts
@@ -47,10 +52,11 @@ import {
 // Utils
 import {
   transformData,
+  UserScoresType,
   FacetFactorType,
   RATINGS__DYNAMODB,
   StellarPlotDataType,
-  dummyUserBessiScores,
+  calculateBessiScores,
   SkillDomainFactorType,
   getRandomValueInRange,
   BarChartInputDataType,
@@ -74,7 +80,6 @@ type BessiResultsVisualizationType = {
 export type BessiUserDataVizType = {
   facetScores: FacetFactorType,
   domainScores: SkillDomainFactorType,
-  averages?: SkillDomainFactorType,
 }
 
 export type UserDataForVizType = StellarPlotDataType[] 
@@ -116,12 +121,6 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   const [ currentVisualization, setCurrentVisualization ] = useState(0)
 
 
-  // Handle toggle between self and comparison visualization views
-  const handleToggleVisualizationType = () => {
-    setCurrentVisualization(0)
-    setShowComparison(prevState => !prevState)
-  }
-
   // Updated visualizations arrays
   const selfVisualizations = [
     { name: 'Stellar Plot', imgName: 'stellar-plot' },
@@ -142,13 +141,18 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   const visualizations = showComparison 
     ? comparisonVisualizations 
     : selfVisualizations
-
   
   // ------------------------- Regular functions -------------------------------
   // ~~~~~~~~ Event handlers ~~~~~~~~
   function handleOnChangeRadialBarChart(e: any) {
     const { value } = e.target
     setSelectedRadialBarChart(value)
+  }
+
+  // Handle toggle between self and comparison visualization views
+  const handleToggleVisualizationType = () => {
+    setCurrentVisualization(0)
+    setShowComparison(prevState => !prevState)
   }
 
   const handleTakeScreenshot = () => {
@@ -193,28 +197,36 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
     }
   }
 
+
+
   const getUserData = (i: number): UserDataForVizType => {
     if (showComparison) {
       switch (i) {
         case 0:
         case 1:
+          return bessiSkillScores?.domainScores
+            ? {
+              facetScores: bessiSkillScores?.facetScores,
+              domainScores: bessiSkillScores?.domainScores,
+            }
+            : calculateBessiScores(DUMMY_BESSI_USER_SCORES as UserScoresType[])
         case 2:
           return bessiSkillScores?.domainScores
             ? {
               facetScores: bessiSkillScores?.facetScores,
               domainScores: bessiSkillScores?.domainScores,
-              averages: dummyUserBessiScores.domainScores,
             }
-            : dummyUserBessiScores
+            : calculateBessiScores(DUMMY_BESSI_USER_SCORES as UserScoresType[])
         default:
-          return dummyUserBessiScores
+          return calculateBessiScores(DUMMY_BESSI_USER_SCORES as UserScoresType[])
       }
     } else {
       switch (i) {
         case 0:
           return Object.entries(
             bessiSkillScores?.domainScores as SkillDomainFactorType
-            ?? dummyUserBessiScores.domainScores as SkillDomainFactorType
+            ?? calculateBessiScores(
+              DUMMY_BESSI_USER_SCORES as UserScoresType[]).domainScores
           ).map(([key, value]) => ({
             axis: key,
             value: value / 100
@@ -229,7 +241,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
           return transformData(
             bessiSkillScores?.domainScores
               ? inputData
-              : dummyUserBessiScores
+              : calculateBessiScores(DUMMY_BESSI_USER_SCORES as UserScoresType[])
           )
         case 3:
         case 4:
@@ -239,11 +251,10 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
             ? {
               facetScores: bessiSkillScores?.facetScores,
               domainScores: bessiSkillScores?.domainScores,
-              averages: dummyUserBessiScores.domainScores,
             }
-            : dummyUserBessiScores
+            : calculateBessiScores(DUMMY_BESSI_USER_SCORES as UserScoresType[])
         default:
-          return dummyUserBessiScores
+          return calculateBessiScores(DUMMY_BESSI_USER_SCORES as UserScoresType[])
       }
     }
   }
@@ -259,7 +270,6 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
           const histogramUserData = getUserData(i) as {
             facetScores: FacetFactorType,
             domainScores: SkillDomainFactorType,
-            averages: SkillDomainFactorType,
           }
 
           return (
@@ -309,8 +319,8 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
 
           return (
             <MultipleNormalDistributions
-              isSample={ multipleNormalIsSample }
               isExample={ isExample }
+              isSample={ multipleNormalIsSample }
               data={ multipleNormalDistributionData }
             />
           )
@@ -383,7 +393,6 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
             <PersonalityVisualization
               isExample={ isExample }
               data={ getUserData(i) }
-              averages={ dummyUserBessiScores.domainScores }
             />
           )
         case 5:
