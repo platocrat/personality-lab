@@ -3,14 +3,12 @@ import * as d3 from 'd3'
 import { FC, useEffect, useRef } from 'react'
 // Locals
 import { 
-  // generateAreaUnderNormalCurve, 
-  // generateNormalDistributionCurve,
+  generateAreaUnderNormalCurve, 
+  generateNormalDistributionCurve,
 } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/components/DataViz/DataViz.module.css'
-import '@/components/DataViz/Distributions/Normal/SingleNormal'
-import { px } from 'framer-motion'
 
 
 
@@ -20,72 +18,6 @@ type SingleNormalDistributionChartProps = {
   score: number
   stddev: number
 }
-
-
-
-export function generateAreaUnderNormalCurve(
-  d3,
-  mean: number,
-  stddev: number
-): { x: number, y: number }[] {
-  const xValues = d3.range(
-    mean - 3 * stddev,
-    mean + 3 * stddev,
-    stddev / 50
-  )
-
-  const yValues = xValues.map(
-    x => (
-      1 / (
-        stddev * Math.sqrt(2 * Math.PI)
-      )
-    ) * Math.exp(
-      -0.5 * (
-        (x - mean) / stddev
-      ) ** 2
-    )
-  )
-
-  const _: { x: number, y: number }[] = xValues.map(
-    (x: number, i: number): { x: number, y: number } => ({ x, y: yValues[i] })
-  )
-
-  return _
-}
-
-
-
-// Function to generate the normal distribution curve
-export function generateNormalDistributionCurve(
-  d3,
-  mean: number,
-  stddev: number
-): { x: number, y: number }[] {
-  const xValues = d3.range(
-    mean - 3 * stddev,
-    mean + 3 * stddev, stddev / 50
-  )
-
-  const yValues = xValues.map(
-    x => (
-      1 / (
-        stddev * Math.sqrt(2 * Math.PI)
-      )
-    ) * Math.exp(
-      -0.5 * (
-        (x - mean) / stddev
-      ) ** 2
-    )
-  )
-
-  const _: { x: number, y: number }[] = xValues.map(
-    (x: number, i: number): { x: number, y: number } => ({ x, y: yValues[i] })
-  )
-
-  return _
-}
-
-
 
 
 const SingleNormalDistributionChart: FC<SingleNormalDistributionChartProps> = ({ 

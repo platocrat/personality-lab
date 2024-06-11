@@ -1,13 +1,13 @@
 import { FC } from 'react'
 // Locals
-import SingleNormalDistributionChart from '@/components/DataViz/Distributions/Normal/SingleNormal'
+import Title from '@/components/DataViz/Title'
+import SingleNormalDistributionChart from '@/components/DataViz/Distributions/Normal/Single'
 // Utils
 import { 
   calculateStats,
   FacetFactorType, 
   SkillDomainFactorType,
 } from '@/utils'
-import Title from '@/components/DataViz/Title'
 import { definitelyCenteredStyle } from '@/theme/styles'
 
 

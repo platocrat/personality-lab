@@ -402,7 +402,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
 
 
   // ------------------------------ Async functions ----------------------------
-  async function handleRateVisualization (
+  async function handleRateVisualization(
     e: any, 
     positiveOrNegative: 'positive' | 'negative',
   ) {
