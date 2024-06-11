@@ -49,6 +49,7 @@ import {
   transformData,
   FacetFactorType,
   RATINGS__DYNAMODB,
+  StellarPlotDataType,
   dummyUserBessiScores,
   SkillDomainFactorType,
   getRandomValueInRange,
@@ -59,7 +60,7 @@ import {
 } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
-import study from '@/sections/main-portal/studies/view/study'
+import styles from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization/BessiResultsVIsualization.module.css'
 
 
 
@@ -70,11 +71,15 @@ type BessiResultsVisualizationType = {
 }
 
 
-export type UserForDataVizType = {
+export type BessiUserDataVizType = {
   facetScores: FacetFactorType,
   domainScores: SkillDomainFactorType,
-  averages: SkillDomainFactorType,
+  averages?: SkillDomainFactorType,
 }
+
+export type UserDataForVizType = StellarPlotDataType[] 
+  | BarChartTargetDataType[] 
+  | BessiUserDataVizType
 
 
 
@@ -99,6 +104,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   const [ isOpen, setIsOpen ] = useState(false)
   const [ isRating, setIsRating ] = useState(false)
   const [ isCopied, setIsCopied ] = useState(false)
+  const [ showComparison, setShowComparison ] = useState(false)
   const [ isModalVisible, setIsModalVisible ] = useState(false)
   // Strings
   const [ screenshotUrl, setScreenshotUrl ] = useState('')
@@ -109,19 +115,34 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   ] = useState(0)
   const [ currentVisualization, setCurrentVisualization ] = useState(0)
 
-  
-  const visualizations = [
+
+  // Handle toggle between self and comparison visualization views
+  const handleToggleVisualizationType = () => {
+    setCurrentVisualization(0)
+    setShowComparison(prevState => !prevState)
+  }
+
+  // Updated visualizations arrays
+  const selfVisualizations = [
     { name: 'Stellar Plot', imgName: 'stellar-plot' },
-    { name: 'Bar Graph', imgName: 'bar-graph ' },
+    { name: 'Bar Graph', imgName: 'bar-graph' },
     { name: 'Radial Bar Graph', imgName: 'radial-bar-graph' },
     { name: 'Tree Map', imgName: 'tree-map' },
     { name: 'Personality Visualization', imgName: 'personality-visualization' },
-    { name: 'Normal Distribution', imgName: 'normal-distribution' },
-    { name: 'Multiple Normal Distributions Demo', imgName: 'multiple-normal-distributions-demo' },
-    { name: 'Ridgeline Plot Demo', imgName: 'ridgeline-plot-demo' },
-    { name: 'Histogram', imgName: 'histogram' },
+    { name: 'Normal Distribution', imgName: 'normal-distribution' }
   ]
-  
+
+  const comparisonVisualizations = [
+    { name: 'Histogram', imgName: 'histogram' },
+    { name: 'Ridgeline Plot', imgName: 'ridgeline-plot' },
+    { name: 'Multiple Normal Distributions', imgName: 'multiple-normal-distributions' },
+  ]
+
+  // Determine the visualizations to render based on the toggle state
+  const visualizations = showComparison 
+    ? comparisonVisualizations 
+    : selfVisualizations
+
   
   // ------------------------- Regular functions -------------------------------
   // ~~~~~~~~ Event handlers ~~~~~~~~
@@ -172,238 +193,216 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
     }
   }
 
-  const getUserData = (i: number): { 
-    axis: string 
-    value: number
-  }[] | 
-  BarChartTargetDataType[] | 
-  {
-    domainScores: SkillDomainFactorType
-    facetScores: FacetFactorType,
-    averages?: SkillDomainFactorType
-  } => {
-    switch (i) {
-      case 0:
-        return Object.entries(
-          bessiSkillScores?.domainScores as SkillDomainFactorType
-          ?? dummyUserBessiScores.domainScores as SkillDomainFactorType
-        ).map(([key, value]) => ({
-          axis: key,
-          value: value / 100
-        }))
-      case 1:
-      case 2:
-        const inputData: BarChartInputDataType = {
-          facetScores: bessiSkillScores?.facetScores as FacetFactorType,
-          domainScores: bessiSkillScores?.domainScores as SkillDomainFactorType,
-        }
-
-        return transformData(
-          bessiSkillScores?.domainScores
-            ? inputData 
+  const getUserData = (i: number): UserDataForVizType => {
+    if (showComparison) {
+      switch (i) {
+        case 0:
+        case 1:
+        case 2:
+          return bessiSkillScores?.domainScores
+            ? {
+              facetScores: bessiSkillScores?.facetScores,
+              domainScores: bessiSkillScores?.domainScores,
+              averages: dummyUserBessiScores.domainScores,
+            }
             : dummyUserBessiScores
-          )
-      case 3:
-      case 4:
-      case 5:
-      case 6:
-      case 7:
-        return bessiSkillScores?.domainScores
-          ? {
-            facetScores: bessiSkillScores?.facetScores,
-            domainScores: bessiSkillScores?.domainScores,
-            averages: dummyUserBessiScores.domainScores,
+        default:
+          return dummyUserBessiScores
+      }
+    } else {
+      switch (i) {
+        case 0:
+          return Object.entries(
+            bessiSkillScores?.domainScores as SkillDomainFactorType
+            ?? dummyUserBessiScores.domainScores as SkillDomainFactorType
+          ).map(([key, value]) => ({
+            axis: key,
+            value: value / 100
+          }))
+        case 1:
+        case 2:
+          const inputData: BarChartInputDataType = {
+            facetScores: bessiSkillScores?.facetScores as FacetFactorType,
+            domainScores: bessiSkillScores?.domainScores as SkillDomainFactorType,
           }
-          : dummyUserBessiScores
-      default:
-        return dummyUserBessiScores
+
+          return transformData(
+            bessiSkillScores?.domainScores
+              ? inputData
+              : dummyUserBessiScores
+          )
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+          return bessiSkillScores?.domainScores
+            ? {
+              facetScores: bessiSkillScores?.facetScores,
+              domainScores: bessiSkillScores?.domainScores,
+              averages: dummyUserBessiScores.domainScores,
+            }
+            : dummyUserBessiScores
+        default:
+          return dummyUserBessiScores
+      }
     }
   }
 
 
-  // Placeholder for rendering the selected visualization
   const renderVisualization = (
-    isExample: boolean, 
+    isExample: boolean,
     i: number
   ) => {
-    switch (i) {
-      case 0:
-        const stellarPlotData = getUserData(i) as { axis: string, value: number }[]
-        return <StellarPlot isExample={ isExample } data={ stellarPlotData } />
-      case 1:
-        const barChartTitle = 'BESSI Bar Chart'
-        const allData: BarChartTargetDataType[] = getUserData(i) as BarChartTargetDataType[]
+    if (showComparison) {
+      switch (i) {
+        case 0:
+          const histogramUserData = getUserData(i) as {
+            facetScores: FacetFactorType,
+            domainScores: SkillDomainFactorType,
+            averages: SkillDomainFactorType,
+          }
 
-        return (
-          <>
-            <Title isExample={ isExample } title={ barChartTitle } />
-
-            { allData.map((data: BarChartTargetDataType, i: number) => (
-              <>
-                <BarChartPerDomain isExample={ isExample } data={ data } />
-              </>
-            )) }
-          </>
-        )
-      case 2:
-        const radialBarChartTitle = `BESSI Radial Bar Chart`
-        const _allData = getUserData(i) as BarChartTargetDataType[]
-
-        return (
-          <>
-            <div
-              style={{
-                ...definitelyCenteredStyle,
-                flexDirection: 'column',
-              }}
-            >
-              <Title isExample={ isExample } title={ radialBarChartTitle } />
-              <select
-                value={ selectedRadialBarChart }
-                style={{ 
-                  padding: '4px 8px 4px 4px',
-                  margin: '4px 0px 4px 0px',
+          return (
+            <>
+              <MultipleHistograms
+                userData={ histogramUserData }
+                auth0={{
+                  user,
+                  isLoading,
                 }}
-                onChange={ 
-                  (e: any) => handleOnChangeRadialBarChart(e) 
-                }
-              >
-                { _allData.map((data: BarChartTargetDataType, i: number) => (
-                  <>
-                    <option key={ i } value={ i }>
-                      { data.name }
-                    </option>
-                  </>
-                )) }
-              </select>
-
-              <RadialBarChart
-                data={ _allData[selectedRadialBarChart] } 
-                selectedRadialBarChart={ selectedRadialBarChart }
               />
-            </div>
-          </>
-        )
-      case 3:
-        return <TreeMap isExample={ isExample } data={ getUserData(i) } />
-      case 4:
-        return (
-          <PersonalityVisualization
-            isExample={ isExample }
-            data={ getUserData(i) }
-            averages={ dummyUserBessiScores.domainScores }
-          />
-        )
-      case 5:
-        /**
-         * @todo Get `mean` from data 
-         */
-        const mean = 50
-        /**
-         * @todo Get `stddev` from data 
-         */
-        const stddev = getRandomValueInRange(1, 5)
-        const score = getRandomValueInRange(50 - stddev, 50 + stddev)
+            </>
+          )
+        case 1:
+          return (
+            <>
+              <DemoRidgelinePlot
+                data={ RIDGELINE_DEMO_DOMAIN_DATA(100) }
+                height={ 400 }
+                width={ 800 }
+              />
+              <DemoRidgelinePlot
+                data={ RIDGELINE_DEMO_FACET_DATA(100) }
+                height={ 400 }
+                width={ 800 }
+              />
+            </>
+          )
+        case 2:
+          const multipleNormalPopFacetScores = getDummyPopulationBessiScores(100, 'facet')
+          const multipleNormalPopDomainScores = getDummyPopulationBessiScores(100, 'domain')
 
-        console.log(`[${new Date().toLocaleString()}] stddev: `, stddev)
+          const multipleNormalIsSample = false
 
-        return (
-          <SingleNormalDistributionChart
-            mean={ mean }
-            stddev={ stddev }
-            score={ score }
-          />
-        )
-      case 6:
-        /**
-         * @todo If `isExample` is false, replace dummy data with real data
-         */
-        const multipleNormalPopFacetScores = getDummyPopulationBessiScores(100, 'facet')
-        const multipleNormalPopDomainScores = getDummyPopulationBessiScores(100, 'domain')
+          const multipleNormalUserData = getUserData(i) as {
+            facetScores: FacetFactorType,
+            domainScores: SkillDomainFactorType,
+            averages: SkillDomainFactorType,
+          }
 
-        const multipleNormalIsSample = false
+          const multipleNormalDistributionData: MultipleNormalDistributionDataType = {
+            facetScores: multipleNormalUserData.facetScores,
+            domainScores: multipleNormalUserData.domainScores,
+            populationFacetScores: multipleNormalPopFacetScores,
+            populationDomainScores: multipleNormalPopDomainScores,
+          }
 
-        const multipleNormalUserData = getUserData(i) as {
-          facetScores: FacetFactorType,
-          domainScores: SkillDomainFactorType,
-          averages: SkillDomainFactorType,
-        }
-
-        const multipleNormalDistributionData: MultipleNormalDistributionDataType = {
-          facetScores: multipleNormalUserData.facetScores,
-          domainScores: multipleNormalUserData.domainScores,
-          populationFacetScores: multipleNormalPopFacetScores,
-          populationDomainScores: multipleNormalPopDomainScores,
-        }
-
-        return (
-          <MultipleNormalDistributions
-            isSample={ multipleNormalIsSample }
-            isExample={ isExample }
-            data={ multipleNormalDistributionData }
-          />
-        )
-      case 7:
-        /**
-         * @todo If `isExample` is false, replace dummy data with real data
-         */
-        // const ridgelinePlotPopFacetScores = getDummyPopulationBessiScores(100, 'facet')
-        // const ridgelinePlotPopDomainScores = getDummyPopulationBessiScores(100, 'domain')
-
-        // const ridgelinePlotIsSample = false
-
-        // const ridgelinePlotUserData = getUserData(i) as {
-        //   facetScores: FacetFactorType,
-        //   domainScores: SkillDomainFactorType,
-        //   averages: SkillDomainFactorType,
-        // }
-
-        // const ridgelinePlotData: RidgelinePlotDataType = {
-        //   facetScores: ridgelinePlotUserData.facetScores,
-        //   domainScores: ridgelinePlotUserData.domainScores,
-        //   populationFacetScores: ridgelinePlotPopFacetScores,
-        //   populationDomainScores: ridgelinePlotPopDomainScores,
-        // }
-
-        return (
-          <>
-            {/* <RidgelinePlot
-              isSample={ ridgelinePlotIsSample }
+          return (
+            <MultipleNormalDistributions
+              isSample={ multipleNormalIsSample }
               isExample={ isExample }
-              data={ ridgelinePlotData }
-            /> */}
-            <DemoRidgelinePlot
-              data={ RIDGELINE_DEMO_DOMAIN_DATA(100) }
-              height={ 400 }
-              width={ 800 }
+              data={ multipleNormalDistributionData }
             />
-            <DemoRidgelinePlot
-              data={ RIDGELINE_DEMO_FACET_DATA(100) }
-              height={ 400 }
-              width={ 800 }
-            />
-          </>
-        )
-      case 8:
-        const histogramUserData = getUserData(i) as {
-          facetScores: FacetFactorType,
-          domainScores: SkillDomainFactorType,
-          averages: SkillDomainFactorType,
-        }
+          )
+        default:
+          return null
+      }
+    } else {
+      switch (i) {
+        case 0:
+          const stellarPlotData = getUserData(i) as { axis: string, value: number }[]
+          return <StellarPlot isExample={ isExample } data={ stellarPlotData } />
+        case 1:
+          const barChartTitle = 'BESSI Bar Chart'
+          const allData: BarChartTargetDataType[] = getUserData(i) as BarChartTargetDataType[]
 
-        return (
-          <>
-            <MultipleHistograms
-              userData={ histogramUserData }
-              auth0={{
-                user,
-                isLoading,
-              }}
+          return (
+            <>
+              <Title isExample={ isExample } title={ barChartTitle } />
+
+              { allData.map((data: BarChartTargetDataType, i: number) => (
+                <>
+                  <BarChartPerDomain isExample={ isExample } data={ data } />
+                </>
+              )) }
+            </>
+          )
+        case 2:
+          const radialBarChartTitle = `BESSI Radial Bar Chart`
+          const _allData = getUserData(i) as BarChartTargetDataType[]
+
+          return (
+            <>
+              <div
+                style={ {
+                  ...definitelyCenteredStyle,
+                  flexDirection: 'column',
+                } }
+              >
+                <Title isExample={ isExample } title={ radialBarChartTitle } />
+                <select
+                  value={ selectedRadialBarChart }
+                  style={ {
+                    padding: '4px 8px 4px 4px',
+                    margin: '4px 0px 4px 0px',
+                  } }
+                  onChange={
+                    (e: any) => handleOnChangeRadialBarChart(e)
+                  }
+                >
+                  { _allData.map((data: BarChartTargetDataType, i: number) => (
+                    <>
+                      <option key={ i } value={ i }>
+                        { data.name }
+                      </option>
+                    </>
+                  )) }
+                </select>
+
+                <RadialBarChart
+                  data={ _allData[selectedRadialBarChart] }
+                  selectedRadialBarChart={ selectedRadialBarChart }
+                />
+              </div>
+            </>
+          )
+        case 3:
+          return <TreeMap isExample={ isExample } data={ getUserData(i) } />
+        case 4:
+          return (
+            <PersonalityVisualization
+              isExample={ isExample }
+              data={ getUserData(i) }
+              averages={ dummyUserBessiScores.domainScores }
             />
-          </>
-        )
-      default:
-        return null
+          )
+        case 5:
+          const mean = 50
+          const stddev = getRandomValueInRange(1, 5)
+          const score = getRandomValueInRange(50 - stddev, 50 + stddev)
+
+          console.log(`[${new Date().toLocaleString()}] stddev: `, stddev)
+
+          return (
+            <SingleNormalDistributionChart
+              mean={ mean }
+              stddev={ stddev }
+              score={ score }
+            />
+          )
+        default:
+          return null
+      }
     }
   }
 
@@ -515,6 +514,25 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
       <div 
         style={{ marginTop: '24px' }}
       >
+        {/* Toggle Switch */ }
+        <div className={ styles.switchContainer }>
+          <span style={{ fontSize: '13px', marginRight: '4px' }}>
+            <div style={ { display: 'flex' } }>
+              <p style={ { marginRight: '4px' } }>
+                { `Compare to others?` }
+              </p>
+            </div>
+          </span>
+          <label className={ styles.switch }>
+            <input 
+              type='checkbox'
+              checked={ showComparison }
+              onChange={ handleToggleVisualizationType }
+            />
+            <span className={ styles.slider } />
+          </label>
+        </div>
+
         <TitleDropdown
           visualizations={ visualizations }
           currentVisualization={ currentVisualization }

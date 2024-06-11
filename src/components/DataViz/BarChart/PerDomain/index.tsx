@@ -223,7 +223,7 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
               </p>
             </div>
             <div style="width: max-content; background-color: ${ color((data as BarChartTargetDataType).domainScore) }; border-radius: 5px; padding: 0px 7.5px;">
-              <p style="color: white; font-size: 14px; font-weight: 800; filter: drop-shadow(0px 0px 1px rgba(0, 0, 0, 1));">
+              <p style="position: relative; top: 1px; color: white; font-size: 14px; font-weight: 800; filter: drop-shadow(0px 0px 1px rgba(0, 0, 0, 1));">
                 ${ getRangeLabel((data as BarChartTargetDataType).domainScore) }
               </p>
             </div>

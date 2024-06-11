@@ -1,6 +1,12 @@
 export type FacetDataType = { name: string, score: number }
 
 
+export type StellarPlotDataType = {
+  axis: string
+  value: number
+}
+
+
 export type BarChartInputDataType = {
   domainScores: { [key: string]: number }
   facetScores: { [key: string]: number }

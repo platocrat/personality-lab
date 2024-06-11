@@ -8,14 +8,14 @@ import {
   SkillDomainFactorType,
   getDummyPopulationBessiScores, 
 } from '@/utils'
-import { UserForDataVizType } from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization'
+import { BessiUserDataVizType } from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization'
 
 
 type Auth0User = any
 
 
 type MultipleHistogramsProps = {
-  userData: UserForDataVizType,
+  userData: BessiUserDataVizType,
   auth0: {
     user: Auth0User,
     isLoading: boolean

@@ -6,21 +6,18 @@ import Title from '@/components/DataViz/Title'
 // Utils
 import { 
   FacetFactorType,
+  StellarPlotDataType, 
   SkillDomainFactorType, 
-  BarChartTargetDataType, 
+  BarChartTargetDataType,
 } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/components/DataViz/DataViz.module.css'
 
 
-
 type StellarPlotProps = {
   isExample: boolean
-  data: {
-    axis: string
-    value: number
-  }[]
+  data: StellarPlotDataType[]
 }
 
 

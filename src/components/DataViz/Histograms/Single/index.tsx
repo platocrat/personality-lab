@@ -122,7 +122,7 @@ const Histogram = ({ data, title, score }) => {
         .attr('y', 130)
         .html(
           `
-            <p style="font-size: 14px; transform: rotate(-90deg); position: relative; top: 15px;">
+            <p style="font-size: 14px; transform: rotate(-90deg); position: relative; top: 16.5px;">
               ${ 'Count' }
             </p>
           `
