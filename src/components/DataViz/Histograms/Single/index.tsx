@@ -22,7 +22,7 @@ const Histogram = ({ data, title, score }) => {
       const svg = d3.select(d3Container.current)
         .append('svg')
         .attr('preserveAspectRatio', 'xMinYMin meet')
-        .attr('viewBox', '-45 -30 650 375')
+        .attr('viewBox', '-52 -30 650 375')
         .classed(dataVizStyles.svgContent, true)
 
       const x = d3.scaleLinear()
@@ -77,12 +77,12 @@ const Histogram = ({ data, title, score }) => {
           //     <br>
           //     Count: ${d.length}`
           //   )
-          //   /**
-          //    * @todo Position `left` and `top` over-expand the window width when
-          //    *      the tooltip is shown on a mobile-sized window
-          //    */
-          //   .style('left', `${event.pageX + 5}px`)
-          //   .style('top', `${event.pageY - 28}px`)
+            /**
+             * @todo Position `left` and `top` over-expand the window width when
+             *      the tooltip is shown on a mobile-sized window
+             */
+            // .style('left', `${event.pageX + 5}px`)
+            // .style('top', `${event.pageY - 28}px`)
         })
         .on('mouseout', function () {
           d3.select(this).style('fill', 'lightblue')
@@ -188,12 +188,12 @@ const Histogram = ({ data, title, score }) => {
         .on('mousemove', function (event, d) {
           // scoreTooltip
           //   .html(`User's Score: ${score.toFixed(2)}`)
-          //   /**
-          //    * @todo Position `left` and `top` over-expand the window width when
-          //    *      the tooltip is shown on a mobile-sized window
-          //    */
-          //   .style('left', `${event.pageX + 5}px`)
-          //   .style('top', `${event.pageY - 28}px`)
+            /**
+             * @todo Position `left` and `top` over-expand the window width when
+             *      the tooltip is shown on a mobile-sized window
+             */
+            // .style('left', `${event.pageX + 5}px`)
+            // .style('top', `${event.pageY - 28}px`)
         })
         .on('mouseout', function () {
           d3.select(this).attr('fill', 'red')
