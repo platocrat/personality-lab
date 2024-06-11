@@ -1,14 +1,15 @@
 'use client'
 
-import {
-  FC,
-  useLayoutEffect,
-  useState,
-} from 'react'
+// Externals
 import { useUser } from '@auth0/nextjs-auth0/client'
 import { usePathname, useRouter } from 'next/navigation'
+import {
+  FC,
+  useState,
+  useLayoutEffect,
+} from 'react'
 // Locals
-import Spinner from '@/components/Suspense/Spinner'
+import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
 // Sections
 import CreateStudyForm from '@/sections/main-portal/studies/create/form'
 // Utils
@@ -16,8 +17,8 @@ import {
   STUDY__DYNAMODB,
 } from '@/utils'
 // CSS
-import sectionStyles from './CreateStudy.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+import sectionStyles from '@/sections/main-portal/studies/create/CreateStudy.module.css'
 
 
 
@@ -203,72 +204,63 @@ const CreateStudy: FC<CreateStudyProps> = ({
 
   return (
     <>
-      { isLoading ? (
-        <>
-          <div
-            style={ {
-              ...definitelyCenteredStyle,
-              position: 'relative',
-              top: '80px',
-            } }
-          >
-            <Spinner height='40' width='40' />
-          </div>
-        </>
-      ) : (
-        <>  
-          <div className={ sectionStyles['form-container'] }>
-            {/* Display invite link */ }
-            { inviteLink ? (
-              <>
-                <div style={ { ...definitelyCenteredStyle, marginBottom: '24px' } }>
-                  <h3>{ `Your study was created!` }</h3>
-                </div>
+      <NetworkRequestSuspense
+        isLoading={ isLoading }
+        spinnerOptions={{
+          showSpinner: true,
+        }}
+      >
+        <div className={ sectionStyles['form-container'] }>
+          {/* Display invite link */ }
+          { inviteLink ? (
+            <>
+              <div style={ { ...definitelyCenteredStyle, marginBottom: '24px' } }>
+                <h3>{ `Your study was created!` }</h3>
+              </div>
 
-                <div>
-                  <p style={ { marginBottom: '8px' } }>
-                    { `Here's your invite link:` }
-                  </p>
-                  <input
-                    type='text'
-                    value={ inviteLink }
-                    readOnly
-                    onClick={ (e) => {
-                      e.preventDefault()
-                      e.currentTarget.select()
-                    } }
-                  />
-                </div>
-              </>
-            ) : (
-              <>
-                <div style={ { ...definitelyCenteredStyle, marginBottom: '12px' } }>
-                  <h3>{ `Create a new study` }</h3>
-                </div>
-
-                <CreateStudyForm
-                  study={ study }
-                  onSubmit={ handleCreateStudy }
-                  states={ {
-                    newAdminEmail,
-                    isCreatingStudy,
-                    newStudyCreated,
-                    invalidEmailMessage,
-                  } }
-                  onClickHandlers={ {
-                    addAdminEmail,
-                    removeAdminEmail
-                  } }
-                  onChangeHandlers={ {
-                    handleChange,
-                    handleAdminEmailChange,
+              <div>
+                <p style={ { marginBottom: '8px' } }>
+                  { `Here's your invite link:` }
+                </p>
+                <input
+                  type='text'
+                  value={ inviteLink }
+                  readOnly
+                  onClick={ (e) => {
+                    e.preventDefault()
+                    e.currentTarget.select()
                   } }
                 />
-              </>
-            ) }
-          </div>
-        </>
-      )}
+              </div>
+            </>
+          ) : (
+            <>
+              <div style={ { ...definitelyCenteredStyle, marginBottom: '12px' } }>
+                <h3>{ `Create a new study` }</h3>
+              </div>
+
+              <CreateStudyForm
+                study={ study }
+                onSubmit={ handleCreateStudy }
+                states={ {
+                  newAdminEmail,
+                  isCreatingStudy,
+                  newStudyCreated,
+                  invalidEmailMessage,
+                } }
+                onClickHandlers={ {
+                  addAdminEmail,
+                  removeAdminEmail
+                } }
+                onChangeHandlers={ {
+                  handleChange,
+                  handleAdminEmailChange,
+                } }
+              />
+            </>
+          ) }
+        </div>
+      </NetworkRequestSuspense>
     </>
   )
 }

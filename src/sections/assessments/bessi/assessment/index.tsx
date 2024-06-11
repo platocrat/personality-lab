@@ -1,28 +1,27 @@
 'use client'
 
 // Externals
-import { useRouter } from 'next/navigation'
 import { useUser } from '@auth0/nextjs-auth0/client'
+import { useRouter } from 'next/navigation'
 import { FC, Fragment, useContext, useLayoutEffect, useState } from 'react'
 // Locals
-import BessiAssessmentInstructions from './instructions'
-import BessiDemographicQuestionnaire from '../demographic-questionnaire'
+import BessiAssessmentInstructions from '@/sections/assessments/bessi/assessment/instructions'
+import BessiDemographicQuestionnaire from '@/sections/assessments/bessi/demographic-questionnaire'
 // Components
 import FormButton from '@/components/Buttons/Form'
-import Spinner from '@/components/Suspense/Spinner'
 import Questionnaire from '@/components/Questionnaire'
+import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
 // Contexts
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 import { UserDemographicsContext } from '@/contexts/UserDemographicsContext'
-// Context types 
 // Utilities
 import {
   getFacet,
   UserScoresType,
   getAccessToken,
   FacetFactorType,
-  bessiActivityBank,
   RESULTS__DYNAMODB,
+  bessiActivityBank,
   calculateBessiScores,
   SkillDomainFactorType,
   STUDY_SIMPLE__DYNAMODB,
@@ -33,7 +32,6 @@ import {
 } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
-import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
@@ -335,48 +333,40 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
               { TITLE }
           </h2>
 
-          { isLoadingResults ? (
-            <>
-              <div
-                style={ {
-                  ...definitelyCenteredStyle,
-                  position: 'relative',
-                  flexDirection: 'column',
-                } }
-              >
-                <div style={ { marginBottom: '24px' } }>
-                  <p>{ `Loading results...` }</p>
-                </div>
-                <Spinner height='40' width='40' />
-              </div>
-            </>
-          ) : (
-            <>
-              <BessiAssessmentInstructions />
+          <NetworkRequestSuspense
+            isLoading={ isLoadingResults }
+            spinnerOptions={{
+              showSpinner: true,
+              isAssessmentResults: true,
+              containerStyle: {
+                flexDirection: 'column',
+              }
+            }}
+          >
+            <BessiAssessmentInstructions />
 
-              <Questionnaire
-                questions={ questions }
-                controls={{ valueType: 'number' }}
-                onChange={ onWellnessRatingChange }
-                choices={ wellnessRatingDescriptions }
-                currentQuestionIndex={ currentQuestionIndex }
-                setIsEndOfQuestionnaire={ setIsEndOfQuestionnaire }
-              />
+            <Questionnaire
+              questions={ questions }
+              controls={ { valueType: 'number' } }
+              onChange={ onWellnessRatingChange }
+              choices={ wellnessRatingDescriptions }
+              currentQuestionIndex={ currentQuestionIndex }
+              setIsEndOfQuestionnaire={ setIsEndOfQuestionnaire }
+            />
 
-              { isEndOfQuestionnaire && (
-                <>
-                  <BessiDemographicQuestionnaire />
-                  <FormButton 
-                    buttonText={ BUTTON_TEXT }
-                    state={{
-                      isSubmitting: isLoadingResults,
-                      hasSubmitted: isLoadingResults,
-                    }}
-                  />
-                </>
-              ) }
-            </>
-          ) }
+            { isEndOfQuestionnaire && (
+              <>
+                <BessiDemographicQuestionnaire />
+                <FormButton
+                  buttonText={ BUTTON_TEXT }
+                  state={ {
+                    isSubmitting: isLoadingResults,
+                    hasSubmitted: isLoadingResults,
+                  } }
+                />
+              </>
+            ) }
+          </NetworkRequestSuspense>
         </form>
       </div>
     </Fragment>

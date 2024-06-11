@@ -4,19 +4,15 @@
 import {
   FC,
   useRef,
-  Dispatch,
   useState,
-  useContext,
-  createContext,
   useLayoutEffect,
-  SetStateAction,
-} from 'react'
+  } from 'react'
 import { useUser } from '@auth0/nextjs-auth0/client'
 // Locals
 import StudiesTable from './table'
 // Components
-import Spinner from '@/components/Suspense/Spinner'
 import EditStudyModal from '@/components/Modals/EditStudy'
+import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
 // Contexts
 import { EditStudyModalContext } from '@/contexts/EditStudyModalContext'
 // Hooks
@@ -126,74 +122,68 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
 
   return (
     <>
-      { isLoading || isLoadingStudies || isDeletingStudy ? (
-        <>
+      <NetworkRequestSuspense
+        isLoading={ isLoading || isLoadingStudies || isDeletingStudy }
+        spinnerOptions={{
+          showSpinner: true,
+          containerStyle: {
+            margin: '24px 0px',
+          }
+        }}
+      >
+        <EditStudyModalContext.Provider
+          value={ {
+            showEditStudyModal,
+            setShowEditStudyModal,
+            handleOpenEditStudyModal,
+          } }
+        >
           <div
             style={ {
-              ...definitelyCenteredStyle,
               position: 'relative',
-              margin: '24px 0px',
+              width: '100%',
+              margin: '24px 0',
+              // overflow: 'auto',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
             } }
           >
-            <Spinner height='40' width='40' />
+            { studies ? (
+              <>
+                <StudiesTable
+                  studies={ studies }
+                  state={ {
+                    isStudyDeleted,
+                    isDeletingStudy,
+                    setIsStudyDeleted,
+                    setIsDeletingStudy
+                  } }
+                />
+              </>
+            )
+              : (
+                <>
+                  <div style={ { ...definitelyCenteredStyle } }>
+                    <p>
+                      <strong>
+                        { `No studies were found.` }
+                      </strong>
+                    </p>
+                  </div>
+                </>
+              )
+            }
           </div>
-        </>
-      ) : (
-        <>
-          <EditStudyModalContext.Provider
-            value={ {
-              showEditStudyModal,
-              setShowEditStudyModal,
-              handleOpenEditStudyModal,
-            } }
-          >
-            <div 
-              style={{
-                position: 'relative',
-                width: '100%',
-                margin: '24px 0',
-                // overflow: 'auto',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              { studies ? (
-                  <>
-                    <StudiesTable 
-                      studies={ studies }
-                      state={{
-                        isStudyDeleted,
-                        isDeletingStudy,
-                        setIsStudyDeleted,
-                        setIsDeletingStudy
-                      }}
-                    />
-                  </>
-                )
-                : (
-                  <>
-                    <div style={{ ...definitelyCenteredStyle }}>
-                      <p>
-                        <strong>
-                          { `No studies were found.` }
-                        </strong>
-                      </p>
-                    </div>
-                  </>
-                ) 
-              }
-            </div>
 
-            {/* Edit study modal */}
-            <EditStudyModal
-              study={ studyToEdit }
-              ref={ editStudyModalRef }
-              setStudy={ setStudyToEdit }
-              isModalVisible={ showEditStudyModal }
-            />
-          </EditStudyModalContext.Provider>
-        </>
-      ) }
+          {/* Edit study modal */ }
+          <EditStudyModal
+            study={ studyToEdit }
+            ref={ editStudyModalRef }
+            setStudy={ setStudyToEdit }
+            isModalVisible={ showEditStudyModal }
+          />
+        </EditStudyModalContext.Provider>
+      </NetworkRequestSuspense>
     </>
   )
 }

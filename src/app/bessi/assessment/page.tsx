@@ -1,22 +1,21 @@
 'use client'
 
 // Externals
-import {
-  FC,
-  useState,
-  useLayoutEffect,
-  } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUser } from '@auth0/nextjs-auth0/client'
+import {
+  FC,
+  useLayoutEffect,
+  useState,
+} from 'react'
 // Locals
-import Spinner from '@/components/Suspense/Spinner'
+import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
 // Sections
 import BessiAssessmentSection from '@/sections/assessments/bessi/assessment'
 // Hooks
 import useAccount from '@/hooks/useAccount'
 // CSS
 import styles from '@/app/page.module.css'
-import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 type BessiAssessmentProps = {}
@@ -59,29 +58,16 @@ const BessiAssessment: FC<BessiAssessmentProps> = ({ }) => {
   }, [ isAdmin, isParticipant, isFetchingAccount ])
 
 
-
-
   return (
     <>
-      { isGettingCurrentStudy ? (
-        <>
-          <div
-            style={ {
-              ...definitelyCenteredStyle,
-              position: 'relative',
-              top: '80px',
-            } }
-          >
-            <Spinner height='40' width='40' />
-          </div>
-        </>
-      ) : (
-        <>
-          <main className={ `${styles.main} ` }>
-            <BessiAssessmentSection />
-          </main>
-        </>
-      )}
+      <NetworkRequestSuspense
+        isLoading={ isGettingCurrentStudy }
+        spinnerOptions={{ showSpinner: true }}
+      >
+        <main className={ `${styles.main} ` }>
+          <BessiAssessmentSection />
+        </main>
+      </NetworkRequestSuspense>
     </>
   )
 }

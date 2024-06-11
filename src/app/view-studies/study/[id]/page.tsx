@@ -4,13 +4,11 @@
 import { useUser } from '@auth0/nextjs-auth0/client'
 import { FC, useLayoutEffect, useState } from 'react'
 // Locals
+import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
 import ViewStudySection from '@/sections/main-portal/studies/view/study'
 // Components
-import Spinner from '@/components/Suspense/Spinner'
-// UTils
+// Utils
 import { STUDY__DYNAMODB } from '@/utils'
-// CSS
-import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
@@ -82,29 +80,21 @@ const ViewStudy: FC<ViewStudyProps> = ({
   }, [ id, isLoading ])
 
 
-
-
   return (
     <>
-      { isLoadingStudy ? (
-        <>
-          <div
-            style={ {
-              ...definitelyCenteredStyle,
-              position: 'relative',
-            } }
-          >
-            <Spinner height='40' width='40' />
-          </div>
-        </>
-      ) : (
-        <>
-          <ViewStudySection study={ study } />
-        </>
-      ) }
+      <NetworkRequestSuspense
+        isLoading={ isLoadingStudy }
+        spinnerOptions={{
+          showSpinner: true,
+          containerStyle: {
+            top: ''
+          }
+        }}
+      >
+        <ViewStudySection study={ study } />
+      </NetworkRequestSuspense>
     </>
   )
 }
-
 
 export default ViewStudy

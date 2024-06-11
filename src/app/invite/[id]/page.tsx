@@ -7,13 +7,12 @@ import { FC, useLayoutEffect, useState } from 'react'
 // Locals
 import StudyInviteSection from '@/sections/invite'
 // Components
-import Spinner from '@/components/Suspense/Spinner'
 // Hooks
 import useAccount from '@/hooks/useAccount'
 // Utils
 import { STUDY__DYNAMODB } from '@/utils'
 // CSS
-import { definitelyCenteredStyle } from '@/theme/styles'
+import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
 
 
 
@@ -101,23 +100,17 @@ const StudyInvite: FC<StudyInviteProps> = ({
 
   return (
     <>
-      { isLoadingStudy ? (
-        <>
-          <div
-            style={{
-              ...definitelyCenteredStyle,
-              position: 'relative',
-              top: !isAdmin && !isParticipant ? '100px' : '',
-            }}
-          >
-            <Spinner height='40' width='40' />
-          </div>
-        </>
-      ) : (
-        <>
-          <StudyInviteSection study={ study } />
-        </>
-      ) }
+      <NetworkRequestSuspense
+        isLoading={ isLoadingStudy }
+        spinnerOptions={{
+          showSpinner: true,
+          containerStyle: {
+            top: !isAdmin && !isParticipant ? '100px' : ''
+          }
+        }}
+      >
+        <StudyInviteSection study={ study } />
+      </NetworkRequestSuspense>
     </>
   )
 }

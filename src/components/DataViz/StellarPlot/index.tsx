@@ -2,15 +2,16 @@
 import * as d3 from 'd3'
 import React, { useRef, useEffect, FC } from 'react'
 // Locals
-import Title from '../Title'
-// CSS
-import styles from '../DataViz.module.css'
-import { definitelyCenteredStyle } from '@/theme/styles'
+import Title from '@/components/DataViz/Title'
+// Utils
 import { 
   FacetFactorType,
   SkillDomainFactorType, 
   BarChartTargetDataType, 
 } from '@/utils'
+// CSS
+import styles from '@/components/DataViz/DataViz.module.css'
+import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 

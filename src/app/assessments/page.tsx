@@ -3,14 +3,13 @@
 // Externals
 import { useUser } from '@auth0/nextjs-auth0/client'
 // Locals
-import Spinner from '@/components/Suspense/Spinner'
 import LeftHandNav from '@/components/Nav/LeftHand'
+import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
 // Sections
 import PersonalityAssessments from '@/sections/assessments'
 // Hooks
 import useAccount from '@/hooks/useAccount'
 // CSS
-import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 export default function _() {
@@ -23,25 +22,19 @@ export default function _() {
   return (
     <>
       <main>
-        { isLoading || isFetchingAccount ? (
-          <>
-            <div
-              style={ {
-                ...definitelyCenteredStyle,
-                position: 'relative',
-                top: '100px',
-              } }
-            >
-              <Spinner height='40' width='40' />
-            </div>
-          </>
-        ) : (
-          <>
-            <LeftHandNav>
-              <PersonalityAssessments />
-            </LeftHandNav>
-          </>
-        )}
+        <NetworkRequestSuspense
+          isLoading={ isLoading || isFetchingAccount }
+          spinnerOptions={{
+            showSpinner: true,
+            containerStyle: {
+              top: '100px',
+            }
+          }}
+        >
+          <LeftHandNav>
+            <PersonalityAssessments />
+          </LeftHandNav>
+        </NetworkRequestSuspense>
       </main>
     </>
   )

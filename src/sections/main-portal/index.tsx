@@ -4,10 +4,10 @@
 import { useUser } from '@auth0/nextjs-auth0/client'
 import { FC, useLayoutEffect, useState } from 'react'
 // Locals
-import Spinner from '@/components/Suspense/Spinner'
 import PersonalityAssessments from '@/sections/assessments'
 // Components
 import LeftHandNav from '@/components/Nav/LeftHand'
+import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
 // Hooks
 import useAccount from '@/hooks/useAccount'
 // Styles
@@ -117,50 +117,44 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
   return (
     <>
       <div className={ styles.mainPortal }>
-        { isLoading || isFetchingAccount ? (
-          <>
-            <div
-              style={{
-                ...definitelyCenteredStyle,
-                position: 'relative',
-                top: '100px',
-              }}
-            >
-              <Spinner height='40' width='40' />
-            </div>
-          </>
-        ) : (
-          <>
-            { isParticipant ? (
-              <>
-                <div
-                  style={ {
-                    position: 'relative',
-                    top: '85px',
-                  } }
-                >
-                  <ParticipantTitle
-                    titleText={ TITLE_TEXT }
-                    subtitleText={ SUBTITLE_TEXT }
-                  />
-                  <PersonalityAssessments />
+        <NetworkRequestSuspense
+          isLoading={ isLoading || isFetchingAccount }
+          spinnerOptions={{
+            showSpinner: true,
+            containerStyle: {
+              top: '100px',
+            }
+          }}
+        >
+          { isParticipant ? (
+            <>
+              <div
+                style={ {
+                  position: 'relative',
+                  top: '85px',
+                } }
+              >
+                <ParticipantTitle
+                  titleText={ TITLE_TEXT }
+                  subtitleText={ SUBTITLE_TEXT }
+                />
+                <PersonalityAssessments />
+              </div>
+            </>
+          ) : (
+            <>
+              <LeftHandNav>
+                <Title text={ TITLE_TEXT } />
+                {/* Main content goes here */ }
+                <div style={ { ...definitelyCenteredStyle, margin: '48px' } }>
+                  <p>
+                    { 'Notifications and other important updates go here.' }
+                  </p>
                 </div>
-              </>
-            ) : (
-              <>
-                <LeftHandNav>
-                  <Title text={ TITLE_TEXT } />
-                  {/* Main content goes here */ }
-                  <div style={ { ...definitelyCenteredStyle, margin: '48px' } }>
-                    <p>
-                      { 'Notifications and other important updates go here.' }
-                    </p>
-                  </div>
-                </LeftHandNav>
-              </>
-            )}
-          </>
-        )}
+              </LeftHandNav>
+            </>
+          ) }
+        </NetworkRequestSuspense>
       </div>
     </>
   )

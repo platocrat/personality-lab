@@ -3,7 +3,8 @@ import { FC} from 'react'
 import { useUser } from '@auth0/nextjs-auth0/client'
 // Locals
 import Nav from '@/components/Nav'
-import DropdownMenu, { NavLink } from '../Nav/DropdownMenu'
+import DropdownMenu, { NavLink } from '@/components/Nav/DropdownMenu'
+import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
 // CSS
 import styles from '@/components/Header/Header.module.css'
 
@@ -29,24 +30,22 @@ const Header: FC<HeaderProps> = ({}) => {
 
   return (
     <>
-      { !isLoading && user ? (
-        <>  
-          {/* Header component */ }
-          <header className={ styles.header }>
-            <Nav title={ navTitle }>
-              <DropdownMenu links={ links }>
-                <a
-                  href={ logoutHref }
-                  className={ styles.dropdownLink }
-                  style={ { borderRadius: '0rem 0rem 1rem 1rem' } }
-                >
-                  { `Logout` }
-                </a>
-              </DropdownMenu>
-            </Nav>
-          </header>
-        </>
-      ) : null }
+      <NetworkRequestSuspense isLoading={ isLoading && !user }>
+        {/* Header component */ }
+        <header className={ styles.header }>
+          <Nav title={ navTitle }>
+            <DropdownMenu links={ links }>
+              <a
+                href={ logoutHref }
+                className={ styles.dropdownLink }
+                style={ { borderRadius: '0rem 0rem 1rem 1rem' } }
+              >
+                { `Logout` }
+              </a>
+            </DropdownMenu>
+          </Nav>
+        </header>
+      </NetworkRequestSuspense>
     </>
   )
 }

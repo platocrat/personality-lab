@@ -1,18 +1,17 @@
 'use client'
 
 // Externals
-import { FC } from 'react'
 import { useUser } from '@auth0/nextjs-auth0/client'
+import { FC } from 'react'
 // Locals
-import useAccount from '@/hooks/useAccount'
-import Spinner from '@/components/Suspense/Spinner'
-// Sections
-import ViewStudiesTitle from './title'
 import ListOfStudies from './list-of-studies'
+import ViewStudiesTitle from './title'
 // Components
 import LeftHandNav from '@/components/Nav/LeftHand'
+import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
+// Hooks
+import useAccount from '@/hooks/useAccount'
 // CSS
-import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/sections/main-portal/studies/view/ViewStudies.module.css'
 
 
@@ -33,28 +32,22 @@ const ViewStudies: FC<ViewStudiesProps> = ({
 
   return (
     <>
-      { isLoading || isFetchingAccount ? (
-        <>
-          <div
-            style={ {
-              ...definitelyCenteredStyle,
-              position: 'relative',
-              top: '100px',
-            } }
-          >
-            <Spinner height='40' width='40' />
+      <NetworkRequestSuspense
+        isLoading={ isLoading || isFetchingAccount }
+        spinnerOptions={{
+          showSpinner: true,
+          containerStyle: {
+            top: '100px'
+          }
+        }}
+      >
+        <LeftHandNav>
+          <div className={ `${styles['form-container']}` }>
+            <ViewStudiesTitle />
+            <ListOfStudies />
           </div>
-        </>
-      ) : (
-        <>
-          <LeftHandNav>
-            <div className={ `${styles['form-container']}` }>
-              <ViewStudiesTitle />
-              <ListOfStudies />
-            </div>
-          </LeftHandNav>
-        </>
-      )}
+        </LeftHandNav>
+      </NetworkRequestSuspense>
     </>
   )
 }

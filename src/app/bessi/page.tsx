@@ -4,7 +4,7 @@
 import { useUser } from '@auth0/nextjs-auth0/client'
 import { Fragment, useLayoutEffect, useState } from 'react'
 // Locals
-import Spinner from '@/components/Suspense/Spinner'
+import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
 // Sections
 import Bessi from '@/sections/assessments/bessi'
 // Hooks
@@ -13,7 +13,6 @@ import useAccount from '@/hooks/useAccount'
 import { STUDY_SIMPLE__DYNAMODB } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
-import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
@@ -99,51 +98,40 @@ export default function _() {
 
   return (
     <>
-      { isGettingStudiesForAssessment ? (
-        <>
-          <div
-            style={ {
-              ...definitelyCenteredStyle,
-              position: 'relative',
-              top: '80px',
-            } }
-          >
-            <Spinner height='40' width='40' />
-          </div>
-        </>
-      ) : (
-        <>
-          <main className={ `${styles.main}` }>
-            { !isParticipant ? <Bessi /> : (
-              <>
-                { !currentStudy &&
-                  studiesForAssessment.length > 0 ? (
-                  <>
-                    <select
-                      value={ selectedStudyId }
-                      onChange={ handleSelectCurrentStudy }
-                    >
-                      <option value=''>{ `Select a study` }</option>
-                      { studiesForAssessment.map((
-                        study: STUDY_SIMPLE__DYNAMODB,
-                        i: number
-                      ) => (
-                        <Fragment key={ i }>
-                          <option key={ study.id } value={ study.id }>
-                            { study.name }
-                          </option>
-                        </Fragment>
-                      )) }
-                    </select>
-                  </>
-                ) : (
-                  <Bessi />
-                )}
-              </>
-            ) }
-          </main>
-        </>
-      ) }
+      <NetworkRequestSuspense
+        spinnerOptions={{ showSpinner: true }}
+        isLoading={ isGettingStudiesForAssessment }
+      >
+        <main className={ `${styles.main}` }>
+          { !isParticipant ? <Bessi /> : (
+            <>
+              { !currentStudy &&
+                studiesForAssessment.length > 0 ? (
+                <>
+                  <select
+                    value={ selectedStudyId }
+                    onChange={ handleSelectCurrentStudy }
+                  >
+                    <option value=''>{ `Select a study` }</option>
+                    { studiesForAssessment.map((
+                      study: STUDY_SIMPLE__DYNAMODB,
+                      i: number
+                    ) => (
+                      <Fragment key={ i }>
+                        <option key={ study.id } value={ study.id }>
+                          { study.name }
+                        </option>
+                      </Fragment>
+                    )) }
+                  </select>
+                </>
+              ) : (
+                <Bessi />
+              ) }
+            </>
+          ) }
+        </main>
+      </NetworkRequestSuspense>
     </>
   )
 }
