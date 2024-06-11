@@ -9,8 +9,8 @@ import styles from '@/components/Nav/LeftHand/LeftHandNav.module.css'
 
 type LeftHandNavProps = {
   children: ReactNode
-  options: {
-    mainContentStyle: CSSProperties
+  options?: {
+    mainContentStyle?: CSSProperties
   }
 }
 
