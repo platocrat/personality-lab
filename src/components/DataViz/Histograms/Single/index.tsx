@@ -39,20 +39,20 @@ const Histogram = ({ data, title, score }) => {
         .range([height, 0])
 
       const tooltip = d3
-        .select('#tooltip')
-        // .select('body')
-        // .append('div')
-        // .style('position', 'absolute')
-        // .style('text-align', 'center')
-        // .style('width', 'auto')
-        // .style('height', 'auto')
-        // .style('padding', '8px')
-        // .style('font', '12px sans-serif')
-        // .style('background', 'lightsteelblue')
-        // .style('border', '1px solid #aaa')
-        // .style('border-radius', '5px')
-        // .style('pointer-events', 'none')
-        // .style('opacity', 0)
+        // .select('#tooltip')
+        .select('body')
+        .append('div')
+        .style('position', 'absolute')
+        .style('text-align', 'center')
+        .style('width', 'auto')
+        .style('height', 'auto')
+        .style('padding', '8px')
+        .style('font', '12px sans-serif')
+        .style('background', 'lightsteelblue')
+        .style('border', '1px solid #aaa')
+        .style('border-radius', '5px')
+        .style('pointer-events', 'none')
+        .style('opacity', 0)
 
       svg.selectAll('rect')
         .data(bins)
@@ -78,6 +78,10 @@ const Histogram = ({ data, title, score }) => {
               <br>
               Count: ${d.length}`
             )
+            /**
+             * @todo Position `left` and `top` over-expand the window width when
+             *      the tooltip is shown on a mobile-sized window
+             */
             .style('left', `${event.pageX + 5}px`)
             .style('top', `${event.pageY - 28}px`)
         })
@@ -97,13 +101,18 @@ const Histogram = ({ data, title, score }) => {
       svg.append('g')
         .call(d3.axisLeft(y))
 
-      svg.append('text')
-        .attr('x', width / 2)
-        .attr('y', -10)
-        .attr('text-anchor', 'middle')
-        .style('font-size', '16px')
-        .style('font-weight', 'bold')
-        .text(title)
+      svg.append('foreignObject')
+        .attr('width', 400)
+        .attr('height', 22)
+        .attr('x', 80)
+        .attr('y', -33.5)
+        .html(
+          `
+            <p style="font-size: 16.5px; font-weight: bold; text-align: center;">
+              ${title}
+            </p>
+          `
+        )
 
       svg.append('line')
         .attr('x1', x(score))
@@ -114,20 +123,20 @@ const Histogram = ({ data, title, score }) => {
         .attr('stroke-width', 2)
 
       const scoreTooltip = d3
-        .select('#scoreTooltip')
-        // .select('body')
-        // .append('div')
-        // .style('position', 'absolute')
-        // .style('text-align', 'center')
-        // .style('width', '100px')
-        // .style('height', '28px')
-        // .style('padding', '2px')
-        // .style('font', '12px sans-serif')
-        // .style('background', 'lightcoral')
-        // .style('border', '0px')
-        // .style('border-radius', '8px')
-        // .style('pointer-events', 'none')
-        // .style('opacity', 0)
+        // .select('#scoreTooltip')
+        .select('body')
+        .append('div')
+        .style('position', 'absolute')
+        .style('text-align', 'center')
+        .style('width', '100px')
+        .style('height', '28px')
+        .style('padding', '2px')
+        .style('font', '12px sans-serif')
+        .style('background', 'lightcoral')
+        .style('border', '0px')
+        .style('border-radius', '8px')
+        .style('pointer-events', 'none')
+        .style('opacity', 0)
 
       const circleGroup = svg
         .append('g')
@@ -151,6 +160,10 @@ const Histogram = ({ data, title, score }) => {
         .on('mousemove', function (event, d) {
           scoreTooltip
             .html(`User's Score: ${score.toFixed(2)}`)
+            /**
+             * @todo Position `left` and `top` over-expand the window width when
+             *      the tooltip is shown on a mobile-sized window
+             */
             .style('left', `${event.pageX + 5}px`)
             .style('top', `${event.pageY - 28}px`)
         })
@@ -178,9 +191,9 @@ const Histogram = ({ data, title, score }) => {
 
   return (
     <>
-      <div 
+      {/* <div 
         ref={ d3Container }
-        style={{ maxWidth: '450px' }}
+        style={{ maxWidth: '700px' }}
         className={ dataVizStyles.svgContainer }
       >
         <div
@@ -191,7 +204,12 @@ const Histogram = ({ data, title, score }) => {
           id='scoreTooltip'
           className={ histogramStyles.scoreTooltip }
         />
-      </div>
+      </div> */}
+      <div
+        ref={ d3Container }
+        style={{ maxWidth: '700px' }}
+        className={ dataVizStyles.svgContainer }
+      />
     </>
   )
 }

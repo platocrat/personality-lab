@@ -22,7 +22,7 @@
   animation-timing-function: steps(50, start);
 }
 
-.tooltip {
+/* .tooltip {
   opacity: 0;
   z-index: 10;
   height: auto;
@@ -59,4 +59,4 @@
 
 .scoreTooltip:hover {
   cursor: pointer;
-}
+} */

@@ -2,7 +2,12 @@
 import { FC, useLayoutEffect } from 'react'
 // Locals
 import Histogram from '@/components/DataViz/Histograms/Single'
-import { getDummyPopulationBessiScores, FacetFactorType, SkillDomainFactorType } from '@/utils'
+// Utils
+import { 
+  FacetFactorType, 
+  SkillDomainFactorType,
+  getDummyPopulationBessiScores, 
+} from '@/utils'
 import { UserForDataVizType } from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization'
 
 
