@@ -9,32 +9,33 @@ import {
   useContext,
   useLayoutEffect,
   } from 'react'
-  import html2canvas from 'html2canvas'
-  import { useUser } from '@auth0/nextjs-auth0/client'
-  // Locals
-  // Sections
-import TitleDropdown from './title-dropdown'
-import UserVisualization from './user-visualization'
+import html2canvas from 'html2canvas'
+import { useUser } from '@auth0/nextjs-auth0/client'
+// Locals
+// Sections
+import TitleDropdown from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization/title-dropdown'
+import UserVisualization from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization/user-visualization'
 // Components
-import Histogram from '@/components/DataViz/Histogram'
-import RadialBarChart from '@/components/DataViz/BarChart/Radial'
-import DemoRidgelinePlot from '@/components/DataViz/DemoRidgeline'
-import BarChartPerDomain from '@/components/DataViz/BarChart/PerDomain'
 import {
   RIDGELINE_DEMO_DOMAIN_DATA,
   RIDGELINE_DEMO_FACET_DATA,
 } from '@/components/DataViz/DemoRidgeline/data'
 import MultipleNormalDistributions, {
   MultipleNormalDistributionDataType
-} from '@/components/DataViz/Distributions/Normal/MultipleNormal'
+} from '@/components/DataViz/Distributions/Normal/Multiple'
 import Title from '@/components/DataViz/Title'
 import TreeMap from '@/components/DataViz/TreeMap'
 import StellarPlot from '@/components/DataViz/StellarPlot'
 import ShareResults from '@/components/DataViz/ShareResults'
+import Histogram from '@/components/DataViz/Histograms/Single'
+import RadialBarChart from '@/components/DataViz/BarChart/Radial'
+import DemoRidgelinePlot from '@/components/DataViz/DemoRidgeline'
+import BarChartPerDomain from '@/components/DataViz/BarChart/PerDomain'
+import MultipleHistograms from '@/components/DataViz/Histograms/Multiple'
 import BessiRateUserResults from '@/components/Forms/BESSI/RateUserResults'
 import PersonalityVisualization from '@/components/DataViz/PersonalityVisualization'
 import ResultsVisualizationModal from '@/components/Modals/BESSI/ResultsVisualization'
-import SingleNormalDistributionChart from '@/components/DataViz/Distributions/Normal/SingleNormal'
+import SingleNormalDistributionChart from '@/components/DataViz/Distributions/Normal/Single'
 // Hooks
 import useClickOutside from '@/hooks/useClickOutside'
 // Contexts
@@ -65,6 +66,13 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 type BessiResultsVisualizationType = {
   isExample?: boolean
   rateUserResults?: boolean
+}
+
+
+export type UserForDataVizType = {
+  facetScores: FacetFactorType,
+  domainScores: SkillDomainFactorType,
+  averages: SkillDomainFactorType,
 }
 
 
@@ -376,46 +384,15 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
           </>
         )
       case 8:
-        /**
-         * @todo Get real data from DynamoDB
-         */
-        const histogramPopulationData = {
-          facetScores: getDummyPopulationBessiScores(100, 'facet'),
-          domainScores: getDummyPopulationBessiScores(100, 'domain')
-        }
-
-        console.log(`histogramPopulationData: `, histogramPopulationData)
-
-        const histogramUserData = getUserData(i) as {
-          facetScores: FacetFactorType,
-          domainScores: SkillDomainFactorType,
-          averages: SkillDomainFactorType,
-        }
-
         return (
           <>
-            { Object.entries(
-              histogramPopulationData.facetScores
-            ).map(([key, scoresArray]) => (
-              <div key={ `facet-${key}` }>
-                <Histogram 
-                  data={ scoresArray } 
-                  title={ `Facet Score: ${key}` } 
-                  score={ histogramUserData.facetScores[key] } 
-                />
-              </div>
-            )) }
-            { Object.entries(
-              histogramPopulationData.domainScores
-            ).map(([key, scoresArray]) => (
-              <div key={ `domain-${key}` }>
-                <Histogram 
-                  data={ scoresArray } 
-                  title={ `Domain Score: ${key}` } 
-                  score={ histogramUserData.domainScores[key] } 
-                />
-              </div>
-            )) }
+            <MultipleHistograms 
+              userData={ getUserData(i) as UserForDataVizType }
+              auth0={{
+                user,
+                isLoading,
+              }}
+            />
           </>
         )
       default:
@@ -521,7 +498,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         error
       )
     }
-  }, [isLoading])
+  }, [ isLoading ])
 
 
 
