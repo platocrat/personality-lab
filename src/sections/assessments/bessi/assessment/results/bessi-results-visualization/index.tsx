@@ -59,6 +59,7 @@ import {
 } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
+import study from '@/sections/main-portal/studies/view/study'
 
 
 
@@ -384,29 +385,6 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
           </>
         )
       case 8:
-        // return (
-        //   <>
-        //     <MultipleHistograms 
-        //       userData={ getUserData(i) as UserForDataVizType }
-        //       auth0={{
-        //         user,
-        //         isLoading,
-        //       }}
-        //     />
-        //   </>
-        // )
-
-
-        /**
-         * @todo Get real data from DynamoDB
-         */
-        const histogramPopulationData = {
-          facetScores: getDummyPopulationBessiScores(100, 'facet'),
-          domainScores: getDummyPopulationBessiScores(100, 'domain')
-        }
-
-        console.log(`histogramPopulationData: `, histogramPopulationData)
-
         const histogramUserData = getUserData(i) as {
           facetScores: FacetFactorType,
           domainScores: SkillDomainFactorType,
@@ -415,30 +393,13 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
 
         return (
           <>
-            { Object.entries(
-                histogramPopulationData.facetScores
-              ).map(([key, scoresArray]) => (
-                <div key={ `facet-${key}` }>
-                  <Histogram
-                    data={ scoresArray }
-                    title={ `Facet Score: ${key}` }
-                    score={ histogramUserData.facetScores[key] }
-                  />
-                </div>
-              ))
-            }
-            { Object.entries(
-                histogramPopulationData.domainScores
-              ).map(([key, scoresArray]) => (
-                <div key={ `domain-${key}` }>
-                  <Histogram
-                    data={ scoresArray }
-                    title={ `Domain Score: ${key}` }
-                    score={ histogramUserData.domainScores[key] }
-                  />
-                </div>
-              ))
-            }
+            <MultipleHistograms
+              userData={ histogramUserData }
+              auth0={{
+                user,
+                isLoading,
+              }}
+            />
           </>
         )
       default:

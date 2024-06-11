@@ -1,5 +1,5 @@
 // Externals
-import { FC, useLayoutEffect } from 'react'
+import { FC, useLayoutEffect, useState } from 'react'
 // Locals
 import Histogram from '@/components/DataViz/Histograms/Single'
 // Utils
@@ -27,6 +27,9 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
   auth0,
   userData,
 }) => {
+  const [view, setView] = useState<'domain' | 'facet'>('domain')
+
+
   /**
    * @todo Get real data from DynamoDB
    */
@@ -37,6 +40,9 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
 
   console.log(`histogramPopulationData: `, histogramPopulationData)
 
+  const handleOnChangeHistogramView = (e: any) => {
+    setView(e.target.value as 'domain' | 'facet') 
+  }
 
 
   useLayoutEffect(() => {
@@ -46,8 +52,24 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
 
   return (
     <>
-      { Object.entries(
-        userData.facetScores
+      <div style={{ marginTop: '36px' }}>
+        <div style={{ marginBottom: '18px' }}>
+          <select
+            id='view-select'
+            value={ view }
+            onChange={ handleOnChangeHistogramView }
+          >
+            <option value='domain'>
+              { `Domain Scores` }
+            </option>
+            <option value='facet'>
+              { `Facet Scores` }
+            </option>
+          </select>
+        </div>
+      </div>
+      { view === 'facet' && Object.entries(
+        histogramPopulationData.facetScores
       ).map(([key, scoresArray]) => (
         <div key={ `facet-${key}` }>
           <Histogram
@@ -57,7 +79,7 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
           />
         </div>
       )) }
-      { Object.entries(
+      { view === 'domain' && Object.entries(
         histogramPopulationData.domainScores
       ).map(([key, scoresArray]) => (
         <div key={ `domain-${key}` }>

@@ -66,31 +66,31 @@ const Histogram = ({ data, title, score }) => {
         .on('mouseover', function (event, d: any) {
           d3.select(this).style('fill', 'darkblue')
           
-          tooltip
-            .transition()
-            .duration(200)
-            .style('opacity', .9)
+          // tooltip
+          //   .transition()
+          //   .duration(200)
+          //   .style('opacity', .9)
           
-          tooltip
-            .html(
-              `Range: ${d.x0.toFixed(2)} - ${d.x1.toFixed(2)}
-              <br>
-              Count: ${d.length}`
-            )
-            /**
-             * @todo Position `left` and `top` over-expand the window width when
-             *      the tooltip is shown on a mobile-sized window
-             */
-            .style('left', `${event.pageX + 5}px`)
-            .style('top', `${event.pageY - 28}px`)
+          // tooltip
+          //   .html(
+          //     `Range: ${d.x0.toFixed(2)} - ${d.x1.toFixed(2)}
+          //     <br>
+          //     Count: ${d.length}`
+          //   )
+          //   /**
+          //    * @todo Position `left` and `top` over-expand the window width when
+          //    *      the tooltip is shown on a mobile-sized window
+          //    */
+          //   .style('left', `${event.pageX + 5}px`)
+          //   .style('top', `${event.pageY - 28}px`)
         })
         .on('mouseout', function () {
           d3.select(this).style('fill', 'lightblue')
           
-          tooltip
-            .transition()
-            .duration(500)
-            .style('opacity', 0)
+          // tooltip
+          //   .transition()
+          //   .duration(500)
+          //   .style('opacity', 0)
         })
 
       svg.append('g')
@@ -179,28 +179,29 @@ const Histogram = ({ data, title, score }) => {
         .style('cursor', 'pointer')
         .on('mouseover', function (event, d) {
           d3.select(this).attr('fill', 'darkred')
-            scoreTooltip
-              .transition()
-              .duration(200)
-              .style('opacity', .9)
+          
+          // scoreTooltip
+          //   .transition()
+          //   .duration(200)
+          //   .style('opacity', .9)
         })
         .on('mousemove', function (event, d) {
-          scoreTooltip
-            .html(`User's Score: ${score.toFixed(2)}`)
-            /**
-             * @todo Position `left` and `top` over-expand the window width when
-             *      the tooltip is shown on a mobile-sized window
-             */
-            .style('left', `${event.pageX + 5}px`)
-            .style('top', `${event.pageY - 28}px`)
+          // scoreTooltip
+          //   .html(`User's Score: ${score.toFixed(2)}`)
+          //   /**
+          //    * @todo Position `left` and `top` over-expand the window width when
+          //    *      the tooltip is shown on a mobile-sized window
+          //    */
+          //   .style('left', `${event.pageX + 5}px`)
+          //   .style('top', `${event.pageY - 28}px`)
         })
         .on('mouseout', function () {
           d3.select(this).attr('fill', 'red')
           
-          scoreTooltip
-            .transition()
-            .duration(500)
-            .style('opacity', 0)
+          // scoreTooltip
+          //   .transition()
+          //   .duration(500)
+          //   .style('opacity', 0)
         })
 
       circleGroup.append('circle')
