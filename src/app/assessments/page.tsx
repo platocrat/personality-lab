@@ -31,7 +31,13 @@ export default function _() {
             }
           }}
         >
-          <LeftHandNav>
+          <LeftHandNav
+            options={{
+              mainContentStyle: {
+                padding: '24px 8px'
+              }
+            }}
+          >
             <PersonalityAssessments />
           </LeftHandNav>
         </NetworkRequestSuspense>

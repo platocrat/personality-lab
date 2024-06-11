@@ -138,22 +138,25 @@ const PersonalityVisualization = ({
     svg.selectAll('.outer-text')
       .data(domainNames)
       .enter()
-      .append('text')
+      .append('foreignObject')
       .attr('class', 'outer-text')
       .attr(
         'x',
         (d, i) => (outerRadius + 15) * Math.cos(
           calculateMidAngle(i, domainNames.length)
-        )
+        ) - 8
       )
       .attr(
         'y',
         (d, i) => (outerRadius + 15) * Math.sin(
           calculateMidAngle(i, domainNames.length)
-        )
+        ) - 12
       )
-      .attr('text-anchor', 'middle')
-      .text((d) => data.domainScores[d])
+      .attr('width', 18)
+      .attr('height', 18)
+      .html(
+        (d) => `${data.domainScores[d]}`
+      )
 
     // Apply the drop-shadow filter to the outer paths
     svg.selectAll('.outer-path')
@@ -233,34 +236,45 @@ const PersonalityVisualization = ({
     svg.selectAll('.inner-text')
       .data(facetNames)
       .enter()
-      .append('text')
+      .append('foreignObject')
       .attr('class', 'inner-text')
       .attr(
         'x',
         (d, i) => (innerRadius + 15) * Math.cos(
           calculateMidAngle(i, facetNames.length)
-        )
+        ) - 9
       )
       .attr(
         'y',
         (d, i) => (innerRadius + 15) * Math.sin(
           calculateMidAngle(i, facetNames.length)
-        )
+        ) - 10.5
       )
-      .attr('text-anchor', 'middle')
-      .text((d: any) => data.facetScores[d])
+      .attr('width', 18)
+      .attr('height', 18)
+      .html(
+        (d: any) => `${data.facetScores[d]}`
+      )
 
     // Apply the same drop-shadow filter to the inner paths (when you create them)
     svg.selectAll('.inner-path')
       .attr('filter', 'url(#drop-shadow)')
 
     // Text for the center
-    svg.append('text')
+    svg.append('foreignObject')
       .attr('class', 'center-text')
       .attr('text-anchor', 'middle')
-      .attr('y', -2.5)
-      .attr('font-size', '40px')
-      .text(data.domainScores[activeDomain])
+      .attr('x', -100)
+      .attr('y', -44)
+      .attr('width', 200)
+      .attr('height', 63)
+      .html(
+        (d) => `
+          <p style="font-size: 40px;">
+            ${ data.domainScores[activeDomain] }
+          </p>
+        `
+      )
 
     const domainScore: any = svg.append('foreignObject')
       .attr('width', 200)
@@ -284,12 +298,19 @@ const PersonalityVisualization = ({
       )
 
     // Active facet name in the center of the inner circle
-    svg.append('text')
+    svg.append('foreignObject')
       .attr('class', 'facet-name')
-      .attr('text-anchor', 'middle')
-      .attr('font-size', '15px') // Reduced font size to fit the smaller area
-      .attr('y', -50) // Centered vertically inside the inner circle
-      .text(activeDomain)
+      .attr('width', 200)
+      .attr('height', 63)
+      .attr('x', -100)
+      .attr('y', -63) // Centered vertically inside the inner circle
+      .html( // Reduced font size to fit the smaller area
+        `
+          <p style="font-size: 15px;">
+            ${activeDomain}
+          </p>
+        `
+      )
 
   }, [activeDomain, data, averageScore])
 

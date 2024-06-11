@@ -10,8 +10,8 @@ import {
   BarChartTargetDataType, 
 } from '@/utils'
 // CSS
-import styles from '@/components/DataViz/DataViz.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+import styles from '@/components/DataViz/DataViz.module.css'
 
 
 
@@ -129,13 +129,33 @@ const StellarPlot: FC<StellarPlotProps> = ({
     // Add labels
     axisGrid.selectAll('.axisLabel')
       .data(data)
-      .enter().append('text')
+      .enter()
+      .append('foreignObject')
       .attr('class', 'axisLabel')
-      .attr('x', (d, i) => rScale(1.1) * Math.cos(angleSlice * i - Math.PI / 2))
-      .attr('y', (d, i) => rScale(1.1) * Math.sin(angleSlice * i - Math.PI / 2))
-      .attr('text-anchor', 'middle')
-      .style('font-size', '14px')
-      .text((d: any) => d.axis)
+      .attr(
+          'x', 
+          (d, i): number => (
+            rScale(1.1) * Math.cos(
+              angleSlice * i - Math.PI / 2)
+            ) - 85
+        )
+      .attr(
+        'y', 
+        (d, i): number => (
+          rScale(1.1) * Math.sin(
+            angleSlice * i - Math.PI / 2
+          ) - 5
+        )
+      )
+      .attr('width', 170)  // Adjust width as needed
+      .attr('height', 20)  // Adjust height as needed
+      .html(
+        (d: any) => `
+          <p style="font-size: 14px; text-align: center;">
+            ${d.axis}
+          </p>
+        `
+      )
 
     const columnWidth = 230 // Width of each column, adjust as needed
     const itemsPerColumn = Math.ceil(data.length / 2) // Calculate items per column
@@ -189,12 +209,15 @@ const StellarPlot: FC<StellarPlotProps> = ({
         .style('opacity', '0.75') // Match the opacity of the tapered lines
 
       // Add legend text
-      legend.append('text')
+      legend.append('foreignObject')
         .attr('x', xPosition + 20) // Position text next to the symbol; adjust as needed
-        .attr('y', yPosition + 9) // Align text with the symbol; adjust as needed
-        .text(`${d.axis}: ${Math.floor(d.value * 100)}`) // Display the label and its value
+        .attr('y', yPosition - 4) // Align text with the symbol; adjust as needed
+        .attr('width', 200) // Size of the legend symbol
+        .attr('height', 30)
         .style('font-size', '14px') // Adjust font size as needed
         .attr('alignment-baseline', 'middle')
+        .style('text-align', 'left')
+        .text(`${d.axis}: ${Math.floor(d.value * 100)}`) // Display the label and its value
     })
   }, [data]) // Ensure effect runs when data changes
 

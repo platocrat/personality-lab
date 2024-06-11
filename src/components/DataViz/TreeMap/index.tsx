@@ -84,12 +84,18 @@ const TreeMap = ({
         .style('fill', color)
 
       // Draw the text
-      legend.append('text')
-        .attr('x', currentPositionX + squareSize + squareTextSpacing)
-        .attr('y', currentPositionY + squareSize / 2)
-        .text(text)
-        .style('font-size', '12px')
-        .attr('alignment-baseline', 'middle')
+      legend.append('foreignObject')
+        .attr('width', 180)
+        .attr('height', 20)
+        .attr('x', currentPositionX - 0 + squareSize + squareTextSpacing)
+        .attr('y', currentPositionY - 8 + squareSize / 2)
+        .html(
+          `
+            <p style="font-size: 12px; text-align: left;">
+              ${text}
+            </p>
+          `
+        )
 
       currentPositionX += (textWidthEstimate + squareSize + squareTextSpacing + legendSpacing) // Update position for the next item
     })

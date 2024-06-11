@@ -1,3 +1,5 @@
+'use client'
+
 // Externals
 import { useState, useCallback, useLayoutEffect } from 'react'
 // Locals
