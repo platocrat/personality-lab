@@ -5,13 +5,18 @@ import { FC } from 'react'
 import { useUser } from '@auth0/nextjs-auth0/client'
 // Locals
 import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
+// Sections
+import HistoricalAssessments from '@/sections/profile/historical-assessments'
 // Hooks
 import useAccount from '@/hooks/useAccount'
+// CSS
+import styles from '@/app/page.module.css'
 
 
 type ProfileProps = {
 
 }
+
 
 
 const Profile: FC<ProfileProps> = ({
@@ -22,18 +27,35 @@ const Profile: FC<ProfileProps> = ({
   // Hooks
   const { isFetchingAccount } = useAccount()
 
-
   return (
     <>
       <NetworkRequestSuspense
         isLoading={ isLoading && !user && isFetchingAccount }
         spinnerOptions={{
-          showSpinner: true
+          showSpinner: true,
         }}
       >
-        <div>
+        <main className={ `${styles.main}` }>
+          <div>
+            <h1>
+              { `Profile` }
+            </h1>
 
-        </div>
+            { user && (
+              <>
+                <div>
+                  <div style={ { marginBottom: '24px' } }>
+                    <p>
+                      { `Welcome, ${user.name}!` }
+                    </p>
+                  </div>
+                  <HistoricalAssessments />
+                </div>
+              </>
+            ) }
+
+          </div>
+        </main>
       </NetworkRequestSuspense>
     </>
   )
