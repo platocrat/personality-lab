@@ -41,10 +41,10 @@ const ProgressBar = ({ children }: { children: ReactNode }) => {
           <motion.div
             style={{ 
               width,
-              height: '4px',
+              height: '3.75px',
               position: 'absolute',
-              zIndex: '100',
-              filter: 'drop-shadow(0px 2px 4px rgba(61, 142, 255, 0.9))',
+              zIndex: '1000',
+              filter: 'drop-shadow(0px 1.5px 3px rgba(61, 142, 255, 0.6))',
               backgroundColor: 'rgb(61, 142, 255, 1)',
             }}
             exit={{ opacity: 0 }}

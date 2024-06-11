@@ -3,7 +3,6 @@ import * as d3 from 'd3'
 import React, { useEffect, useRef } from 'react'
 // Locals
 // CSS
-// import './Histogram.css'
 import dataVizStyles from '@/components/DataViz/DataViz.module.css'
 import histogramStyles from '@/components/DataViz/Histograms/Single/Histogram.module.css'
 
@@ -43,7 +42,7 @@ const Histogram = ({ data, title, score }) => {
         .select('body')
         .append('div')
         .style('position', 'absolute')
-        .style('text-align', 'center')
+        .style('text-align', 'left')
         .style('width', 'auto')
         .style('height', 'auto')
         .style('padding', '8px')
@@ -101,16 +100,44 @@ const Histogram = ({ data, title, score }) => {
       svg.append('g')
         .call(d3.axisLeft(y))
 
+      // X-axis label
+      svg.append('foreignObject')
+        .attr('width', 80)
+        .attr('height', 22)
+        .attr('x', 225)
+        .attr('y', 319)
+        .html(
+          `
+            <p style="font-size: 14px;">
+              ${ 'Score' }
+            </p>
+          `
+        )
+
+      // Y-axis label
+      svg.append('foreignObject')
+        .attr('width', 22)
+        .attr('height', 42)
+        .attr('x', -50)
+        .attr('y', 130)
+        .html(
+          `
+            <p style="font-size: 14px; transform: rotate(-90deg); position: relative; top: 15px;">
+              ${ 'Count' }
+            </p>
+          `
+        )
+
       svg.append('foreignObject')
         .attr('width', 400)
         .attr('height', 22)
-        .attr('x', 80)
-        .attr('y', -33.5)
+        .attr('x', 85)
+        .attr('y', -32)
         .html(
           `
-            <p style="font-size: 16.5px; font-weight: bold; text-align: center;">
+            <div style="font-size: 16.5px; font-weight: bold; text-align: center;">
               ${title}
-            </p>
+            </div>
           `
         )
 
@@ -127,10 +154,10 @@ const Histogram = ({ data, title, score }) => {
         .select('body')
         .append('div')
         .style('position', 'absolute')
-        .style('text-align', 'center')
-        .style('width', '100px')
-        .style('height', '28px')
-        .style('padding', '2px')
+        .style('text-align', 'left')
+        .style('width', 'auto')
+        .style('height', 'auto')
+        .style('padding', '8px')
         .style('font', '12px sans-serif')
         .style('background', 'lightcoral')
         .style('border', '0px')

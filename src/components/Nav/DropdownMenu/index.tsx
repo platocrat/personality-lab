@@ -77,19 +77,30 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
             </>
           ) : (
             <>
-              <img
-                alt='Profile'
-                width={ 48 }
-                height={ 48 }
-                className={ styles.img }
-                style={{ 
-                  boxShadow: isVisible 
-                    ? '0px 3px 5px 1.5px rgba(0, 75, 118, 0.5)'
-                    : ''
+              <div
+                style={{
+                  display: 'flex',
+                  height: '54px',
+                  width: '54px'
                 }}
-                onClick={ toggleDropdown }
-                src={ user && (user.picture ?? '') }
-              />
+              >
+                <img
+                  alt='Profile'
+                  width={ 44 }
+                  height={ 44 }
+                  className={ styles.img }
+                  style={ {
+                    position: 'relative',
+                    top: '3px',
+                    right: '-7px',
+                    boxShadow: isVisible
+                      ? '0px 3px 5px 1.5px rgba(0, 75, 118, 0.5)'
+                      : ''
+                  } }
+                  onClick={ toggleDropdown }
+                  src={ user && (user.picture ?? '') }
+                />
+              </div>
             </>
           )}
         </div>
