@@ -1,5 +1,5 @@
 // Dummy data
-import { DUMMY_BESSI_USER_SCORES } from '@/components/DataViz/BarChart/PerDomain/data'
+import { DUMMY_BESSI_USER_SCORES } from '@/components/DataViz/BarChart/PerDomain/dummy-data'
 // Utility functions
 import { 
   getFacet, 

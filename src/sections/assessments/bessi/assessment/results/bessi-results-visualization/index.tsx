@@ -19,7 +19,7 @@ import UserVisualization from '@/sections/assessments/bessi/assessment/results/b
 import {
   RIDGELINE_DEMO_DOMAIN_DATA,
   RIDGELINE_DEMO_FACET_DATA,
-} from '@/components/DataViz/DemoRidgeline/data'
+} from '@/components/DataViz/DemoRidgeline/dummy-data'
 import MultipleNormalDistributions, {
   MultipleNormalDistributionDataType
 } from '@/components/DataViz/Distributions/Normal/Multiple'
@@ -40,7 +40,7 @@ import SingleNormalDistributionChart from '@/components/DataViz/Distributions/No
 import {
   DUMMY_BESSI_USER_SCORES,
   generateDummyBessiUserScores,
-} from '@/components/DataViz/BarChart/PerDomain/data'
+} from '@/components/DataViz/BarChart/PerDomain/dummy-data'
 // Hooks
 import useClickOutside from '@/hooks/useClickOutside'
 // Contexts
