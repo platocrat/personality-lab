@@ -14,23 +14,6 @@ export type BessiSkillScoresContextType = {
 }
 
 
-export type SessionContextType = {
-  email: string
-  username: string
-  isAdmin: boolean
-  isParticipant: boolean
-  isAuthenticated: boolean
-  userStudies?: STUDY_SIMPLE__DYNAMODB[] // `undefined` for a non-participant
-  setEmail: Dispatch<SetStateAction<string>>
-  setUsername: Dispatch<SetStateAction<string>>
-  setIsAdmin: Dispatch<SetStateAction<string>>
-  setIsParticipant: Dispatch<SetStateAction<boolean>>
-  setIsAuthenticated: Dispatch<SetStateAction<boolean>>
-  setUserStudies: Dispatch<SetStateAction<STUDY_SIMPLE__DYNAMODB>>
-}
-
-
-
 export type StudiesTableContextType = {
   buttonHandlers: {
     toggleDropdown: (studyId: any) => void

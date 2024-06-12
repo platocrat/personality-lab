@@ -11,8 +11,17 @@ import {
 
 
 
+type UserAccountReturnType = {
+  isAdmin: boolean
+  accountError: string
+  isParticipant: boolean
+  isFetchingAccount: boolean
+  participant?: PARTICIPANT__DYNAMODB | undefined
+  userStudies?: STUDY_SIMPLE__DYNAMODB[] | undefined
+}
 
-function useAccount() {
+
+export default function useAccount(): UserAccountReturnType {
   // Customs
   const [
     participant, 
@@ -52,12 +61,13 @@ function useAccount() {
       const participant = account.participant
       const isParticiapnt_ = participant ? true : false
       const studies = participant?.studies as STUDY_SIMPLE__DYNAMODB[] | undefined
-
-      setParticipant(participant)
-      setIsParticipant(isParticiapnt_)
+      
       setIsAdmin(isAdmin_)
+      setIsParticipant(isParticiapnt_)
+      
+      setParticipant(participant)
       setUserStudies(studies)
-    } catch (error: any) {
+      } catch (error: any) {
       setAccountError(error.message)
     } finally {
       setIsFetchingAccount(false)
@@ -77,7 +87,7 @@ function useAccount() {
 
 
   return { 
-    isAdmin, 
+    isAdmin,
     userStudies, 
     participant,
     accountError,
@@ -85,5 +95,3 @@ function useAccount() {
     isFetchingAccount, 
   }
 }
-
-export default useAccount
