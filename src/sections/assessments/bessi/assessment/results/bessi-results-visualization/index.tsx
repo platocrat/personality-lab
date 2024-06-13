@@ -267,17 +267,24 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
     if (showComparison) {
       switch (i) {
         case 0:
+          const { study, isNonStudy } = getCurrentStudy()
+
+          const studyId: string | undefined = isNonStudy ? undefined : study?.id
+
           const histogramUserData = getUserData(i) as {
             facetScores: FacetFactorType,
             domainScores: SkillDomainFactorType,
           }
 
+
           return (
             <>
               <MultipleHistograms
+                studyId={ studyId }
                 userData={ histogramUserData }
                 auth0={{
                   user,
+                  error,
                   isLoading,
                 }}
               />
@@ -528,7 +535,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
           <span style={{ fontSize: '13px', marginRight: '4px' }}>
             <div style={ { display: 'flex' } }>
               <p style={ { marginRight: '4px' } }>
-                { `Compare to others?` }
+                { `See how I compare to others?` }
               </p>
             </div>
           </span>
