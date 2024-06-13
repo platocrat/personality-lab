@@ -36,6 +36,7 @@
     "@types/node": "^20.14.2",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
+    "chart.js": "^4.4.3",
     "d3": "^7.9.0",
     "eslint": "^8.56.0",
     "eslint-config-next": "^14.2.3",
@@ -44,6 +45,7 @@
     "jsonwebtoken": "^9.0.2",
     "libsodium-wrappers": "^0.7.13",
     "libsodium-wrappers-sumo": "^0.7.13",
+    "react-chartjs-2": "^5.2.0",
     "sharp": "^0.33.4",
     "turbo": "^2.0.3",
     "typescript": "^5.4.5"
