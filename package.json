@@ -47,7 +47,7 @@
     "libsodium-wrappers-sumo": "^0.7.13",
     "react-chartjs-2": "^5.2.0",
     "sharp": "^0.33.4",
-    "turbo": "^2.0.5",
+    "turbo": "^2.0.6",
     "typescript": "^5.5.2"
   }
 }
