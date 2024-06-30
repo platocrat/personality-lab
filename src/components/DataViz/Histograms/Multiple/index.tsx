@@ -1,21 +1,24 @@
 // Externals
-import { FC, useLayoutEffect, useState } from 'react'
+import Image from 'next/image'
+import { FC, useLayoutEffect, useRef, useState } from 'react'
 // Locals
 import Histogram from '@/components/DataViz/Histograms/Single'
 // Utils
 import {
+  Gender,
   STUDY__DYNAMODB,
   RESULTS__DYNAMODB,
   BessiUserResults__DynamoDB,
   getDummyPopulationBessiScores,
-  Gender
 } from '@/utils'
 // Types
 import { 
   BessiUserDataVizType 
 } from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization'
-import { filter } from 'd3'
+// CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
+import styles from '@/components/DataViz/Histograms/Histogram.module.css'
+import listOfStudiesStyles from '@/sections/main-portal/studies/view/list-of-studies/ListOfStudies.module.css'
 
 
 
@@ -46,6 +49,8 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
 }) => {
   // Auth0 
   const { user, error, isLoading } = auth0
+  // Refs
+  const filterRef = useRef<any>(null)
   // State
   const [ 
     populationResults, 
@@ -64,6 +69,7 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
     setStudyResults
   ] = useState<(any | BessiUserResults__DynamoDB)[] | undefined>(undefined)
   const [ view, setView ] = useState<'domain' | 'facet'>('domain')
+  const [ showFilterMenu, setShowFilterMenu ] = useState(false)
   const [ assessmentId, setAssessmentId ] = useState<string | undefined>('')
   const [ ageFilter, setAgeFilter ] = useState<number | undefined>(undefined)
 
@@ -79,6 +85,10 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
 
   const handleOnChangeGenderFilter = (e: any) => {
     setGenderFilter(e.target.value as Gender || undefined)
+  }
+
+  const toggleFilterMenu = () => {
+    setShowFilterMenu(!showFilterMenu)
   }
 
 
@@ -220,7 +230,7 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
     
         Promise.all(requests)
       } else {
-        // If studyId does not exist, use dummy data.
+        // If `studyId` does not exist, use dummy data.
         const histogramPopulationDummyData = {
           facetScores: getDummyPopulationBessiScores(100, 'facet'),
           domainScores: getDummyPopulationBessiScores(100, 'domain')
@@ -253,58 +263,146 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
   return (
     <>
       <div style={ { marginTop: '36px' } }>
-        <div style={ { marginBottom: '24px' } }>
-          <select
-            id='view-select'
-            value={ view }
-            onChange={ handleOnChangeHistogramView }
-          >
-            <option value='domain'>
-              { `Domain Scores` }
-              </option>
-            <option value='facet'>
-              { `Facet Scores` }
-            </option>
-          </select>
-        </div>
+        {/* Filter settings section */}
         <div 
           style={{ 
-            ...definitelyCenteredStyle,
-            flexDirection: 'row',
-            gap: '24px',
-            marginBottom: '12px',
-            fontSize: '13px',
+            display: 'inline-block', 
+            position: 'relative', 
+            justifyContent: 'space-evenly' 
           }}
         >
-          <div style={ { marginBottom: '18px' } }>
-            <label htmlFor='age-filter'>
-              { `Age: ` }
-            </label>
-            <input
-              id='age-filter'
-              type='number'
-              value={ ageFilter || '' }
-              onChange={ handleOnChangeAgeFilter }
+          <button
+            className={ styles['filter-button'] }
+            onClick={ toggleFilterMenu }
+            style={ { 
+              ...definitelyCenteredStyle, 
+              marginBottom: '24px',
+              boxShadow: showFilterMenu 
+                ? '0px 1px 3.5px inset rgba(0, 80, 172, 0.514)'
+                : ''
+            } }
+          >
+            <Image
+              alt='Filter svg icon'
+              width={ 16 }
+              height={ 16 }
+              src={ './icons/svg/filter.svg' }
             />
-          </div>
-          <div style={ { marginBottom: '18px' } }>
-            <label htmlFor='gender-filter'>
-              { `Gender: ` }
-            </label>
-            <select
-              id='gender-filter'
-              value={ genderFilter || '' }
-              onChange={ handleOnChangeGenderFilter }
+            <p 
+              style={ { 
+                fontSize: 'clamp(9.5px, 2.5vw, 12.5px)', 
+                margin: '0px 3px' 
+              } }
             >
-              <option value=''>{ `Any` }</option>
-              <option value='male'>{ `Male` }</option>
-              <option value='female'>{ `Female` }</option>
-              <option value='non-binary'>{ `Non-binary` }</option>
-              <option value='other'>{ `Other` }</option>
-            </select>
-          </div>
+              { `Filter` }
+            </p>
+          </button>
+
+
+          { showFilterMenu && (
+            <>
+              <div 
+                ref={ filterRef } 
+                style={{ position: 'relative' }}
+              >
+                <div 
+                  className={ `${listOfStudiesStyles.dropdown}` }
+                  style={ { 
+                    border: '0.25px solid #F4F6FA',
+                    flexDirection: 'column',
+                    position: 'absolute',
+                    top: '-24px',
+                    borderRadius: '8px',
+                    padding: '10px 10px 0px 10px',
+                    fontSize: 'clamp(9.5px, 2.5vw, 12.5px)',
+                    backgroundColor: '#F4F6FA',
+                    borderColor: 'rgba(0, 80, 172, 0.3514)',
+                    borderWidth: '0.1px',
+                  } }
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      width: '150px',
+                    }}
+                  >
+                    <div style={{ marginBottom: '12px',  }}>
+                      <p
+                        style={{
+                          color: 'rgba(0, 80, 172, 1)',
+                          fontSize: 'clamp(9.5px, 2.5vw, 12.5px)',
+                        }}
+                      >
+                        { `Filter by:` }
+                      </p>
+                    </div>
+
+                    <div 
+                      style={ { 
+                        marginBottom: '18px',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                      } }
+                    >
+                      <label 
+                        htmlFor='age-filter'
+                        style={{
+                          position: 'relative',
+                          display: 'flex',
+                          top: '2px',
+                          color: 'rgb(0, 80, 172)',
+                        }}
+                      >
+                        { `Age` }
+                      </label>
+                      <input
+                        id='age-filter'
+                        type='number'
+                        min={ 0 }
+                        value={ ageFilter || '' }
+                        style={ { width: '50px' } }
+                        onChange={ handleOnChangeAgeFilter }
+                      />
+                    </div>
+                    <div 
+                      style={ { 
+                        marginBottom: '18px',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                      } }
+                    >
+                      <label
+                        htmlFor='age-filter'
+                        style={ {
+                          position: 'relative',
+                          display: 'flex',
+                          top: '2px',
+                          color: 'rgb(0, 80, 172)',
+                        } }
+                      >
+                        { `Gender` }
+                      </label>
+                      <select
+                        id='gender-filter'
+                        value={ genderFilter || '' }
+                        onChange={ handleOnChangeGenderFilter }
+                      >
+                        <option value=''>{ `Any` }</option>
+                        <option value='male'>{ `Male` }</option>
+                        <option value='female'>{ `Female` }</option>
+                        <option value='non-binary'>{ `Non-binary` }</option>
+                        <option value='other'>{ `Other` }</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          ) }
         </div>
       </div>
+
 
       { filteredResults.facetScores && filteredResults.domainScores && (
         <>  

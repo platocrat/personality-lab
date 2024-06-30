@@ -1,10 +1,20 @@
 /* BessiResultsVisualization.module.css */
 
-.switchContainer {
+.switchInnerContainer {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 18px;
+  background-color: #1c1c1c3a;
+  border-radius: 3rem;
+  margin-bottom: 24px;
+  padding: 3px 5px 5px 5px;
+  border: 0.5px solid #1c1c1c1e;
+}
+
+.switchOuterContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .switch {
@@ -13,6 +23,7 @@
   width: 40px; /* Increased width to fit "ON" and "OFF" */
   height: 23px; /* Increased height to fit "ON" and "OFF" */
   top: 1px;
+  /* border: 0.1px solid rgb(119, 119, 119); */
   border-radius: 23px; /* Updated border radius */
 }
 

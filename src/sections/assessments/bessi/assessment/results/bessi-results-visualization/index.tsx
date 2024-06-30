@@ -67,6 +67,7 @@ import {
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization/BessiResultsVIsualization.module.css'
+import Image from 'next/image'
 
 
 
@@ -531,22 +532,30 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         style={{ marginTop: '24px' }}
       >
         {/* Toggle Switch */ }
-        <div className={ styles.switchContainer }>
-          <span style={{ fontSize: '13px', marginRight: '4px' }}>
-            <div style={ { display: 'flex' } }>
-              <p style={ { marginRight: '4px' } }>
-                { `See how I compare to others?` }
-              </p>
-            </div>
-          </span>
-          <label className={ styles.switch }>
-            <input 
-              type='checkbox'
-              checked={ showComparison }
-              onChange={ handleToggleVisualizationType }
-            />
-            <span className={ styles.slider } />
-          </label>
+        <div className={ styles.switchOuterContainer }>
+          <div className={ styles.switchInnerContainer }>
+            <span style={{ fontSize: '13px', marginRight: '4px' }}>
+              <div style={ { display: 'flex' } }>
+                <Image
+                  width={ '24' }
+                  height={ '24' }
+                  src={ './icons/svg/group.svg' }
+                  alt={ 'icon to toggle group comparison' }
+                  style={{
+                    filter: 'drop-shadow(0px 0.5px 0.75px rgba(0, 0, 0, 0.8))'
+                  }}
+                />
+              </div>
+            </span>
+            <label className={ styles.switch }>
+              <input 
+                type='checkbox'
+                checked={ showComparison }
+                onChange={ handleToggleVisualizationType }
+              />
+              <span className={ styles.slider } />
+            </label>
+          </div>
         </div>
 
         <TitleDropdown

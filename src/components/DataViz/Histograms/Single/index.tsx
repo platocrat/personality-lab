@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from 'react'
 // Locals
 // CSS
 import dataVizStyles from '@/components/DataViz/DataViz.module.css'
-import histogramStyles from '@/components/DataViz/Histograms/Single/Histogram.module.css'
+import histogramStyles from '@/components/DataViz/Histograms/Histogram.module.css'
 
 
 const Histogram = ({ data, title, score }) => {

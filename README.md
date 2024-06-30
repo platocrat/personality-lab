@@ -8,17 +8,21 @@
 
 ## Table of Contents
 
-- [0. Project Goals](#0-project-goals)
-  - [0.1 Reference Models](#01-reference-models)
-    - [0.1.1. yourPersonality.net](#011-yourpersonalitynet)
-    - [0.1.2. what-is-my-personality.com](#012-what-is-my-personalitycom)
-    - [0.1.3. The Social-Emotional-Behavioral (SEB) Skills Lab](#013-the-social-emotional-behavioral-seb-skills-lab)
-    - [0.1.4. Qualtrics](#014-qualtrics)
-    - [0.1.5. Prolific](#015-prolific)
-    - [0.1.6. Linkedin](#016-linkedin)
-    - [0.1.7. Kahoot](#017-kahoot)
-    - [0.1.8 Inclivio](#018-inclivio)
-    - [0.1.9 In8ness](#019-in8ness)
+- [0. General Information][#0-general-information]
+  - [0.1 Project Goals](#01-project-goals)
+    - [0.1.1 Reference Models](#011-reference-models)
+      - [0.1.1.1. yourPersonality.net](#0111-yourpersonalitynet)
+      - [0.1.1.2. what-is-my-personality.com](#0112-what-is-my-personalitycom)
+      - [0.1.1.3. The Social-Emotional-Behavioral (SEB) Skills Lab](#0113-the-social-emotional-behavioral-seb-skills-lab)
+      - [0.1.1.4. Qualtrics](#0114-qualtrics)
+      - [0.1.1.5. Prolific](#0115-prolific)
+      - [0.1.1.6. Linkedin](#0116-linkedin)
+      - [0.1.1.7. Kahoot](#0117-kahoot)
+      - [0.1.1.8 Inclivio](#0118-inclivio)
+      - [0.1.1.9 In8ness](#0119-in8ness)
+  - [0.2. Project Structure](#02-project-structure)
+
+    
 - [1. Local development](#1-local-development)
 - [2. Launch a new AWS EC2 instance on the AWS console](#2-launch-a-new-aws-ec2-instance-on-the-aws-console)
   - [2.1. Application and OS Images](#21-application-and-os-images)
@@ -54,15 +58,17 @@
     - [8.1.2 Database Action Scripts](#812-database-action-scripts)
 - [9. Working with Docker containers](#9-working-with-docker-containers)
 
-## 0. Project Goals
+## General Information
+
+### 0.1 Project Goals
 
 To build a modular personality assessment platform.
 
-### 0.1 Reference Models
+### 0.1.1 Reference Models
 
 The personality platform has or is being modeled after the following websites or platforms:
 
-#### 0.1.1. [yourPersonality.net](https://dream-owl.com/attachment/)
+#### 0.1.1.1 [yourPersonality.net](https://dream-owl.com/attachment/)
 
 This is a site of [Dr. R. Chris Fraley]((https://psychology.illinois.edu/directory/profile/rcfraley)), a Professor at the Department of Psychology at the University of Illinois at Urbana-Champaign.
 
@@ -70,7 +76,7 @@ This is a site of [Dr. R. Chris Fraley]((https://psychology.illinois.edu/directo
 
 - Incorporate a visualization of the user's test/assessment results over time to clearly show a user's changes to their personality profile over time.
 
-#### 0.1.2. [what-is-my-personality.com](https://www.what-is-my-personality.com)
+#### 0.1.1.2. [what-is-my-personality.com](https://www.what-is-my-personality.com)
 
 This is a site of Dr. Brent Roberts.
 
@@ -82,21 +88,21 @@ This is a site of Dr. Brent Roberts.
 
 - Reuse components to simplify the integration of the handful of assessments
 
-#### 0.1.3. [The Social-Emotional-Behavioral (SEB) Skills Lab](https://sebskills.weebly.com)
+#### 0.1.1.3. [The Social-Emotional-Behavioral (SEB) Skills Lab](https://sebskills.weebly.com)
 
 This is another site of Dr. Brent Roberts.
     - **Default Available Assessments:**
       - Incorporate the scoring information and various forms of the BESSI
       - Incorporate the German, Italian, and Spanish translations of the BESSI
 
-#### 0.1.4. [Qualtrics](https://www.qualtrics.com/)
+#### 0.1.1.4. [Qualtrics](https://www.qualtrics.com/)
 
 **Modularity:**
 
 - Building a survey from scratch or from a template in Qualtrics should be used to partially model the study or assessment builder in `personality-lab`.
 - `personality-lab` lays out a broad list of personality measures and allows administrators to select from the list to create an assessment for their study.
 
-#### 0.1.5. [Prolific](https://www.prolific.com/)
+#### 0.1.1.5. [Prolific](https://www.prolific.com/)
 
 **Structure of Assessments:**
 
@@ -127,7 +133,7 @@ This is another site of Dr. Brent Roberts.
         - `?si=`: query string separator used to indicate the referral method to the specific track's page
         - `7f7ae9e0d8b74484`: represents the unique ID of the referral method
 
-#### 0.1.6. [Linkedin](https://linkedin.com)
+#### 0.1.1.6. [Linkedin](https://linkedin.com)
 
 **Social:**
 
@@ -138,7 +144,7 @@ This is another site of Dr. Brent Roberts.
 - Credential or Certificate of Completion
   - Respondents may share a credential or certificate of completion on Linkedin, a credential/certificate that provides evidence of their completion of multiple test/assessment results on `personality-lab`.
 
-#### 0.1.7. [Kahoot](https://kahoot.com/)
+#### 0.1.1.7. [Kahoot](https://kahoot.com/)
 
 > Kahoot's short and gamified quizzes can be used to model shareable personality quizzes on `personality-lab`.
 
@@ -149,7 +155,7 @@ This is another site of Dr. Brent Roberts.
 - Gamified studies
   - Administrators may enable the sharing of the test/assessment results of participants' of a study
 
-#### 0.1.8. [Inclivio](https://inclivio.com)
+#### 0.1.1.8. [Inclivio](https://inclivio.com)
 
 **Platform:**
 
@@ -161,7 +167,7 @@ This is another site of Dr. Brent Roberts.
 - Price per invite or price per license:
   - Use their pricing model as a reference to build the pricing/licensing model for `personality-lab`
 
-#### 0.1.9 [In8ness](https://www.in8ness.com)
+#### 0.1.1.9 [In8ness](https://www.in8ness.com)
 
 **User engagement:**
 
@@ -179,6 +185,15 @@ This is another site of Dr. Brent Roberts.
 
 - Personality Profile Report
   - Reference In8ness's "Dynamic Web Reports" and "Downloadable PDF Reports" to generate a detailed report of a user's personality profile and/or test/assessment results
+
+### 0.2 Project Structure
+
+```zsh
+.
+├── nginx
+├── caddy
+├── nextjs
+```
 
 ## 1. Local development
 

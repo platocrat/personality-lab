@@ -3,13 +3,14 @@ import { FC, useContext } from 'react'
 // Locals
 // Components
 import ProgressBarLink from '@/components/Progress/ProgressBarLink'
+// Contexts
+import { StudiesTableContext } from '@/contexts/StudiesTableContext'
+import { EditStudyModalContext } from '@/contexts/EditStudyModalContext'
+import { EditStudyModalContextType, StudiesTableContextType } from '@/contexts/types'
 // Utils
 import { STUDY__DYNAMODB } from '@/utils'
 // CSS
 import sectionStyles from '@/sections/main-portal/studies/view/list-of-studies/ListOfStudies.module.css'
-import { EditStudyModalContext } from '@/contexts/EditStudyModalContext'
-import { StudiesTableContext } from '@/contexts/StudiesTableContext'
-import { EditStudyModalContextType, StudiesTableContextType } from '@/contexts/types'
 
 
 

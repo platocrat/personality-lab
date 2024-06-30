@@ -1,3 +1,33 @@
+.filter-button {
+  width: 66px;
+  background-color: rgba(0, 80, 172, 0.0514);
+  border-radius: 1rem;
+  border-color: rgba(0, 80, 172, 0.3514);
+  border-width: 0.1px;
+  height: 28px;
+  font-size: clamp(9px, 1.9vw, 13px);
+  color: rgb(0, 80, 172);
+
+  box-shadow: 0px 1.5px 3px rgba(0, 43, 68, 0.212);
+
+  transform: scale(1);
+
+  transition: 0.1s ease-in-out;
+}
+
+.filter-button:hover {
+  background-color: rgba(0, 80, 172, 0.1514);
+  transform: scale(0.98);
+  transition: 0.1s ease-in-out;
+  cursor: pointer;
+}
+
+.filter-button:active {
+  background-color: rgba(0, 80, 172, 0.0714);
+  transform: scale(0.955);
+  transition: 0.1s ease-in-out;
+}
+
 @keyframes beacon {
   0%, 100% {
     r: 5;
