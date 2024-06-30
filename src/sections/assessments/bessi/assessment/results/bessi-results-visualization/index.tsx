@@ -528,33 +528,40 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
 
   return (
     <>
-      <div 
-        style={{ marginTop: '24px' }}
-      >
-        {/* Toggle Switch */ }
-        <div className={ styles.switchOuterContainer }>
-          <div className={ styles.switchInnerContainer }>
-            <span style={{ fontSize: '13px', marginRight: '4px' }}>
-              <div style={ { display: 'flex' } }>
-                <Image
-                  width={ '24' }
-                  height={ '24' }
-                  src={ './icons/svg/group.svg' }
-                  alt={ 'icon to toggle group comparison' }
-                  style={{
-                    filter: 'drop-shadow(0px 0.5px 0.75px rgba(0, 0, 0, 0.8))'
-                  }}
+      <div style={{ marginTop: '24px' }}>
+        {/* Data Viz Options - Row */}
+        <div 
+          style={{
+            ...definitelyCenteredStyle,
+            position: 'relative',
+            marginTop: '-12px',
+          }}
+        >
+          {/* Toggle Switch */ }
+          <div className={ styles.switchOuterContainer }>
+            <div className={ styles.switchInnerContainer }>
+              <span style={{ fontSize: '13px', marginRight: '4px' }}>
+                <div style={ { display: 'flex' } }>
+                  <Image
+                    width={ '24' }
+                    height={ '24' }
+                    src={ './icons/svg/group.svg' }
+                    alt={ 'icon to toggle group comparison' }
+                    style={{
+                      filter: 'drop-shadow(0px 1.25px 1.5px rgba(0, 0, 0, 0.85))',
+                    }}
+                  />
+                </div>
+              </span>
+              <label className={ styles.switch }>
+                <input 
+                  type='checkbox'
+                  checked={ showComparison }
+                  onChange={ handleToggleVisualizationType }
                 />
-              </div>
-            </span>
-            <label className={ styles.switch }>
-              <input 
-                type='checkbox'
-                checked={ showComparison }
-                onChange={ handleToggleVisualizationType }
-              />
-              <span className={ styles.slider } />
-            </label>
+                <span className={ styles.slider } />
+              </label>
+            </div>
           </div>
         </div>
 

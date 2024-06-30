@@ -1,7 +1,6 @@
 'use client'
 
 // Externals
-
 import {
   FC,
   useMemo,

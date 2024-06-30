@@ -12,11 +12,11 @@ import {
   getEntryId,
   ddbDocClient,
   STUDY__DYNAMODB,
+  ACCOUNT__DYNAMODB,
   RESULTS__DYNAMODB,
   DYNAMODB_TABLE_NAMES,
   STUDY_SIMPLE__DYNAMODB,
   BessiUserResults__DynamoDB,
-  ACCOUNT__DYNAMODB,
 } from '@/utils'
 
 

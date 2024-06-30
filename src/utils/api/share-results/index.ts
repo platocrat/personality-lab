@@ -1,3 +1,4 @@
+
 // Externals
 import { verify } from 'jsonwebtoken'
 import { NextRequest, NextResponse } from 'next/server'
@@ -13,10 +14,10 @@ import {
   STUDY__DYNAMODB,
   jwtErrorMessages,
   RESULTS__DYNAMODB,
+  ACCOUNT__DYNAMODB,
   DYNAMODB_TABLE_NAMES,
   BessiUserResults__DynamoDB,
   USER_RESULTS_ACCESS_TOKENS__DYNAMODB,
-  ACCOUNT__DYNAMODB,
 } from '@/utils'
 import { getSession } from '@auth0/nextjs-auth0'
 

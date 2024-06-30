@@ -6,10 +6,18 @@ import Histogram from '@/components/DataViz/Histograms/Single'
 // Utils
 import {
   Gender,
+  USState,
+  YesOrNo,
+  SocialClass,
+  RaceOrEthnicity,
   STUDY__DYNAMODB,
   RESULTS__DYNAMODB,
+  CurrentMaritalStatus,
+  HighestFormalEducation,
+  CurrentEmploymentStatus,
   BessiUserResults__DynamoDB,
   getDummyPopulationBessiScores,
+  BessiUserDemographics__DynamoDB,
 } from '@/utils'
 // Types
 import { 
@@ -22,10 +30,18 @@ import listOfStudiesStyles from '@/sections/main-portal/studies/view/list-of-stu
 
 
 
-export type PopulationResults = {
-  [ key: string ]: { 
+type PopulationResultType = {
+  facetScores: {
     [key: string]: number[]
   }
+  domainScores: {
+    [key: string]: number[]
+  }
+}
+
+export type PopulationResults = {
+  demographics: BessiUserDemographics__DynamoDB
+  results: PopulationResultType
 }
 
 
@@ -55,11 +71,11 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
   const [ 
     populationResults, 
     setPopulationResults, 
-  ] = useState<PopulationResults>({})
+  ] = useState<PopulationResults | null>(null)
   const [ 
     filteredResults, 
     setFilteredResults 
-  ] = useState<PopulationResults>({})
+  ] = useState<PopulationResults | null>(null)
   const [ 
     genderFilter, 
     setGenderFilter 
@@ -94,11 +110,28 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
 
   // ------------------------- Filtering Functions -----------------------------
   function filterResults(): PopulationResults {
-    if (!ageFilter && !genderFilter) return populationResults
+    if (!ageFilter && !genderFilter) return populationResults as PopulationResults
 
     const filteredResults: PopulationResults = {
-      facetScores: {},
-      domainScores: {},
+      results: {
+        facetScores: {},
+        domainScores: {},
+      },
+      demographics: {
+        age: 28,
+        gender: Gender.Male,
+        usState: USState.Illinois,
+        zipCode: '60077',
+        isParent: YesOrNo.No,
+        foreignCountry: '',
+        englishFluency: YesOrNo.Yes,
+        priorCompletion: YesOrNo.Yes,
+        socialClass: SocialClass.LowerMiddleClass,
+        raceOrEthnicity: RaceOrEthnicity.HispanicLatinAmerican,
+        currentMaritalStatus: CurrentMaritalStatus.NeverMarried,
+        highestFormalEducation: HighestFormalEducation.SomeCollege,
+        currentEmploymentStatus: CurrentEmploymentStatus.WorkPartTime,
+      }
     }
 
 
@@ -119,21 +152,21 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
         if (include) {
           Object.entries(result.facetScores).forEach(([key, value]) => {
             if (typeof value === 'number') {
-              if (!filteredResults.facetScores[key]) {
-                filteredResults.facetScores[key] = []
+              if (!filteredResults.results.facetScores[key]) {
+                filteredResults.results.facetScores[key] = []
               }
 
-              filteredResults.facetScores[key].push(value)
+              filteredResults.results.facetScores[key].push(value)
             }
           })
 
           Object.entries(result.domainScores).forEach(([key, value]) => {
             if (typeof value === 'number') {
-              if (!filteredResults.domainScores[key]) {
-                filteredResults.domainScores[key] = []
+              if (!filteredResults.results.domainScores[key]) {
+                filteredResults.results.domainScores[key] = []
               }
 
-              filteredResults.domainScores[key].push(value)
+              filteredResults.results.domainScores[key].push(value)
             }
           })
         }
@@ -151,8 +184,25 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
    */
   function getPopulationResults(): PopulationResults {
     const populationResults: PopulationResults = {
-      facetScores: {},
-      domainScores: {}
+      results: {
+        facetScores: {},
+        domainScores: {},
+      },
+      demographics: {
+        age: 28,
+        gender: Gender.Male,
+        usState: USState.Illinois,
+        zipCode: '60077',
+        isParent: YesOrNo.No,
+        foreignCountry: '',
+        englishFluency: YesOrNo.Yes,
+        priorCompletion: YesOrNo.Yes,
+        socialClass: SocialClass.LowerMiddleClass,
+        raceOrEthnicity: RaceOrEthnicity.HispanicLatinAmerican,
+        currentMaritalStatus: CurrentMaritalStatus.NeverMarried,
+        highestFormalEducation: HighestFormalEducation.SomeCollege,
+        currentEmploymentStatus: CurrentEmploymentStatus.WorkPartTime,
+      }
     }
 
     // Iterate over all study results
@@ -161,22 +211,22 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
         // Process facetScores
         Object.entries(result.facetScores).forEach(([key, value]) => {
           if (typeof value === 'number') {
-            if (!populationResults.facetScores[key]) {
-              populationResults.facetScores[key] = []
+            if (!populationResults.results.facetScores[key]) {
+              populationResults.results.facetScores[key] = []
             }
 
-            populationResults.facetScores[key].push(value)
+            populationResults.results.facetScores[key].push(value)
           }
         })
 
         // Process domainScores
         Object.entries(result.domainScores).forEach(([key, value]) => {
           if (typeof value === 'number') {
-            if (!populationResults.domainScores[key]) {
-              populationResults.domainScores[key] = []
+            if (!populationResults.results.domainScores[key]) {
+              populationResults.results.domainScores[key] = []
             }
 
-            populationResults.domainScores[key].push(value)
+            populationResults.results.domainScores[key].push(value)
           }
         })
       }
@@ -231,9 +281,26 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
         Promise.all(requests)
       } else {
         // If `studyId` does not exist, use dummy data.
-        const histogramPopulationDummyData = {
-          facetScores: getDummyPopulationBessiScores(100, 'facet'),
-          domainScores: getDummyPopulationBessiScores(100, 'domain')
+        const histogramPopulationDummyData: PopulationResults = {
+          results: {
+            facetScores: getDummyPopulationBessiScores(100, 'facet'),
+            domainScores: getDummyPopulationBessiScores(100, 'domain'),
+          },
+          demographics: {
+            age: 28,
+            gender: Gender.Male,
+            usState: USState.Illinois,
+            zipCode: '60077',
+            isParent: YesOrNo.No,
+            foreignCountry: '',
+            englishFluency: YesOrNo.Yes,
+            priorCompletion: YesOrNo.Yes,
+            socialClass: SocialClass.LowerMiddleClass,
+            raceOrEthnicity: RaceOrEthnicity.HispanicLatinAmerican,
+            currentMaritalStatus: CurrentMaritalStatus.NeverMarried,
+            highestFormalEducation: HighestFormalEducation.SomeCollege,
+            currentEmploymentStatus: CurrentEmploymentStatus.WorkPartTime,
+          }
         }
 
         setPopulationResults(histogramPopulationDummyData)
@@ -311,8 +378,8 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
                     border: '0.25px solid #F4F6FA',
                     flexDirection: 'column',
                     position: 'absolute',
-                    top: '-24px',
-                    borderRadius: '8px',
+                    top: '-26.5px',
+                    borderRadius: '12px',
                     padding: '10px 10px 0px 10px',
                     fontSize: 'clamp(9.5px, 2.5vw, 12.5px)',
                     backgroundColor: '#F4F6FA',
@@ -404,11 +471,12 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
       </div>
 
 
-      { filteredResults.facetScores && filteredResults.domainScores && (
+      { filteredResults?.results.facetScores && 
+        filteredResults?.results.domainScores && (
         <>  
           { view === 'facet' &&
             Object.entries(
-              filteredResults.facetScores
+              filteredResults?.results?.facetScores
             ).map(([key, scoresArray]) => (
               <div key={ `facet-${key}` }>
                 <Histogram
@@ -420,7 +488,7 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
             )) }
           { view === 'domain' &&
             Object.entries(
-              filteredResults.domainScores
+              filteredResults?.results?.domainScores
             ).map(([key, scoresArray]) => (
               <div key={ `domain-${key}` }>
                 <Histogram
