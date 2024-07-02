@@ -110,7 +110,7 @@ const ChartjsHistoricalAssessments = () => {
             <div className={ styles['chart'] }>
               <Line
                 data={ data.data }
-                options={ createChartOptions(`Domain Score: ${data.key}`) }
+                options={ createChartOptions(`Domain Score: ${data.key}`) as any }
               />
             </div>
           </div>
@@ -125,7 +125,7 @@ const ChartjsHistoricalAssessments = () => {
             <div className={ styles['chart'] }>
               <Line
                 data={ data.data }
-                options={ createChartOptions(`Facet Score: ${data.key}`) }
+                options={ createChartOptions(`Facet Score: ${data.key}`) as any }
               />
             </div>
           </div>
