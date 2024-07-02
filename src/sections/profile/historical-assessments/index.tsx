@@ -11,19 +11,16 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 import dataVizStyles from '@/components/DataViz/DataViz.module.css'
 import styles from '@/sections/profile/historical-assessments/HistoricalAssessments.module.css'
 
-
-
 const HistoricalAssessments = () => {
   const { facetScores, domainScores } = DUMMY_USER_PROFILE_ASSESSMENT_HISTORICAL_DATA
 
   const facetRefs = useRef<{ [key: string]: HTMLDivElement | null }>({})
   const domainRefs = useRef<{ [key: string]: HTMLDivElement | null }>({})
 
-
   const facetDescriptions = useCallback((data): string => {
     const facet = FACET_FEEDBACK[data.key]
     let _ = ''
-  
+
     if (facet) {
       const valuesLength = data.values.length - 1
       const mostRecentScore = data.values[valuesLength].score
@@ -39,11 +36,10 @@ const HistoricalAssessments = () => {
       }
 
       return _
-    } 
-    
+    }
+
     return _
   }, [])
-
 
   const generateChartData = (
     scores: {
@@ -79,6 +75,34 @@ const HistoricalAssessments = () => {
   const facetChartData = generateChartData(facetScores)
   const domainChartData = generateChartData(domainScores)
 
+  const calculateTopChanges = () => {
+    const allScores = [...facetChartData, ...domainChartData]
+    const now = new Date()
+    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+
+    const changes = allScores.map(data => {
+      const recentScores = data.values.filter(d => d.timestamp >= oneWeekAgo)
+      if (recentScores.length < 2) return null
+
+      const firstScore = recentScores[0].score
+      const lastScore = recentScores[recentScores.length - 1].score
+      const change = lastScore - firstScore
+      const percentageChange = (change / firstScore) * 100
+
+      return {
+        key: data.key,
+        change: percentageChange,
+        type: facetScores[data.key] ? 'Facet' : 'Domain',
+        firstScore,
+        lastScore
+      }
+    }).filter(change => change !== null)
+
+    changes.sort((a, b) => Math.abs(b.change) - Math.abs(a.change))
+    return changes.slice(0, 5)
+  }
+
+  const topChanges = useMemo(calculateTopChanges, [facetChartData, domainChartData])
 
   const createChart = (
     data: {
@@ -221,82 +245,128 @@ const HistoricalAssessments = () => {
     })
   }, [domainChartData])
 
-
-
-
+  const formatKey = (key) => {
+    return key.replace(/([A-Z])/g, ' $1').trim()
+  }
 
   return (
-    <div style={ { width: '100%' } }>
-      <div style={ { marginBottom: '0px' } }>
-        <div style={ definitelyCenteredStyle }>
-          <h2 style={ { fontSize: 'clamp(13px, 2vw, 16px)', margin: '12px 0px' } }>
-            { `Domain Scores` }
-          </h2>
-        </div>
-        <div style={ { display: 'flex', flexWrap: 'wrap' } }>
-          { domainChartData.map(data => (
-            <div
-              key={ data.key }
-              style={ { display: 'flex', width: '100%', marginBottom: '20px' } }
-            >
-              <div style={ { flex: 1, textAlign: 'center' } }>
-                <p style={ { fontSize: 'clamp(9px, 2vw, 13px)' } }>
-                  { `Domain: ${data.key}` }
-                </p>
-              </div>
-              <div style={ { flex: 1 } }>
-                <div
-                  className={ dataVizStyles.svgContainer }
-                  ref={ (el: any) => domainRefs.current[data.key] = el }
-                />
-              </div>
-            </div>
-          )) }
-        </div>
-      </div>
-      <div>
-        <div style={ definitelyCenteredStyle }>
-          <h2 style={ { fontSize: 'clamp(13px, 2vw, 16px)', margin: '12px 0px' } }>
-            { `Facet Scores` }
-          </h2>
-        </div>
-        <div style={ { display: 'flex', flexWrap: 'wrap' } }>
-          { facetChartData.map(data => (
-            <div
-              key={ data.key }
-              style={ { display: 'flex', width: '100%', marginBottom: '20px' } }
-            >
-              <div style={ { flex: 1, textAlign: 'center' } }>
-                <p style={ { fontSize: 'clamp(9px, 2vw, 13px)' } }>
-                  { `Facet: ${data.key}` }
-                </p>
-                <div 
-                  style={{ 
-                    marginTop: '24px',
-                    padding: '4px 8px',
-                  }}
-                >
-                  <p 
-                    style={{
-                      textAlign: 'left',
-                      fontSize: 'clamp(9px, 2vw, 13px)'
-                    }}
-                  >
-                    { facetDescriptions(data) }
-                  </p>
+    <>
+      <div style={ { width: '100%' } }>
+        {/* Important weekly updates */ }
+        <div className={ styles.cardsContainer }>
+          { topChanges.map((change: any) => (
+            <div key={ change.key } className={ styles.card }>
+              {/* Title */ }
+              <div style={ { display: 'flex', flexDirection: 'column' } }>
+                <h3>
+                  { `${change.type}:` }
+                </h3>
+                <div>
+                  <h3>
+                    { `${formatKey(change.key)}` }
+                  </h3>
                 </div>
               </div>
-              <div style={ { flex: 1 } }>
+              {/* Change over week */ }
+              <div>
+                {/* Magnitude change */ }
+                <p style={ { marginBottom: '4px' } }>
+                  { `From: ${change.firstScore} to ${change.lastScore}` }
+                </p>
+                {/* Percent Change */ }
+                <p style={ { color: change.change > 0 ? 'green' : 'red' } }>
+                  { `${change.change > 0 ? '+' : ''} ${change.change.toFixed(2)}%` }
+                </p>
+              </div>
+
+              <div className={ styles.progressBarContainer }>
                 <div
-                  className={ dataVizStyles.svgContainer }
-                  ref={ (el: any) => facetRefs.current[data.key] = el }
+                  className={ styles.progressBar }
+                  style={ {
+                    width: `${Math.min(100, Math.abs(change.change))}%`,
+                    backgroundColor: change.change > 0 ? 'green' : 'red'
+                  } }
                 />
               </div>
             </div>
           )) }
         </div>
+        {/* Historical Line Charts */ }
+        <div>
+          {/*  */ }
+          <div style={ { marginBottom: '20px' } }>
+            <div style={ definitelyCenteredStyle }>
+              <h2 style={ { fontSize: 'clamp(13px, 2vw, 16px)', margin: '12px 0px' } }>
+                { `Domain Scores` }
+              </h2>
+            </div>
+            <div style={ { display: 'flex', flexWrap: 'wrap' } }>
+              { domainChartData.map(data => (
+                <div
+                  key={ data.key }
+                  style={ { display: 'flex', width: '100%', marginBottom: '20px' } }
+                >
+                  <div style={ { flex: 1, textAlign: 'center' } }>
+                    <p style={ { fontSize: 'clamp(9px, 2vw, 13px)' } }>
+                      { `Domain: ${formatKey(data.key)}` }
+                    </p>
+                  </div>
+                  <div style={ { flex: 1 } }>
+                    <div
+                      className={ dataVizStyles.svgContainer }
+                      ref={ (el: any) => domainRefs.current[data.key] = el }
+                    />
+                  </div>
+                </div>
+              )) }
+            </div>
+          </div>
+          {/*  */ }
+          <div>
+            <div style={ definitelyCenteredStyle }>
+              <h2 style={ { fontSize: 'clamp(13px, 2vw, 16px)', margin: '12px 0px' } }>
+                { `Facet Scores` }
+              </h2>
+            </div>
+            <div style={ { display: 'flex', flexWrap: 'wrap' } }>
+              { facetChartData.map(data => (
+                <div
+                  key={ data.key }
+                  style={ { display: 'flex', width: '100%', marginBottom: '20px' } }
+                >
+                  <div style={ { flex: 1, textAlign: 'center' } }>
+                    <p style={ { fontSize: 'clamp(9px, 2vw, 13px)' } }>
+                      { `Facet: ${formatKey(data.key)}` }
+                    </p>
+                    <div
+                      style={ {
+                        marginTop: '24px',
+                        padding: '4px 8px',
+                      } }
+                    >
+                      <p
+                        style={ {
+                          textAlign: 'left',
+                          fontSize: 'clamp(9px, 2vw, 13px)'
+                        } }
+                      >
+                        { facetDescriptions(data) }
+                      </p>
+                    </div>
+                  </div>
+                  <div style={ { flex: 1 } }>
+                    <div
+                      className={ dataVizStyles.svgContainer }
+                      ref={ (el: any) => facetRefs.current[data.key] = el }
+                    />
+                  </div>
+                </div>
+              )) }
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 
