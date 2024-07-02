@@ -1,6 +1,6 @@
 // Locals
 // Constants
-import { bessiActivityBank } from '.'
+import { BESSI_ACTIVITY_BANK } from '.'
 // Enums
 import { Facet, SkillDomain } from '../enums'
 // Types

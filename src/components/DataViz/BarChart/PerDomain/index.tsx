@@ -8,7 +8,7 @@ import {
   FacetFactorType,
   findFacetByScore,
   skillDomainMapping,
-  domainToFacetMapping,
+  DOMAIN_TO_FACET_MAPPING,
   SkillDomainFactorType,
   BarChartTargetDataType,
   getSkillDomainAndWeight,

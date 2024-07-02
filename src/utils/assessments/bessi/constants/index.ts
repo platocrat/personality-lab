@@ -1,12 +1,12 @@
 // Dummy data
 import { DUMMY_BESSI_USER_SCORES } from '@/components/DataViz/BarChart/PerDomain/dummy-data'
 // Utility functions
-import { 
-  getFacet, 
+import { getRandomValueInRange } from '@/utils/misc'
+import {
+  getFacet,
   calculateBessiScores,
   getSkillDomainAndWeight,
 } from '../utils'
-import { getRandomValueInRange } from '@/utils/misc'
 // Types
 import { BessiActivityType, UserScoresType } from '../types'
 // Enums
@@ -29,8 +29,8 @@ export const INVALID_CHARS_EXCEPT_NUMBERS = [
   'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
 ]
 
-export const wellnessRatings = [1, 2, 3, 4, 5]
-export const wellnessRatingDescriptions = [
+export const WELLNESS_RATINGS = [1, 2, 3, 4, 5]
+export const WELLNESS_RATINGS_DESCRIPTIONS = [
   `Not at all well`,
   `Not very well`,
   `Pretty well`,
@@ -87,7 +87,7 @@ export function getDummyPopulationBessiScores(
 
 
 // Mappings
-export const facetMapping: { [key: number]: Facet } = {
+export const FACET_MAPPING: { [key: number]: Facet } = {
   3: Facet.TimeManagement, 35: Facet.TimeManagement, 67: Facet.TimeManagement,
   99: Facet.TimeManagement, 131: Facet.TimeManagement, 163: Facet.TimeManagement,
   6: Facet.OrganizationalSkill, 38: Facet.OrganizationalSkill, 70: Facet.OrganizationalSkill,
@@ -154,7 +154,7 @@ export const facetMapping: { [key: number]: Facet } = {
   127: Facet.CapacityForIndependence, 159: Facet.CapacityForIndependence, 191: Facet.CapacityForIndependence
 }
 
-export const domainToFacetMapping = {
+export const DOMAIN_TO_FACET_MAPPING = {
   "Self-Management Skills": [
     'Task Management',
     'Time Management',
@@ -197,9 +197,175 @@ export const domainToFacetMapping = {
 }
 
 
+/**
+ * @dev Taken from [`BESSI_32_Facet_Feedback_6_29_21`](https://uillinoisedu-my.sharepoint.com/:w:/r/personal/jlmaldo2_illinois_edu/_layouts/15/Doc.aspx?sourcedoc=%7BAF5B5349-569D-4B82-9252-828BFD326F01%7D&file=BESSI_32_Facet_Feedback_6_29_21.docx&action=default&mobileredirect=true)
+ * 
+ */
+export const FACET_FEEDBACK = {
+  'GoalRegulation': {
+    'top-third': 'Compared to others, you scored in the top third of the distribution for goal regulation. This means you feel confident that you have the capacity to focus on your most important goals, make plans and set clear goals, and then set high standards and work effectively toward them.',
+    'middle': 'Compared to others you scored in the middle of the distribution of goal regulation. This means you feel fairly confident in your ability to focus on your most important goals, make plans and set clear goals, and then set high standards and work effectively toward them. Your score indicates that you see room for improvement in this domain.',
+    'bottom-third': 'Compared to others you scored in the bottom third of the distribution of goal regulation. This means that you do not feel as confident as others in your ability to focus on your most important goals, make plans, set clear goals, and then set high standards and work effectively toward them. This indicates that you see room for improvement in this domain.',
+  },
+  'TaskManagement': {
+    'top-third': 'Compared to others you scored in the top third of the distribution of task management. This means that you feel confident in your ability to start tasks, concentrate on those tasks and not get distracted, and focus on the task until it is completed.',
+    'middle': 'Compared to others you scored in the middle of the distribution of task management. This means that you feel fairly confident in your ability to start tasks, concentrate on those tasks and not get distracted, and focus on the task until it is completed. Your score indicates that you see room for improvement in this domain.',
+    'bottom-third': 'Compared to others you scored in the bottom third of the distribution of task management. This means that you do not feel confident as others in your ability to start tasks, concentrate on those tasks and not get distracted, and focus on the task until it is completed.',
+  },
+  'DecisionMakingSkill': {
+    'top-third': 'Compared to others you scored in the top third of the distribution of decision-making. This means that you feel confident in your ability to stop and think through decisions, to think carefully before acting, and weigh the pros and cons of the decisions that you make.',
+    'middle': 'Compared to others you scored in the middle of the distribution of decision-making. This means that you feel fairly confident in your ability to stop and think through decisions, to think carefully before acting, and weigh the pros and cons of the decisions that you make. Your score indicates that you see room for improvement in this domain.',
+    'bottom-third': 'Compared to others you scored in the bottom third of the distribution of decision making. This means that you do not feel confident in your ability to stop and think through decisions, to think carefully before acting, and weigh the pros and cons of the decisions that you make. Your score indicates that you see room for improvement in this domain.',
+  },
+  'DetailManagement': {
+    'top-third': 'Compared to others you scored in the top third of the distribution of detail management. This means that you feel confident in your ability to find and correct mistakes in your work, pay attention to details, and double-check your work.',
+    'middle': 'Compared to others you scored in the middle of the distribution of detail management. This means that you feel fairly confident in your ability to find and correct mistakes in your work, pay attention to details, and double-check your work. Your score indicates that you see room for improvement in this domain.',
+    'bottom-third': 'Compared to others you scored in the bottom third of the distribution of detail management. This means that you do not feel confident in your ability to find and correct mistakes in your work, pay attention to details, and double-check your work. Your score indicates that you see room for improvement in this domain.',
+  },
+  'CapacityForConsistency': {
+    'top-third': 'Compared to others you scored in the top third of the distribution of capacity for consistency. This means you feel confident in your ability to handle routine or repetitive work, that you can do the same task over and over again without fail, and that you tolerate repetition and routine even when it is boring.',
+    'middle': 'Compared to others you scored in the middle of the distribution of capacity for consistency. This means you feel fairly confident in your ability to handle routine or repetitive work, that you can do the same task over and over again without fail, and that you tolerate repetition and routine even when it is boring. Your score indicates that you see room for improvement in this domain.',
+    'bottom-third': 'Compared to others you scored in the bottom third of the distribution of capacity for consistency. This means you do not feel confident in your ability to handle routine or repetitive work, that you can do the same task over and over again without fail, and that you tolerate repetition and routine even when it is boring. Your score indicates that you see room for improvement in this domain.',
+  },
+  'OrganizationalSkill': {
+    'top-third': 'Compared to others you scored in the top third of the distribution of organizational skill. This means you feel confident in your ability to keep things in order, organize your personal spaces, clean up after yourself, and put things back in their proper place.',
+    'middle': 'Compared to others you scored in the middle of the distribution of organizational skill. This means you feel fairly confident in your ability to keep things in order, organize your personal spaces, clean up after yourself, and put things back in their proper place. Your score indicates that you see room for improvement in this domain.',
+    'bottom-third': 'Compared to others you scored in the bottom third of the distribution of organizational skill. This means you do not feel confident in your ability to keep things in order, organize your personal spaces, clean up after yourself, and put things back in their proper place. Your score indicates that you see room for improvement in this domain.',
+  },
+  'TimeManagement': {
+    'top-third': 'Compared to others you scored in the top third of the distribution of time management. This means you feel confident in your ability to organize your schedule, plan out your time, follow a schedule once you set it, and show up to things on time.',
+    'middle': 'Compared to others you scored in the middle of the distribution of time management. This means you feel fairly confident in your ability to organize your schedule, plan out your time, follow a schedule once you set it, and show up to things on time. Your score indicates that you see room for improvement in this domain.',
+    'bottom-third': 'Compared to others you scored in the bottom third of the distribution of time management. This means you do not feel confident in your ability to organize your schedule, plan out your time, follow a schedule once you set it, and show up to things on time. Your score indicates that you see room for improvement in this domain.',
+  },
+  'ResponsibilityManagement': {
+    'top-third': 'Compared to others you scored in the top third of the distribution of responsibility management. This means you feel confident in your ability to make and keep promises, follow through with your commitments, manage your responsibilities and obligations, and have other people rely on you.',
+    'middle': 'Compared to others you scored in the middle of the distribution of responsibility management. This means you feel fairly confident in your ability to make and keep promises, follow through with your commitments, manage your responsibilities and obligations, and have other people rely on you. Your score indicates that you see room for improvement in this domain.',
+    'bottom-third': 'Compared to others you scored in the bottom third of the distribution of responsibility management. This means you do not feel confident in your ability to make and keep promises, follow through with your commitments, manage your responsibilities and obligations, and have other people rely on you. Your score indicates that you see room for improvement in this domain.',
+  },
+  'RuleFollowingSkill': {
+    'top-third': 'Compared to others you scored in the top third of the distribution of rule-following skill. This means that you feel confident in your ability to follow instructions, to do as you are told, respect authority, and obey the law.',
+    'middle': 'Compared to others you scored in the middle of the distribution of rule-following skill. This means that you feel confident in your ability to follow instructions, to do as you are told, respect authority, and obey the law. Your score indicates that you see room for improvement in this domain.',
+    'bottom-third': 'Compared to others you scored in the bottom third of the distribution of rule-following skill. This means that you do not feel confident in your ability to follow instructions, to do as you are told, respect authority, and obey the law. Your score indicates that you see room for improvement in this domain.',
+  },
+  'AbstractThinkingSkill': {
+    'top-third': 'Compared to others you scored in the top third of the distribution of abstract thinking skill. This means you feel confident in your ability to think deeply about ideas, understand abstract ideas, discuss complicated topics, and have intellectual or philosophical discussions.',
+    'middle': 'Compared to others you scored in the middle of the distribution of abstract thinking skill. This means you feel fairly confident in your ability to think deeply about ideas, understand abstract ideas, discuss complicated topics, and have intellectual or philosophical discussions. Your score indicates that you see room for improvement in this domain.',
+    'bottom-third': 'Compared to others you scored in the bottom third of the distribution of abstract thinking skill. This means you do not feel confident in your ability to think deeply about ideas, understand abstract ideas, discuss complicated topics, and have intellectual or philosophical discussions. Your score indicates that you see room for improvement in this domain.',
+  },
+  'CreativeSkill': {
+    'top-third': 'Compared to others you scored in the top third of the distribution of creative skill. This means you feel confident in your ability to come up with new and creative ideas, invent things, find new ways of doing things, and using your imagination.',
+    'middle': 'Compared to others you scored in the middle of the distribution of creative skill. This means you feel fairly confident in your ability to come up with new and creative ideas, invent things, find new ways of doing things, and using your imagination. Your score indicates that you see room for improvement in this domain.',
+    'bottom-third': 'Compared to others you scored in the bottom third of the distribution of creative skill. This means you do not feel confident in your ability to come up with new and creative ideas, invent things, find new ways of doing things, and using your imagination. Your score indicates that you see room for improvement in this domain.',
+  },
+  'InformationProcessingSkill': {
+    'top-third': 'Compared to others you scored in the top third of the distribution of information processing skill. This means you feel confident in your ability to process new information, make sense of complex information, learn things quickly, solve puzzles, and find logical solutions to problems.',
+    'middle': 'Compared to others you scored in the middle of the distribution of information processing skill. This means you feel fairly confident in your ability to process new information, make sense of complex information, learn things quickly, solve puzzles, and find logical solutions to problems. Your score indicates that you see room for improvement in this domain.',
+    'bottom-third': 'Compared to others you scored in the bottom third of the distribution of information processing skill. This means you do not feel confident in your ability to process new information, make sense of complex information, learn things quickly, solve puzzles, and find logical solutions to problems. Your score indicates that you see room for improvement in this domain.',
+  },
+  'CulturalCompetence': {
+    'top-third': 'Compared to others you scored in the top third of the distribution of cultural competence. This means you feel confident in your ability to appreciate and learn things from different cultures, study other languages or cultures, and understand people from different backgrounds.',
+    'middle': 'Compared to others you scored in the middle of the distribution of cultural competence. This means you feel fairly confident in your ability to appreciate and learn things from different cultures, study other languages or cultures, and understand people from different backgrounds. Your score indicates that you see room for improvement in this domain.',
+    'bottom-third': 'Compared to others you scored in the bottom third of the distribution of cultural competence. This means you do not feel confident in your ability to appreciate and learn things from different cultures, study other languages or cultures, and understand people from different backgrounds. Your score indicates that you see room for improvement in this domain.',
+  },
+  'ArtisticSkill': {
+    'top-third': 'Compared to others you scored in the top third of the distribution of artistic skill. This means you feel confident in your ability to appreciate, art, music, or literature, and to create beautiful things through drawing, painting, playing instruments, or writing.',
+    'middle': 'Compared to others you scored in the middle of the distribution of artistic skill. This means you feel fairly confident in your ability to appreciate, art, music, or literature, and to create beautiful things through drawing, painting, playing instruments, or writing. Your score indicates that you see room for improvement in this domain.',
+    'bottom-third': 'Compared to others you scored in the bottom third of the distribution of artistic skill. This means you do not feel confident in your ability to appreciate, art, music, or literature, and to create beautiful things through drawing, painting, playing instruments, or writing. Your score indicates that you see room for improvement in this domain.',
+  },
+  'SelfReflectionSkill': {
+    'top-third': 'Compared to others you scored in the top third of the distribution of self-reflection skill. This means you feel confident in your ability to pay attention to your thoughts and feelings, reflect on your life, look inside yourself, and understand your emotions.',
+    'middle': 'Compared to others you scored in the middle of the distribution of self-reflection skill. This means you feel fairly confident in your ability to pay attention to your thoughts and feelings, reflect on your life, look inside yourself, and understand your emotions. Your score indicates that you see room for improvement in this domain.',
+    'bottom-third': 'Compared to others you scored in the bottom third of the distribution of self-reflection skill. This means you do not feel confident in your ability to pay attention to your thoughts and feelings, reflect on your life, look inside yourself, and understand your emotions. Your score indicates that you see room for improvement in this domain.',
+  },
+  'CapacityForIndependence': {
+    'top-third': 'Compared to others you scored in the top third of the distribution of capacity for independence. This means you feel confident in your ability to do things on your own, make your own decisions, think for yourself, and get things done by yourself.',
+    'middle': 'Compared to others you scored in the middle of the distribution of capacity for independence. This means you feel fairly confident in your ability to do things on your own, make your own decisions, think for yourself, and get things done by yourself. Your score indicates that you see room for improvement in this domain.',
+    'bottom-third': 'Compared to others you scored in the bottom third of the distribution of capacity for independence. This means you do not feel confident in your ability to do things on your own, make your own decisions, think for yourself, and get things done by yourself. Your score indicates that you see room for improvement in this domain.',
+  },
+  'PerspectiveTakingSkill': {
+    'top-third': 'Compared to others you scored in the top third of the distribution of perspective-taking skill. This means that you feel confident in your ability to take another person’s perspective, understand how they feel, respect their feelings, and feel compassion for them.',
+    'middle': 'Compared to others you scored in the middle of the distribution of perspective-taking skill. This means that you feel fairly confident in your ability to take another person’s perspective, understand how they feel, respect their feelings, and feel compassion for them. Your score indicates that you see room for improvement in this domain.',
+    'bottom-third': 'Compared to others you scored in the bottom third of the distribution of perspective-taking skill. This means that you do not feel confident in your ability to take another person’s perspective, understand how they feel, respect their feelings, and feel compassion for them. Your score indicates that you see room for improvement in this domain.',
+  },
+  'CapacityforSocialWarmth': {
+    'top-third': 'Compared to others you scored in the top third of the distribution of capacity for social warmth. This means that you feel confident in your ability to get along with people, put them at ease, make a positive impression and make them feel comfortable.',
+    'middle': 'Compared to others you scored in the middle of the distribution of capacity for social warmth. This means that you feel fairly confident in your ability to get along with people, put them at ease, make a positive impression and make them feel comfortable. Your score indicates that you see room for improvement in this domain.',
+    'bottom-third': 'Compared to others you scored in the bottom third of the distribution of capacity for social warmth. This means that you do not feel confident in your ability to get along with people, put them at ease, make a positive impression and make them feel comfortable. Your score indicates that you see room for improvement in this domain.',
+  },
+  'TeamworkSkill': {
+    'top-third': 'Compared to others you scored in the top third of the distribution of teamwork skill. This means you feel confident in your ability to collaborate and cooperate with others, work as part of a group, contribute to group projects, and get things done in a group.',
+    'middle': 'Compared to others you scored in the middle of the distribution of teamwork skill. This means you feel fairly confident in your ability to collaborate and cooperate with others, work as part of a group, contribute to group projects, and get things done in a group. Your score indicates that you see room for improvement in this domain.',
+    'bottom-third': 'Compared to others you scored in the bottom third of the distribution of teamwork skill. This means you do not feel confident in your ability to collaborate and cooperate with others, work as part of a group, contribute to group projects, and get things done in a group. Your score indicates that you see room for improvement in this domain.',
+  },
+  'EthicalCompetence': {
+    'top-third': 'Compared to others you scored in the top third of the distribution of ethical competence. This means that you feel confident in your ability to follow ethical principles, avoid lying and cheating, tell the truth, and take responsibility for your mistakes.',
+    'middle': 'Compared to others you scored in the middle of the distribution of ethical competence. This means that you feel fairly confident in your ability to follow ethical principles, avoid lying and cheating, tell the truth, and take responsibility for your mistakes. Your score indicates that you see room for improvement in this domain.',
+    'bottom-third': 'Compared to others you scored in the bottom third of the distribution of ethical competence. This means that you do not feel confident in your ability to follow ethical principles, avoid lying and cheating, tell the truth, and take responsibility for your mistakes. Your score indicates that you see room for improvement in this domain.',
+  },
+  'CapacityForTrust': {
+    'top-third': 'Compared to others you scored in the top third of the distribution of capacity for trust. This means that you feel confident in your ability to trust people, forgive them quickly, let go of grudges, and assume the best about people.',
+    'middle': 'Compared to others you scored in the middle of the distribution of capacity for trust. This means that you feel fairly confident in your ability to trust people, forgive them quickly, let go of grudges, and assume the best about people. Your score indicates that you see room for improvement in this domain.',
+    'bottom-third': 'Compared to others you scored in the bottom third of the distribution of capacity for trust. This means that you do not feel confident in your ability to trust people, forgive them quickly, let go of grudges, and assume the best about people. Your score indicates that you see room for improvement in this domain.',
+  },
+  'LeadershipSkill': {
+    'top-third': 'Compared to others you scored in the top third of the distribution of leadership skill. This means that you feel confident in your ability to give a speech, take charge of a situation, convince people to follow your lead, assert yourself as a leader, and make decisions for people.',
+    'middle': 'Compared to others you scored in the middle of the distribution of leadership skill. This means that you feel fairly confident in your ability to give a speech, take charge of a situation, convince people to follow your lead, assert yourself as a leader, and make decisions for people. Your score indicates that you see room for improvement in this domain.',
+    'bottom-third': 'Compared to others you scored in the bottom third of the distribution of leadership skill. This means that you do not feel confident in your ability to give a speech, take charge of a situation, convince people to follow your lead, assert yourself as a leader, and make decisions for people. Your score indicates that you see room for improvement in this domain.',
+  },
+  'ExpressiveSkill': {
+    'top-third': 'Compared to others you scored in the top third of the distribution of expressive skill. This means that you feel confident in your ability to express your thoughts and feelings, explain what you are thinking, and tell people how you are feeling.',
+    'middle': 'Compared to others you scored in the middle of the distribution of expressive skill. This means that you feel fairly confident in your ability to express your thoughts and feelings, explain what you are thinking, and tell people how you are feeling. Your score indicates that you see room for improvement in this domain.',
+    'bottom-third': 'Compared to others you scored in the bottom third of the distribution of expressive skill. This means that you do not feel confident in your ability to express your thoughts and feelings, explain what you are thinking, and tell people how you are feeling. Your score indicates that you see room for improvement in this domain.',
+  },
+  'ConversationSkill': {
+    'top-third': 'Compared to others you scored in the top third of the distribution of conversation skill. This means that you are confident in your ability to meet new people, start a conversation, talk to strangers, and keep a conversation going.',
+    'middle': 'Compared to others you scored in the middle of the distribution of conversation skill. This means that you feel fairly confident in your ability to meet new people, start a conversation, talk to strangers, and keep a conversation going. Your score indicates that you see room for improvement in this domain.',
+    'bottom-third': 'Compared to others you scored in the bottom third of the distribution of conversation skill. This means that you do not feel confident in your ability to meet new people, start a conversation, talk to strangers, and keep a conversation going. Your score indicates that you see room for improvement in this domain.',
+  },
+  'PersuasiveSkill': {
+    'top-third': 'Compared to others you scored in the top third of the distribution of persuasive skill. This means that you feel confident in your ability to be direct with people, confront and speak up to people you disagree with, and win arguments and debates with other people.',
+    'middle': 'Compared to others you scored in the middle of the distribution of persuasive skill. This means that you feel fairly confident in your ability to be direct with people, confront and speak up to people you disagree with, and win arguments and debates with other people. Your score indicates that you see room for improvement in this domain.',
+    'bottom-third': 'Compared to others you scored in the bottom third of the distribution of persuasive skill. This means that you do not feel confident in your ability to be direct with people, confront and speak up to people you disagree with, and win arguments and debates with other people. Your score indicates that you see room for improvement in this domain.',
+  },
+  'EnergyRegulation': {
+    'top-third': 'Compared to others you scored in the top third of the distribution of energy regulation. This means that you feel confident in your ability to find the energy to get things done, stay active and motivated, use your energy in productive ways, and keep going even when you are tired.',
+    'middle': 'Compared to others you scored in the middle of the distribution of energy regulation. This means that you feel fairly confident in your ability to find the energy to get things done, stay active and motivated, use your energy in productive ways, and keep going even when you are tired. Your score indicates that you see room for improvement in this domain.',
+    'bottom-third': 'Compared to others you scored in the bottom third of the distribution of energy regulation. This means that you do not feel confident in your ability to find the energy to get things done, stay active and motivated, use your energy in productive ways, and keep going even when you are tired. Your score indicates that you see room for improvement in this domain.',
+  },
+  'StressRegulation': {
+    'top-third': 'Compared to others you scored in the top third of the distribution of stress regulation. This means that you feel confident in your ability to stay calm in stressful situations, settle down when you do feel nervous, stop yourself from worrying, and cope effectively with stress.',
+    'middle': 'Compared to others you scored in the middle of the distribution of stress regulation. This means that you feel fairly confident in your ability to stay calm in stressful situations, settle down when you do feel nervous, stop yourself from worrying, and cope effectively with stress. Your score indicates that you see room for improvement in this domain.',
+    'bottom-third': 'Compared to others you scored in the bottom third of the distribution of stress regulation. This means that you do not feel confident in your ability to stay calm in stressful situations, settle down when you do feel nervous, stop yourself from worrying, and cope effectively with stress. Your score indicates that you see room for improvement in this domain.',
+  },
+  'CapacityForOptimism': {
+    'top-third': 'Compared to others you scored in the top third of the distribution of capacity for optimism. This means that you feel confident in your ability to keep a positive attitude, stay positive when something bad happens, and stay in a good mood.',
+    'middle': 'Compared to others you scored in the middle of the distribution of capacity for optimism. This means that you feel fairly confident in your ability to keep a positive attitude, stay positive when something bad happens, and stay in a good mood. Your score indicates that you see room for improvement in this domain.',
+    'bottom-third': 'Compared to others you scored in the bottom third of the distribution of capacity for optimism. This means that you do not feel confident in your ability to keep a positive attitude, stay positive when something bad happens, and stay in a good mood. Your score indicates that you see room for improvement in this domain.',
+  },
+  'ConfidenceRegulation': {
+    'top-third': 'Compared to others you scored in the top third of the distribution of confidence regulation. This means that you feel confident in your ability to see your good qualities and your strengths, find things to like about yourself, have confidence in yourself, and respect yourself.',
+    'middle': 'Compared to others you scored in the middle of the distribution of confidence regulation. This means that you feel fairly confident in your ability to see your good qualities and your strengths, find things to like about yourself, have confidence in yourself, and respect yourself. Your score indicates that you see room for improvement in this domain.',
+    'bottom-third': 'Compared to others you scored in the bottom third of the distribution of confidence regulation. This means that you do not feel confident in your ability to see your good qualities and your strengths, find things to like about yourself, have confidence in yourself, and respect yourself. Your score indicates that you see room for improvement in this domain.',
+  },
+  'ImpulseRegulation': {
+    'top-third': 'Compared to others you scored in the top third of the distribution of impulse regulation. This means that you feel confident in your ability to avoid and resist temptation, control your cravings, stop yourself from acting on impulse, and break your bad habits.',
+    'middle': 'Compared to others you scored in the middle of the distribution of impulse regulation. This means that you feel fairly confident in your ability to avoid and resist temptation, control your cravings, stop yourself from acting on impulse, and break your bad habits. Your score indicates that you see room for improvement in this domain.',
+    'bottom-third': 'Compared to others you scored in the bottom third of the distribution of impulse regulation. This means that you do not feel confident in your ability to avoid and resist temptation, control your cravings, stop yourself from acting on impulse, and break your bad habits. Your score indicates that you see room for improvement in this domain.',
+  },
+  'AngerManagement': {
+    'top-third': 'Compared to others you scored in the top third of the distribution of anger management. This means that you feel confident in your ability to stop yourself from getting mad, control your anger, and settle down when you are feeling angry.',
+    'middle': 'Compared to others you scored in the middle of the distribution of anger management. This means that you feel fairly confident in your ability to stop yourself from getting mad, control your anger, and settle down when you are feeling angry. Your score indicates that you see room for improvement in this domain.',
+    'bottom-third': 'Compared to others you scored in the bottom third of the distribution of anger management. This means that you do not feel confident in your ability to stop yourself from getting mad, control your anger, and settle down when you are feeling angry. Your score indicates that you see room for improvement in this domain.',
+  },
+  'Adaptability': {
+    'top-third': 'Compared to others you scored in the top third of the distribution of adaptability. This means that you feel confident in your ability to try new things, adapt to new surroundings, adjust to new routines, and adapt to change.',
+    'middle': 'Compared to others you scored in the middle of the distribution of adaptability. This means that you feel fairly confident in your ability to try new things, adapt to new surroundings, adjust to new routines, and adapt to change. Your score indicates that you see room for improvement in this domain.',
+    'bottom-third': 'Compared to others you scored in the bottom third of the distribution of adaptability. This means that you do not feel confident in your ability to try new things, adapt to new surroundings, adjust to new routines, and adapt to change. Your score indicates that you see room for improvement in this domain.',
+  },
+}
 
 
-export const skillDomainMapping: { [key: string]: { domain: SkillDomain[], weight: number } } = {
+export const SKILLS_DOMAIN_MAPPING: { [key: string]: { domain: SkillDomain[], weight: number } } = {
   // Self-Management Skills (Full Weight)
   [Facet.TimeManagement]: { domain: [SkillDomain.SelfManagement], weight: 1 },
   [Facet.OrganizationalSkill]: { domain: [SkillDomain.SelfManagement], weight: 1 },
@@ -239,7 +405,7 @@ export const skillDomainMapping: { [key: string]: { domain: SkillDomain[], weigh
 
 
 
-export const skillsMapping = {
+export const SKILLS_MAPPING = {
   tableHeaders: [
     `Skill Domain Score`,
     `Skill Facet Scores`,
@@ -314,7 +480,7 @@ export const skillsMapping = {
 
 
 
-export const bessiActivityBank: BessiActivityType[] = [
+export const BESSI_ACTIVITY_BANK: BessiActivityType[] = [
   {
     id: 1,
     activity: `Lead a group of people.`,

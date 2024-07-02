@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from 'react'
 // Locals
 import Title from '../Title'
 // Constants
-import { domainToFacetMapping } from '@/utils'
+import { DOMAIN_TO_FACET_MAPPING } from '@/utils'
 // CSS
 import styles from '../DataViz.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -26,7 +26,7 @@ const TreeMap = ({
 
   const transformData = (originalData) => {
     const children = Object.entries(
-      domainToFacetMapping
+      DOMAIN_TO_FACET_MAPPING
     ).map(([domain, facets]) => {
       const facetChildren = facets.map((facet: string) => {
         const facetName = facet
@@ -54,10 +54,10 @@ const TreeMap = ({
       .attr('transform', `translate(50, ${height + 20})`)
 
     Object.entries(
-      domainToFacetMapping
+      DOMAIN_TO_FACET_MAPPING
     ).forEach(([domain, _], index) => {
       const color: any = d3.scaleOrdinal().domain(
-        Object.keys(domainToFacetMapping)
+        Object.keys(DOMAIN_TO_FACET_MAPPING)
       ).range(d3.schemeCategory10)(domain)
       // Example to get score
       const score = originalData.domainScores[domain]

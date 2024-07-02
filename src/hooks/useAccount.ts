@@ -1,7 +1,7 @@
 'use client'
 
 // Externals
-import { useState, useCallback, useLayoutEffect } from 'react'
+import { useState, useLayoutEffect } from 'react'
 // Locals
 import { 
   ACCOUNT__DYNAMODB, 

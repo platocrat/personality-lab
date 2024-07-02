@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react'
 // Locals
 import Title from '../Title'
 // Constants
-import { domainToFacetMapping, getRangeLabel, rgbToRgba, skillsMapping } from '@/utils'
+import { DOMAIN_TO_FACET_MAPPING, getRangeLabel, rgbToRgba, SKILLS_MAPPING } from '@/utils'
 // CSS
 import dataVizStyles from '../DataViz.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -58,7 +58,7 @@ const PersonalityVisualization = ({
     d3.select(d3Container.current).selectAll('*').remove()
 
     const domainNames = Object.keys(data.domainScores)
-    const facetNames = domainToFacetMapping[activeDomain]
+    const facetNames = DOMAIN_TO_FACET_MAPPING[activeDomain]
 
     const width = 460
     const height = 480
@@ -209,7 +209,7 @@ const PersonalityVisualization = ({
               <div style="margin: 10px 0px 0px 0px"/>
               <div>
                 <p>
-                  ${skillsMapping.domains[activeDomain].facets[d]}
+                  ${SKILLS_MAPPING.domains[activeDomain].facets[d]}
                 </p>
               </div>
             `

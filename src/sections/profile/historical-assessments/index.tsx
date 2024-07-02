@@ -1,36 +1,64 @@
+// Externals
 import * as d3 from 'd3'
-import React, { useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 // Locals
-import { 
-  DUMMY_USER_PROFILE_ASSESSMENT_HISTORICAL_DATA 
+import {
+  DUMMY_USER_PROFILE_ASSESSMENT_HISTORICAL_DATA
 } from './dummy-data'
+import { FACET_FEEDBACK } from '@/utils'
 // CSS
+import { definitelyCenteredStyle } from '@/theme/styles'
 import dataVizStyles from '@/components/DataViz/DataViz.module.css'
 import styles from '@/sections/profile/historical-assessments/HistoricalAssessments.module.css'
-import { definitelyCenteredStyle } from '@/theme/styles'
+
 
 
 const HistoricalAssessments = () => {
   const { facetScores, domainScores } = DUMMY_USER_PROFILE_ASSESSMENT_HISTORICAL_DATA
 
-  const facetChartRef = useRef<any>(null)
-  const domainChartRef = useRef<any>(null)
+  const facetRefs = useRef<{ [key: string]: HTMLDivElement | null }>({})
+  const domainRefs = useRef<{ [key: string]: HTMLDivElement | null }>({})
 
-  // Function to convert the scores data to d3 format
+
+  const facetDescriptions = useCallback((data): string => {
+    const facet = FACET_FEEDBACK[data.key]
+    let _ = ''
+  
+    if (facet) {
+      const valuesLength = data.values.length - 1
+      const mostRecentScore = data.values[valuesLength].score
+
+      if (mostRecentScore >= 70) {
+        _ = facet['top-third']
+      } else if (mostRecentScore < 70 && mostRecentScore >= 40) {
+        _ = facet['middle']
+      } else if (mostRecentScore < 40) {
+        _ = facet['bottom-third']
+      } else {
+        _ = ''
+      }
+
+      return _
+    } 
+    
+    return _
+  }, [])
+
+
   const generateChartData = (
-    scores: { 
-      [key: string]: { 
-        score: number, 
-        timestamp: number 
-      }[] 
+    scores: {
+      [key: string]: {
+        score: number,
+        timestamp: number
+      }[]
     }
   ) => {
-    const data: { 
-      key: string, 
-      values: { 
-        score: number, 
-        timestamp: number 
-      }[] 
+    const data: {
+      key: string,
+      values: {
+        score: number,
+        timestamp: number
+      }[]
     }[] = []
 
     for (const key in scores) {
@@ -41,7 +69,7 @@ const HistoricalAssessments = () => {
             score: score.score,
             timestamp: new Date(score.timestamp),
           }
-        )) as any,
+          )) as any,
       })
     }
 
@@ -53,132 +81,223 @@ const HistoricalAssessments = () => {
 
 
   const createChart = (
-    data: { 
-      key: string, 
-      values: { 
-        score: number, 
-        timestamp: Date 
-      }[] 
-    }[], 
-    chartRef: any, 
+    data: {
+      key: string,
+      values: {
+        score: number,
+        timestamp: Date
+      }[]
+    },
+    chartRef: HTMLDivElement | null,
     title: string
   ) => {
-    const d3Container = d3.select(chartRef.current)
-    d3Container.selectAll('*').remove() // Clear previous content
+    if (!chartRef) return
 
-    const svg = d3Container.append('svg')
+    // Clear any existing SVG content before creating a new chart
+    d3.select(chartRef).selectAll('*').remove()
+
+    const margin = { top: 0, right: 30, bottom: 50, left: 40 }
+    const width = 500 - margin.left - margin.right
+    const height = 400 - margin.top - margin.bottom
+
+    const svg = d3.select(chartRef)
       .append('svg')
       .attr('preserveAspectRatio', 'xMinYMin meet')
-      .attr('viewBox', '0 -100 350 175')
+      .attr('viewBox', '-30 -20 500 450') // Adjusted to shift horizontally
       .classed(dataVizStyles.svgContent, true)
 
-    const margin = { top: 20, right: 60, bottom: 30, left: 40 }
-    const width = 350
-    const height = 175
-
-    console.log(
-      `[ ${ new Date().toLocaleString() } --filepath="src/sections/profile/historical-assessments/index.tsx" --function="createChart()" ]: width: `, 
-      width
-    )
-    console.log(
-      `[ ${ new Date().toLocaleString() } --filepath="src/sections/profile/historical-assessments/index.tsx" --function="createChart()" ]: height: `, 
-      height
-    )
-
     const x = d3.scaleTime()
-      .domain([
-        d3.min(data, d => d3.min(d.values, v => v.timestamp))!,
-        d3.max(data, d => d3.max(d.values, v => v.timestamp))!
-      ])
+      .domain(d3.extent(data.values, d => d.timestamp) as [Date, Date])
       .range([0, width])
 
     const y = d3.scaleLinear()
-      .domain([0, 100]) // Fixed range from 0 to 100
+      .domain([0, 100])
+      .nice()
       .range([height, 0])
 
     const color = d3.scaleOrdinal(d3.schemeCategory10)
+      .domain([data.key])
+
+    // Add the X gridlines
+    svg.append('g')
+      .attr('class', styles.grid)
+      .attr('transform', `translate(0,${height})`)
+      .call(d3.axisBottom(x)
+        .ticks(d3.timeDay.every(1))
+        .tickSize(-height)
+        .tickFormat('' as any))
+
+    // Add the Y gridlines
+    svg.append('g')
+      .attr('class', styles.grid)
+      .call(d3.axisLeft(y)
+        .tickSize(-width)
+        .tickFormat('' as any))
+
+    const xAxis = svg.append('g')
+      .attr('transform', `translate(0,${height})`)
+      .call(d3.axisBottom(x)
+        .ticks(d3.timeDay.every(1)) // Adjust this to set the frequency of tick marks
+        .tickFormat(d3.timeFormat('%b %d') as any) // Adjust this to set the format of tick labels
+        .tickSize(10)
+        .tickSizeOuter(10))
+
+    svg.append('g')
+      .call(d3.axisLeft(y))
+
+    // Rotate the x-axis tick labels
+    xAxis.selectAll('text')
+      .attr('transform', 'rotate(-45)')
+      .style('text-anchor', 'end')
+      .attr('dx', '-0.8em')
+      .attr('dy', '0.15em')
 
     const line = d3.line<{ score: number, timestamp: Date }>()
       .x(d => x(d.timestamp))
       .y(d => y(d.score))
 
-    const g = svg.append('g')
-      .attr('transform', `translate(${margin.left},${margin.top})`)
+    svg.append('path')
+      .datum(data.values)
+      .attr('fill', 'none')
+      .attr('stroke', color(data.key) as string)
+      .attr('stroke-width', 2.0)
+      .attr('d', line)
 
-    g.append('g')
-      .attr('transform', `translate(0,${height})`)
-      .call(d3.axisBottom(x))
+    const tooltip = d3.select('body')
+      .append('div')
+      .style('position', 'absolute')
+      .style('visibility', 'hidden')
+      .style('background', '#f8f8f8')
+      .style('padding', '5px')
+      .style('border-radius', '5px')
+      .style('box-shadow', '0 0 5px rgba(0, 0, 0, 0.3)')
+      .style('font-size', '12px')
 
-    g.append('g')
-      .call(d3.axisLeft(y))
+    svg.selectAll('.dot')
+      .data(data.values)
+      .enter().append('circle')
+      .attr('class', 'dot')
+      .attr('cx', d => x(d.timestamp))
+      .attr('cy', d => y(d.score))
+      .attr('r', 4)
+      .attr('fill', color(data.key) as string)
+      .on('mouseover', (event, d) => {
+        tooltip.html(`Score: ${d.score}<br>Date: ${d3.timeFormat('%b %d, %Y')(d.timestamp)}`)
+          .style('visibility', 'visible')
+      })
+      .on('mousemove', (event) => {
+        tooltip.style('top', `${event.pageY - 10}px`).style('left', `${event.pageX + 10}px`)
+      })
+      .on('mouseout', () => {
+        tooltip.style('visibility', 'hidden')
+      })
 
-    const chartTitle = svg.append('text')
-      .attr('x', width / 2 + margin.left)
-      .attr('y', margin.top / 2)
+    svg.append('text')
+      .attr('x', width / 2)
+      .attr('y', -10)
       .attr('text-anchor', 'middle')
-      .attr('font-size', '20px')
+      .attr('font-size', '13px')
       .attr('font-weight', 'bold')
       .text(title)
-
-    const lines = g.selectAll('.line')
-      .data(data)
-      .enter().append('g')
-      .attr('class', 'line')
-
-    lines.append('path')
-      .attr('fill', 'none')
-      .attr('stroke', d => color(d.key)!)
-      .attr('stroke-width', 1.5)
-      .attr('d', d => line(d.values)!)
-
-    lines.append('text')
-      .datum(d => ({ key: d.key, value: d.values[d.values.length - 1] }))
-      .attr('transform', d => `translate(${x(d.value.timestamp)},${y(d.value.score)})`)
-      .attr('x', 3)
-      .attr('dy', '0.35em')
-      .style('font-size', '12px')
-      .text(d => d.key)
   }
 
   useEffect(() => {
-    createChart(
-      domainChartData as any,
-      domainChartRef, 
-      'Domain Scores Over Time'
-    )
-  }, [domainChartData])
+    facetChartData.forEach(data => {
+      createChart(
+        data as any,
+        facetRefs.current[data.key],
+        `Facet Score: ${data.key}`
+      )
+    })
+  }, [facetChartData])
 
   useEffect(() => {
-    createChart(
-      facetChartData as any, 
-      facetChartRef, 
-      'Facet Scores Over Time'
-    )
-  }, [facetChartData])
+    domainChartData.forEach(data => {
+      createChart(
+        data as any,
+        domainRefs.current[data.key],
+        `Domain Score: ${data.key}`
+      )
+    })
+  }, [domainChartData])
+
+
+
 
 
   return (
-    <>
-      <div 
-        style={{
-          ...definitelyCenteredStyle,
-          flexDirection: 'column',
-          width: '1400px',
-          height: '600px',
-        }}
-      >
-        <div 
-          ref={ domainChartRef } 
-          className={ styles.svgContainer }
-        />
-        <div 
-          ref={ facetChartRef } 
-          className={ dataVizStyles.svgContainer }
-        />
+    <div style={ { width: '100%' } }>
+      <div style={ { marginBottom: '0px' } }>
+        <div style={ definitelyCenteredStyle }>
+          <h2 style={ { fontSize: 'clamp(13px, 2vw, 16px)', margin: '12px 0px' } }>
+            { `Domain Scores` }
+          </h2>
+        </div>
+        <div style={ { display: 'flex', flexWrap: 'wrap' } }>
+          { domainChartData.map(data => (
+            <div
+              key={ data.key }
+              style={ { display: 'flex', width: '100%', marginBottom: '20px' } }
+            >
+              <div style={ { flex: 1, textAlign: 'center' } }>
+                <p style={ { fontSize: 'clamp(9px, 2vw, 13px)' } }>
+                  { `Domain: ${data.key}` }
+                </p>
+              </div>
+              <div style={ { flex: 1 } }>
+                <div
+                  className={ dataVizStyles.svgContainer }
+                  ref={ (el: any) => domainRefs.current[data.key] = el }
+                />
+              </div>
+            </div>
+          )) }
+        </div>
       </div>
-    </>
+      <div>
+        <div style={ definitelyCenteredStyle }>
+          <h2 style={ { fontSize: 'clamp(13px, 2vw, 16px)', margin: '12px 0px' } }>
+            { `Facet Scores` }
+          </h2>
+        </div>
+        <div style={ { display: 'flex', flexWrap: 'wrap' } }>
+          { facetChartData.map(data => (
+            <div
+              key={ data.key }
+              style={ { display: 'flex', width: '100%', marginBottom: '20px' } }
+            >
+              <div style={ { flex: 1, textAlign: 'center' } }>
+                <p style={ { fontSize: 'clamp(9px, 2vw, 13px)' } }>
+                  { `Facet: ${data.key}` }
+                </p>
+                <div 
+                  style={{ 
+                    marginTop: '24px',
+                    padding: '4px 8px',
+                  }}
+                >
+                  <p 
+                    style={{
+                      textAlign: 'left',
+                      fontSize: 'clamp(9px, 2vw, 13px)'
+                    }}
+                  >
+                    { facetDescriptions(data) }
+                  </p>
+                </div>
+              </div>
+              <div style={ { flex: 1 } }>
+                <div
+                  className={ dataVizStyles.svgContainer }
+                  ref={ (el: any) => facetRefs.current[data.key] = el }
+                />
+              </div>
+            </div>
+          )) }
+        </div>
+      </div>
+    </div>
   )
 }
-
 
 export default HistoricalAssessments

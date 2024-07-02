@@ -1,6 +1,6 @@
 // Constants
 import {
-  bessiActivityBank,
+  BESSI_ACTIVITY_BANK,
   skillDomainMapping,
 } from '../constants'
 // Enums
@@ -15,7 +15,7 @@ import {
 
 
 export function getFacet(activityId: number): Facet {
-  const facetMapping: { [key: number]: Facet } = {
+  const FACET_MAPPING: { [key: number]: Facet } = {
     3: Facet.TimeManagement, 35: Facet.TimeManagement, 67: Facet.TimeManagement,
     99: Facet.TimeManagement, 131: Facet.TimeManagement, 163: Facet.TimeManagement,
     6: Facet.OrganizationalSkill, 38: Facet.OrganizationalSkill, 70: Facet.OrganizationalSkill,
@@ -82,7 +82,7 @@ export function getFacet(activityId: number): Facet {
     127: Facet.CapacityForIndependence, 159: Facet.CapacityForIndependence, 191: Facet.CapacityForIndependence
   }
 
-  return facetMapping[activityId]
+  return FACET_MAPPING[activityId]
 }
 
 

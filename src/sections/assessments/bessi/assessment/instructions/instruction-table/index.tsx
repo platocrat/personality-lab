@@ -1,7 +1,7 @@
 // Externals
 import { Fragment } from 'react'
 // Locals
-import { wellnessRatings, wellnessRatingDescriptions } from '@/utils'
+import { WELLNESS_RATINGS, WELLNESS_RATING_DESCRIPTIONS } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 
@@ -14,7 +14,7 @@ const InstructionTable = () => {
         <table className={ styles.bessi_instruction_table_body }>
           <tbody className={ styles.bessi_instruction_tbody }>
             <tr className={ styles.bessi_instruction_tr }>
-              { wellnessRatings.map((rating: number, i: number) => (
+              { WELLNESS_RATINGS.map((rating: number, i: number) => (
                 <Fragment key={ `wellness-rating-${i}` }>
                   <th className={ styles.bessi_instruction_th }>
                     <p className={ styles.bessi_instruction_p }>
@@ -27,7 +27,7 @@ const InstructionTable = () => {
               )) }
             </tr>
             <tr className={ styles.bessi_tr }>
-              { wellnessRatingDescriptions.map((description: string, i: number) => (
+              { WELLNESS_RATING_DESCRIPTIONS.map((description: string, i: number) => (
                 <Fragment key={ `wellness-rating-description-${i}` }>
                   <td className={ styles.bessi_instruction_td }>
                     <p className={ styles.bessi_instruction_p }>

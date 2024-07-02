@@ -68,14 +68,14 @@ function generateDummyUserProfileHistoricalAssessmentData(): ExpectedTypeOfUserP
   // Fill facetScores with random historical data
   for (const facet in Facet) {
     if (Object.prototype.hasOwnProperty.call(Facet, facet)) {
-      facetScores[facet as Facet] = generateHistoricalScores(10, 70, 12)
+      facetScores[facet as Facet] = generateHistoricalScores(30, 70, 12)
     }
   }
 
   // Fill domainScores with random historical data
   for (const domain in SkillDomain) {
     if (Object.prototype.hasOwnProperty.call(SkillDomain, domain)) {
-      domainScores[domain as SkillDomain] = generateHistoricalScores(10, 70, 12)
+      domainScores[domain as SkillDomain] = generateHistoricalScores(30, 70, 12)
     }
   }
 

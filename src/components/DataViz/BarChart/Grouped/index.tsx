@@ -10,7 +10,7 @@ import {
   findFacetByScore,
   skillDomainMapping,
   BarChartInputDataType,
-  domainToFacetMapping,
+  DOMAIN_TO_FACET_MAPPING,
   SkillDomainFactorType,
   getSkillDomainAndWeight,
   BASELINE_NUMBER_OF_FACETS,

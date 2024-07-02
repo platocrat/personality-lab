@@ -1,5 +1,5 @@
 // Locals
-import { domainToFacetMapping } from '../../constants'
+import { DOMAIN_TO_FACET_MAPPING } from '../../constants'
 // Types
 import { 
   FacetDataType, 
@@ -15,7 +15,7 @@ export function transformData(
   inputData: BarChartInputDataType
 ): BarChartTargetDataType[] {
   return Object.keys(inputData.domainScores).map(domainName => {
-    const facets: FacetDataType[] = domainToFacetMapping[domainName].map(
+    const facets: FacetDataType[] = DOMAIN_TO_FACET_MAPPING[domainName].map(
       (facetName: string): FacetDataType => ({
         name: facetName,
         score: inputData.facetScores[facetName] || 0,

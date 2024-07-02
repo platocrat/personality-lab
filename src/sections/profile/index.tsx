@@ -29,13 +29,6 @@ const Profile: FC<ProfileProps> = ({
   const { user, error, isLoading } = useUser()
   // Hooks
   const { isFetchingAccount } = useAccount()
-  // State to manage selected chart view
-  const [selectedView, setSelectedView] = useState<'chartjs' | 'd3'>('chartjs')
-
-
-  const handleOnChartViewChange = (e: any) => [
-    setSelectedView(e.target.value as 'chartjs' | 'd3') 
-  ]
 
 
 
@@ -59,9 +52,9 @@ const Profile: FC<ProfileProps> = ({
             }}
           >
             <div>
-              <h1>
+              <h2>
                 { `Profile` }
-              </h1>
+              </h2>
               { user && (
                 <>
                   <div style={ { marginBottom: '24px' } }>
@@ -82,25 +75,7 @@ const Profile: FC<ProfileProps> = ({
                     flexDirection: 'column',
                   } }
                 >
-                  <div style={{ marginBottom: '16px' }}>
-                    <label htmlFor="chart-select">
-                      { `Select Chart View: ` }
-                    </label>
-                    <select
-                      id="chart-select"
-                      value={ selectedView }
-                      onChange={ handleOnChartViewChange }
-                    >
-                      <option value="chartjs">
-                        { `Chart.js View` }
-                      </option>
-                      <option value="d3">
-                        { `D3.js View` }
-                      </option>
-                    </select>
-                  </div>
-                  { selectedView === 'chartjs' && <ChartjsHistoricalAssessments /> }
-                  { selectedView === 'd3' && <HistoricalAssessments /> }
+                  <HistoricalAssessments />
                 </div>
               </>
             )}

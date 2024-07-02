@@ -6,7 +6,7 @@ import { Fragment, useContext } from 'react'
 // Contexts
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // Constants
-import { skillsMapping } from '@/utils'
+import { SKILLS_MAPPING } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 
@@ -23,14 +23,14 @@ const SkillsScoresAndDefinitionsTable = () => {
       <table className={ styles.bessi_assessment_table }>
         <tbody>
           <tr>
-            { skillsMapping.tableHeaders.map(( header: string, i: number) => (
+            { SKILLS_MAPPING.tableHeaders.map(( header: string, i: number) => (
               <Fragment 
                 key={ `skills-scores-and-definitions-table-headers-${ i }` }
               >
                 <th
                   style={{ 
                     textAlign: 'center',
-                    width: i === skillsMapping.tableHeaders.length - 1 
+                    width: i === SKILLS_MAPPING.tableHeaders.length - 1 
                       ? '70%' 
                       : '15%',
                   }} 
@@ -49,7 +49,7 @@ const SkillsScoresAndDefinitionsTable = () => {
             )) }
           </tr>
           
-          { Object.keys(skillsMapping.domains).map(( 
+          { Object.keys(SKILLS_MAPPING.domains).map(( 
             domain: string, 
             i: number 
           ) => (
@@ -57,7 +57,7 @@ const SkillsScoresAndDefinitionsTable = () => {
               <tr>
                 <td style={{ textAlign: 'center' }}>
                   <span className={ styles.bessi_header2 }>
-                    { i === Object.keys(skillsMapping.domains).length - 1 
+                    { i === Object.keys(SKILLS_MAPPING.domains).length - 1 
                       ? null
                       : (
                         <>
@@ -77,7 +77,7 @@ const SkillsScoresAndDefinitionsTable = () => {
                   style={ { textAlign: 'center' } }
                   className={ styles.bessi_assessment_td }
                 >
-                  { Object.keys(skillsMapping.domains[domain].facets).map((
+                  { Object.keys(SKILLS_MAPPING.domains[domain].facets).map((
                     facet: string,
                     j: number
                   ) => (
@@ -126,12 +126,12 @@ const SkillsScoresAndDefinitionsTable = () => {
                           fontSize: 'clamp(10px, 2.5vw, 14px)'
                         }}
                       >
-                        { skillsMapping.domains[domain].description }
+                        { SKILLS_MAPPING.domains[domain].description }
                       </div>
                     </span>
                   </div>
 
-                  { Object.keys(skillsMapping.domains[domain].facets).map((
+                  { Object.keys(SKILLS_MAPPING.domains[domain].facets).map((
                     facet: string,
                     k: number
                   ) => (
@@ -157,7 +157,7 @@ const SkillsScoresAndDefinitionsTable = () => {
                           <p
                             style={ { fontSize: 'clamp(11px, 2.5vw, 14px)' }}
                           >
-                            { skillsMapping.domains[domain].facets[facet] }
+                            { SKILLS_MAPPING.domains[domain].facets[facet] }
                           </p>
                         </span>
                       </div>

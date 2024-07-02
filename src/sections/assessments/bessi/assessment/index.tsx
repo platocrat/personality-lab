@@ -21,12 +21,12 @@ import {
   getAccessToken,
   FacetFactorType,
   RESULTS__DYNAMODB,
-  bessiActivityBank,
+  BESSI_ACTIVITY_BANK,
   calculateBessiScores,
   SkillDomainFactorType,
   STUDY_SIMPLE__DYNAMODB,
   getSkillDomainAndWeight,
-  wellnessRatingDescriptions,
+  WELLNESS_RATING_DESCRIPTIONS,
   BessiUserResults__DynamoDB,
   BessiUserDemographics__DynamoDB,
 } from '@/utils'
@@ -85,7 +85,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
   const [ currentQuestionIndex, setCurrentQuestionIndex ] = useState<number>(0)
 
 
-  const questions = bessiActivityBank.map(
+  const questions = BESSI_ACTIVITY_BANK.map(
     bessiActivity => bessiActivity.activity
   )
 
@@ -122,7 +122,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
   function onWellnessRatingChange(e: any, questionIndex: number) {
     const { value } = e.target
 
-    // Use `questionIndex + 1` because `bessiActivityBank` has no value for 0.
+    // Use `questionIndex + 1` because `BESSI_ACTIVITY_BANK` has no value for 0.
     const activityIndex = questionIndex + 1
 
     const _userScore: UserScoresType = {
@@ -349,7 +349,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
               questions={ questions }
               controls={ { valueType: 'number' } }
               onChange={ onWellnessRatingChange }
-              choices={ wellnessRatingDescriptions }
+              choices={ WELLNESS_RATING_DESCRIPTIONS }
               currentQuestionIndex={ currentQuestionIndex }
               setIsEndOfQuestionnaire={ setIsEndOfQuestionnaire }
             />
