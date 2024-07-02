@@ -7,7 +7,7 @@ import {
   getRangeLabel,
   FacetFactorType,
   findFacetByScore,
-  skillDomainMapping,
+  SKILLS_DOMAIN_MAPPING,
   DOMAIN_TO_FACET_MAPPING,
   SkillDomainFactorType,
   BarChartTargetDataType,

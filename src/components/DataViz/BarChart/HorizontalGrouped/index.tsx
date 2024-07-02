@@ -6,7 +6,7 @@ import Title from '../../Title'
 import {
   Facet,
   FacetFactorType,
-  skillDomainMapping,
+  SKILLS_DOMAIN_MAPPING,
   SkillDomainFactorType,
   getSkillDomainAndWeight,
 } from '@/utils'

@@ -90,7 +90,7 @@ export function getSkillDomainAndWeight(facet: Facet): {
   domain: SkillDomain[],
   weight: number
 } {
-  const skillDomainMapping: { [key: string]: { domain: SkillDomain[], weight: number } } = {
+  const SKILLS_DOMAIN_MAPPING: { [key: string]: { domain: SkillDomain[], weight: number } } = {
     // Self-Management Skills (Full Weight)
     [Facet.TimeManagement]: { domain: [SkillDomain.SelfManagement], weight: 1 },
     [Facet.OrganizationalSkill]: { domain: [SkillDomain.SelfManagement], weight: 1 },
@@ -129,7 +129,7 @@ export function getSkillDomainAndWeight(facet: Facet): {
   }
 
   // Default to no domain and zero weight
-  return skillDomainMapping[facet] || { domain: [], weight: 0 }
+  return SKILLS_DOMAIN_MAPPING[facet] || { domain: [], weight: 0 }
 }
 
 
