@@ -261,7 +261,11 @@ const HistoricalAssessments = () => {
                 <h3>
                   { `${change.type}:` }
                 </h3>
-                <div>
+                <div
+                  style={{
+                    margin: '3px'
+                  }}
+                >
                   <h3>
                     { `${formatKey(change.key)}` }
                   </h3>

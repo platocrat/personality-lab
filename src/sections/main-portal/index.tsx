@@ -145,12 +145,12 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
             <>
               <LeftHandNav>
                 <Title text={ TITLE_TEXT } />
-                {/* Main content goes here */ }
-                <div style={ { ...definitelyCenteredStyle, margin: '48px' } }>
-                  <p>
-                    { 'Notifications and other important updates go here.' }
-                  </p>
-                </div>
+                  {/* Main content goes here */ }
+                  <div style={ { ...definitelyCenteredStyle, margin: '48px' } }>
+                    <p>
+                      { 'Notifications and other important updates go here.' }
+                    </p>
+                  </div>
               </LeftHandNav>
             </>
           ) }

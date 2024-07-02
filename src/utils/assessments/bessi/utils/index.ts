@@ -1,7 +1,7 @@
 // Constants
 import {
   BESSI_ACTIVITY_BANK,
-  skillDomainMapping,
+  SKILLS_DOMAIN_MAPPING,
 } from '../constants'
 // Enums
 import { Facet, SkillDomain } from '../enums'

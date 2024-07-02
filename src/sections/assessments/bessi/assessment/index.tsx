@@ -26,8 +26,8 @@ import {
   SkillDomainFactorType,
   STUDY_SIMPLE__DYNAMODB,
   getSkillDomainAndWeight,
-  WELLNESS_RATING_DESCRIPTIONS,
   BessiUserResults__DynamoDB,
+  WELLNESS_RATINGS_DESCRIPTIONS,
   BessiUserDemographics__DynamoDB,
 } from '@/utils'
 // CSS
@@ -349,7 +349,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
               questions={ questions }
               controls={ { valueType: 'number' } }
               onChange={ onWellnessRatingChange }
-              choices={ WELLNESS_RATING_DESCRIPTIONS }
+              choices={ WELLNESS_RATINGS_DESCRIPTIONS }
               currentQuestionIndex={ currentQuestionIndex }
               setIsEndOfQuestionnaire={ setIsEndOfQuestionnaire }
             />

@@ -329,11 +329,12 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
 
   return (
     <>
-      <div style={ { marginTop: '36px' } }>
+      <div>
         {/* Filter settings section */}
         <div 
           style={{ 
-            display: 'inline-block', 
+            ...definitelyCenteredStyle,
+            display: 'inline-block',
             position: 'relative', 
             justifyContent: 'space-evenly' 
           }}
@@ -353,7 +354,7 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
               alt='Filter svg icon'
               width={ 16 }
               height={ 16 }
-              src={ './icons/svg/filter.svg' }
+              src={ '/icons/svg/filter.svg' }
             />
             <p 
               style={ { 
@@ -378,7 +379,7 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
                     border: '0.25px solid #F4F6FA',
                     flexDirection: 'column',
                     position: 'absolute',
-                    top: '-26.5.px',
+                    top: '-26.5px',
                     borderRadius: '12px',
                     padding: '10px 10px 0px 10px',
                     fontSize: 'clamp(9.5px, 2.5vw, 12.5px)',

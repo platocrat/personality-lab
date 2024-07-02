@@ -545,7 +545,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
                   <Image
                     width={ '24' }
                     height={ '24' }
-                    src={ './icons/svg/group.svg' }
+                    src={ '/icons/svg/group.svg' }
                     alt={ 'icon to toggle group comparison' }
                     style={{
                       filter: 'drop-shadow(0px 1.25px 1.5px rgba(0, 0, 0, 0.85))',
