@@ -3,7 +3,7 @@ import { Fragment } from 'react'
 // Locals
 import { 
   WELLNESS_RATINGS, 
-  WELLNESS_RATINGS_DESCRIPTIONSS
+  WELLNESS_RATINGS_DESCRIPTIONS
 } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
