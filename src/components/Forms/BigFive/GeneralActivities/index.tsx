@@ -12,12 +12,12 @@ import SubmitFormButton from '@/components/Buttons/Form'
 // Utils
 import {
   getInputLabels,
-  radioOrCheckboxInputStyle,
-  WELLNESS_RATINGS_DESCRIPTIONS,
   BIG_FIVE_ACTIVITY_BANK,
   BIG_FIVE_ASSESSMENT_HREF,
-  BIG_FIVE_ACTIVITY_BANK_LEGEND,
+  radioOrCheckboxInputStyle,
   BIG_FIVE_FRAGMENT_ID_PREFACES,
+  BIG_FIVE_ACTIVITY_BANK_LEGEND,
+  WELLNESS_RATINGS_DESCRIPTIONS,
 } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
