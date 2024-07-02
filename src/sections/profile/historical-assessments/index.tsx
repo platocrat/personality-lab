@@ -81,7 +81,7 @@ const HistoricalAssessments = () => {
     const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
 
     const changes = allScores.map(data => {
-      const recentScores = data.values.filter(d => d.timestamp >= oneWeekAgo)
+      const recentScores = data.values.filter((d: any) => d.timestamp >= oneWeekAgo)
       if (recentScores.length < 2) return null
 
       const firstScore = recentScores[0].score
@@ -98,7 +98,7 @@ const HistoricalAssessments = () => {
       }
     }).filter(change => change !== null)
 
-    changes.sort((a, b) => Math.abs(b.change) - Math.abs(a.change))
+    changes.sort((a: any, b: any) => Math.abs(b.change) - Math.abs(a.change))
     return changes.slice(0, 5)
   }
 
