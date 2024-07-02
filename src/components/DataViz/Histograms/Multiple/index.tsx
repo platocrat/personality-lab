@@ -46,13 +46,14 @@ export type PopulationResults = {
 
 
 type MultipleHistogramsProps = {
-  studyId?: string
   userData: BessiUserDataVizType
   auth0: {
     user: any
     error: any
     isLoading: boolean
   }
+  isExample?: boolean
+  studyId?: string
 }
 
 
@@ -62,6 +63,7 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
   auth0,
   studyId,
   userData,
+  isExample,
 }) => {
   // Auth0 
   const { user, error, isLoading } = auth0
@@ -329,42 +331,66 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
 
   return (
     <>
-      <div>
+      <div style={{ ...definitelyCenteredStyle }}>
         {/* Filter settings section */}
         <div 
           style={{ 
             ...definitelyCenteredStyle,
             display: 'inline-block',
-            position: 'relative', 
-            justifyContent: 'space-evenly' 
+            position: 'relative',
           }}
         >
-          <button
-            className={ styles['filter-button'] }
-            onClick={ toggleFilterMenu }
-            style={ { 
-              ...definitelyCenteredStyle, 
-              marginBottom: '24px',
-              boxShadow: showFilterMenu 
-                ? '0px 1px 3.5px inset rgba(0, 80, 172, 0.514)'
-                : ''
-            } }
-          >
-            <Image
-              alt='Filter svg icon'
-              width={ 16 }
-              height={ 16 }
-              src={ '/icons/svg/filter.svg' }
-            />
-            <p 
-              style={ { 
-                fontSize: 'clamp(9.5px, 2.5vw, 12.5px)', 
-                margin: '0px 3px' 
+          <div style={{ display: 'flex' }}>
+            {/* Filter domain scores and Facet scores */}
+            <div 
+              style={ {
+                position: 'relative', 
+                marginBottom: '24px', 
+                marginRight: '24px', 
+                top: '2.5px' 
               } }
             >
-              { `Filter` }
-            </p>
-          </button>
+              <select
+                id='view-select'
+                value={ view }
+                onChange={ handleOnChangeHistogramView }
+              >
+                <option value='domain'>
+                  { `Domain Scores` }
+                </option>
+                <option value='facet'>
+                  { `Facet Scores` }
+                </option>
+              </select>
+            </div>
+            {/* Filter button */}
+            <button
+              className={ styles['filter-button'] }
+              onClick={ toggleFilterMenu }
+              style={ { 
+                ...definitelyCenteredStyle, 
+                marginBottom: '24px',
+                boxShadow: showFilterMenu 
+                  ? '0px 1px 3.5px inset rgba(0, 80, 172, 0.514)'
+                  : ''
+              } }
+            >
+              <Image
+                alt='Filter svg icon'
+                width={ 16 }
+                height={ 16 }
+                src={ '/icons/svg/filter.svg' }
+              />
+              <p 
+                style={ { 
+                  fontSize: 'clamp(9.5px, 2.5vw, 12.5px)', 
+                  margin: '0px 3px',
+                } }
+              >
+                { `Filter` }
+              </p>
+            </button>
+          </div>
 
 
           { showFilterMenu && (
@@ -398,6 +424,7 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
                     <div style={{ marginBottom: '12px',  }}>
                       <p
                         style={{
+                          textAlign: 'center',
                           color: 'rgba(0, 80, 172, 1)',
                           fontSize: 'clamp(9.5px, 2.5vw, 12.5px)',
                         }}
@@ -482,6 +509,7 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
               <div key={ `facet-${key}` }>
                 <Histogram
                   data={ scoresArray }
+                  isExample={ isExample }
                   title={ `Facet Score: ${key}` }
                   score={ userData.facetScores[key] }
                 />
@@ -494,6 +522,7 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
               <div key={ `domain-${key}` }>
                 <Histogram
                   data={ scoresArray }
+                  isExample={ isExample }
                   title={ `Domain Score: ${key}` }
                   score={ userData.domainScores[key] }
                 />

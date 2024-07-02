@@ -1,13 +1,26 @@
 // Externals
 import * as d3 from 'd3'
-import React, { useEffect, useRef } from 'react'
+import React, { FC, useEffect, useRef } from 'react'
 // Locals
 // CSS
 import dataVizStyles from '@/components/DataViz/DataViz.module.css'
 import histogramStyles from '@/components/DataViz/Histograms/Histogram.module.css'
 
 
-const Histogram = ({ data, title, score }) => {
+type HistogramProps = {
+  data: any
+  title: string
+  score: number
+  isExample?: boolean
+}
+
+
+const Histogram: FC<HistogramProps> = ({ 
+  data, 
+  title, 
+  score,
+  isExample
+}) => {
   const d3Container = useRef(null)
 
   useEffect(() => {
@@ -22,7 +35,7 @@ const Histogram = ({ data, title, score }) => {
       const svg = d3.select(d3Container.current)
         .append('svg')
         .attr('preserveAspectRatio', 'xMinYMin meet')
-        .attr('viewBox', '-52 -30 650 375')
+        .attr('viewBox', `${isExample ? '-52' : '-102'} -30 650 375`)
         .classed(dataVizStyles.svgContent, true)
 
       const x = d3.scaleLinear()

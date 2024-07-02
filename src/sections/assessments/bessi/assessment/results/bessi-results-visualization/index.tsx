@@ -282,6 +282,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
             <>
               <MultipleHistograms
                 studyId={ studyId }
+                isExample={ isExample }
                 userData={ histogramUserData }
                 auth0={{
                   user,
