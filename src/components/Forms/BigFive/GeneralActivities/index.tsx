@@ -13,7 +13,7 @@ import SubmitFormButton from '@/components/Buttons/Form'
 import {
   getInputLabels,
   radioOrCheckboxInputStyle,
-  WELLNESS_RATINGS_DESCRIPTIONSS,
+  WELLNESS_RATINGS_DESCRIPTIONS,
   BIG_FIVE_ACTIVITY_BANK,
   BIG_FIVE_ASSESSMENT_HREF,
   BIG_FIVE_ACTIVITY_BANK_LEGEND,
