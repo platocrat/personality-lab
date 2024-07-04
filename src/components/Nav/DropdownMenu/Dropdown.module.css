@@ -1,10 +1,4 @@
 /* DropdownMenu.module.css */
-.username {
-  color: white;
-  padding: 12px 0px;
-  background-color: rgba(0, 123, 194, 1)
-}
-
 .dropdown {
   position: relative;
   display: inline-block;
@@ -52,8 +46,24 @@
   display: block;
 }
 
+.dropdownLink:first-child {
+  color: white;
+  background-color: rgba(0, 123, 194, 1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 1rem 1rem 0rem 0rem;
+  cursor: pointer;
+}
+
 .dropdownLink:hover {
   background-color: #f1f1f1;
+  cursor: pointer;
+}
+
+.dropdownLink:first-child:hover {
+  background-color: rgb(0, 101, 159);
+  /* text-decoration: underline; */
   cursor: pointer;
 }
 

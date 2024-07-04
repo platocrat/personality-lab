@@ -4,6 +4,7 @@
 import { useUser } from '@auth0/nextjs-auth0/client'
 import { FC, useLayoutEffect, useState } from 'react'
 // Locals
+import SocialRating from './social-rating'
 import PersonalityAssessments from '@/sections/assessments'
 // Components
 import LeftHandNav from '@/components/Nav/LeftHand'
@@ -151,6 +152,7 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
                       { 'Notifications and other important updates go here.' }
                     </p>
                   </div>
+                  <SocialRating />
               </LeftHandNav>
             </>
           ) }

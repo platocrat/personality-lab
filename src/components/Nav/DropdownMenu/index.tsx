@@ -107,17 +107,6 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
         { isVisible && (
           <Fragment key={ `dropdown-menu` }>
             <div className={ `${styles.dropdownContent} ${isVisible ? 'slideIn' : 'slideOut'}` }>
-              <div 
-                className={ `${styles.username}` }
-                style={{
-                  cursor: 'default',
-                  borderRadius: '1rem 1rem 0rem 0rem',
-                }}
-              >
-                <p style={ definitelyCenteredStyle }>
-                  { user?.name }
-                </p>
-              </div>
               { links.map((link: NavLink, i: number) => (
                 <Fragment
                   key={ i }
@@ -125,8 +114,43 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
                   <ProgressBarLink
                     href={ link.href }
                     className={ styles.dropdownLink }
+                    // style={{
+                    //   color: i === 0 ? 'white' : '',
+                    //   backgroundColor: i === 0 ? 'rgba(0, 123, 194, 1)' : '',
+                    //   display: i === 0 ? 'flex' : '',
+                    //   justifyContent: i === 0 ? 'center' : '',
+                    //   alignItems: i === 0 ? 'center' : '',
+                    //   borderRadius: i === 0 ? '1rem 1rem 0rem 0rem' : '',
+                    // }}
                   >
-                    { link.label }
+                    { i === 0 
+                      ? (
+                        <>
+                        <div 
+                          className={ styles.username }
+                          style={{ display: 'flex', gap: '14px' }}
+                        >
+                          <div style={ definitelyCenteredStyle }>
+                            <p>
+                              { user?.name }
+                            </p>
+                          </div>
+                          <div 
+                            style={{ 
+                              ...definitelyCenteredStyle,
+                              textAlign: 'center',
+                              fontSize: 'clamp(6px, 2vw, 10px)',
+                            }}
+                          >
+                            <p>
+                              { `View Profile` }
+                            </p>
+                          </div>
+                        </div>
+                        </>
+                      ) 
+                      : link.label 
+                    }
                   </ProgressBarLink>
                 </Fragment>
               )) }

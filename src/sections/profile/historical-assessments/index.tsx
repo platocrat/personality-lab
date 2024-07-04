@@ -1,21 +1,77 @@
 // Externals
 import * as d3 from 'd3'
-import React, { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 // Locals
+import LineCharts from './line-charts'
+import ImportantWeeklyUpdates from './important-weekly-updates'
+// Utils
 import {
   DUMMY_USER_PROFILE_ASSESSMENT_HISTORICAL_DATA
 } from './dummy-data'
 import { FACET_FEEDBACK } from '@/utils'
-// CSS
-import { definitelyCenteredStyle } from '@/theme/styles'
 import dataVizStyles from '@/components/DataViz/DataViz.module.css'
 import styles from '@/sections/profile/historical-assessments/HistoricalAssessments.module.css'
+import { definitelyCenteredStyle } from '@/theme/styles'
+
+
+
+export type TopChangesType = {
+  key: string
+  change: number
+  type: string
+  firstScore: number
+  lastScore: number
+}
+
+
+
+const formatKey = (key) => {
+  return key.replace(/([A-Z])/g, ' $1').trim()
+}
+
+
+const generateChartData = (
+  scores: {
+    [key: string]: {
+      score: number,
+      timestamp: number
+    }[]
+  }
+) => {
+  const data: {
+    key: string,
+    values: {
+      score: number,
+      timestamp: number
+    }[]
+  }[] = []
+
+  for (const key in scores) {
+    data.push({
+      key,
+      values: scores[key].map(
+        score => ({
+          score: score.score,
+          timestamp: new Date(score.timestamp),
+        }
+        )) as any,
+    })
+  }
+
+  return data
+}
+
+
 
 const HistoricalAssessments = () => {
   const { facetScores, domainScores } = DUMMY_USER_PROFILE_ASSESSMENT_HISTORICAL_DATA
 
   const facetRefs = useRef<{ [key: string]: HTMLDivElement | null }>({})
   const domainRefs = useRef<{ [key: string]: HTMLDivElement | null }>({})
+
+  const facetChartData = generateChartData(facetScores)
+  const domainChartData = generateChartData(domainScores)
+
 
   const facetDescriptions = useCallback((data): string => {
     const facet = FACET_FEEDBACK[data.key]
@@ -41,39 +97,6 @@ const HistoricalAssessments = () => {
     return _
   }, [])
 
-  const generateChartData = (
-    scores: {
-      [key: string]: {
-        score: number,
-        timestamp: number
-      }[]
-    }
-  ) => {
-    const data: {
-      key: string,
-      values: {
-        score: number,
-        timestamp: number
-      }[]
-    }[] = []
-
-    for (const key in scores) {
-      data.push({
-        key,
-        values: scores[key].map(
-          score => ({
-            score: score.score,
-            timestamp: new Date(score.timestamp),
-          }
-          )) as any,
-      })
-    }
-
-    return data
-  }
-
-  const facetChartData = generateChartData(facetScores)
-  const domainChartData = generateChartData(domainScores)
 
   const calculateTopChanges = () => {
     const allScores = [...facetChartData, ...domainChartData]
@@ -102,7 +125,14 @@ const HistoricalAssessments = () => {
     return changes.slice(0, 5)
   }
 
-  const topChanges = useMemo(calculateTopChanges, [facetChartData, domainChartData])
+
+
+  const topChanges: TopChangesType[] = useMemo(
+    calculateTopChanges, 
+    [facetChartData, domainChartData]
+  ) as TopChangesType[]
+
+
 
   const createChart = (
     data: {
@@ -245,130 +275,30 @@ const HistoricalAssessments = () => {
     })
   }, [domainChartData])
 
-  const formatKey = (key) => {
-    return key.replace(/([A-Z])/g, ' $1').trim()
-  }
+
+
 
   return (
     <>
-      <div style={ { width: '100%' } }>
-        {/* Important weekly updates */ }
-        <div className={ styles.cardsContainer }>
-          { topChanges.map((change: any) => (
-            <div key={ change.key } className={ styles.card }>
-              {/* Title */ }
-              <div style={ { display: 'flex', flexDirection: 'column' } }>
-                <h3>
-                  { `${change.type}:` }
-                </h3>
-                <div
-                  style={{
-                    margin: '3px'
-                  }}
-                >
-                  <h3>
-                    { `${formatKey(change.key)}` }
-                  </h3>
-                </div>
-              </div>
-              {/* Change over week */ }
-              <div>
-                {/* Magnitude change */ }
-                <p style={ { marginBottom: '4px' } }>
-                  { `From: ${change.firstScore} to ${change.lastScore}` }
-                </p>
-                {/* Percent Change */ }
-                <p style={ { color: change.change > 0 ? 'green' : 'red' } }>
-                  { `${change.change > 0 ? '+' : ''} ${change.change.toFixed(2)}%` }
-                </p>
-              </div>
-
-              <div className={ styles.progressBarContainer }>
-                <div
-                  className={ styles.progressBar }
-                  style={ {
-                    width: `${Math.min(100, Math.abs(change.change))}%`,
-                    backgroundColor: change.change > 0 ? 'green' : 'red'
-                  } }
-                />
-              </div>
-            </div>
-          )) }
-        </div>
-        {/* Historical Line Charts */ }
-        <div>
-          {/*  */ }
-          <div style={ { marginBottom: '20px' } }>
-            <div style={ definitelyCenteredStyle }>
-              <h2 style={ { fontSize: 'clamp(13px, 2vw, 16px)', margin: '12px 0px' } }>
-                { `Domain Scores` }
-              </h2>
-            </div>
-            <div style={ { display: 'flex', flexWrap: 'wrap' } }>
-              { domainChartData.map(data => (
-                <div
-                  key={ data.key }
-                  style={ { display: 'flex', width: '100%', marginBottom: '20px' } }
-                >
-                  <div style={ { flex: 1, textAlign: 'center' } }>
-                    <p style={ { fontSize: 'clamp(9px, 2vw, 13px)' } }>
-                      { `Domain: ${formatKey(data.key)}` }
-                    </p>
-                  </div>
-                  <div style={ { flex: 1 } }>
-                    <div
-                      className={ dataVizStyles.svgContainer }
-                      ref={ (el: any) => domainRefs.current[data.key] = el }
-                    />
-                  </div>
-                </div>
-              )) }
-            </div>
-          </div>
-          {/*  */ }
-          <div>
-            <div style={ definitelyCenteredStyle }>
-              <h2 style={ { fontSize: 'clamp(13px, 2vw, 16px)', margin: '12px 0px' } }>
-                { `Facet Scores` }
-              </h2>
-            </div>
-            <div style={ { display: 'flex', flexWrap: 'wrap' } }>
-              { facetChartData.map(data => (
-                <div
-                  key={ data.key }
-                  style={ { display: 'flex', width: '100%', marginBottom: '20px' } }
-                >
-                  <div style={ { flex: 1, textAlign: 'center' } }>
-                    <p style={ { fontSize: 'clamp(9px, 2vw, 13px)' } }>
-                      { `Facet: ${formatKey(data.key)}` }
-                    </p>
-                    <div
-                      style={ {
-                        marginTop: '24px',
-                        padding: '4px 8px',
-                      } }
-                    >
-                      <p
-                        style={ {
-                          textAlign: 'left',
-                          fontSize: 'clamp(9px, 2vw, 13px)'
-                        } }
-                      >
-                        { facetDescriptions(data) }
-                      </p>
-                    </div>
-                  </div>
-                  <div style={ { flex: 1 } }>
-                    <div
-                      className={ dataVizStyles.svgContainer }
-                      ref={ (el: any) => facetRefs.current[data.key] = el }
-                    />
-                  </div>
-                </div>
-              )) }
-            </div>
-          </div>
-        </div>
+      <div 
+        style={{
+          ...definitelyCenteredStyle, 
+          flexDirection: 'column', 
+          width: '100%'
+        }}
+      >
+        <ImportantWeeklyUpdates 
+          formatKey={ formatKey }
+          topChanges={ topChanges }
+        />
+        
+        <LineCharts 
+          formatKey={ formatKey }
+          facetRefs={ facetRefs }
+          domainRefs={ domainRefs }
+          facetChartData={ facetChartData }
+          domainChartData={ domainChartData }
+        />
       </div>
     </>
   )

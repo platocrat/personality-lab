@@ -60,6 +60,25 @@ function generateHistoricalScores(count: number, mean: number, stddev: number): 
 
 
 
+function generateRandomEnumValue(enumObject: any): any {
+  const enumValues = Object.values(enumObject)
+  const randomIndex = Math.floor(Math.random() * enumValues.length)
+  return enumValues[randomIndex]
+}
+
+function generateRandomZipCode(): string {
+  return Math.floor(Math.random() * 90000 + 10000).toString().padStart(5, '0')
+}
+
+function generateRandomForeignCountry(): string {
+  const countries = [
+    'None', 'Canada', 'Mexico', 'United Kingdom', 'Germany', 'France',
+    'India', 'China', 'Japan', 'Australia', 'Brazil'
+  ]
+  const randomIndex = Math.floor(Math.random() * countries.length)
+  return countries[randomIndex]
+}
+
 // Function to generate dummy historical assessment data for a user's profile
 function generateDummyUserProfileHistoricalAssessmentData(): ExpectedTypeOfUserProfileAssessmentHistoricalData {
   const facetScores: { [key in Facet]: { score: number, timestamp: number }[] } = {} as any
@@ -79,21 +98,21 @@ function generateDummyUserProfileHistoricalAssessmentData(): ExpectedTypeOfUserP
     }
   }
 
-  // Dummy demographics
+  // Dummy demographics with random values
   const demographics: BessiUserDemographics__DynamoDB = {
-    age: 30,
-    gender: Gender.Male,
-    usState: USState.California,
-    zipCode: '90001',
-    isParent: YesOrNo.No,
-    foreignCountry: 'None',
-    englishFluency: YesOrNo.Yes,
-    priorCompletion: YesOrNo.Yes,
-    socialClass: SocialClass.MiddleClass,
-    raceOrEthnicity: RaceOrEthnicity.WhiteCaucasian,
-    currentMaritalStatus: CurrentMaritalStatus.NeverMarried,
-    highestFormalEducation: HighestFormalEducation.Doctorate,
-    currentEmploymentStatus: CurrentEmploymentStatus.WorkFullTime
+    age: Math.floor(Math.random() * 60) + 18, // Random age between 18 and 78
+    gender: generateRandomEnumValue(Gender),
+    usState: generateRandomEnumValue(USState),
+    zipCode: generateRandomZipCode(),
+    isParent: generateRandomEnumValue(YesOrNo),
+    foreignCountry: generateRandomForeignCountry(),
+    englishFluency: generateRandomEnumValue(YesOrNo),
+    priorCompletion: generateRandomEnumValue(YesOrNo),
+    socialClass: generateRandomEnumValue(SocialClass),
+    raceOrEthnicity: generateRandomEnumValue(RaceOrEthnicity),
+    currentMaritalStatus: generateRandomEnumValue(CurrentMaritalStatus),
+    highestFormalEducation: generateRandomEnumValue(HighestFormalEducation),
+    currentEmploymentStatus: generateRandomEnumValue(CurrentEmploymentStatus)
   }
 
   const dummyUserProfileHistoricalAssessmentData = {
@@ -101,11 +120,6 @@ function generateDummyUserProfileHistoricalAssessmentData(): ExpectedTypeOfUserP
     domainScores,
     demographics
   }
-
-  console.log(
-    `dummyUserProfileHistoricalAssessmentData: `,
-    dummyUserProfileHistoricalAssessmentData
-  )
 
   return dummyUserProfileHistoricalAssessmentData
 }

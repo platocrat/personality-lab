@@ -1,35 +1,106 @@
+/* HistoricalAssessments.module.css */
+.carouselContainer {
+  width: 325px; /* Adjust as needed */
+  margin: 0 auto;
+  overflow: hidden;
+  position: relative;
+}
+
+.dotsContainer {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px; /* Space between dots and carousel */
+}
+
+.dot {
+  height: 12px;
+  width: 12px;
+  margin: 0 5px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.activeDot {
+  background-color: #717171;
+}
+
+.carouselWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carouselContentWrapper {
+  overflow: hidden;
+  width: 100%;
+}
+
+.carouselContent {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+}
+
 .card {
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 16px;
-  width: 180px;
-  height: 180px;
-  text-align: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  min-width: 100%; /* Each card takes up the full width of the container */
+  box-sizing: border-box;
+  border: 1px solid #ccc; /* Example border */
+  border-radius: 8px; /* Example border radius */
+  padding: 16px; /* Example padding */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Example shadow */
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  margin: 10px; /* Add margin for spacing between cards */
+  justify-content: space-between;
+}
+
+.titleContainer {
+  display: flex;
+  flex-direction: column;
+  margin: 3px;
+}
+
+.percentChange {
+  color: green;
+}
+
+.percentChange.negative {
+  color: red;
+}
+
+.magnitudeChange {
+  margin-bottom: 4px;
 }
 
 .progressBarContainer {
-  height: 10px;
-  background: #f1f1f1;
-  border-radius: 5px;
-  overflow: hidden;
-  margin-top: 10px;
+  background-color: #f3f3f3; /* Example background */
+  border-radius: 4px; /* Example border radius */
+  overflow: hidden; /* Clip the inner bar */
 }
 
 .progressBar {
-  height: 100%;
-  transition: width 0.3s ease;
+  height: 8px; /* Example height */
 }
 
-.cardsContainer {
+.changeSection {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
+  flex-direction: column;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .carouselContainer {
+    max-width: 100%;
+  }
+
+  .dot {
+    height: 10px;
+    width: 10px;
+  }
+
+  .card {
+    padding: 12px;
+  }
 }
 
 .grid line {
