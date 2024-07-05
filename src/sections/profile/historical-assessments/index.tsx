@@ -1,9 +1,11 @@
 // Externals
 import * as d3 from 'd3'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 // Locals
 import LineCharts from './line-charts'
 import ImportantWeeklyUpdates from './important-weekly-updates'
+// Components
+import Spinner from '@/components/Suspense/Spinner'
 // Utils
 import {
   DUMMY_USER_PROFILE_ASSESSMENT_HISTORICAL_DATA
@@ -13,8 +15,6 @@ import dataVizStyles from '@/components/DataViz/DataViz.module.css'
 import styles from '@/sections/profile/historical-assessments/HistoricalAssessments.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
 
-
-
 export type TopChangesType = {
   key: string
   change: number
@@ -23,12 +23,9 @@ export type TopChangesType = {
   lastScore: number
 }
 
-
-
 const formatKey = (key) => {
   return key.replace(/([A-Z])/g, ' $1').trim()
 }
-
 
 const generateChartData = (
   scores: {
@@ -61,8 +58,6 @@ const generateChartData = (
   return data
 }
 
-
-
 const HistoricalAssessments = () => {
   const { facetScores, domainScores } = DUMMY_USER_PROFILE_ASSESSMENT_HISTORICAL_DATA
 
@@ -72,6 +67,7 @@ const HistoricalAssessments = () => {
   const facetChartData = generateChartData(facetScores)
   const domainChartData = generateChartData(domainScores)
 
+  const [loading, setLoading] = useState(true) // State to manage loading
 
   const facetDescriptions = useCallback((data): string => {
     const facet = FACET_FEEDBACK[data.key]
@@ -96,7 +92,6 @@ const HistoricalAssessments = () => {
 
     return _
   }, [])
-
 
   const calculateTopChanges = () => {
     const allScores = [...facetChartData, ...domainChartData]
@@ -125,14 +120,10 @@ const HistoricalAssessments = () => {
     return changes.slice(0, 5)
   }
 
-
-
   const topChanges: TopChangesType[] = useMemo(
-    calculateTopChanges, 
+    calculateTopChanges,
     [facetChartData, domainChartData]
   ) as TopChangesType[]
-
-
 
   const createChart = (
     data: {
@@ -263,6 +254,7 @@ const HistoricalAssessments = () => {
         `Facet Score: ${data.key}`
       )
     })
+    setLoading(false) // Set loading to false when charts are done
   }, [facetChartData])
 
   useEffect(() => {
@@ -270,35 +262,51 @@ const HistoricalAssessments = () => {
       createChart(
         data as any,
         domainRefs.current[data.key],
-        `Domain Score: ${data.key}`
+        `Domain Score: ${ data.key }`
       )
     })
+    setLoading(false) // Set loading to false when charts are done
   }, [domainChartData])
-
 
 
 
   return (
     <>
-      <div 
-        style={{
-          ...definitelyCenteredStyle, 
-          flexDirection: 'column', 
+      <div
+        style={ {
+          ...definitelyCenteredStyle,
+          flexDirection: 'column',
           width: '100%'
         }}
       >
-        <ImportantWeeklyUpdates 
+        <ImportantWeeklyUpdates
           formatKey={ formatKey }
           topChanges={ topChanges }
         />
-        
-        <LineCharts 
-          formatKey={ formatKey }
-          facetRefs={ facetRefs }
-          domainRefs={ domainRefs }
-          facetChartData={ facetChartData }
-          domainChartData={ domainChartData }
-        />
+
+        { loading ? (
+          <>
+            <div 
+              style={{ 
+                ...definitelyCenteredStyle, 
+                position: 'relative', 
+                top: '20px' 
+              }}
+            >
+              <Spinner height={ '40' } width={ '40'} />
+            </div>
+          </>
+        ) : (
+          <>
+            <LineCharts
+              formatKey={ formatKey }
+              facetRefs={ facetRefs }
+              domainRefs={ domainRefs }
+              facetChartData={ facetChartData }
+              domainChartData={ domainChartData }
+            />
+          </>
+        )}
       </div>
     </>
   )
