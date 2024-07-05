@@ -1,12 +1,12 @@
 'use client'
 
 // Externals
-import { Fragment, useContext } from 'react'
+import { FC, Fragment, useContext } from 'react'
 // Locals
 // Contexts
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // Constants
-import { SKILLS_MAPPING } from '@/utils'
+import { FacetFactorType, SkillDomainFactorType, SKILLS_MAPPING } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 
@@ -14,7 +14,13 @@ import styles from '@/app/page.module.css'
 
 
 
-const SkillsScoresAndDefinitionsTable = () => {
+const SkillsScoresAndDefinitionsTable: FC<{
+  facetScores?: FacetFactorType,
+  domainScores?: SkillDomainFactorType,
+}> = ({
+  facetScores,
+  domainScores,
+}) => {
   const { bessiSkillScores } = useContext(BessiSkillScoresContext)
 
 
@@ -66,7 +72,11 @@ const SkillsScoresAndDefinitionsTable = () => {
                           </p>
                           <br />
                           <p style={{ fontSize: 'clamp(14px, 2.5vw, 18px)' }}>
-                            { bessiSkillScores?.domainScores[domain] ?? 0 }
+                            { 
+                              domainScores 
+                                ? domainScores[domain] ?? 0
+                                : bessiSkillScores?.domainScores[domain] ?? 0 
+                            }
                           </p>
                         </>
                     )}
@@ -98,7 +108,11 @@ const SkillsScoresAndDefinitionsTable = () => {
                           >
                             { facet }
                             <br />
-                            { bessiSkillScores?.facetScores[facet] ?? 0 }
+                            { 
+                              facetScores
+                                ? facetScores[facet] ?? 0
+                                : bessiSkillScores?.facetScores[facet] ?? 0  
+                            }
                           </strong>
                         </span>
                       </div>
@@ -174,17 +188,28 @@ const SkillsScoresAndDefinitionsTable = () => {
   )
 }
 
-const BessiResultsSkillsScoresAndDefinitions = () => {
+
+
+const BessiResultsSkillsScoresAndDefinitions: FC<{
+  facetScores?: FacetFactorType,
+  domainScores?: SkillDomainFactorType,
+}> = ({
+  facetScores,
+  domainScores,
+}) => {
   const title = `Skill Scores and Definitions`
 
   return (
     <>
       <div style={{ margin: '48px 0px 0px 0px' }}>
         <div style={{ margin: '18px 0px 18px 0px' }}>
-          <h3>{ title }</h3>
+          <h3 style={{ fontSize: 'clamp(16px, 2.5vw, 16px)' }}>{ title }</h3>
         </div>
 
-        <SkillsScoresAndDefinitionsTable />
+        <SkillsScoresAndDefinitionsTable 
+          facetScores={ facetScores }
+          domainScores={ domainScores }
+        />
       </div>
     </>
   )

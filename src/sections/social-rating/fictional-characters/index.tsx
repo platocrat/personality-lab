@@ -1,41 +1,124 @@
+'use client'
+
 // Externals
-import React, { useState } from 'react'
+import React, { Fragment, useContext, useState, useEffect } from 'react'
 // Locals
-import description from '@/sections/assessments/bessi/description'
+// Components
+import Spinner from '@/components/Suspense/Spinner'
+// Sections
+import BessiResultsVisualization from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization'
+import BessiResultsSkillsScoresAndDefinitions from '@/sections/assessments/bessi/assessment/results/skills-scores-and-definitions'
+// Contexts
+import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
+import { BessiSkillScoresContextType } from '@/contexts/types'
 // Utils
-import { 
-  UserScoresType, 
-  FacetFactorType, 
-  BESSI_ACTIVITIES_45,
-  BESSI_ACTIVITY_BANK,
+import {
+  UserScoresType,
+  FacetFactorType,
+  findNthOccurrence,
+  BESSI_45_ACTIVITIES,
   calculateBessiScores,
   SkillDomainFactorType,
+  BESSI_45_ACTIVITY_BANK,
 } from '@/utils'
-import { json } from 'd3'
+// CSS
+import { definitelyCenteredStyle } from '@/theme/styles'
+import styles from '@/sections/social-rating/fictional-characters/FictionalCharacters.module.css'
 
-
-
-// Define types
-interface Character {
+type Character = {
   name: string
+  group: string
   description: string
   facetScores: FacetFactorType
   domainScores: SkillDomainFactorType
 }
 
+function updateCharacters(
+  characters,
+  setCharacters,
+  genCharacters: {
+    group: string
+    name: string
+    description: string
+    responses: {
+      response: number
+      id: number
+      activity: string
+    }[]
+  }[],
+  setProgress
+) {
+  function update(
+    genCharacter: any,
+    characters,
+    setCharacters,
+    setProgress,
+  ) {
+    const group = genCharacter.group
+    const name = genCharacter.name
+    const description = genCharacter.description
 
+    const responses: UserScoresType[] = BESSI_45_ACTIVITY_BANK.map((
+      activity,
+      i: number
+    ) => {
+      const response = genCharacter.responses[i]
 
+      return {
+        facet: activity.facet,
+        domain: activity.domain,
+        weight: activity.weight,
+        response: response.response
+      }
+    })
+
+    const { facetScores, domainScores } = calculateBessiScores(responses)
+
+    const character: Character = {
+      group,
+      name,
+      description,
+      facetScores,
+      domainScores
+    }
+
+    console.log(`character: `, character)
+
+    setCharacters(prevCharacters => [...prevCharacters, character])
+    setProgress((prevProgress) => prevProgress + 1)
+  }
+
+  if (genCharacters.length > 0) {
+    genCharacters.forEach((genC) => {
+      update(
+        genC,
+        characters,
+        setCharacters,
+        setProgress,
+      )
+    })
+  } else {
+    update(
+      genCharacters,
+      characters,
+      setCharacters,
+      setProgress,
+    )
+  }
+}
 
 // OpenAI API request function
 const generateCharacterProfile = async (
-  prompt: string
-): Promise<{ 
-  name: string, 
-  description: string, 
-  responses: UserScoresType[] 
-}> => {
+  prompt: string,
+  characters,
+  setCharacters,
+  setProgress
+): Promise<void> => {
+  const SYSTEM_CONTENT = `You will be provided with a fictional pop-culture series name (e.g. Harry Potter, Game of Thrones, Euphoria, The Big Bang Theory, American Horror Story, etc.). Your task is to simulate responses to the following 45 activities for up to 3 characters that are from the given pop-culture series: for each activity, respond with a rating between 1 and 5 to represent how others would rate that fictional pop-culture character, with 1 representing not at all likely to do the activity and 5 representing very much likely to do the activity. You must give the rating for each of the 45 activities in your response. Additionally, you must give the description of the personality of the character. For example, if given 'Harry Potter', you should respond with 'Harry Potter from the Harry Potter series is the brave protagonist of the series. Now, here are the responses to each of the 45 activities:'. The description must be around 250 words. Remember that this must be for each character. Furthermore, return your response as an array of JSON objects where each JSON object includes the description, the list of 45-ratings, and the character's name. To be clear, the type of the response that you must return is, 'type ResponsesType = { group: string, name: string, description: string, responses: { response: number, activity: string, id: number }[] }[]'. Below is the list of activities: ${BESSI_45_ACTIVITIES.join('?')}`
+
+  const apiEndpoint = 'https://api.openai.com/v1/chat/completions'
   const response = await fetch(
-    'https://api.openai.com/v1/chat/completions',
+    apiEndpoint,
     {
       method: 'POST',
       headers: {
@@ -43,15 +126,16 @@ const generateCharacterProfile = async (
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'gpt-4',
+        // stream: true,
         messages: [
           {
             'role': 'system',
-            'content': `You will be provided with a fictional pop-culture series name (e.g. Harry Potter, Game of Thrones, Euphoria, The Big Bang Theory, American Horror Story, etc.). Your task is to simulate responses to the following 45 activities for up to 3 characters that are from the given pop-culture series: for each activity, respond with a rating between 1 and 5 to represent how that fictional pop-culture character would respond to it, with 1 representing not at all likely to do the activity and 5 representing very much likely to do the activity. You must give the rating for each of the 45 activities in your response. Additionally, you must give the description of the personality of the character. For example, if given "Harry Potter", you should respond with "Harry Potter from the Harry Potter series is the brave protagonist of the series. Now, here are the responses to each of the 45 activities:". The description must be around 250 words. Remember that this must be for each character. Below is the list of activities: ${ BESSI_ACTIVITIES_45.join('?') }`
+            'content': SYSTEM_CONTENT,
           },
           {
             'role': 'user',
-            'content': 'American Horror Story.'
+            'content': prompt,
           }
         ],
         // max_tokens: 2048, // Increase max tokens to handle detailed responses
@@ -59,99 +143,193 @@ const generateCharacterProfile = async (
     },
   )
 
-  console.log(`response: `, response)
-
   const json = await response.json()
-
   console.log(`json: `, json)
+  const data = json.choices[0]
 
-  const data = json.data.choices[0].text.trim()
-  const lines = data.split('\n')
-  const name = lines[0].replace('Name: ', '')
-  const description = lines[1].replace('Description: ', '')
+  let content = data.message.content,
+    startIndex = content.indexOf('```json')
 
+  // Find the end index of '```'
+  const firstDelimiter = '```'
+  // Find the second occurrence of '```'
+  const endIndex = findNthOccurrence(content, firstDelimiter, 2)
 
-  const responses: UserScoresType[] = BESSI_ACTIVITY_BANK.map((
-    activity, 
-    index
-  ) => {
-    const response = parseInt(lines[index + 2].split(': ')[1])
-    return {
-      facet: activity.facet,
-      domain: activity.domain,
-      weight: activity.weight,
-      response: response
+  if (endIndex !== -1) {
+    // Slice the string starting after '```' and ending before the last '```'
+    const cleanedString = content.slice(startIndex + (startIndex === -1 ? 3 : 7), endIndex).trim()
+    updateCharacters(characters, setCharacters, cleanedString, setProgress)
+  } else {
+    try {
+      let genCharacters = JSON.parse(content)
+      console.log(`JSON.parse(content): `, genCharacters)
+      genCharacters = genCharacters.length > 0 ? genCharacters[0] : genCharacters
+      updateCharacters(characters, setCharacters, genCharacters, setProgress)
+    } catch (error) {
+      console.error(`End delimiter not found. Here is the content: `, content)
+      console.error(`End delimiter not found. Here is the error: `, error)
     }
-  })
-
-
-  return { name, description, responses }
+  }
 }
 
 
 
 
-
 const FictionalCharacters: React.FC = () => {
+  // States
+  const [loading, setLoading] = useState<boolean>(false)
+  const [completed, setCompleted] = useState<boolean>(false)
   const [characters, setCharacters] = useState<Character[]>([])
+  const [progress, setProgress] = useState<number>(0)
+
+  const prompts = [
+    'Generate a personality profile for a character from American Horror Story.',
+    'Generate a personality profile for a character from Euphoria.',
+    'Generate a personality profile for a character from The Big Bang Theory.',
+    // Add more prompts if needed
+  ]
+
+  const totalCharacters = prompts.length
 
   const generateCharacters = async () => {
-    const prompts = [
-      'Generate a fictional character profile for a character from the Big Bang Theory including responses to 192 activities.',
-      'Generate a fictional character profile for a character from Harry Potter including responses to 192 activities.',
-      'Generate a fictional character profile for a character from Euphoria including responses to 192 activities.',
-      'Generate a fictional character profile for a character from Game of Thrones including responses to 192 activities.',
-      // Add more prompts if needed
-    ]
+    setLoading(true)
+    setCompleted(false)
+    setProgress(0)
 
     const newCharacters: Character[] = []
+    setCharacters(newCharacters) // Remove any previously generated characters
 
     for (const prompt of prompts) {
-      // Create a detailed prompt with all activities
-      const detailedPrompt = `${prompt}\n\nActivities:\n${BESSI_ACTIVITY_BANK.map(
-        activity => `${activity.activity}:`
-      ).join('\n')}`
-
-      const { name, description, responses } = await generateCharacterProfile(detailedPrompt)
-      const { facetScores, domainScores } = calculateBessiScores(responses)
-
-      newCharacters.push({
-        name,
-        description,
-        facetScores,
-        domainScores
-      })
+      await generateCharacterProfile(
+        prompt,
+        characters,
+        setCharacters,
+        setProgress
+      )
     }
 
-    setCharacters(newCharacters)
+    setLoading(false)
+    setCompleted(true)
+
+    setTimeout(() => {
+      setCompleted(false)
+    }, 3_000) // Hide the notification after 3 seconds
   }
 
 
 
 
   return (
-    <div>
-      <h1>Fictional Pop-Culture Characters</h1>
-      <button onClick={ generateCharacters }>Generate Characters</button>
-      { characters.map((character, index) => (
-        <div key={ index }>
-          <h2>{ character.name }</h2>
-          <p>{ character.description }</p>
-          <h3>Facet Scores</h3>
-          <ul>
-            { Object.entries(character.facetScores).map(([facet, score]) => (
-              <li key={ facet }>{ facet }: { score }</li>
-            )) }
-          </ul>
-          <h3>Domain Scores</h3>
-          <ul>
-            { Object.entries(character.domainScores).map(([domain, score]) => (
-              <li key={ domain }>{ domain }: { score }</li>
-            )) }
-          </ul>
-        </div>
-      )) }
-    </div>
+    <>
+      <div className={ styles['container'] }>
+        <h2>
+          { `Fictional Characters in Popular Culture` }
+        </h2>
+        <button
+          disabled={ loading }
+          onClick={ generateCharacters }
+          className={ styles['generate-button'] }
+          style={{
+            cursor: loading ? 'not-allowed' : '',
+          }}
+        >
+          { loading
+            ? (
+              <>
+                <div
+                  style={ {
+                    ...definitelyCenteredStyle,
+                  } }
+                >
+                  <Spinner
+                    height={ '22' }
+                    width={ '22' }
+                    style={ { stroke: 'white' } }
+                  />
+                </div>
+              </>
+            )
+            : `Generate Characters`
+          }
+        </button>
+        {/* Loading indicator and progress completion */ }
+        { loading && (
+          <>
+            <div className={ styles['loading-container'] }>
+              <p>
+                { `Loading...` }
+              </p>
+              <p>
+                { `Please wait while we generate the characters.` }
+              </p>
+            </div>
+          </>
+        ) }
+        {/* Progress completion */ }
+        { loading && (
+          <div className={ styles['progress-container'] }>
+            { `Generated ${progress} of ${totalCharacters} characters` }
+            <div className={ styles['progress-bar'] }>
+              <div
+                className={ styles['progress-bar-fill'] }
+                style={ { width: `${(progress / totalCharacters) * 100}%` } }
+              ></div>
+            </div>
+          </div>
+        ) }
+        {/* Green success notification */ }
+        { completed && (
+          <>
+            <div
+              className={
+                `${styles['notification-card']} ${completed ? '' : styles['hide']}`
+              }
+            >
+              { `Character generation complete!` }
+            </div>
+          </>
+        ) }
+        
+        {/* AI-generated Characters */ }
+        { characters.map((character, index) => (
+          <Fragment key={ index }>
+            <div key={ index } className={ styles['character-card'] }>
+            <div
+              style={ {
+                display: 'flex',
+                flexDirection: 'column',
+                marginBottom: '12px',
+              } }
+            >
+              <h3>
+                { `${character.name}` }
+              </h3>
+              <em>
+                <h4>
+                  { `${character.group}` }
+                </h4>
+              </em>
+            </div>
+
+            <p style={ { fontSize: 'clamp(11px, 2.5vw, 14px)' } }>
+              { character.description }
+            </p>
+
+            <BessiResultsVisualization
+              isExample={ true }
+              facetScores={ character.facetScores }
+              domainScores={ character.domainScores }
+            />
+
+            <BessiResultsSkillsScoresAndDefinitions
+              facetScores={ character.facetScores }
+              domainScores={ character.domainScores }
+            />
+          </div>
+      </Fragment>
+        )) }
+      </div>
+    </>
   )
 }
 

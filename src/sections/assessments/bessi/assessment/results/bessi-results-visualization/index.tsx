@@ -75,6 +75,8 @@ import Image from 'next/image'
 type BessiResultsVisualizationType = {
   isExample?: boolean
   rateUserResults?: boolean
+  facetScores?: FacetFactorType,
+  domainScores?: SkillDomainFactorType,
 }
 
 
@@ -92,7 +94,9 @@ export type UserDataForVizType = StellarPlotDataType[]
 
 const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   isExample,
-  rateUserResults
+  facetScores,
+  domainScores,
+  rateUserResults,
 }) => {
   // Auth0
   const { user, error, isLoading } = useUser()
@@ -205,19 +209,29 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
       switch (i) {
         case 0:
         case 1:
-          return bessiSkillScores?.domainScores
+          return facetScores
             ? {
-              facetScores: bessiSkillScores?.facetScores,
-              domainScores: bessiSkillScores?.domainScores,
+              facetScores: facetScores as FacetFactorType,
+              domainScores: domainScores as SkillDomainFactorType,
             }
-            : calculateBessiScores(DUMMY_BESSI_USER_SCORES as UserScoresType[])
+            : bessiSkillScores?.domainScores
+              ? {
+                facetScores: bessiSkillScores?.facetScores,
+                domainScores: bessiSkillScores?.domainScores,
+              }
+              : calculateBessiScores(DUMMY_BESSI_USER_SCORES as UserScoresType[])
         case 2:
-          return bessiSkillScores?.domainScores
+          return facetScores 
             ? {
-              facetScores: bessiSkillScores?.facetScores,
-              domainScores: bessiSkillScores?.domainScores,
+              facetScores: facetScores as FacetFactorType,
+              domainScores: domainScores as SkillDomainFactorType,
             }
-            : calculateBessiScores(DUMMY_BESSI_USER_SCORES as UserScoresType[])
+            : bessiSkillScores?.domainScores
+              ? {
+                facetScores: bessiSkillScores?.facetScores,
+                domainScores: bessiSkillScores?.domainScores,
+              }
+              : calculateBessiScores(DUMMY_BESSI_USER_SCORES as UserScoresType[])
         default:
           return calculateBessiScores(DUMMY_BESSI_USER_SCORES as UserScoresType[])
       }
@@ -225,9 +239,12 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
       switch (i) {
         case 0:
           return Object.entries(
-            bessiSkillScores?.domainScores as SkillDomainFactorType
+            domainScores 
+              ? domainScores as SkillDomainFactorType
+              : bessiSkillScores?.domainScores as SkillDomainFactorType
             ?? calculateBessiScores(
-              DUMMY_BESSI_USER_SCORES as UserScoresType[]).domainScores
+              DUMMY_BESSI_USER_SCORES as UserScoresType[]
+            ).domainScores
           ).map(([key, value]) => ({
             axis: key,
             value: value / 100
@@ -235,25 +252,36 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         case 1:
         case 2:
           const inputData: BarChartInputDataType = {
-            facetScores: bessiSkillScores?.facetScores as FacetFactorType,
-            domainScores: bessiSkillScores?.domainScores as SkillDomainFactorType,
+            facetScores: facetScores 
+              ? facetScores
+              : bessiSkillScores?.facetScores as FacetFactorType,
+            domainScores: domainScores
+              ? domainScores
+              : bessiSkillScores?.domainScores as SkillDomainFactorType,
           }
 
           return transformData(
-            bessiSkillScores?.domainScores
+            domainScores
               ? inputData
-              : calculateBessiScores(DUMMY_BESSI_USER_SCORES as UserScoresType[])
+              : bessiSkillScores?.domainScores
+                ? inputData
+                : calculateBessiScores(DUMMY_BESSI_USER_SCORES as UserScoresType[])
           )
         case 3:
         case 4:
         case 5:
         case 6:
-          return bessiSkillScores?.domainScores
+          return domainScores
             ? {
-              facetScores: bessiSkillScores?.facetScores,
-              domainScores: bessiSkillScores?.domainScores,
+              facetScores: facetScores as FacetFactorType,
+              domainScores: domainScores as SkillDomainFactorType,
             }
-            : calculateBessiScores(DUMMY_BESSI_USER_SCORES as UserScoresType[])
+            : bessiSkillScores?.domainScores
+              ? {
+                facetScores: bessiSkillScores?.facetScores,
+                domainScores: bessiSkillScores?.domainScores,
+              }
+              : calculateBessiScores(DUMMY_BESSI_USER_SCORES as UserScoresType[])
         default:
           return calculateBessiScores(DUMMY_BESSI_USER_SCORES as UserScoresType[])
       }

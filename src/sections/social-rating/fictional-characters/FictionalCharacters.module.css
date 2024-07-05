@@ -1,0 +1,138 @@
+.container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.container h2 {
+  text-align: center;
+  color: #333;
+}
+
+.generate-button {
+  display: block;
+  margin: 20px auto;
+  width: 190px;
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #fff;
+  background-color: #0070f3;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.generate-button:hover {
+  background-color: #005bb5;
+}
+
+.character-card {
+  background-color: #fff;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.character-card h3 {
+  margin-top: 0;
+  color: #333;
+}
+
+.character-card p {
+  color: #555;
+}
+
+.character-card h4 {
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.character-card ul {
+  padding-left: 20px;
+  color: #555;
+}
+
+.character-card li {
+  list-style-type: disc;
+}
+
+.loading-container {
+  animation: fadeInOut 1.5s infinite;
+}
+
+.progress-container {
+  margin-top: 12px;
+  margin-bottom: 12px;
+  font-weight: bold;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 10px;
+  background-color: #e0e0e0;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-top: 5px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background-color: #76c7c0;
+  width: 0;
+  transition: width 0.5s;
+}
+
+.notification-card {
+  display: flex;
+  flex-direction: column;
+  width: max-content;
+  justify-content: center;
+  position: fixed; /* Fixed position to place it at the top right */
+  top: 20px;
+  right: 20px;
+  align-items: center;
+  background-color: #d4edda; /* Light green background */
+  border: 1px solid #c3e6cb; /* Soft green border */
+  border-radius: 12px; /* Soft rounded border */
+  padding: 10px; /* Padding inside the card */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  font-family: Arial, sans-serif; /* Font family */
+  color: #155724; /* Dark green text color */
+  animation: slideIn 0.3s forwards; /* Slide in animation */
+}
+
+.notification-card.hide {
+  animation: slideOut 0.3s forwards; /* Slide out animation */
+}
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}

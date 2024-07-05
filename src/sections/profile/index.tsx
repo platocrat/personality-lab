@@ -6,7 +6,6 @@ import { useUser } from '@auth0/nextjs-auth0/client'
 // Locals
 import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
 import HistoricalAssessments from '@/sections/profile/historical-assessments'
-import ChartjsHistoricalAssessments from '@/sections/profile/historical-assessments/chartjs-line-chart'
 // Sections
 // Hooks
 import useAccount from '@/hooks/useAccount'

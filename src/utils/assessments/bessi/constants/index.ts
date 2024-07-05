@@ -678,7 +678,7 @@ export const BESSI_ACTIVITIES: string[] = [
 
 
 
-export const BESSI_ACTIVITIES_45 = [
+export const BESSI_45_ACTIVITIES = [
   `Plan out my time.`,
   `Lead a group of people.`,
   `Understand how other people feel.`,
@@ -731,6 +731,16 @@ export const BESSI_ACTIVITIES_45 = [
 
 
 export const BESSI_ACTIVITY_BANK: BessiActivityType[] = BESSI_ACTIVITIES.map(
+  (activity, index) => ({
+  id: index + 1,
+  activity,
+  facet: getFacet(index + 1),
+  ...getSkillDomainAndWeight(getFacet(index + 1))
+}))
+
+
+
+export const BESSI_45_ACTIVITY_BANK: BessiActivityType[] = BESSI_45_ACTIVITIES.map(
   (activity, index) => ({
   id: index + 1,
   activity,

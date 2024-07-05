@@ -405,6 +405,7 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
                     border: '0.25px solid #F4F6FA',
                     flexDirection: 'column',
                     position: 'absolute',
+                    right: '0',
                     top: '-26.5px',
                     borderRadius: '12px',
                     padding: '10px 10px 0px 10px',
