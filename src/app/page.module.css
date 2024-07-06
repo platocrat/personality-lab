@@ -187,6 +187,12 @@
   gap: 4px;
 }
 
+@media (max-width: 600px) {
+  .facets_grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 
 .bessi_instruction_td {
   border-style: solid;

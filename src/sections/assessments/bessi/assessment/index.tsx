@@ -340,6 +340,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
               isAssessmentResults: true,
               containerStyle: {
                 flexDirection: 'column',
+                top: '4px'
               }
             }}
           >

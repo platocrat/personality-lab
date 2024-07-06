@@ -195,8 +195,8 @@ const BessiResultsSkillsScoresAndDefinitions: FC<{
 
     return (
       <div style={ { margin: '12px 0px 48px 0px' } }>
-        <div style={ { margin: '18px 0' } }>
-          <h3 style={ { fontSize: 'clamp(16px, 2.5vw, 16px)' } }>{ title }</h3>
+        <div style={ { margin: '18px' } }>
+          <h3 style={ { fontSize: 'clamp(14px, 2.5vw, 16px)' } }>{ title }</h3>
         </div>
 
         <SkillsScoresAndDefinitionsTable
