@@ -2,9 +2,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 // Locals
 import { 
+  CSCrypto,
   fetchAwsParameter, 
   AWS_PARAMETER_NAMES, 
-  verfiyAccessTokenAndFetchUserResults 
+  verfiyAccessTokenAndFetchUserResults, 
 } from '@/utils'
 
 
@@ -20,23 +21,13 @@ export async function GET(
   res: NextResponse,
 ) {
   if (req.method === 'GET') {
-    const name = 'id_accessToken_studyId'
-    const id_accessToken_studyId = req.nextUrl.searchParams.get(name) ?? ''
+    const name = 'eeShareableId'
+    const eeShareableId = req.nextUrl.searchParams.get(name) ?? ''
+
+    const decryptedShareableId = await CSCrypto.decodeDecompressDecrypt(eeShareableId)
 
     // Split the string by the separator '--'
-    const parts = (id_accessToken_studyId as string).split('--')
-
-    if (parts.length !== 3) {
-      return NextResponse.json(
-        { error: 'Expected exactly 3 parts' },
-        { 
-          status: 400,
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        },
-      )
-    }
+    const parts = (decryptedShareableId as string).split('--')
 
     const id = parts[0]
     const accessToken = parts[1]
@@ -52,7 +43,8 @@ export async function GET(
       return await verfiyAccessTokenAndFetchUserResults(
         id,
         accessToken,
-        JWT_SECRET
+        JWT_SECRET,
+        req,
       )
     } else { // Return the error in the json of the `NextResponse`
       return JWT_SECRET as NextResponse<{ error: string }>

@@ -73,7 +73,7 @@
 .welcomeTitle {
   position: relative;
   margin-top: 8px;
-  font-size: clamp(12px, 2.5vw, 14.5px);
+  font-size: clamp(10px, 2.5vw, 12.5px);
 }
 
 @media (max-width: 800px) {

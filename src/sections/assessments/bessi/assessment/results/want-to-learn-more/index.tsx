@@ -32,7 +32,7 @@ const BessiWantToLearnMore = () => {
             <br />
             <a 
               target='_blank'
-              href="https://sebskills.weebly.com"
+              href="http://www.sebskills.com"
               style={ { color: '#007ac0', textDecoration: 'underline' } }
             >
               { `SEB Skills Lab` }

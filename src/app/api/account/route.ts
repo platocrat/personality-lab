@@ -1,23 +1,17 @@
 // Externals
 import {
   QueryCommand,
-  UpdateCommand,
-  QueryCommandInput,
-  UpdateCommandInput,
-} from '@aws-sdk/lib-dynamodb'
-import { verify } from 'jsonwebtoken'
-import { cookies } from 'next/headers'
-import { NextRequest, NextResponse } from 'next/server'
+  QueryCommandInput
+  } from '@aws-sdk/lib-dynamodb'
+  import { NextRequest, NextResponse } from 'next/server'
+  import { getSession, withApiAuthRequired } from '@auth0/nextjs-auth0'
 // Locals
 import {
-  hasJWT,
-  getEntryId,
   ddbDocClient,
-  STUDY__DYNAMODB,
   ACCOUNT__DYNAMODB,
   DYNAMODB_TABLE_NAMES,
-  PARTICIPANT__DYNAMODB,
 } from '@/utils'
+import { randomBytes } from 'crypto'
 
 
 
@@ -27,20 +21,33 @@ import {
  * @param res
  * @returns 
  */
-export async function GET(
-  req: NextRequest,
-  res: NextResponse,
+export const GET = withApiAuthRequired(async function getAccountEntry(
+  req: NextRequest
 ) {
   if (req.method === 'GET') {
-    hasJWT(cookies)
+    const res = new NextResponse()
 
-    const email = req.nextUrl.searchParams.get('email')
+    // Auth0
+    const session = await getSession(req, res)
+    const user = session?.user
+
+    if (!user) {
+      const message = `Unauthorized: Auth0 found no 'user' for their session.`
+      return NextResponse.json(
+        { message },
+        {
+          status: 401,
+        }
+      )
+    }
+
+    const email = user.email as string
 
     if (!email) {
       return NextResponse.json(
-        { error: 'Email query parameter is required!' },
+        { error: `Unauthorized: Auth0 found no email for this user's session!` },
         {
-          status: 400,
+          status: 401,
           headers: {
             'Content-Type': 'application/json',
           },
@@ -135,4 +142,4 @@ export async function GET(
       },
     )
   }
-}
+})

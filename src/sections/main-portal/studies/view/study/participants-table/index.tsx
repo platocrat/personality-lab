@@ -5,7 +5,7 @@ import { CSSProperties, FC } from 'react'
 import ParticipantTableHead from './table-head'
 import ParticipantsTableBody from './table-body'
 // Utils
-import { ParticipantType } from '@/utils'
+import { PARTICIPANT__DYNAMODB } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/sections/main-portal/studies/view/study/participants-table/ParticipantsTable.module.css'
@@ -13,7 +13,7 @@ import styles from '@/sections/main-portal/studies/view/study/participants-table
 
 
 type ParticipantsTableProps = {
-  participants: ParticipantType[] | null
+  participants: PARTICIPANT__DYNAMODB[] | null
 }
 
 

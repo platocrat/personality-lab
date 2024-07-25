@@ -3,7 +3,7 @@
 // Externals
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { FC, ReactNode, startTransition } from 'react'
+import { CSSProperties, FC, ReactNode, startTransition } from 'react'
 // Locals
 import { useProgressBar } from '@/components/Progress/ProgressBar'
 
@@ -12,6 +12,7 @@ import { useProgressBar } from '@/components/Progress/ProgressBar'
 type ProgressBarLinkProps = {
   href: string
   children: ReactNode
+  style?: CSSProperties
   className?: string
 }
 
@@ -19,8 +20,9 @@ type ProgressBarLinkProps = {
 
 const ProgressBarLink: FC<ProgressBarLinkProps> = ({
   href,
+  style,
   children,
-  className
+  className,
 }) => {
   let router = useRouter()
   let { start, done } = useProgressBar()
@@ -29,6 +31,7 @@ const ProgressBarLink: FC<ProgressBarLinkProps> = ({
   return (
     <Link
       href={ href }
+      style={ style }
       className={ className }
       onClick={ (e) => {
         e.preventDefault()

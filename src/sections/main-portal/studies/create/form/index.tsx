@@ -13,8 +13,8 @@ import {
 } from '@/utils'
 // CSS
 import appStyles from '@/app/page.module.css'
-import sectionStyles from '../CreateStudy.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+import sectionStyles from '@/sections/main-portal/studies/create/CreateStudy.module.css'
 
 
 
@@ -145,11 +145,11 @@ const CreateStudyForm: FC<CreateStudyFormProps> = ({
             >
               <p
                 style={ {
-                  ...definitelyCenteredStyle,
+                  textAlign: 'left',
                   textDecoration: 'underline',
                 } }
               >
-                { `Emails to add as admins:` }
+                { `Admin emails` }
               </p>
               <ul>
                 { study?.adminEmails?.map((email, index) => (

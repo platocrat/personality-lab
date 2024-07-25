@@ -3,12 +3,15 @@ import { CSSProperties, FC, Fragment, ReactNode } from 'react'
 // Locals
 import ProgressBarLink from '@/components/Progress/ProgressBarLink'
 // CSS
-import styles from '@/components/Nav/LeftHand/LeftHandNav.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+import styles from '@/components/Nav/LeftHand/LeftHandNav.module.css'
 
 
 type LeftHandNavProps = {
   children: ReactNode
+  options?: {
+    mainContentStyle?: CSSProperties
+  }
 }
 
 
@@ -62,7 +65,8 @@ const BUTTONS = [
 
 
 const LeftHandNav: FC<LeftHandNavProps> = ({
-  children
+  options,
+  children,
 }) => {
   return (
     <>
@@ -78,7 +82,12 @@ const LeftHandNav: FC<LeftHandNavProps> = ({
             </Fragment>
           )) }
         </div>
-        <div className={ styles.mainContent }>
+        <div 
+          className={ styles.mainContent }
+          style={{
+            ...options?.mainContentStyle
+          }}
+        >
           {/* Main content goes here */ }
           { children }
         </div>

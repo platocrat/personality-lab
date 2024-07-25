@@ -7,8 +7,8 @@ import {
   getRangeLabel,
   FacetFactorType,
   findFacetByScore,
-  skillDomainMapping,
-  domainToFacetMapping,
+  SKILLS_DOMAIN_MAPPING,
+  DOMAIN_TO_FACET_MAPPING,
   SkillDomainFactorType,
   BarChartTargetDataType,
   getSkillDomainAndWeight,
@@ -196,11 +196,16 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
       .attr('class', 'legend')
       .attr('transform', `translate(${width - 20},20)`)
 
-    const legendTitle = legend.append('text')
-      .attr('x', 0)
-      .attr('y', -5)
-      .text('Domain Score:')
-      .style('font-size', '16px')
+    const legendTitle = legend.append('foreignObject')
+      .attr('width', 120)
+      .attr('height', 50)
+      .attr('x', -14.15)
+      .attr('y', -20)
+      .html(
+        `
+          <p style="font-size: 16px;">Domain Score: </p>
+        `
+      )
 
     const domainScore: any = legend.append('foreignObject')
       .attr('width', 120)
@@ -211,12 +216,14 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
         `
           <div style="display: flex; flex-direction: row; gap: 8px; justify-content: left; align-items: left;">
             <div>
-              <p style="font-size: 14px;">
-              ${ (data as BarChartTargetDataType).domainScore }
+              <p style="font-size: 16px;">
+                <strong>
+                  ${ (data as BarChartTargetDataType).domainScore }
+                </strong>
               </p>
             </div>
             <div style="width: max-content; background-color: ${ color((data as BarChartTargetDataType).domainScore) }; border-radius: 5px; padding: 0px 7.5px;">
-              <p style="color: white; font-size: 14px; font-weight: 800; filter: drop-shadow(0px 0px 1px rgba(0, 0, 0, 1));">
+              <p style="position: relative; top: 1px; color: white; font-size: 14px; font-weight: 800; filter: drop-shadow(0px 0px 1px rgba(0, 0, 0, 1));">
                 ${ getRangeLabel((data as BarChartTargetDataType).domainScore) }
               </p>
             </div>

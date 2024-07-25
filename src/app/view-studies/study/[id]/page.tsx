@@ -1,15 +1,14 @@
 'use client'
 
 // Externals
+import { useUser } from '@auth0/nextjs-auth0/client'
 import { FC, useLayoutEffect, useState } from 'react'
 // Locals
+import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
 import ViewStudySection from '@/sections/main-portal/studies/view/study'
 // Components
-import Spinner from '@/components/Suspense/Spinner'
-// UTils
+// Utils
 import { STUDY__DYNAMODB } from '@/utils'
-// CSS
-import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
@@ -24,6 +23,8 @@ type ViewStudyProps = {
 const ViewStudy: FC<ViewStudyProps> = ({
   params
 }) => {
+  // Auth0
+  const { user, error, isLoading } = useUser()
   // URL params
   const { id } = params
   // States
@@ -58,42 +59,42 @@ const ViewStudy: FC<ViewStudyProps> = ({
        */
       throw new Error(`Error: 'id' is invalid , see ${id}`)
     } else {
-      setIsLoadingStudy(true)
+      if (!isLoading && user && user.email) {
+        setIsLoadingStudy(true)
 
-      const requests = [
-        getStudy()
-      ]
+        const requests = [
+          getStudy()
+        ]
 
-      Promise.all(requests).then((response: any) => {
-        setIsLoadingStudy(false)
-      })
+        Promise.all(requests).then((response: any) => {
+          setIsLoadingStudy(false)
+        })
+      } else if (!isLoading && !user) {
+        // Silently log the error to the browser's console
+        console.error(
+          `Auth0 couldn't get 'user' from useUser(): `,
+          error
+        )
+      }
     }
-  }, [ id ])
-
-
+  }, [ id, isLoading ])
 
 
   return (
     <>
-      { isLoadingStudy ? (
-        <>
-          <div
-            style={ {
-              ...definitelyCenteredStyle,
-              position: 'relative',
-            } }
-          >
-            <Spinner height='40' width='40' />
-          </div>
-        </>
-      ) : (
-        <>
-          <ViewStudySection study={ study } />
-        </>
-      ) }
+      <NetworkRequestSuspense
+        isLoading={ isLoadingStudy }
+        spinnerOptions={{
+          showSpinner: true,
+          containerStyle: {
+            top: ''
+          }
+        }}
+      >
+        <ViewStudySection study={ study } />
+      </NetworkRequestSuspense>
     </>
   )
 }
-
 
 export default ViewStudy

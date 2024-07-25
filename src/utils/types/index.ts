@@ -63,8 +63,9 @@ export type HASHED_PASSWORD__DYNAMODB = {
 export type ACCOUNT__DYNAMODB = {
   email: string // Partition/Primary Key
   createdAtTimestamp: number // Sort Key
-  username: string
+  hasVerifiedEmail: boolean // Auth0
   isAdmin: boolean
+  results: RESULTS__DYNAMODB[] // non-study results
   password: HASHED_PASSWORD__DYNAMODB
   participant?: PARTICIPANT__DYNAMODB // `undefined` for a non-participant account
   updatedAtTimestamp?: number // `undefined` for a non-participant account
@@ -74,7 +75,6 @@ export type ACCOUNT__DYNAMODB = {
 export type PARTICIPANT__DYNAMODB = {
   id: string
   email: string
-  username: string
   studies: STUDY_SIMPLE__DYNAMODB[]
   timestamp: number
 }
@@ -83,8 +83,7 @@ export type PARTICIPANT__DYNAMODB = {
 export type RESULTS__DYNAMODB = {
   id: string
   email: string
-  username: string
-  study: STUDY_SIMPLE__DYNAMODB
+  study?: STUDY_SIMPLE__DYNAMODB
   results: any | BessiUserResults__DynamoDB
   timestamp: number
 }
@@ -93,7 +92,7 @@ export type RESULTS__DYNAMODB = {
 export type USER_RESULTS_ACCESS_TOKENS__DYNAMODB = {
   accessToken: string // Partition/Primary Key
   id: string // Sort Key -- A.K.A. user results ID
-  studyId: string
+  studyId?: string // undefined for non-study results
   assessmentId: string
 }
 
@@ -102,8 +101,7 @@ export type RATINGS__DYNAMODB = {
   id: string // Partition/Primary Key
   timestamp: number // Sort Key
   email: string
-  username: string
-  study: STUDY_SIMPLE__DYNAMODB
+  study?: STUDY_SIMPLE__DYNAMODB // undefined for a non-study
   rating: number
   vizName: string
 }
@@ -132,11 +130,4 @@ export type CookieType = {
   isAdmin: EncryptedCookieFieldType
   isParticipant: EncryptedCookieFieldType
   timestamp: EncryptedCookieFieldType
-}
-
-
-export type ParticipantType = {
-  email: string
-  username: string
-  studies: STUDY_SIMPLE__DYNAMODB[]
 }

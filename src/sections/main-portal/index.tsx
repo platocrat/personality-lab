@@ -7,8 +7,9 @@ import { FC, useLayoutEffect, useState } from 'react'
 import PersonalityAssessments from '@/sections/assessments'
 // Components
 import LeftHandNav from '@/components/Nav/LeftHand'
-// Utils
-import { ACCOUNT__DYNAMODB } from '@/utils'
+import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
+// Hooks
+import useAccount from '@/hooks/useAccount'
 // Styles
 import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/sections/main-portal/MainPortal.module.css'
@@ -89,12 +90,14 @@ const ParticipantTitle = ({
 
 const MainPortal: FC<MainPortalProps> = ({ }) => {
   // Auth0
-  const { user, error, isLoading, checkSession } = useUser()
-  // State
-  const [ isParticipant, setIsParticipant ] = useState(false)
-  const [ isGettingParticipant, setIsGettingParticipant ] = useState(false)
+  const { user, error, isLoading } = useUser()
+  // Hooks
+  const { 
+    isParticipant,
+    isFetchingAccount,
+  } = useAccount()
 
-  const TITLE_TEXT = `Welcome, ${user?.email}!`
+  const TITLE_TEXT = `Welcome, ${user?.name}!`
   const SUBTITLE_TEXT = `Based on the studies you have registered for, listed below are the assessments that you may take.`
 
 
@@ -103,73 +106,10 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
     localStorage.removeItem(key)
   }
 
-  /**
-   * @dev Request account entry from `accounts` table which has a `participant`
-   *      property.
-   */
-  async function getIsParticipant() {
-    setIsGettingParticipant(true)
 
-    try {
-      const apiEndpoint = `/api/account?email=${user?.email}`
-      const response = await fetch(apiEndpoint, { method: 'GET' })
-
-      const json = await response.json()
-
-      if (response.status === 404) throw new Error(json.error)
-      if (response.status === 400) throw new Error(json.error)
-      if (response.status === 405) throw new Error(json.error)
-      if (response.status === 500) throw new Error(json.error)
-
-      if (response.status === 200) {
-        const account: ACCOUNT__DYNAMODB = json.account
-        const participant_ = account.participant ? true : false
-
-        setIsParticipant(participant_)
-        setIsGettingParticipant(false)
-      }
-    } catch (error: any) {
-      setIsGettingParticipant(false)
-      throw new Error(error)
-    }
-  }
-
-
-
-  
   useLayoutEffect(() => {
     resetCurrentStudy()
-
-    if (!isLoading) {
-      console.log(
-        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: user: `,
-        user
-      )
-      console.log(
-        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error: `,
-        error
-      )
-      console.log(
-        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error.name: `,
-        error?.name
-      )
-      console.log(
-        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error.message: `,
-        error?.message
-      )
-      console.log(
-        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error.cause: `,
-        error?.cause
-      )
-
-
-      const requests = [
-        // getIsParticipant()
-      ]
-
-      Promise.all(requests)
-    }
-  }, [ user, error, isLoading ])
+  }, [ ])
 
 
 
@@ -177,34 +117,44 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
   return (
     <>
       <div className={ styles.mainPortal }>
-        { isParticipant ? (
-          <>
-            <div 
-              style={{
-                position: 'relative',
-                top: '85px',
-              }}
-            >
-              <ParticipantTitle 
-                titleText={ TITLE_TEXT } 
-                subtitleText={ SUBTITLE_TEXT} 
-              />
-              <PersonalityAssessments />
-            </div>
-          </>
-        ) : (
-          <>
-            <LeftHandNav>
-              <Title text={ TITLE_TEXT } />
-              {/* Main content goes here */ }
-              <div style={{ ...definitelyCenteredStyle, margin: '48px' }}>
-                <p>
-                  { 'Notifications and other important updates go here.' }
-                </p>
+        <NetworkRequestSuspense
+          isLoading={ isLoading || isFetchingAccount }
+          spinnerOptions={{
+            showSpinner: true,
+            containerStyle: {
+              top: '100px',
+            }
+          }}
+        >
+          { isParticipant ? (
+            <>
+              <div
+                style={ {
+                  position: 'relative',
+                  top: '85px',
+                } }
+              >
+                <ParticipantTitle
+                  titleText={ TITLE_TEXT }
+                  subtitleText={ SUBTITLE_TEXT }
+                />
+                <PersonalityAssessments />
               </div>
-            </LeftHandNav>
-          </>
-        )}
+            </>
+          ) : (
+            <>
+              <LeftHandNav>
+                <Title text={ TITLE_TEXT } />
+                  {/* Main content goes here */ }
+                  <div style={ { ...definitelyCenteredStyle, margin: '48px' } }>
+                    <p>
+                      { 'Notifications and other important updates go here.' }
+                    </p>
+                  </div>
+              </LeftHandNav>
+            </>
+          ) }
+        </NetworkRequestSuspense>
       </div>
     </>
   )

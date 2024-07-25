@@ -1,5 +1,6 @@
 // Externals
 import { NextRequest, NextResponse } from 'next/server'
+import { withApiAuthRequired, getSession } from '@auth0/nextjs-auth0'
 // Locals
 import {
   fetchAwsParameter
@@ -7,11 +8,26 @@ import {
 
 
 
-export async function GET(
-  req: NextRequest,
-  res: NextResponse,
+export const GET = withApiAuthRequired(async function getAWSParameter(
+  req: NextRequest
 ) {
   if (req.method === 'GET') {
+    const res = new NextResponse()
+
+    // Auth0
+    const session = await getSession(req, res)
+    const user = session?.user
+
+    if (!user) {
+      const message = `Unauthorized: Auth0 found no 'user' for their session.`
+      return NextResponse.json(
+        { message },
+        {
+          status: 401,
+        }
+      )
+    }
+
     const parameterName = req.nextUrl.searchParams.get('parameterName') ?? ''
 
     const parameter = await fetchAwsParameter(parameterName)
@@ -30,4 +46,4 @@ export async function GET(
       { status: 405 },
     )
   }
-}
+})

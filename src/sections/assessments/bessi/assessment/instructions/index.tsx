@@ -2,8 +2,8 @@
 import { Fragment } from 'react'
 // Locals
 import { 
-  wellnessRatings, 
-  wellnessRatingDescriptions
+  WELLNESS_RATINGS, 
+  WELLNESS_RATINGS_DESCRIPTIONS
 } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'

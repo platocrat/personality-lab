@@ -44,54 +44,15 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
   const { user, error, isLoading } = useUser()
   // Refs
   const dropdownRef = useRef<any>(null)
+  const notificationRef = useRef(null)
   // States
-  const [ username, setUsername ] = useState<string>('')
-  const [ isVisible, setIsVisible ] = useState<boolean>(false)
+  const [isVisible, setIsVisible] = useState<boolean>(false)
 
-
-  const toggleDropdown = () => setIsVisible(!isVisible)
-
-
-  async function getUsername(): Promise<void> {
-    setUsername(user?.name as string)
+  const toggleDropdown = () => {
+    setIsVisible(!isVisible)
   }
 
-
   useClickOutside(dropdownRef, () => setIsVisible(false))
-
-
-  useEffect(() => {
-    if (!isLoading) {
-      console.log(
-        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: user: `,
-        user
-      )
-      console.log(
-        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error: `,
-        error
-      )
-      console.log(
-        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error.name: `,
-        error?.name
-      )
-      console.log(
-        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error.message: `,
-        error?.message
-      )
-      console.log(
-        `[${new Date().toLocaleString()} --filepath="src/sections/main-portal/index.tsx" --function="useLayoutEffect()"]: error.cause: `,
-        error?.cause
-      )
-
-
-      const requests = [
-        getUsername()
-      ]
-
-      Promise.all(requests)
-    }
-  }, [ user, error, isLoading ])
-
 
 
 
@@ -99,33 +60,53 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
     <>
       <div className={ styles.dropdown } ref={ dropdownRef }>
         <div>
-          <Image
-            width={ 48 }
-            height={ 48 }
-            alt='Round menu icon to open the navbar menu'
-            className={ styles.img }
-            onClick={ toggleDropdown }
-            src={ 
-              isVisible 
-                ? `${ imgPaths().png }ph_x-bold.png` 
-                : `${ imgPaths().png }ic_round-menu.png`
-            }
-          />
+          { isLoading && user ? (
+            <>
+              <Image
+                width={ 48 }
+                height={ 48 }
+                alt='Round menu icon to open the navbar menu'
+                className={ styles.img }
+                onClick={ toggleDropdown }
+                src={
+                  isVisible
+                    ? `${imgPaths().png}ph_x-bold.png`
+                    : `${imgPaths().png}ic_round-menu.png`
+                }
+              />
+            </>
+          ) : (
+            <>
+              <div
+                style={{
+                  display: 'flex',
+                  height: '54px',
+                  width: '54px'
+                }}
+              >
+                <img
+                  alt='Profile'
+                  width={ 44 }
+                  height={ 44 }
+                  className={ styles.img }
+                  style={ {
+                    position: 'relative',
+                    top: '3px',
+                    right: '-7px',
+                    boxShadow: isVisible
+                      ? '0px 3px 5px 1.5px rgba(0, 75, 118, 0.5)'
+                      : ''
+                  } }
+                  onClick={ toggleDropdown }
+                  src={ user && (user.picture ?? '') }
+                />
+              </div>
+            </>
+          )}
         </div>
         { isVisible && (
           <Fragment key={ `dropdown-menu` }>
-            <div className={ styles.dropdownContent }>
-              <div 
-                className={ `${styles.username}` }
-                style={{
-                  cursor: 'default',
-                  borderRadius: '1rem 1rem 0rem 0rem',
-                }}
-              >
-                <p style={ definitelyCenteredStyle }>
-                  { user?.name }
-                </p>
-              </div>
+            <div className={ `${styles.dropdownContent} ${isVisible ? 'slideIn' : 'slideOut'}` }>
               { links.map((link: NavLink, i: number) => (
                 <Fragment
                   key={ i }
@@ -133,8 +114,43 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
                   <ProgressBarLink
                     href={ link.href }
                     className={ styles.dropdownLink }
+                    // style={{
+                    //   color: i === 0 ? 'white' : '',
+                    //   backgroundColor: i === 0 ? 'rgba(0, 123, 194, 1)' : '',
+                    //   display: i === 0 ? 'flex' : '',
+                    //   justifyContent: i === 0 ? 'center' : '',
+                    //   alignItems: i === 0 ? 'center' : '',
+                    //   borderRadius: i === 0 ? '1rem 1rem 0rem 0rem' : '',
+                    // }}
                   >
-                    { link.label }
+                    { i === 0 
+                      ? (
+                        <>
+                        <div 
+                          className={ styles.username }
+                          style={{ display: 'flex', gap: '14px' }}
+                        >
+                          <div style={ definitelyCenteredStyle }>
+                            <p>
+                              { user?.name }
+                            </p>
+                          </div>
+                          <div 
+                            style={{ 
+                              ...definitelyCenteredStyle,
+                              textAlign: 'center',
+                              fontSize: 'clamp(6px, 2vw, 10px)',
+                            }}
+                          >
+                            <p>
+                              { `View Profile` }
+                            </p>
+                          </div>
+                        </div>
+                        </>
+                      ) 
+                      : link.label 
+                    }
                   </ProgressBarLink>
                 </Fragment>
               )) }

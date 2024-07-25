@@ -2,19 +2,18 @@
 
 // Externals
 import { useRouter } from 'next/navigation'
-import { FC, useContext, useLayoutEffect, useState } from 'react'
+import { useUser } from '@auth0/nextjs-auth0/client'
+import { FC, useLayoutEffect, useState } from 'react'
 // Locals
 import StudyInviteSection from '@/sections/invite'
 // Components
-import Spinner from '@/components/Suspense/Spinner'
-// Contexts
-import { SessionContext } from '@/contexts/SessionContext'
-// Context types
-import { SessionContextType } from '@/contexts/types'
+// Hooks
+import useAccount from '@/hooks/useAccount'
 // Utils
 import { STUDY__DYNAMODB } from '@/utils'
 // CSS
-import { definitelyCenteredStyle } from '@/theme/styles'
+import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
+
 
 
 
@@ -31,22 +30,25 @@ const StudyInvite: FC<StudyInviteProps> = ({
 }) => {
   // URL params
   const { id } = params
+  // Auth0
+  const { user, error, isLoading } = useUser()
   // Contexts
   const { 
     isAdmin, 
-    isParticipant 
-  } = useContext<SessionContextType>(SessionContext)
+    isParticipant,
+    isFetchingAccount,
+  } = useAccount()
   // Hooks
   const router = useRouter()
   // States
-  const [isLoadingStudy, setIsLoadingStudy] = useState(false)
+  const [isLoadingStudy, setIsLoadingStudy] = useState(true)
   const [study, setStudy] = useState<STUDY__DYNAMODB | null>(null)
 
 
   // --------------------------- Async functions -------------------------------
   async function getStudy() {
     try {
-      const response = await fetch(`/api/study?id=${id}`, {
+      const response = await fetch(`/api/invite?id=${id}`, {
         method: 'GET',
       })
 
@@ -69,51 +71,46 @@ const StudyInvite: FC<StudyInviteProps> = ({
 
   // ----------------------------- `useLayoutEffect`s --------------------------
   useLayoutEffect(() => {
-    setIsLoadingStudy(true)
-
-    if (
-      isAdmin || 
-      (!isAdmin && isParticipant)
-    ) {
-      router.push('/')
-    } else {
-      if (!id) {
-        /**
-         * @todo Replace the line below by handling the error on the UI here
-         */
-        throw new Error(`Error: 'id' is invalid , see ${id}`)
+    if (!isFetchingAccount) {
+      if (
+        isAdmin || 
+        (!isAdmin && isParticipant)
+      ) {
+        router.push('/')
       } else {
-        const requests = [
-          getStudy()
-        ]
+        if (!id) {
+          /**
+           * @todo Replace the line below by handling the error on the UI here
+           */
+          throw new Error(`Error: 'id' is invalid , see ${id}`)
+        } else {
+          console.log(`Unregistered user detected! Fetching study for ID '${id}'...`)
+          const requests = [
+            getStudy()
+          ]
 
-        Promise.all(requests).then((response: any) => {})
+          Promise.all(requests).then((response: any) => {})
+        }
       }
     }
-  }, [ isAdmin, isParticipant, id, ])
+  }, [ isAdmin, isParticipant, isFetchingAccount ])
 
 
 
 
   return (
     <>
-      { isLoadingStudy ? (
-        <>
-          <div
-            style={{
-              ...definitelyCenteredStyle,
-              position: 'relative',
-              top: !isAdmin && !isParticipant ? '80px' : '',
-            }}
-          >
-            <Spinner height='40' width='40' />
-          </div>
-        </>
-      ) : (
-        <>
-          <StudyInviteSection study={ study } />
-        </>
-      ) }
+      <NetworkRequestSuspense
+        isLoading={ isLoadingStudy }
+        spinnerOptions={{
+          showSpinner: true,
+          containerStyle: {
+            top: !isAdmin && !isParticipant ? '100px' : ''
+          }
+        }}
+      >
+        <StudyInviteSection study={ study } />
+      </NetworkRequestSuspense>
     </>
   )
 }

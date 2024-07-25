@@ -5,9 +5,9 @@ import {
 } from '@aws-sdk/lib-dynamodb'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
+import { withApiAuthRequired, getSession } from '@auth0/nextjs-auth0'
 // Locals
 import {
-  hasJWT,
   getEntryId,
   ddbDocClient,
   RATINGS__DYNAMODB,
@@ -17,37 +17,64 @@ import {
 
 
 /**
- * @dev PUT `userResults`
+ * @dev PUT `userVizRating`
  * @param req 
  * @param res 
  * @returns 
  */
-export async function PUT(
-  req: NextRequest,
-  res: NextResponse,
+export const PUT = withApiAuthRequired(async function putUserVizRating(
+  req: NextRequest
 ) {
   if (req.method === 'PUT') {
-    hasJWT(cookies)
+    const res = new NextResponse()
+
+    // Auth0
+    const session = await getSession(req, res)
+    const user = session?.user
+
+    if (!user) {
+      const message = `Unauthorized: Auth0 found no 'user' for their session.`
+      return NextResponse.json(
+        { message },
+        {
+          status: 401,
+        }
+      )
+    }
     
     const { userVizRating } = await req.json()
 
     const userVizRatingId = await getEntryId(userVizRating)
 
     const TableName = DYNAMODB_TABLE_NAMES.vizRating
-    const Item: RATINGS__DYNAMODB = {
-      id: userVizRatingId,
-      email: userVizRating.email as string,
-      username: userVizRating.username as string,
-      study: userVizRating.study as STUDY_SIMPLE__DYNAMODB,
-      rating: userVizRating.rating as number,
-      vizName: userVizRating.vizName as string,
-      timestamp: Date.now(),
+    
+    let Item: RATINGS__DYNAMODB
+
+    const study = userVizRating.study as STUDY_SIMPLE__DYNAMODB
+
+    if (study) {
+      Item = {
+        id: userVizRatingId,
+        email: userVizRating.email as string,
+        study: userVizRating.study as STUDY_SIMPLE__DYNAMODB,
+        rating: userVizRating.rating as number,
+        vizName: userVizRating.vizName as string,
+        timestamp: Date.now(),
+      }
+    } else {
+      Item = {
+        id: userVizRatingId,
+        email: userVizRating.email as string,
+        rating: userVizRating.rating as number,
+        vizName: userVizRating.vizName as string,
+        timestamp: Date.now(),
+      }
     }
 
     const input: PutCommandInput = { TableName, Item }
     const command = new PutCommand(input)
 
-    const successMessage = `User data visualization rating has been added to ${
+    const message = `User data visualization rating has been added to ${
       DYNAMODB_TABLE_NAMES.vizRating
     } table`
 
@@ -55,12 +82,10 @@ export async function PUT(
     try {
       const response = await ddbDocClient.send(command)
 
-      const message = successMessage || 'Operation successful'
-
 
       return NextResponse.json(
         {
-          message: message,
+          message,
           userVizRatingId,
         },
         {
@@ -93,4 +118,4 @@ export async function PUT(
       },
     )
   }
-}
+})

@@ -9,7 +9,6 @@ import {
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/components/DataViz/DataViz.module.css'
-import '@/components/DataViz/Distributions/Normal/SingleNormal'
 
 
 
@@ -22,7 +21,7 @@ type SingleNormalDistributionChartProps = {
 
 
 const SingleNormalDistributionChart: FC<SingleNormalDistributionChartProps> = ({ 
-  mean, 
+  mean,
   score,
   stddev,
 }) => {
@@ -185,13 +184,18 @@ const SingleNormalDistributionChart: FC<SingleNormalDistributionChartProps> = ({
         
         tooltip.html(
           `
-          <div style="width: 180px">         
+          <div style="width: 80px">         
             <div style="display: flex; justify-content: space-between;">
               <p>Score:</p>
               <p>${d.x.toFixed(2)}</p>
             </div>
             <div style="display: flex; justify-content: space-between;">
-              <p>Probability Density:</p>
+              <p>
+                <em>
+                  f(x)
+                </em>
+                :
+              </p>
               <p>${yValue.toFixed(4)}</p>
             </div>
           </div>
@@ -260,13 +264,18 @@ const SingleNormalDistributionChart: FC<SingleNormalDistributionChartProps> = ({
 
         scoreTooltip.html(
           `
-          <div style="width: 180px">         
+          <div style="width: 80px">         
             <div style="display: flex; justify-content: space-between;">
               <p>Score:</p>
               <p>${score.toFixed(2)}</p>
             </div>
             <div style="display: flex; justify-content: space-between;">
-              <p>Probability Density:</p>
+              <p>
+                <em>
+                  f(x)
+                </em>
+                :
+              </p>
               <p>${yValue.toFixed(4)}</p>
             </div>
           </div>

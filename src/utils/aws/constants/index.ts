@@ -1,7 +1,6 @@
 // To be used when creating an instance of AWS SDK
 export const REGION = 'us-east-1'
 
-
 // Used for AWS DynamoDB API calls
 export const DYNAMODB_TABLE_NAMES = {
   studies: 'studies',

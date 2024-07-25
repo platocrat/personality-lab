@@ -1,24 +1,21 @@
 'use client'
 
 // Externals
+import { useRouter } from 'next/navigation'
+import { useUser } from '@auth0/nextjs-auth0/client'
 import {
   FC,
-  useState,
   useLayoutEffect,
-  useContext,
+  useState,
 } from 'react'
-import { useRouter } from 'next/navigation'
 // Locals
-import Spinner from '@/components/Suspense/Spinner'
+import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
 // Sections
 import BessiAssessmentSection from '@/sections/assessments/bessi/assessment'
-// Contexts
-import { SessionContext } from '@/contexts/SessionContext'
-// Context types
-import { SessionContextType } from '@/contexts/types'
+// Hooks
+import useAccount from '@/hooks/useAccount'
 // CSS
 import styles from '@/app/page.module.css'
-import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 type BessiAssessmentProps = {}
@@ -26,59 +23,51 @@ type BessiAssessmentProps = {}
 
 
 const BessiAssessment: FC<BessiAssessmentProps> = ({ }) => {
-  // Contexts
+  // Auth0
+  const { user, error, isLoading } = useUser()
+  // Hooks
   const { 
     isAdmin,
-    isParticipant
-  } = useContext<SessionContextType>(SessionContext)
-  // Hooks
+    isParticipant,
+    isFetchingAccount,
+  } = useAccount()
   const router = useRouter()
   // States
   const [ isGettingCurrentStudy, setIsGettingCurrentStudy ] = useState(true)
 
 
   useLayoutEffect(() => {
-    const key = 'currentStudy'
-    const currentStudy = localStorage.getItem(key)
-    
-    if (isAdmin) {
-      setIsGettingCurrentStudy(false)
-    } else {
+    if (!isFetchingAccount) {
+      const key = 'currentStudy'
+      const currentStudy = localStorage.getItem(key)
+
       if (isParticipant) {
-        if ( !currentStudy) {
+        if (!currentStudy) {
           router.push('/bessi')
         } else {
           setIsGettingCurrentStudy(false)
         }
       } else {
-        router.push('/bessi')
-      }
+        if (isAdmin) {
+          setIsGettingCurrentStudy(false)
+        } else {
+          router.push('/bessi')
+        }
+      } 
     }
-  }, [])
-
+  }, [ isAdmin, isParticipant, isFetchingAccount ])
 
 
   return (
     <>
-      { isGettingCurrentStudy ? (
-        <>
-          <div
-            style={ {
-              ...definitelyCenteredStyle,
-              position: 'relative',
-              top: '80px',
-            } }
-          >
-            <Spinner height='40' width='40' />
-          </div>
-        </>
-      ) : (
-        <>
-          <main className={ `${styles.main} ` }>
-            <BessiAssessmentSection />
-          </main>
-        </>
-      )}
+      <NetworkRequestSuspense
+        isLoading={ isGettingCurrentStudy }
+        spinnerOptions={{ showSpinner: true }}
+      >
+        <main className={ `${styles.main} ` }>
+          <BessiAssessmentSection />
+        </main>
+      </NetworkRequestSuspense>
     </>
   )
 }

@@ -3,11 +3,10 @@
 // Externals
 import { FC, useState } from 'react'
 // Locals
-import Spinner from '@/components/Suspense/Spinner'
 import ProgressBarLink from '@/components/Progress/ProgressBarLink'
+import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
 // CSS
 import styles from '@/app/page.module.css'
-import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 type AssessmentButtonProps = {
@@ -34,34 +33,30 @@ const AssessmentButton: FC<AssessmentButtonProps> = ({
 
   return (
     <>
-      { isLoading ? (
-        <>
-          <div
-            style={ {
-              ...definitelyCenteredStyle,
-              position: 'relative',
-              float: 'right',
-              right: '28px',
-            } }
-          >
-            <Spinner height='30' width='30' />
-          </div>
-        </>
-      ) : (
-        <>
-          <div style={ { float: 'right' } }>
-            <ProgressBarLink href={ href }>
-              <button
-                className={ styles.button }
-                style={ { width: '80px' } }
-                onClick={ (e: any) => handleOnClick(e) }
-              >
-                { buttonText }
-              </button>
-            </ProgressBarLink>
-          </div>
-        </>
-      ) }
+      <NetworkRequestSuspense
+        isLoading={ isLoading }
+        spinnerOptions={{
+          width: '30',
+          height: '30',
+          showSpinner: true,
+          containerStyle: {
+            float: 'right',
+            right: '28px',
+          },
+        }}
+      >
+        <div style={ { float: 'right' } }>
+          <ProgressBarLink href={ href }>
+            <button
+              className={ styles.button }
+              style={ { width: '80px' } }
+              onClick={ (e: any) => handleOnClick(e) }
+            >
+              { buttonText }
+            </button>
+          </ProgressBarLink>
+        </div>
+      </NetworkRequestSuspense>
     </>
   )
 }

@@ -1,31 +1,33 @@
 'use client'
 
 // Externals
-import { Fragment, useContext, useLayoutEffect, useState } from 'react'
+import { useUser } from '@auth0/nextjs-auth0/client'
+import { Fragment, useLayoutEffect, useState } from 'react'
 // Locals
-import Spinner from '@/components/Suspense/Spinner'
+import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
 // Sections
 import Bessi from '@/sections/assessments/bessi'
-// Contexts
-import { SessionContextType } from '@/contexts/types'
-// Context Types
-import { SessionContext } from '@/contexts/SessionContext'
+// Hooks
+import useAccount from '@/hooks/useAccount'
 // Utils
 import { STUDY_SIMPLE__DYNAMODB } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
-import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
 
 
 export default function _() {
-  // Contexts
-  const {
+  // Auth0
+  const { user, error, isLoading } = useUser()
+  // Hooks
+  const { 
+    isAdmin,
     userStudies,
     isParticipant,
-  } = useContext<SessionContextType>(SessionContext)
+    isFetchingAccount,
+  } = useAccount()
   // States
   const [
     studiesForAssessment,
@@ -69,71 +71,67 @@ export default function _() {
   }
 
 
-
   useLayoutEffect(() => {
-    getStudiesForAssessment()
+    if (!isFetchingAccount) {
+      if (!isAdmin) {
+        if (userStudies) {
+          getStudiesForAssessment()
 
-    const timeout = 300
-
-    const updateIsGettingStudiesTimeout = setTimeout(() => {
-      setIsGettingStudiesForAssessment(false)
-    }, timeout)
-
-    return () => {
-      updateIsGettingStudiesTimeout
+          const timeout = 300
+      
+          const updateIsGettingStudiesTimeout = setTimeout(() => {
+            setIsGettingStudiesForAssessment(false)
+          }, timeout)
+      
+          return () => {
+            updateIsGettingStudiesTimeout
+          }
+        }
+      } else {
+        setIsGettingStudiesForAssessment(false)
+      }
     }
-  }, [ userStudies ])
+  }, [ isAdmin, userStudies, isFetchingAccount ])
 
 
 
 
   return (
     <>
-      { isGettingStudiesForAssessment ? (
-        <>
-          <div
-            style={ {
-              ...definitelyCenteredStyle,
-              position: 'relative',
-              top: '80px',
-            } }
-          >
-            <Spinner height='40' width='40' />
-          </div>
-        </>
-      ) : (
-        <>
-          <main className={ `${styles.main}` }>
-            { !isParticipant ? <Bessi /> : (
-              <>
-                { !currentStudy &&
-                  studiesForAssessment.length > 0 ? (
-                  <>
-                    <select
-                      value={ selectedStudyId }
-                      onChange={ handleSelectCurrentStudy }
-                    >
-                      <option value=''>{ `Select a study` }</option>
-                      { studiesForAssessment.map((
-                        study: STUDY_SIMPLE__DYNAMODB,
-                        i: number
-                      ) => (
-                        <Fragment key={ i }>
-                          <option key={ study.id } value={ study.id }>
-                            { study.name }
-                          </option>
-                        </Fragment>
-                      )) }
-                    </select>
-                  </>
-                ) : (
-                  <Bessi />
-                )}
-              </>
-            ) }
-          </main>
-        </>
-      ) }
+      <NetworkRequestSuspense
+        spinnerOptions={{ showSpinner: true }}
+        isLoading={ isGettingStudiesForAssessment }
+      >
+        <main className={ `${styles.main}` }>
+          { !isParticipant ? <Bessi /> : (
+            <>
+              { !currentStudy &&
+                studiesForAssessment.length > 0 ? (
+                <>
+                  <select
+                    value={ selectedStudyId }
+                    onChange={ handleSelectCurrentStudy }
+                  >
+                    <option value=''>{ `Select a study` }</option>
+                    { studiesForAssessment.map((
+                      study: STUDY_SIMPLE__DYNAMODB,
+                      i: number
+                    ) => (
+                      <Fragment key={ i }>
+                        <option key={ study.id } value={ study.id }>
+                          { study.name }
+                        </option>
+                      </Fragment>
+                    )) }
+                  </select>
+                </>
+              ) : (
+                <Bessi />
+              ) }
+            </>
+          ) }
+        </main>
+      </NetworkRequestSuspense>
     </>
   )
 }

@@ -1,16 +1,13 @@
 // Externals
-import { NextRequest, NextResponse } from 'next/server'
 import {
   QueryCommand,
   UpdateCommand,
   QueryCommandInput,
   UpdateCommandInput,
-} from '@aws-sdk/lib-dynamodb'
-import { verify } from 'jsonwebtoken'
-import { cookies } from 'next/headers'
+  } from '@aws-sdk/lib-dynamodb'
+import { NextRequest, NextResponse } from 'next/server'
 // Locals
 import {
-  hasJWT,
   getEntryId,
   ddbDocClient,
   STUDY__DYNAMODB,
@@ -33,12 +30,9 @@ import {
  * @returns 
  */
 export async function POST(
-  req: NextRequest,
-  res: NextResponse,
-) {
+  req: NextRequest
+): Promise<any> {
   if (req.method === 'POST') {
-    hasJWT(cookies)
-
     const { participant, studyId } = await req.json()
 
     /**
@@ -49,7 +43,6 @@ export async function POST(
     const participant_: PARTICIPANT__DYNAMODB = {
       id: participantId,
       email: participant.email,
-      username: participant.username,
       studies: participant.studies,
       timestamp: Date.now(),
     }

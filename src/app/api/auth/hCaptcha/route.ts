@@ -1,5 +1,6 @@
 // Externals
 import { NextRequest, NextResponse } from 'next/server'
+import { getSession, withApiAuthRequired } from '@auth0/nextjs-auth0'
 // Locals
 import { AWS_PARAMETER_NAMES, fetchAwsParameter } from '@/utils'
 
@@ -10,11 +11,26 @@ import { AWS_PARAMETER_NAMES, fetchAwsParameter } from '@/utils'
  * @param res 
  * @returns 
  */
-export async function POST(
-  req: NextRequest,
-  res: NextResponse,
+export const POST = withApiAuthRequired(async function verifyHCaptcha(
+  req: NextRequest
 ) {
   if (req.method === 'POST') {
+    const res = new NextResponse()
+
+    // Auth0
+    const session = await getSession(req, res)
+    const user = session?.user
+
+    if (!user) {
+      const message = `Unauthorized: Auth0 found no 'user' for their session.`
+      return NextResponse.json(
+        { message },
+        {
+          status: 401,
+        }
+      )
+    }
+
     const { token } = await req.json()
 
     const METHOD = 'POST'
@@ -62,4 +78,4 @@ export async function POST(
       { status: 405 },
     )
   }
-}
+})

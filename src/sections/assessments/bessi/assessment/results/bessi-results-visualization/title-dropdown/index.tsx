@@ -8,7 +8,7 @@ import useClickOutside from '@/hooks/useClickOutside'
 import { imgPaths } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
-import styles from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization/bessi-results-visualization.module.css'
+import styles from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization/BessiResultsVIsualization.module.css'
 
 
 
@@ -24,7 +24,10 @@ type TitleDropdownProps = {
 
 
 
-const liStyle = { padding: '8px 20px', cursor: 'pointer' }
+const liStyle = { 
+  padding: '8px 20px', 
+  cursor: 'pointer' 
+}
 
 
 
@@ -89,13 +92,13 @@ const TitleDropdown: FC<TitleDropdownProps> = ({
           <div ref={ menuRef } className={ styles.dropdown }> 
             { visualizations.map((viz, i: number) => (
               <Fragment key={ `viz-option-${i}` }>
-                <li
+                <ul
                   style={ liStyle }
                   className={ styles.dropdownItem }
                   onClick={ () => handleSelection(i) }
                 >
                   { viz.name }
-                </li>
+                </ul>
               </Fragment>
             )) }
           </div>

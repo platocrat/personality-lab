@@ -91,7 +91,7 @@ const StudyTableTbody: FC<StudyTableTbodyProps> = ({
                           position: 'relative',
                           // top: '3px',
                         } }
-                        alt='Share icon to share data visualization'
+                        alt='Rounded down arrow'
                         src={ `/icons/svg/rounded-down-arrow.svg` }
                       />
                     </button>

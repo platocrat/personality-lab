@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from 'react'
 // Locals
 import Title from '../Title'
 // Constants
-import { domainToFacetMapping } from '@/utils'
+import { DOMAIN_TO_FACET_MAPPING } from '@/utils'
 // CSS
 import styles from '../DataViz.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -26,7 +26,7 @@ const TreeMap = ({
 
   const transformData = (originalData) => {
     const children = Object.entries(
-      domainToFacetMapping
+      DOMAIN_TO_FACET_MAPPING
     ).map(([domain, facets]) => {
       const facetChildren = facets.map((facet: string) => {
         const facetName = facet
@@ -54,10 +54,10 @@ const TreeMap = ({
       .attr('transform', `translate(50, ${height + 20})`)
 
     Object.entries(
-      domainToFacetMapping
+      DOMAIN_TO_FACET_MAPPING
     ).forEach(([domain, _], index) => {
       const color: any = d3.scaleOrdinal().domain(
-        Object.keys(domainToFacetMapping)
+        Object.keys(DOMAIN_TO_FACET_MAPPING)
       ).range(d3.schemeCategory10)(domain)
       // Example to get score
       const score = originalData.domainScores[domain]
@@ -84,12 +84,18 @@ const TreeMap = ({
         .style('fill', color)
 
       // Draw the text
-      legend.append('text')
-        .attr('x', currentPositionX + squareSize + squareTextSpacing)
-        .attr('y', currentPositionY + squareSize / 2)
-        .text(text)
-        .style('font-size', '12px')
-        .attr('alignment-baseline', 'middle')
+      legend.append('foreignObject')
+        .attr('width', 180)
+        .attr('height', 20)
+        .attr('x', currentPositionX - 0 + squareSize + squareTextSpacing)
+        .attr('y', currentPositionY - 8 + squareSize / 2)
+        .html(
+          `
+            <p style="font-size: 12px; text-align: left;">
+              ${text}
+            </p>
+          `
+        )
 
       currentPositionX += (textWidthEstimate + squareSize + squareTextSpacing + legendSpacing) // Update position for the next item
     })

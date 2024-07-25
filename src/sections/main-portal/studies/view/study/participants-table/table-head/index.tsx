@@ -13,7 +13,7 @@ type ParticipantTableHeadProps = {
 
 const TABLE_HEADERS = [
   `ID`,
-  `Username`,
+  // `Username`,
   `Email`,
   // `Observer Response`,
   // `Observer Results`,

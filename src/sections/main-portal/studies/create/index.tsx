@@ -1,24 +1,24 @@
 'use client'
 
+// Externals
+import { useUser } from '@auth0/nextjs-auth0/client'
+import { usePathname, useRouter } from 'next/navigation'
 import {
   FC,
-  useContext,
   useState,
+  useLayoutEffect,
 } from 'react'
-import { usePathname, useRouter } from 'next/navigation'
 // Locals
-import CreateStudyForm from './form'
-// Contexts
-import { SessionContext } from '@/contexts/SessionContext'
-// Context types
-import { SessionContextType } from '@/contexts/types'
+import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
+// Sections
+import CreateStudyForm from '@/sections/main-portal/studies/create/form'
 // Utils
 import {
   STUDY__DYNAMODB,
 } from '@/utils'
 // CSS
-import sectionStyles from './CreateStudy.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
+import sectionStyles from '@/sections/main-portal/studies/create/CreateStudy.module.css'
 
 
 
@@ -33,10 +33,7 @@ const CreateStudy: FC<CreateStudyProps> = ({
 
 }) => {
   // Contexts
-  const {
-    email,
-    username,
-  } = useContext<SessionContextType>(SessionContext)
+  const { user, error, isLoading } = useUser()
   // Hooks
   const router = useRouter()
   const pathname = usePathname()
@@ -66,11 +63,9 @@ const CreateStudy: FC<CreateStudyProps> = ({
   const [ isCreatingStudy, setIsCreatingStudy ] = useState<boolean>(false)
 
 
-
   // ---------------------------- Regular functions ----------------------------
   const handleChange = (e: any) => {
     const { name, value, type, checked } = e.target
-
 
     if (name === 'assessmentId') {
       setStudy((prevData) => ({
@@ -145,57 +140,63 @@ const CreateStudy: FC<CreateStudyProps> = ({
 
 
   async function storeStudyInDynamoDB() {
-    if (email === undefined) {
-      /**
-       * @todo Replace the line below by handling the error on the UI here
-       */
-      throw new Error(`Error getting email from cookie!`)
-    } else {
-      /**
-       * @dev This is the object that we store in DynamoDB using AWS's 
-       * `PutItemCommand` operation.
-       */
-      const study_: STUDY__DYNAMODB = {
-        ...study,
-        isActive: true,
-        ownerEmail: email,
-        adminEmails: study ? study.adminEmails : [ '' ],
-      }
-      
-      try {
-        const response = await fetch('/api/study', {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ study: study_ }),
-        })
+    /**
+     * @dev This is the object that we store in DynamoDB using AWS's 
+     * `PutItemCommand` operation.
+     */
+    const study_: STUDY__DYNAMODB = {
+      ...study,
+      isActive: true,
+      ownerEmail: user?.email ?? '',
+      adminEmails: study ? study.adminEmails : [ '' ],
+    }
+    
+    try {
+      const response = await fetch('/api/study', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ study: study_ }),
+      })
 
-        const json = await response.json()
+      const json = await response.json()
 
-        if (response.status === 200) {
-          const studyId = json.studyId
-          return studyId
-        } else {
-          setIsCreatingStudy(false)
-
-          const error = `Error putting study '${study.name}' to DynamoDB: `
-          /**
-           * @todo Handle error UI here
-           */
-          throw new Error(error, json.error)
-        }
-      } catch (error: any) {
+      if (response.status === 200) {
+        const studyId = json.studyId
+        return studyId
+      } else {
         setIsCreatingStudy(false)
 
+        const error = `Error putting study '${study.name}' to DynamoDB: `
         /**
          * @todo Handle error UI here
          */
-        throw new Error(`Error! `, error)
-
+        throw new Error(error, json.error)
       }
+    } catch (error: any) {
+      setIsCreatingStudy(false)
+
+      /**
+       * @todo Handle error UI here
+       */
+      throw new Error(`Error! `, error)
+
     }
   }
+
+  
+  useLayoutEffect(() => {
+    if (!isLoading && user && user.email) {
+      // Do nothing if Auth0 found the user's email
+    } else if (!isLoading && !user) {
+      // Silently log the error to the browser's console
+      console.error(
+        `Auth0 couldn't get 'user' from useUser(): `,
+        error
+      )
+    }
+  }, [ isLoading ])
 
 
 
@@ -203,56 +204,63 @@ const CreateStudy: FC<CreateStudyProps> = ({
 
   return (
     <>
-      <div className={ sectionStyles['form-container'] }>
-        {/* Display invite link */ }
-        { inviteLink ? (
-          <>
-            <div style={ { ...definitelyCenteredStyle, marginBottom: '24px' } }>
-              <h3>{ `Your study was created!` }</h3>
-            </div>
+      <NetworkRequestSuspense
+        isLoading={ isLoading }
+        spinnerOptions={{
+          showSpinner: true,
+        }}
+      >
+        <div className={ sectionStyles['form-container'] }>
+          {/* Display invite link */ }
+          { inviteLink ? (
+            <>
+              <div style={ { ...definitelyCenteredStyle, marginBottom: '24px' } }>
+                <h3>{ `Your study was created!` }</h3>
+              </div>
 
-            <div>
-              <p style={{ marginBottom: '8px' }}>
-                { `Here's your invite link:` }
-              </p>
-              <input
-                type='text'
-                value={ inviteLink }
-                readOnly
-                onClick={ (e) => {
-                  e.preventDefault()
-                  e.currentTarget.select()
+              <div>
+                <p style={ { marginBottom: '8px' } }>
+                  { `Here's your invite link:` }
+                </p>
+                <input
+                  type='text'
+                  value={ inviteLink }
+                  readOnly
+                  onClick={ (e) => {
+                    e.preventDefault()
+                    e.currentTarget.select()
+                  } }
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <div style={ { ...definitelyCenteredStyle, marginBottom: '12px' } }>
+                <h3>{ `Create a new study` }</h3>
+              </div>
+
+              <CreateStudyForm
+                study={ study }
+                onSubmit={ handleCreateStudy }
+                states={ {
+                  newAdminEmail,
+                  isCreatingStudy,
+                  newStudyCreated,
+                  invalidEmailMessage,
+                } }
+                onClickHandlers={ {
+                  addAdminEmail,
+                  removeAdminEmail
+                } }
+                onChangeHandlers={ {
+                  handleChange,
+                  handleAdminEmailChange,
                 } }
               />
-            </div>
-          </>
-        ) : (
-          <>
-            <div style={ { ...definitelyCenteredStyle, marginBottom: '12px' } }>
-              <h3>{ `Create a new study` }</h3>
-            </div>
-
-            <CreateStudyForm
-              study={ study }
-              onSubmit={ handleCreateStudy }
-              states={ {
-                newAdminEmail,
-                isCreatingStudy,
-                newStudyCreated,
-                invalidEmailMessage,
-              } }
-              onClickHandlers={ {
-                addAdminEmail,
-                removeAdminEmail
-              } }
-              onChangeHandlers={ {
-                handleChange,
-                handleAdminEmailChange,
-              } }
-            />
-          </>
-        )}
-      </div>
+            </>
+          ) }
+        </div>
+      </NetworkRequestSuspense>
     </>
   )
 }

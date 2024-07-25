@@ -8,8 +8,8 @@ import { NextResponse } from 'next/server'
 // Locals
 import { 
   REGION,
-  AWS_PARAMETER_NAMES, 
-} from '..'
+  AWS_PARAMETER_NAMES,
+} from '@/utils'
 
 
 

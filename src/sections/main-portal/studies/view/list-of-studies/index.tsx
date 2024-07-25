@@ -4,23 +4,17 @@
 import {
   FC,
   useRef,
-  Dispatch,
   useState,
-  useContext,
-  createContext,
   useLayoutEffect,
-  SetStateAction,
-} from 'react'
+  } from 'react'
+import { useUser } from '@auth0/nextjs-auth0/client'
 // Locals
 import StudiesTable from './table'
 // Components
-import Spinner from '@/components/Suspense/Spinner'
 import EditStudyModal from '@/components/Modals/EditStudy'
+import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
 // Contexts
-import { SessionContext } from '@/contexts/SessionContext'
 import { EditStudyModalContext } from '@/contexts/EditStudyModalContext'
-// Context types
-import { SessionContextType } from '@/contexts/types'
 // Hooks
 import useClickOutside from '@/hooks/useClickOutside'
 // Utils
@@ -45,12 +39,12 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
   // Refs
   const editStudyModalRef = useRef<any>(null)
   // Contexts
-  const { email } = useContext<SessionContextType>(SessionContext)
+  const { user, error, isLoading } = useUser()
   // States
   const [ 
     isLoadingStudies, 
     setIsLoadingStudies 
-  ] = useState<boolean>(false)
+  ] = useState<boolean>(true)
   const [ 
     isDeletingStudy, 
     setIsDeletingStudy 
@@ -82,9 +76,8 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
     setIsLoadingStudies(true)
 
     try {
-      const response = await fetch(`/api/study?adminEmail=${ email }`, {
-        method: 'GET',
-      })
+      const apiEndpoint = `/api/study`
+      const response = await fetch(apiEndpoint, { method: 'GET' })
 
       const json = await response.json()
 
@@ -110,87 +103,87 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
 
   // ----------------------------- `useLayoutEffect`s --------------------------
   useLayoutEffect(() => {
-    const requests = [
-      getStudies(),
-    ]
-
-    Promise.all(requests)
-  }, [ email, isStudyDeleted ])
+    if (!isLoading && user && user.email) {
+      const requests = [
+        getStudies(),
+      ]
+    
+      Promise.all(requests)
+    } else if (!isLoading && !user) {
+      console.error(
+        `Auth0 couldn't get 'user' from useUser(): `,
+        error
+      )
+    }
+  }, [ isLoading, isStudyDeleted ])
 
 
 
 
   return (
     <>
-      { isLoadingStudies || isDeletingStudy ? (
-        <>
+      <NetworkRequestSuspense
+        isLoading={ isLoading || isLoadingStudies || isDeletingStudy }
+        spinnerOptions={{
+          showSpinner: true,
+          containerStyle: {
+            margin: '24px 0px',
+          }
+        }}
+      >
+        <EditStudyModalContext.Provider
+          value={ {
+            showEditStudyModal,
+            setShowEditStudyModal,
+            handleOpenEditStudyModal,
+          } }
+        >
           <div
             style={ {
-              ...definitelyCenteredStyle,
               position: 'relative',
-              margin: '24px 0px',
+              width: '100%',
+              margin: '24px 0',
+              // overflow: 'auto',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
             } }
           >
-            <Spinner height='40' width='40' />
+            { studies ? (
+              <>
+                <StudiesTable
+                  studies={ studies }
+                  state={ {
+                    isStudyDeleted,
+                    isDeletingStudy,
+                    setIsStudyDeleted,
+                    setIsDeletingStudy
+                  } }
+                />
+              </>
+            )
+              : (
+                <>
+                  <div style={ { ...definitelyCenteredStyle } }>
+                    <p>
+                      <strong>
+                        { `No studies were found.` }
+                      </strong>
+                    </p>
+                  </div>
+                </>
+              )
+            }
           </div>
-        </>
-      ) : (
-        <>
-          <EditStudyModalContext.Provider
-            value={ {
-              showEditStudyModal,
-              setShowEditStudyModal,
-              handleOpenEditStudyModal,
-            } }
-          >
-            <div 
-              style={{
-                position: 'relative',
-                width: '100%',
-                margin: '24px 0',
-                // overflow: 'auto',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              { studies 
-                ? (
-                  <>
-                    <StudiesTable 
-                      studies={ studies }
-                      state={{
-                        isStudyDeleted,
-                        isDeletingStudy,
-                        setIsStudyDeleted,
-                        setIsDeletingStudy
-                      }}
-                    />
-                  </>
-                )
-                : (
-                  <>
-                    <div style={{ ...definitelyCenteredStyle }}>
-                      <p>
-                        <strong>
-                          { `No studies were found.` }
-                        </strong>
-                      </p>
-                    </div>
-                  </>
-                ) 
-              }
-            </div>
 
-            {/* Edit study modal */}
-            <EditStudyModal
-              study={ studyToEdit }
-              ref={ editStudyModalRef }
-              setStudy={ setStudyToEdit }
-              isModalVisible={ showEditStudyModal }
-            />
-          </EditStudyModalContext.Provider>
-        </>
-      ) }
+          {/* Edit study modal */ }
+          <EditStudyModal
+            study={ studyToEdit }
+            ref={ editStudyModalRef }
+            setStudy={ setStudyToEdit }
+            isModalVisible={ showEditStudyModal }
+          />
+        </EditStudyModalContext.Provider>
+      </NetworkRequestSuspense>
     </>
   )
 }

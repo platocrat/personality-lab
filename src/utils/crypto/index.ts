@@ -1,4 +1,5 @@
 import {
+  subtle,
   CipherKey,
   pbkdf2Sync,
   scryptSync,
@@ -174,5 +175,175 @@ export class SSCrypto {
     })
 
     return newSecretKeys
+  }
+}
+
+
+
+/**
+ * @dev Client-side cryptography using Node.js's built-in `crypto.subtle` 
+ *      library
+ * @notice See the `README.md` for how to generate an asymmmetric key and 
+ *         initialization vector to use the `encryptThenEncode` and 
+ *         `decodeThenDecrypt` functions.
+ */
+export class CSCrypto {
+  static arrayBufferToHex(buffer: ArrayBufferLike): string {
+    const uint8Array = new Uint8Array(buffer)
+    const binaryString = String.fromCharCode(...uint8Array)
+    return Buffer.from(binaryString, 'binary').toString('hex')
+  }
+
+
+  static hexToArrayBuffer(hex: string): ArrayBufferLike {
+    const binaryString = Buffer.from(hex, 'hex').toString('binary')
+    const len = binaryString.length
+    const bytes = new Uint8Array(len)
+
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binaryString.charCodeAt(i)
+    }
+
+    return bytes.buffer
+  }
+
+
+
+  static async compressAndEncodeToHex(buffer: ArrayBufferLike): Promise<string> {
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(new Uint8Array(buffer))
+        controller.close()
+      }
+    })
+
+    const compressedStream = stream.pipeThrough(new CompressionStream('gzip'))
+    const reader = compressedStream.getReader()
+    const chunks: any = []
+
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      chunks.push(value)
+    }
+
+    const compressed = new Uint8Array(
+      chunks.reduce((acc, chunk) => acc.concat(Array.from(chunk)), [])
+    )
+
+    return this.arrayBufferToHex(compressed.buffer)
+  }
+
+
+
+  static async decodeAndDecompressFromHex(encoded): Promise<ArrayBufferLike> {
+    const compressed = new Uint8Array(CSCrypto.hexToArrayBuffer(encoded))
+
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(compressed)
+        controller.close()
+      }
+    })
+
+    const decompressedStream = stream.pipeThrough(new DecompressionStream('gzip'))
+    const reader = decompressedStream.getReader()
+    const chunks: any = []
+
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      chunks.push(value)
+    }
+
+    const decompressed = new Uint8Array(chunks.reduce(
+      (acc, chunk) => acc.concat(Array.from(chunk)), [])
+    )
+
+    return decompressed.buffer
+  }
+
+
+
+  static compareArrayBuffers(
+    buffer1: ArrayBufferLike, 
+    buffer2: ArrayBufferLike
+  ): boolean {
+    if (buffer1.byteLength !== buffer2.byteLength) return false
+
+    const view1 = new Uint8Array(buffer1)
+    const view2 = new Uint8Array(buffer2)
+
+    for (let i = 0; i < buffer1.byteLength; i++) {
+      if (view1[i] !== view2[i]) {
+        return false
+      }
+    }
+
+    return true
+  }
+
+
+  /**
+   * @dev Encrypts the `input` string to an `ArrayBuffer`, then compresses and 
+   *      and encodes it to a hex string.
+   * @notice See the `README.md` for how to generate an initialization vector
+   *         and asymmetric key that are required as environment variables.
+   * @notice You cannot replace `crypto.subtle` with an import of `subtle`;
+   *         otherwise, you will get an error
+   */
+  static async encryptCompressEncode(str: string): Promise<string> {
+    const jwk = JSON.parse(process.env.NEXT_PUBLIC_SHARE_RESULTS_ENCRYPTION_KEY)
+    const iv = Buffer.from(process.env.NEXT_PUBLIC_SHARE_RESULTS_ENCRYPTION_IV)
+    const encode = (str: string): Uint8Array => new TextEncoder().encode(str)
+
+    const key = await crypto.subtle.importKey(
+      'jwk',
+      jwk,
+      { name: 'AES-GCM', length: 128 },
+      true,
+      ['encrypt', 'decrypt']
+    )
+
+    const encrypted = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv: iv },
+      key,
+      encode(str)
+    )
+
+    const compressed = await CSCrypto.compressAndEncodeToHex(encrypted)
+    return compressed
+  }
+
+
+
+  /**
+   * @dev Decodes and decompresses the `compressed` hex-string-argument and 
+   *      then decrypts it.
+   * @notice See the `README.md` for how to generate an initialization vector
+   *         and asymmetric key that are required as environment variables.
+   * @param compressed
+   * @returns 
+   */
+  static async decodeDecompressDecrypt(compressed: string): Promise<string> {
+    const jwk = JSON.parse(process.env.NEXT_PUBLIC_SHARE_RESULTS_ENCRYPTION_KEY)
+    const iv = Buffer.from(process.env.NEXT_PUBLIC_SHARE_RESULTS_ENCRYPTION_IV)
+
+    const key = await crypto.subtle.importKey(
+      'jwk',
+      jwk,
+      { name: 'AES-GCM', length: 128 },
+      true,
+      ['encrypt', 'decrypt']
+    )
+
+    const decompressed = await CSCrypto.decodeAndDecompressFromHex(compressed)
+    const decrypted = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv: iv },
+      key,
+      decompressed
+    )
+
+    return new TextDecoder().decode(decrypted)
   }
 }

@@ -1,7 +1,7 @@
 // Externals
 import { FC, Fragment } from 'react'
 // Locals
-import { ParticipantType } from '@/utils'
+import { PARTICIPANT__DYNAMODB } from '@/utils'
 // Hooks
 import useWindowWidth from '@/hooks/useWindowWidth'
 // Styles
@@ -10,7 +10,7 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 type ParticipantsTableBodyProps = {
-  participants: ParticipantType[] | null
+  participants: PARTICIPANT__DYNAMODB[] | null
 }
 
 
@@ -28,14 +28,11 @@ const ParticipantsTableBody: FC<ParticipantsTableBodyProps> = ({
   return (
     <>
       <tbody>
-        { participants?.map((participant: ParticipantType, i: number) => (
+        { participants?.map((participant: PARTICIPANT__DYNAMODB, i: number) => (
           <Fragment key={ i }>
             <tr>
               <td style={{ width: isFullWidthTd }}>
                 <p>{ i }</p>
-              </td>
-              <td style={{ width: isFullWidthTd }}>
-                <p>{ participant.username }</p>
               </td>
               <td style={{ width: isFullWidthTd }}>
                 <p>{ participant.email }</p>

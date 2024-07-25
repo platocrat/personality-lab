@@ -3,18 +3,16 @@ import {
   PutCommand,
   QueryCommand,
   ScanCommand,
-  UpdateCommand,
   DeleteCommand,
   PutCommandInput,
   ScanCommandInput,
   QueryCommandInput,
   DeleteCommandInput,
-} from '@aws-sdk/lib-dynamodb'
-import { cookies } from 'next/headers'
-import { NextRequest, NextResponse } from 'next/server'
+  } from '@aws-sdk/lib-dynamodb'
+  import { NextRequest, NextResponse } from 'next/server'
+  import { getSession, withApiAuthRequired } from '@auth0/nextjs-auth0'
 // Locals
 import {
-  hasJWT,
   getEntryId,
   ddbDocClient,
   STUDY__DYNAMODB,
@@ -29,12 +27,25 @@ import {
  * @param res 
  * @returns 
  */
-export async function PUT(
-  req: NextRequest,
-  res: NextResponse,
+export const PUT = withApiAuthRequired(async function putStudy(
+  req: NextRequest
 ) {
   if (req.method === 'PUT') {
-    hasJWT(cookies)
+    const res = new NextResponse()
+
+    // Auth0
+    const session = await getSession(req, res)
+    const user = session?.user
+
+    if (!user) {
+      const message = `Unauthorized: Auth0 found no 'user' for their session.`
+      return NextResponse.json(
+        { message },
+        {
+          status: 401,
+        }
+      )
+    }
 
     const { study } = await req.json()
 
@@ -96,27 +107,105 @@ export async function PUT(
       },
     )
   }
-}
+})
 
 
 
 /**
- * @dev GET all studies for the `adminEmail` or get a single study by ID
+ * @dev GET all studies for the `adminEmail` or get a single study by `id`
  * @param req 
  * @param res 
  * @returns 
  */
-export async function GET(
-  req: NextRequest,
-  res: NextResponse,
-) {
+export const GET = withApiAuthRequired(async function getStudy(
+  req: NextRequest
+) { 
   if (req.method === 'GET') {
-    hasJWT(cookies)
+    const res = new NextResponse()
+    
+    // Auth0
+    const session = await getSession(req, res)
+    const user = session?.user
 
-    const adminEmail = req.nextUrl.searchParams.get('adminEmail')
+    if (!user) {
+      const message = `Unauthorized: Auth0 found no 'user' for their session.`
+      return NextResponse.json(
+        { message },
+        {
+          status: 401,
+        }
+      )
+    }
 
-    // 1.0 Handle the case where adminEmail exists
-    if (adminEmail) {
+    const id = req.nextUrl.searchParams.get('id')
+
+    // 1.0 Handle the case where `id` exists
+    if (id) {
+      const TableName = DYNAMODB_TABLE_NAMES.studies
+      const IndexName = 'id-index'
+      const KeyConditionExpression = 'id = :idValue'
+      const ExpressionAttributeValues = { ':idValue': id }
+
+      const input: QueryCommandInput = {
+        TableName,
+        IndexName,
+        KeyConditionExpression,
+        ExpressionAttributeValues,
+      }
+
+      const command: QueryCommand = new QueryCommand(input)
+
+
+      try {
+        const response = await ddbDocClient.send(command)
+
+        if (!(response.Items as STUDY__DYNAMODB[])) {
+          const message = `No ID found in ${TableName} table`
+
+          return NextResponse.json(
+            { message: message },
+            {
+              status: 404,
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            },
+          )
+        } else {
+          const study = (response.Items as STUDY__DYNAMODB[])[0]
+
+          return NextResponse.json(
+            {
+              study,
+            },
+            {
+              status: 200,
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            }
+          )
+        }
+      } catch (error: any) {
+        console.error(`Error fetching study ID '${id}': `, error)
+
+        // Something went wrong
+        return NextResponse.json(
+          { error: `Error fetching study ID '${id}': ${error.message}` },
+          {
+            status: 500,
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          },
+        )
+      }
+
+    // 2.0 Handle the case where `adminEmail` does not exist and `id` is used 
+    //     as a GSI
+    } else {
+      const adminEmail = user.email as string
+
       const TableName = DYNAMODB_TABLE_NAMES.studies
       const FilterExpression = 'contains(adminEmails, :email)'
 
@@ -129,16 +218,15 @@ export async function GET(
         command: ScanCommand | QueryCommand = new ScanCommand(input)
 
 
-      const successMessage = `Scanned the '${TableName
-        }' table and retrieved all studies for '${adminEmail
-        }'`
+      const message = `Scanned the '${
+        TableName
+      }' table and retrieved all studies for '${
+        adminEmail
+      }'`
 
 
       try {
         const response = await ddbDocClient.send(command)
-
-        const message = successMessage || 'Operation successful'
-
 
         // 1.1 Search `ownerEmail` for `adminEmail`
         if (response.Items?.length === 0) {
@@ -154,22 +242,22 @@ export async function GET(
           command = new QueryCommand(input)
 
 
-          const successMessage = `Fetched all studies from the '${TableName
-            }' table for the owner email '${adminEmail
-            }'`
+          const message = `Fetched all studies from the '${
+            TableName
+          }' table for the owner email '${
+            adminEmail
+          }'`
 
 
           try {
             const response = await ddbDocClient.send(command)
 
-
             if (response.Items && response.Items.length > 0) {
               const studies = (response.Items as STUDY__DYNAMODB[])
 
-
               return NextResponse.json(
                 {
-                  message: successMessage,
+                  message,
                   studies,
                 },
                 {
@@ -212,10 +300,9 @@ export async function GET(
           //     `adminEmails` attribute
           const studies = (response.Items as STUDY__DYNAMODB[])
 
-
           return NextResponse.json(
             {
-              message: successMessage,
+              message,
               studies,
             },
             {
@@ -238,72 +325,6 @@ export async function GET(
           }
         )
       }
-    // 2.0 Handle the case where `adminEmail` does not exist and `id` is used 
-    //     as a GSI
-    } else {
-      const id = req.nextUrl.searchParams.get('id')
-
-
-      const TableName = DYNAMODB_TABLE_NAMES.studies
-      const IndexName = 'id-index'
-      const KeyConditionExpression = 'id = :idValue'
-      const ExpressionAttributeValues = { ':idValue': id }
-
-      const input: QueryCommandInput = { 
-        TableName, 
-        IndexName,
-        KeyConditionExpression,
-        ExpressionAttributeValues,
-      }
-
-      const command: QueryCommand = new QueryCommand(input)
-
-
-      try {
-        const response = await ddbDocClient.send(command)
-
-        if (!(response.Items as STUDY__DYNAMODB[])) {
-          const message = `No ID found in ${TableName} table`
-
-          return NextResponse.json(
-            { message: message },
-            {
-              status: 404,
-              headers: {
-                'Content-Type': 'application/json'
-              }
-            },
-          )
-        } else {
-          const study = (response.Items as STUDY__DYNAMODB[])[0]
-
-
-          return NextResponse.json(
-            { 
-              study,
-            },
-            {
-              status: 200,
-              headers: {
-                'Content-Type': 'application/json'
-              }
-            }
-          )
-        }
-      } catch (error: any) {
-        console.log(`Error fetching study ID '${id}': `, error)
-
-        // Something went wrong
-        return NextResponse.json(
-          { error: `Error fetching study ID '${id}': ${error.message}` },
-          {
-            status: 500,
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          },
-        )
-      }
     }
   } else {
     return NextResponse.json(
@@ -316,7 +337,7 @@ export async function GET(
       },
     )
   }
-}
+})
 
 
 
@@ -326,11 +347,26 @@ export async function GET(
  * @param res 
  * @returns 
  */
-export async function DELETE(
-  req: NextRequest,
-  res: NextResponse,
+export const DELETE = withApiAuthRequired(async function deleteStudy(
+  req: NextRequest
 ) {
   if (req.method === 'DELETE') {
+    const res = new NextResponse()
+
+    // Auth0
+    const session = await getSession(req, res)
+    const user = session?.user
+
+    if (!user) {
+      const message = `Unauthorized: Auth0 found no 'user' for their session.`
+      return NextResponse.json(
+        { message },
+        {
+          status: 401,
+        }
+      )
+    }
+
     const { 
       studyId,
       ownerEmail,
@@ -357,8 +393,6 @@ export async function DELETE(
     
     try {
       const response = await ddbDocClient.send(command)
-
-      console.log(`response: `, response)
       
       // Success
       return NextResponse.json(
@@ -371,7 +405,7 @@ export async function DELETE(
         }
       )
     } catch (error: any) {
-      console.log(
+      console.error(
         `Could not delete study ID '${studyId}' from the '${TableName}' table: `,
         error
       )
@@ -398,21 +432,48 @@ export async function DELETE(
       },
     )
   }
-}
+})
 
 
 
 /**
  * @dev POST: Update an existing study using DynamoDB's `UpdateCommand`
  */
-export async function POST(
-  req: NextRequest,
-  res: NextResponse,
+export const POST = withApiAuthRequired(async function updateStudy(
+  req: NextRequest
 ) {
   if (req.method === 'POST') {
-    hasJWT(cookies)
+    const res = new NextResponse()
 
-    const { study, email } = await req.json()
+    // Auth0
+    const session = await getSession(req, res)
+    const user = session?.user
+
+    if (!user) {
+      const message = `Unauthorized: Auth0 found no 'user' for their session.`
+      return NextResponse.json(
+        { message },
+        {
+          status: 401,
+        }
+      )
+    }
+
+    const email = user.email as string
+
+    if (!email) {
+      return NextResponse.json(
+        { error: `Unauthorized: Auth0 found no email for this user's session!` },
+        {
+          status: 401,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+    }
+
+    const { study } = await req.json()
 
     const study_ = study as STUDY__DYNAMODB
     const isOwnerOrAdmin = email === study_.ownerEmail || 
@@ -483,4 +544,4 @@ export async function POST(
       },
     )
   }
-}
+})

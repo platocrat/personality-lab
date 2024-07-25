@@ -1,15 +1,14 @@
 // Externals
-import { FC, useContext, useMemo, Fragment } from 'react'
+import { useUser } from '@auth0/nextjs-auth0/client'
+import { FC, useContext, useMemo, Fragment, useLayoutEffect } from 'react'
 // Locals
 // Components
 import Card from '@/components/Card'
 // Sections
 import BessiDescription from '../bessi/description'
 import BigFiveDescription from '../big-five/descriptions/entrance'
-// Contexts
-import { SessionContext } from '@/contexts/SessionContext'
-// Context types
-import { SessionContextType } from '@/contexts/types'
+// Hooks
+import useAccount from '@/hooks/useAccount'
 // Types
 import { PersonalityAssessmentType } from '..'
 // CSS
@@ -20,7 +19,7 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 type AssessmentCardsProps = {
-  participant: PARTICIPANT__DYNAMODB | null
+  participant: PARTICIPANT__DYNAMODB | undefined
   fragmentKey: (pa: PersonalityAssessmentType, i: number) => string
 }
 
@@ -57,7 +56,10 @@ const AssessmentCards: FC<AssessmentCardsProps> = ({
   participant,
   fragmentKey,
 }) => {
-  const { isAdmin } = useContext<SessionContextType>(SessionContext)
+  // Auth0
+  const { user, error, isLoading } = useUser()
+  // Hooks
+  const { isAdmin } = useAccount()
 
   // ----------------------- Memoized constants --------------------------------
   const participantAssessmentIds: string[] = useMemo((): string[] => {
@@ -74,6 +76,7 @@ const AssessmentCards: FC<AssessmentCardsProps> = ({
 
 
   const PAs = isAdmin ? pAssessments : PPAs
+
 
 
 

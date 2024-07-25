@@ -58,7 +58,6 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
   ] = useState<string>('')
   const [ participantId, setParticipantId ] = useState<string>('')
   const [ participantEmail, setParticipantEmail ] = useState<string>('')
-  const [ participantUsername, setParticipantUsername ] = useState<string>('')
 
 
   const studyAssessmentName = AVAILABLE_ASSESSMENTS.find((
@@ -79,7 +78,6 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
     // 2. Construct new `participant` to store in DynamoDB
     const participant: Omit<PARTICIPANT__DYNAMODB, "id"> = {
       email: participantEmail,
-      username: participantUsername,
       timestamp: 0,
       /**
        * @dev Update `studies` with pre-existing `studies` when updating
@@ -237,9 +235,7 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
                   onSubmit={ handleOnRegisterForAssessment }
                   state={{
                     participantEmail,
-                    participantUsername,
                     setParticipantEmail,
-                    setParticipantUsername,
                   }}
                 />
               </>
