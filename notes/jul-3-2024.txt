@@ -1,0 +1,19 @@
+To-dos:
+1. Social rating game
+    1. Copy Kahoot's gamified UI of a 4-question style of "Do You Want To Be A Millionaire?" 
+        1. Focus on the game's layout
+        2. Bare essential game mechanics are:
+            1. Each user gets a score that is calculated as the difference between the their score and the target's real score
+                2. For example, `user_score = (100 - Math.abs(real_score - guessed_score))`, where we subtract the difference from 100 to get the user's score so that the `user_score` increases to 100 the smaller the difference, or the closer the user's guess is, to the target's `real_score`.
+            2. There are 3 rounds per game (could allow admins to changes `rounds` as a future "game setting")
+    2. Game-quiz structure
+        1. The Kahoot-style quiz of each game simply asks a shortened version of the total personality assessment's questions. 
+            1. For example, the 45- or 25-question version of the BESSI will be used for the game instead of the full version with 192 questions.
+            2. This means that each question should feel mostly the same to when responding to the assessment's questions outside of the game, for example on the `/assessments/` for `study` and `non-study` based assessments.
+    3. Fictional and/or Pop-culture characters
+        1. Use AI to generate personality profiles of pop-culture/fictional characters (e.g. Einstein, The Big Bang Theory, Euphoria, Game of Thrones, Harry Potter, etc.)
+        2. Let users rate the pop-culture/fictional characters
+        3. Let users compare their own personality profiles to the profiles of the pop-culture/fictional characters
+3. Use real data for the Profile page
+4. Use real data for the BESSI Histograms
+5. Host on Weebly using new Cloudflare domains

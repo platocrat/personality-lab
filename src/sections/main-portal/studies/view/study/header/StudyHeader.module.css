@@ -1,0 +1,6 @@
+@media (max-width: 800px) {
+  .studyId {
+    flex-direction: column;
+    gap: 12px;
+  }
+}

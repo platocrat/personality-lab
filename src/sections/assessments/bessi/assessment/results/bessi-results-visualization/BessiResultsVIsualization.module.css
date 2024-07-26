@@ -1,0 +1,183 @@
+/* BessiResultsVisualization.module.css */
+
+.switchInnerContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0px 0px 6px inset #1c1c1c8f;
+  border-radius: 3rem;
+  margin-bottom: 24px;
+  padding: 3px 5px 5px 5px;
+}
+
+.switchOuterContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  top: 3.1px;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px; /* Increased width to fit "ON" and "OFF" */
+  height: 23px; /* Increased height to fit "ON" and "OFF" */
+  top: 1px;
+  /* border: 0.1px solid rgb(119, 119, 119); */
+  border-radius: 23px; /* Updated border radius */
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgb(170, 170, 170);
+  transition: .4s;
+  box-shadow: inset 0px 0.5px 8px rgba(44, 44, 44, 0.828);
+  border-radius: 23px; /* Updated border radius */
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  color: white;
+  height: 17px; /* Updated height to fit "ON" and "OFF" */
+  width: 17px; /* Updated width to fit "ON" and "OFF" */
+  left: 2px;
+  bottom: 3px; /* Adjusted bottom positioning */
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+input:checked + .slider {
+  background-color: #2dc651;
+}
+
+input:checked + .slider:before {
+  transform: translateX(17px); /* Updated translation */
+  content: "";
+  background-color: white;
+}
+
+.dropdownButton {
+  border: none;
+  display: flex;
+  cursor: pointer;
+  padding: 2px 16px;
+  font-size: clamp(12px, 1.9vw, 16px);
+  flex-direction: row;
+  border-radius: 3rem;
+  justify-content: center;
+  background-color: rgba(0, 80, 172, 0.0514);
+  outline: 0.1px outset rgba(0, 80, 172, 0.514);
+  box-shadow: 0px 4px 6px 0px rgba(0, 0, 0, 0.1);
+
+  transform: scale(1);
+
+  transition: 0.1s ease-in-out;
+}
+
+.dropdownButton:hover {
+  padding: 2px 32px;
+  border-radius: 3rem;
+  background-color: rgba(0, 80, 172, 0.114);
+  transform: scale(0.975);
+
+  transition: 0.1s ease-in-out;
+}
+
+.dropdown {
+  left: 0;
+  right: 0;
+  top: 100%;
+  z-index: 2;
+  max-width: 245px;
+  display: flex;
+  list-style: none;
+  margin-left: auto;
+  margin-right: auto;
+  position: absolute;
+  text-align: center;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  background-color: white;
+  /* padding: 0px 24px; */
+  border-radius: 12px;
+  box-shadow: 0px 12px 16px 0px rgba(0,0,0,0.1);
+}
+
+.dropdownItem {
+  /* padding: 0px 24px; */
+  background-color: #0050ac1d;
+  transition: 0.15s ease-in-out;
+  cursor: pointer;
+
+  border: 0.5px solid rgba(0, 55, 118, 0.192);
+  width: 100%;
+  /* min-width: 185px; */
+  text-align: left;
+
+  background-color: white;
+  font-size: clamp(9px, 2.5vw, 13px);
+  color: black;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.dropdownItem:is(:first-child) {
+  /* padding: 0px 24px; */
+  border-radius: 12px 12px 0px 0px;
+}
+
+.dropdownItem:is(:last-child) {
+  /* padding: 0px 24px; */
+  border-radius: 0px 0px 12px 12px;
+}
+
+.dropdownItem:hover {
+  background-color: #f0f0f0;
+    /* Light grey background on hover */
+  color: blue;
+  /* Change text color on hover */
+}
+
+.dropdownIcon {
+  margin-left: 12px;
+  transform: rotate(-90deg);
+  transition: transform 0.1s ease;
+}
+
+.dropdownButton:hover .dropdownIcon {
+  transform: rotate(-90deg) translateY(4px);
+  transition: transform 0.1s ease;
+  /* Smooth transition for translation */
+}
+
+.rotated {
+  transform: rotate(0deg);
+  transition: transform 0.1s ease;
+  /* Smooth transition for rotation */
+}
+
+.dropdownButton:hover .rotated {
+  transform: rotate(0deg) translateY(1px);
+  transition: transform 0.1s ease;
+}
+
+.dropdownButton:active {
+  transform: scale(0.965);
+}

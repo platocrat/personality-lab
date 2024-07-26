@@ -1,0 +1,1 @@
+export const BASELINE_NUMBER_OF_FACETS = 29
