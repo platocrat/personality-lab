@@ -1,7 +1,5 @@
 # personality-lab
 
------- This repository is a work-in-progress (WIP) ------
-
 [Next.js](https://nextjs.org) application for [Dr. Brent Roberts](https://psychology.illinois.edu/directory/profile/bwrobrts), a Professor of Psychology at the University of Illinois at Urbana-Champaign, and his research labs.
 
 > "[Brent W. Roberts](https://psychology.illinois.edu/directory/profile/bwrobrts) is a Professor of Psychology and at the University of Illinois at Urbana-Champaign, he holds the Gutsgell Endowed Professorship at the University of Illinois, is designated as a Health Innovation Professor in the Carle-Illinois College of Medicine, and is a Distinguished Guest Professor at the Hector Research Institute of Education Sciences and Psychology at the University of Tübingen, Germany."
@@ -10,7 +8,7 @@
 
 ## Table of Contents
 
-- [0. General Information][#0-general-information]
+- [0. General Information](#0-general-information)
   - [0.1 Project Goals](#01-project-goals)
     - [0.1.1 Reference Models](#011-reference-models)
       - [0.1.1.1. yourPersonality.net](#0111-yourpersonalitynet)
@@ -23,8 +21,6 @@
       - [0.1.1.8 Inclivio](#0118-inclivio)
       - [0.1.1.9 In8ness](#0119-in8ness)
   - [0.2. Project Structure](#02-project-structure)
-
-    
 - [1. Local development](#1-local-development)
 - [2. Launch a new AWS EC2 instance on the AWS console](#2-launch-a-new-aws-ec2-instance-on-the-aws-console)
   - [2.1. Application and OS Images](#21-application-and-os-images)
@@ -60,7 +56,7 @@
     - [8.1.2 Database Action Scripts](#812-database-action-scripts)
 - [9. Working with Docker containers](#9-working-with-docker-containers)
 
-## General Information
+## 0. General Information
 
 ### 0.1 Project Goals
 

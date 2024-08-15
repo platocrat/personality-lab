@@ -1,8 +1,7 @@
 'use client'
 
 // Externals
-// import * as Castle from '@castleio/castle-js'
-// import { usePathname, useRouter } from 'next/navigation'
+import * as Castle from '@castleio/castle-js'
 import { UserProvider } from '@auth0/nextjs-auth0/client'
 // Locals
 import Header from '@/components/Header'
@@ -59,7 +58,7 @@ export default function RootLayout({
             <UserProvider>
               <UserDemographicsLayout>
                 <BessiSkillScoresLayout>
-                  <Header/>
+                  <Header />
                   { children }
                 </BessiSkillScoresLayout>
               </UserDemographicsLayout>

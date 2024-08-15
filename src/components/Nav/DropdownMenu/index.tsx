@@ -114,14 +114,6 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
                   <ProgressBarLink
                     href={ link.href }
                     className={ styles.dropdownLink }
-                    // style={{
-                    //   color: i === 0 ? 'white' : '',
-                    //   backgroundColor: i === 0 ? 'rgba(0, 123, 194, 1)' : '',
-                    //   display: i === 0 ? 'flex' : '',
-                    //   justifyContent: i === 0 ? 'center' : '',
-                    //   alignItems: i === 0 ? 'center' : '',
-                    //   borderRadius: i === 0 ? '1rem 1rem 0rem 0rem' : '',
-                    // }}
                   >
                     { i === 0 
                       ? (
