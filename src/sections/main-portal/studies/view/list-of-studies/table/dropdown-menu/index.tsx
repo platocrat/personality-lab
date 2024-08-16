@@ -37,7 +37,15 @@ const StudyDropdownMenu: FC<StudyDropdownMenuProps> = ({
   } = useContext<EditStudyModalContextType>(EditStudyModalContext)
 
 
-  const handleDeleteClick = (e: any) => {
+  // ----------------------------- Async functions -----------------------------
+  async function handleEdit(e: any, study: STUDY__DYNAMODB) {
+    return handleOpenEditStudyModal !== null
+      ? handleOpenEditStudyModal(e, study)
+      : console.error('handleOpenEditStudyModal() is null')
+  }
+  
+
+  async function handleDelete(e: any) {
     let confirmDelete
     
     if (window !== undefined) {
@@ -65,24 +73,18 @@ const StudyDropdownMenu: FC<StudyDropdownMenuProps> = ({
           style={{ position: 'relative' }}
         >
           <div className={ sectionStyles.dropdown }>
-            <ProgressBarLink  
+            <ProgressBarLink
               href={ buttonHandlers?.buttonHref(study?.id.toString()) ?? '' }
             >
               <button style={{ borderRadius: '4px 4px 0px 0px' }}>
                 { ` View` }
               </button>
             </ProgressBarLink>
-            <button
-              onClick={
-                (e: any) => handleOpenEditStudyModal !== null 
-                  ? handleOpenEditStudyModal(e, study)
-                  : console.error('handleOpenEditStudyModal() is null')
-              }
-            >
+            <button onClick={ (e: any): Promise<void> => handleEdit(e, study) }>
               { `Edit` }
             </button>
             <button
-              onClick={ handleDeleteClick }
+              onClick={ handleDelete }
               style={{ borderRadius: '0px 0px 4px 4px' }}
             >
               { `Delete` }

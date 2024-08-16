@@ -100,9 +100,9 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
       ],
     }
     
-    // // 3. `Put` and/or `Update` the new `participant` object in the appropriate
-    // //     DynamoDB tables.
-    // await storeParticipantInDynamoDB(participant)
+    // 3. `Put` and/or `Update` the new `participant` object in the appropriate
+    //     DynamoDB tables.
+    await storeParticipantInDynamoDB(participant)
   }
 
 

@@ -10,32 +10,48 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 type ParticipantsTableBodyProps = {
-  participants: PARTICIPANT__DYNAMODB[] | null
+  state: {
+    participants: PARTICIPANT__DYNAMODB[] | null,
+    handleDeleteParticipant: (participantId: string) => void
+  }
 }
 
 
 
 const ParticipantsTableBody: FC<ParticipantsTableBodyProps> = ({
-  participants,
+  state
 }) => {
   // Hooks
   const windowWidth = useWindowWidth()
-
+  // Constants
   const isFullWidthTd = windowWidth <= 920 ? '100%' : ''
-
+  const buttonText = `Delete`
 
 
   return (
     <>
       <tbody>
-        { participants?.map((participant: PARTICIPANT__DYNAMODB, i: number) => (
+        { state.participants?.map((
+          participant: PARTICIPANT__DYNAMODB, i: number
+        ) => (
           <Fragment key={ i }>
             <tr>
-              <td style={{ width: isFullWidthTd }}>
+              <td style={ { width: isFullWidthTd } }>
                 <p>{ i }</p>
               </td>
-              <td style={{ width: isFullWidthTd }}>
+              <td style={ { width: isFullWidthTd } }>
                 <p>{ participant.email }</p>
+              </td>
+              <td style={ { width: 'auto', textAlign: 'right' } }>
+                <button 
+                  onClick={ 
+                    (e: any): void => state.handleDeleteParticipant(
+                      participant.id
+                    )
+                  }
+                >
+                  { buttonText }
+                </button>
               </td>
             </tr>
           </Fragment>
@@ -44,6 +60,5 @@ const ParticipantsTableBody: FC<ParticipantsTableBodyProps> = ({
     </>
   )
 }
-
 
 export default ParticipantsTableBody
