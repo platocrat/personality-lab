@@ -26,6 +26,7 @@ type StudyInviteSectionProps = {
 
 const pStyle: CSSProperties = {
   display: 'flex',
+  textAlign: 'right',
   justifyContent: 'space-between'
 }
 
@@ -85,7 +86,8 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
        *      endpoint, i.e. when fetching the user's account entry from the 
        *      `account` table, use the account entry's 
        *      `account.participant.studies` property to update `studies`
-       *      for the participant.
+       *      for the participant, i.e. update `studies.participants` for the 
+       *      specific participant.
        */
       studies: [
         {

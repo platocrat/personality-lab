@@ -4,8 +4,11 @@ import {
   UpdateCommand,
   QueryCommandInput,
   UpdateCommandInput,
+  DeleteCommand,
+  DeleteCommandInput,
   } from '@aws-sdk/lib-dynamodb'
 import { NextRequest, NextResponse } from 'next/server'
+import { withApiAuthRequired, getSession } from '@auth0/nextjs-auth0'
 // Locals
 import {
   getEntryId,
@@ -79,14 +82,23 @@ export async function POST(
       ) {
         const account = response.Items[0] as ACCOUNT__DYNAMODB
 
+        console.log(`\n\n\nInitiating participant REGISTRATION for study:\n`)
+        console.log(`account.participant?.studies: `, account.participant?.studies)
+        console.log(`participant_: `, participant_)
+
+        /**
+         * @todo Remove the study from the participant's list of registered studies
+         */
+        
+
         /**
          * @dev 1.2.1.1 Check if the user had already registered for this study
          */
         const studyToRegisterFor = participant_.studies[0].name
-        const participantStudyNames = participant_.studies.map(
+        const studyNamesForParticipant = participant_.studies.map(
           (_): string => _.name
         )
-        const isDuplicateRegistration = participantStudyNames.includes(
+        const isDuplicateRegistration = studyNamesForParticipant.includes(
           studyToRegisterFor
         )
 
@@ -463,7 +475,7 @@ export async function POST(
               // console.log(`response: `, response)
 
 
-              const message = successMessage || 'Operation successful'
+              const message = successMessage
 
               // Return `participantId`
               return NextResponse.json(
@@ -566,3 +578,183 @@ export async function POST(
     )
   }
 }
+
+
+/**
+ * @dev DELETE a participant by their ID by updating `study.participants` from
+ *      the `studies` table in DynamoDB.
+ * @param req 
+ * @param res 
+ * @returns 
+ */
+export const DELETE = withApiAuthRequired(async function deleteParticipant(
+  req: NextRequest
+) {
+  if (req.method === 'DELETE') {
+    const res = new NextResponse()
+
+    // Auth0
+    const session = await getSession(req, res)
+    const user = session?.user
+
+    if (!user) {
+      const message = `Unauthorized: Auth0 found no 'user' for their session.`
+      return NextResponse.json(
+        { message },
+        {
+          status: 401,
+        }
+      )
+    }
+
+    const {
+      studyId,
+      ownerEmail,
+      participantId, // Used to filter existing array of participants
+      createdAtTimestamp,
+    } = await req.json()
+
+
+    // 1.1 Construct `QueryCommand` to get the `ownerEmail` that we will use as
+    //     the partition/primary key to then perform the `UpdateCommand` to
+    //     update the same study entry's `participants` property.
+    const IndexName = 'id-index'
+    const TableName = DYNAMODB_TABLE_NAMES.studies
+    const KeyConditionExpression = 'id = :idValue'
+
+    let ExpressionAttributeValues: { [ key: string ]: any } = { 
+      ':idValue': studyId 
+    },
+      input: QueryCommandInput | UpdateCommandInput = {
+        TableName,
+        IndexName,
+        KeyConditionExpression,
+        ExpressionAttributeValues,
+      },
+      command: QueryCommand | UpdateCommand = new QueryCommand(input)
+
+    // 1.2 Attempt to perform Query operation to get the array of existing
+    //     participants.
+    try {
+      const response = await ddbDocClient.send(command)
+
+      // 1.2.1 If `ownerEmail` exists...
+      if (response.Items && response.Items.length > 0) {
+        const study = (response.Items as STUDY__DYNAMODB[])[0]
+
+        const ownerEmail = study.ownerEmail
+        const createdAtTimestamp = study.createdAtTimestamp
+        const previousParticipants = study.participants
+
+        // Update list of participants using existing participants.
+        const updatedParticipants: PARTICIPANT__DYNAMODB[] | undefined = previousParticipants?.filter(
+          participant => participant.id !== participantId
+        )
+
+        // 1.2.1.1 Construct the `UpdateCommand` to update the `participant`
+        //         property of the study entry in the `studies` table. 
+        const Key = {
+          ownerEmail,
+          createdAtTimestamp,
+        }
+        const UpdateExpression = 'set participants = :participants'
+
+        ExpressionAttributeValues = { ':participants': updatedParticipants }
+
+        input = {
+          TableName,
+          Key,
+          UpdateExpression,
+          ExpressionAttributeValues
+        }
+
+        command = new UpdateCommand(input)
+
+        const message = `Participant ID '${ 
+          participantId
+        }' has been deleted from study with study ID '${ 
+          studyId 
+        }' from the '${TableName}' table.`
+
+        /**
+         * @dev 1.2.1.2 Attempt to perform the `Update` operation to update 
+         *              array of participants of the `studyId` in the `studies`
+         *              table.
+         */
+        try {
+          const response = await ddbDocClient.send(command)
+
+          // console.log(`response: `, response)
+
+          // Return confirmation message
+          return NextResponse.json(
+            {
+              message,
+            },
+            {
+              status: 200,
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            }
+          )
+        } catch (error: any) {
+          console.log(
+            `Error performing Update operation on the '${TableName
+            }' table to remove a participant and update the 'participants' property: `,
+            error
+          )
+
+          // Something went wrong
+          return NextResponse.json(
+            { error: error },
+            {
+              status: 500,
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            }
+          )
+        }
+      // 1.2.2 Return error message that the Query operation to get the 
+      //       existing participants has failed.
+      } else {
+        return NextResponse.json(
+          { message: 'Owner email does not exist' },
+          {
+            status: 404,
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          },
+        )
+      }
+    } catch (error: any) {
+      console.error(
+        `Could not delete participant from study ID '${studyId}' from the '${TableName}' table: `,
+        error
+      )
+
+      // Something went wrong
+      return NextResponse.json(
+        { error: error },
+        {
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+    }
+  } else {
+    return NextResponse.json(
+      { error: 'Method Not Allowed' },
+      {
+        status: 405,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      },
+    )
+  }
+})

@@ -1,5 +1,3 @@
-'use client'
-
 // Locals
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'

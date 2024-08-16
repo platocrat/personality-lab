@@ -6,6 +6,7 @@ import { PARTICIPANT__DYNAMODB } from '@/utils'
 import useWindowWidth from '@/hooks/useWindowWidth'
 // Styles
 import { definitelyCenteredStyle } from '@/theme/styles'
+import sectionStyles from '@/sections/main-portal/studies/view/list-of-studies/ListOfStudies.module.css'
 
 
 
@@ -43,15 +44,20 @@ const ParticipantsTableBody: FC<ParticipantsTableBodyProps> = ({
                 <p>{ participant.email }</p>
               </td>
               <td style={ { width: 'auto', textAlign: 'right' } }>
-                <button 
-                  onClick={ 
-                    (e: any): void => state.handleDeleteParticipant(
-                      participant.id
-                    )
-                  }
-                >
-                  { buttonText }
-                </button>
+                <div className={ sectionStyles.buttonContainer }>
+                  <div className={ sectionStyles.buttonDiv }>
+                    <button
+                      type='button'
+                      onClick={ 
+                        (e: any): void => state.handleDeleteParticipant(
+                          participant.id
+                        )
+                      }
+                    >
+                      { buttonText }
+                    </button>
+                  </div>
+                </div>
               </td>
             </tr>
           </Fragment>

@@ -3,15 +3,17 @@ import Image from 'next/image'
 import { FC, Fragment, useContext } from 'react'
 import { definitelyCenteredStyle } from '@/theme/styles'
 // Locals
+import Tooltip from '@/sections/main-portal/studies/view/list-of-studies/table/tbody/tooltip'
 // Sections
 import StudyDropdownMenu from '@/sections/main-portal/studies/view/list-of-studies/table/dropdown-menu'
+// Contexts
+import { StudiesTableContext } from '@/contexts/StudiesTableContext'
 // Hooks
 import useWindowWidth from '@/hooks/useWindowWidth'
 // Utils
 import { STUDY__DYNAMODB } from '@/utils'
 // CSS
 import sectionStyles from '@/sections/main-portal/studies/view/list-of-studies/ListOfStudies.module.css'
-import { StudiesTableContext } from '@/contexts/StudiesTableContext'
 
 
 
@@ -46,17 +48,25 @@ const StudyTableTbody: FC<StudyTableTbodyProps> = ({
             <tr>
               {/* <td>{ study.id.slice(0, 6) + '...' }</td> */ }
               <td style={ { width: fullWidthTd } }>
-                { study.name }
+                <Tooltip text={ study.name }>
+                  <span>{ study.name }</span>
+                </Tooltip>
               </td>
               {/* <td>{ study.details.assessmentId }</td> */ }
               <td style={ { width: fullWidthTd } }>
-                { study.isActive ? 'ACTIVE' : 'INACTIVE' }
+                <Tooltip text={ study.isActive ? 'ACTIVE' : 'INACTIVE' }>
+                  <span>{ study.isActive ? 'ACTIVE' : 'INACTIVE' }</span>
+                </Tooltip>
               </td>
               <td style={ { width: fullWidthTd } }>
-                { new Date(study.createdAtTimestamp).toLocaleString() }
+                <Tooltip text={ new Date(study.createdAtTimestamp).toLocaleString() }>
+                  <span>{ new Date(study.createdAtTimestamp).toLocaleString() }</span>
+                </Tooltip>
               </td>
               <td style={ { width: fullWidthTd } }>
-                { study.adminEmails?.join(', ') }
+                <Tooltip text={ study.adminEmails?.join(', ') as string }>
+                  <span>{ study.adminEmails?.join(', ') }</span>
+                </Tooltip>
               </td>
               <td
                 style={ {

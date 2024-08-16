@@ -55,12 +55,12 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
     setNoResultsToView
   ] = useState<boolean>(false)
   const [
-    isParticipantDeleted,
-    setIsParticipantDeleted
+    participantsUpdated,
+    setParticipantsUpdated
   ] = useState<boolean>(false)
   const [
-    isDeletingParticipant,
-    setIsDeletingParticipant
+    isUpdatingParticipants,
+    setIsUpdatingParticipants
   ] = useState<boolean>(false)
   const [ isCopied, setIsCopied ] = useState(false)
   const [ participantCreated, setParticipantCreated ] = useState<boolean>(false)
@@ -267,7 +267,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
         setIsWaitingForResponse(false)
       })
     }
-  }, [ study?.id, participantCreated ])
+  }, [ study?.id, participantCreated, participantsUpdated ])
 
 
 
@@ -327,7 +327,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
                   </div>
                 )}
                 
-                { isDeletingParticipant ? (
+                { isUpdatingParticipants ? (
                   <>
                     <div
                       style={ {
@@ -349,9 +349,14 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
                       >
                         <ParticipantsTable
                           state={ {
-                            participants,
-                            setIsParticipantDeleted,
-                            setIsDeletingParticipant,
+                            setParticipantsUpdated,
+                            setIsUpdatingParticipants,
+                            study: {
+                              participants,
+                              id: study?.id,
+                              ownerEmail: study?.ownerEmail,
+                              createdAtTimestamp: study?.createdAtTimestamp,
+                            },
                           } }
                         />
                       </div>
