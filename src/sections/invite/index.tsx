@@ -175,21 +175,36 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
 
 
 
-
   return (
     <>
       <div 
         style={{ marginTop: '24px' }}
         className={ sectionStyles['form-container'] }
       >
-        <div style={{ ...definitelyCenteredStyle, marginBottom: '36px' }}>
+        <div 
+          style={{ 
+            ...definitelyCenteredStyle, 
+            marginBottom: participantRegistered ? '12px' : '36px',
+          }}
+        >
           <h3
             style={{ 
               color: isDuplicateRegistration ? 'red' : '',
             }}
           >
             { participantRegistered
-              ? `Thank you for registering for ${study?.name}!`
+              ? (
+                <>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ marginBottom: '8px' }}>
+                      { `Thank you for registering for` }
+                    </div>
+                    <div>
+                      { `${study?.name}!` }
+                    </div>
+                  </div>
+                </>
+              )
               : isDuplicateRegistration 
                 ? isDuplicateRegistrationMessage 
                 : `You've been invited to the following study`
