@@ -37,7 +37,16 @@ const BUTTONS = [
   {
     text: (
       <div style={ sidebarLinkTextContainerStyle }>
-        <span role='img' aria-label='new'>➕</span>
+        <span 
+          role='img' 
+          aria-label='new' 
+          // Left and right margin is necessary to align the starting position 
+          // of the `+` emoji with the other emojis and to align the starting
+          // position of `New Study` with all of the other sidebar texts.
+          style={{ marginLeft: '-2px', marginRight: '2px' }}
+        >
+          { `➕` }
+        </span>
         <p style={ sidebarLinkTextStyle }>{ `New Study` }</p>
       </div>
     ),
@@ -46,7 +55,7 @@ const BUTTONS = [
   {
     text: (
       <div style={ sidebarLinkTextContainerStyle }>
-        <span role='img' aria-label='search'>🔍</span>
+        <span role='img' aria-label='search'>{ `🔍` }</span>
         <p style={ sidebarLinkTextStyle }>{ `Studies` }</p>
       </div>
     ),
@@ -55,7 +64,7 @@ const BUTTONS = [
   {
     text: (
       <div style={ sidebarLinkTextContainerStyle }>
-        <span role='img' aria-label='edit'>📝</span>
+        <span role='img' aria-label='edit'>{ `📝` }</span>
         <p style={ sidebarLinkTextStyle }>{ `Assessments` }</p>
       </div>
     ),
