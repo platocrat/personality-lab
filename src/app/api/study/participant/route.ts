@@ -87,18 +87,19 @@ export async function POST(
         console.log(`participant_: `, participant_)
 
         /**
-         * @todo Remove the study from the participant's list of registered studies
+         * @todo Remove the study from the account's list of registered studies
          */
-        
+
 
         /**
-         * @dev 1.2.1.1 Check if the user had already registered for this study
+         * @dev 1.2.1.1 Check if the account had already registered for this study
          */
-        const studyToRegisterFor = participant_.studies[0].name
-        const studyNamesForParticipant = participant_.studies.map(
-          (_): string => _.name
+        const studyToRegisterFor = participant_.studies[0].id
+        const studiesForAccount: string[] | undefined = account.participant?.studies.map(
+          (study: STUDY_SIMPLE__DYNAMODB, i: number): string => study.id
         )
-        const isDuplicateRegistration = studyNamesForParticipant.includes(
+        
+        const isDuplicateRegistration = studiesForAccount?.includes(
           studyToRegisterFor
         )
 
@@ -249,7 +250,7 @@ export async function POST(
                 command = new UpdateCommand(input)
 
 
-                const successMessage = `'participants' property for study ID ${
+                const message = `'participants' property for study ID ${
                   studyId
                 } has been updated in the ${TableName} table`
 
@@ -265,13 +266,10 @@ export async function POST(
 
                   // console.log(`response: `, response)
 
-
-                  const message = successMessage || 'Operation successful'
-
                   // Return `participantId`
                   return NextResponse.json(
                     {
-                      message: message,
+                      message,
                       participantId,
                     },
                     {
@@ -458,11 +456,9 @@ export async function POST(
 
             command = new UpdateCommand(input)
 
-
-            const successMessage = `'participants' property for study ID ${
+            const message = `'participants' property for study ID ${
               studyId
             } has been updated in the ${TableName} table`
-
 
             /**
              * @dev 2.2.1.2 Attempt to perform the `UpdateCommand` on DynamoDB to 
@@ -474,13 +470,10 @@ export async function POST(
 
               // console.log(`response: `, response)
 
-
-              const message = successMessage
-
               // Return `participantId`
               return NextResponse.json(
                 {
-                  message: message,
+                  message,
                   participantId,
                 },
                 {
@@ -528,7 +521,6 @@ export async function POST(
             error
           )
 
-
           // Error sending POST request to DynamoDB table
           return NextResponse.json(
             { error: error },
@@ -540,10 +532,6 @@ export async function POST(
             },
           )
         }
-
-
-
-
       } catch (error: any) {
         console.log(
           `Error performing Update operation on the NEW account entry '${
@@ -611,6 +599,7 @@ export const DELETE = withApiAuthRequired(async function deleteParticipant(
       studyId,
       ownerEmail,
       participantId, // Used to filter existing array of participants
+      participantEmail, // Used to query the `accounts` table
       createdAtTimestamp,
     } = await req.json()
 
@@ -619,12 +608,12 @@ export const DELETE = withApiAuthRequired(async function deleteParticipant(
     //     the partition/primary key to then perform the `UpdateCommand` to
     //     update the same study entry's `participants` property.
     const IndexName = 'id-index'
-    const TableName = DYNAMODB_TABLE_NAMES.studies
-    const KeyConditionExpression = 'id = :idValue'
-
-    let ExpressionAttributeValues: { [ key: string ]: any } = { 
-      ':idValue': studyId 
-    },
+    
+    let TableName = DYNAMODB_TABLE_NAMES.studies,
+      KeyConditionExpression = 'id = :idValue',
+      ExpressionAttributeValues: { [ key: string ]: any } = { 
+        ':idValue': studyId 
+      },
       input: QueryCommandInput | UpdateCommandInput = {
         TableName,
         IndexName,
@@ -647,9 +636,9 @@ export const DELETE = withApiAuthRequired(async function deleteParticipant(
         const previousParticipants = study.participants
 
         // Update list of participants using existing participants.
-        const updatedParticipants: PARTICIPANT__DYNAMODB[] | undefined = previousParticipants?.filter(
+        const updatedParticipants = previousParticipants?.filter(
           participant => participant.id !== participantId
-        )
+        ) as PARTICIPANT__DYNAMODB[] | undefined
 
         // 1.2.1.1 Construct the `UpdateCommand` to update the `participant`
         //         property of the study entry in the `studies` table. 
@@ -670,12 +659,6 @@ export const DELETE = withApiAuthRequired(async function deleteParticipant(
 
         command = new UpdateCommand(input)
 
-        const message = `Participant ID '${ 
-          participantId
-        }' has been deleted from study with study ID '${ 
-          studyId 
-        }' from the '${TableName}' table.`
-
         /**
          * @dev 1.2.1.2 Attempt to perform the `Update` operation to update 
          *              array of participants of the `studyId` in the `studies`
@@ -686,28 +669,184 @@ export const DELETE = withApiAuthRequired(async function deleteParticipant(
 
           // console.log(`response: `, response)
 
-          // Return confirmation message
-          return NextResponse.json(
-            {
-              message,
-            },
-            {
-              status: 200,
-              headers: {
-                'Content-Type': 'application/json',
-              },
+          /**
+           * @dev 1.1 Construct `QueryCommand` to fetch the participant's account 
+           *          entry from the `accounts` table.
+           */
+          TableName = DYNAMODB_TABLE_NAMES.accounts
+          KeyConditionExpression = 'email = :emailValue'
+          ExpressionAttributeValues = {
+            ':emailValue': participantEmail,
+          }
+          input = {
+            TableName,
+            KeyConditionExpression,
+            ExpressionAttributeValues,
+          }
+          command = new QueryCommand(input)
+
+          /**
+           * @dev 1.2 Attempt to perform the `QueryCommand` on DynamoDB to get
+           *          the specific `account` object
+           */
+          try {
+            const response = await ddbDocClient.send(command)
+
+
+            // 1.2.1 Check if the user's email exists in the `accounts` table
+            if (
+              response.Items &&
+              (response.Items[0] as ACCOUNT__DYNAMODB).email
+            ) {
+              const account = response.Items[0] as ACCOUNT__DYNAMODB
+              const participant = account.participant as PARTICIPANT__DYNAMODB
+              
+              /**
+               * @dev Update `account.participant.studies` property to ensure
+               *      that the account is able to re-register for the study that
+               *      they had been deleted from.
+               */
+              const updatedAccountStudies = account.participant?.studies.filter(
+                (study: STUDY_SIMPLE__DYNAMODB): boolean => study.id !== studyId
+              ) as STUDY_SIMPLE__DYNAMODB[]
+
+              /**
+               * @dev 1.2.1.3 Get the `timestamp` from the user's account entry. 
+               *      The `timestamp` and the `studies` that are already under 
+               *      this account entry are used to construct the 
+               *      `UpdateCommand` to update the user's account entry's:
+               *          1) `participant`, and 
+               *          2) `participant.studies`
+               *      attributes.
+               */
+              const storedCreatedAtTimestamp = account.createdAtTimestamp
+
+              const participantWithUpdatedStudies: PARTICIPANT__DYNAMODB = {
+                id: participant.id,
+                email: participant.email,
+                studies: updatedAccountStudies,
+                timestamp: Date.now(),
+              }
+
+              // 1.2.1.4 Construct the `UpdateCommand` to send to DynamoDB to update
+              //         the `participant` attribute of the account entry in the
+              //         `accounts` table.
+              const Key = {
+                email: participantEmail,
+                createdAtTimestamp: storedCreatedAtTimestamp
+              }
+              const UpdateExpression =
+                'set participant = :participant, updatedAtTimestamp = :updatedAtTimestamp'
+
+              ExpressionAttributeValues = {
+                ':participant': participantWithUpdatedStudies,
+                ':updatedAtTimestamp': Date.now(),
+              }
+
+              input = {
+                TableName,
+                Key,
+                UpdateExpression,
+                ExpressionAttributeValues,
+              }
+
+              command = new UpdateCommand(input)
+
+              const message = `Account entry for ${participantEmail
+                } has been updated in the ${
+                  TableName
+                } table to remove study with study ID '${
+                  studyId
+                }`
+
+
+              // 1.2.1.5  Attempt to perform the `UpdateCommand` on DynamoDB to 
+              //          update the `participant.studies` attribute of the 
+              //          account entry in the `accounts` table.
+              try {
+                const response = await ddbDocClient.send(command)
+
+                console.log(
+                  `response from Update operation to update 'account.participant.studies': `, 
+                  response
+                )
+
+                // Success
+                return NextResponse.json(
+                  {
+                    message,
+                  },
+                  {
+                    status: 200,
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                  }
+                )
+              } catch (error: any) {
+                console.error(
+                  `Error performing Update operation on the '${TableName
+                  }' table to remove a study with study ID '${studyId
+                  }' from 'account.participant.studies': `,
+                  error
+                )
+
+                // Something went wrong
+                return NextResponse.json(
+                  { error },
+                  {
+                    status: 500,
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                  }
+                )
+              }
+            } else {
+              return NextResponse.json(
+                { message: 'Account email does not exist' },
+                {
+                  status: 404,
+                  headers: {
+                    'Content-Type': 'application/json'
+                  }
+                },
+              )
             }
-          )
+          } catch (error: any) {
+            console.error(
+              `Error performing Query operation on the '${
+                TableName
+              }' table to remove a study with study ID '${
+                studyId
+              }' from an account's participant property: `,
+              error
+            )
+
+            // Something went wrong
+            return NextResponse.json(
+              { error },
+              {
+                status: 500,
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              }
+            )
+          }
         } catch (error: any) {
-          console.log(
-            `Error performing Update operation on the '${TableName
-            }' table to remove a participant and update the 'participants' property: `,
+          console.error(
+            `Error performing Update operation on the '${
+              TableName
+            }' table to remove a participant from study with study ID '${
+              studyId 
+            }': `,
             error
           )
 
           // Something went wrong
           return NextResponse.json(
-            { error: error },
+            { error },
             {
               status: 500,
               headers: {

@@ -13,7 +13,10 @@ import sectionStyles from '@/sections/main-portal/studies/view/list-of-studies/L
 type ParticipantsTableBodyProps = {
   state: {
     participants: PARTICIPANT__DYNAMODB[] | null,
-    handleDeleteParticipant: (participantId: string) => void
+    handleDeleteParticipant: (
+      participantId: string,
+      participantEmail: string,
+    ) => void
   }
 }
 
@@ -50,7 +53,8 @@ const ParticipantsTableBody: FC<ParticipantsTableBodyProps> = ({
                       type='button'
                       onClick={ 
                         (e: any): void => state.handleDeleteParticipant(
-                          participant.id
+                          participant.id,
+                          participant.email,
                         )
                       }
                     >

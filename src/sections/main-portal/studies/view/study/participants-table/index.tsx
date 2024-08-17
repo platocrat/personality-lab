@@ -63,7 +63,10 @@ const ParticipantsTable: FC<ParticipantsTableProps> = ({
    *        `account.participant?.studies` for specific study that the account
    *        needs to re-register for
    */
-  async function handleDeleteParticipant(participantId: string) {
+  async function handleDeleteParticipant(
+    participantId: string,
+    participantEmail: string,
+  ) {
     const confirmationMessage = 'Are you sure you want to delete this participant? \n\nThis action cannot be undone.'
     const isConfirmed = window.confirm(confirmationMessage)
 
@@ -80,6 +83,7 @@ const ParticipantsTable: FC<ParticipantsTableProps> = ({
         },
         body: JSON.stringify({
           participantId,
+          participantEmail,
           studyId: state.study.id,
           ownerEmail: state.study.ownerEmail,
           createdAtTimestamp: state.study.createdAtTimestamp,
