@@ -70,6 +70,15 @@ const BUTTONS = [
     ),
     href: '/assessments',
   },
+  {
+    text: (
+      <div style={ sidebarLinkTextContainerStyle }>
+        <span role='img' aria-label='edit'>{ `🎮` }</span>
+        <p style={ sidebarLinkTextStyle }>{ `Social Rating` }</p>
+      </div>
+    ),
+    href: '/social-rating',
+  },
 ]
 
 
