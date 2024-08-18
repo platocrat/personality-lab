@@ -74,6 +74,7 @@
 }
 
 .loading-container {
+  text-align: center;
   animation: fadeInOut 1.5s infinite;
 }
 
