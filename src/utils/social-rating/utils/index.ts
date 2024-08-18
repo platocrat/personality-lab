@@ -137,7 +137,7 @@ export const generateCharacterProfile = async (
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'gpt-4o-2024-08-06',
+        model: 'gpt-4o-mini',
         // stream: true,
         messages: [
           {
@@ -161,7 +161,7 @@ export const generateCharacterProfile = async (
   /**
    * @dev 2. Parse the generated content from the LLM
    */
-  let content = data.message.content,
+  let content: string = data.message.content,
     startIndex = content.indexOf('```json'),
     genCharacters = []
 
@@ -177,7 +177,16 @@ export const generateCharacterProfile = async (
    */
   if (endIndex !== -1) {
     // 3.1 Slice the string starting after '```' and ending before the last '```'
-    const cleanedString = content.slice(startIndex, endIndex).trim()
+    let cleanedString = content.slice(startIndex, endIndex).trim()
+
+    // Handle edge case where the content that is returned is not an array and
+    // it has no starting nor ending curly brace.
+    if (cleanedString.indexOf('[') !== 0 && cleanedString.indexOf('{') !== 0) {
+      cleanedString = `{
+        ${cleanedString.trim()}
+      }`
+    }
+
     genCharacters = JSON.parse(cleanedString)
     updateCharacters(characters, setCharacters, genCharacters, setProgress)
   } else {
@@ -188,6 +197,14 @@ export const generateCharacterProfile = async (
       /**
        * @dev 3.2.1 Parse the string for the content
        */
+      // Handle edge case where the content that is returned is not an array and
+      // it has no starting nor ending curly brace.
+      if (content.indexOf('[') !== 0 && content.indexOf('{') !== 0) {
+        content = `{
+          ${content.trim()}
+        }`
+      }
+
       let genCharacters = JSON.parse(content)
 
       const _totalCharacters = genCharacters.length
@@ -214,8 +231,8 @@ export const generateCharacterProfile = async (
       /**
        * @dev 3.2.4 Handle the error on the interface
        */
-      const errorMessage = `End delimiter not found. Here is the content: ${content}\n\n\n`
-      const contentMessage = `End delimiter not found. Here is the error: ${error}\n\n\n`
+      const errorMessage = `End delimiter not found. Here is the content:\n\n${content}\n\n\n`
+      const contentMessage = `End delimiter not found. Here is the error:\n\n${error}\n\n\n`
 
       console.error(errorMessage)
       console.error(contentMessage)

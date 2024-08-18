@@ -4,6 +4,7 @@
 import {
   FC,
   useCallback,
+  useLayoutEffect,
   useMemo,
   useState
 } from 'react'
@@ -30,14 +31,15 @@ const FictionalCharacters: FC<FictionalCharactersProps> = ({
 
 }) => {
   // States
-  const [characters, setCharacters] = useState<CharacterType[]>([])
+  const [ characters, setCharacters ] = useState<CharacterType[]>([])
   // Booleans
-  const [loading, setLoading] = useState<boolean>(false)
-  const [completed, setCompleted] = useState<boolean>(false)
+  const [ reset, setReset ] = useState<boolean>(false)
+  const [ loading, setLoading ] = useState<boolean>(false)
+  const [ completed, setCompleted ] = useState<boolean>(false)
   // Numbers
-  const [progress, setProgress] = useState<number>(0)
-  const [totalCharacters, setTotalCharacters] = useState<number>(0)
-  const [currentPromptIndex, setCurrentPromptIndex] = useState<number>(0)
+  const [ progress, setProgress ] = useState<number>(0)
+  const [ totalCharacters, setTotalCharacters ] = useState<number>(0)
+  const [ currentPromptIndex, setCurrentPromptIndex ] = useState<number>(0)
 
 
   // ------------------------------------ Constants ----------------------------
@@ -66,12 +68,11 @@ const FictionalCharacters: FC<FictionalCharactersProps> = ({
   }, [progress, currentPromptIndex, loading, totalPrompts])
 
 
-  // ------------------------------- Event handlers ----------------------------
-  const generateCharacters = useCallback(async (): Promise<void> => {
+  // ----------------------------- Event handlers ------------------------------
+  const generateCharacters = async (): Promise<void> => {
     setLoading(true)
     setCompleted(false)
     setProgress(0)
-    setTotalCharacters(0)
     setCurrentPromptIndex(0)
 
     const newCharacters: CharacterType[] = []
@@ -91,10 +92,25 @@ const FictionalCharacters: FC<FictionalCharactersProps> = ({
     setLoading(false)
     setCompleted(true)
 
+    const timeout = 8_000 // 8 seconds
+
     setTimeout(() => {
       setCompleted(false)
-    }, 8_000) // Hide the notification after 8 seconds
-  }, [prompts, characters])
+      setReset(true)
+    }, timeout) // Hide the notification after 8 seconds
+  }
+
+  //-- ------------------------- `useLayoutEffect`s ----------------------------
+  useLayoutEffect(() => {
+    if (!loading) {
+      const timeout = 1_000 // 1 seconds
+
+      setTimeout(() => {
+        setProgress(0)
+        setTotalCharacters(0)
+      }, timeout)
+    }
+  }, [ loading, reset ])
 
 
 

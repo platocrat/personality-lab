@@ -60,11 +60,22 @@ const SocialRatingInstructions = ({
   state,
   generateCharacters,
 }) => {
+  const title = (
+    <>
+      <div>
+        { `AI-Generated` }
+      </div>
+      <div>
+        { `Fictional Characters from Popular Culture` }
+      </div>
+    </>
+  )
+
   return (
     <>
       {/* Title */}
       <h2>
-        { `Fictional Characters in Popular Culture` }
+        { title }
       </h2>
 
 
@@ -95,7 +106,7 @@ const SocialRatingInstructions = ({
               { `Loading...` }
             </p>
             <p>
-              { `Please wait while we generate the characters.` }
+              { `Please wait while we generate characters for each prompt.` }
             </p>
           </div>
         </>
