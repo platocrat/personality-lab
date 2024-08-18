@@ -44,9 +44,9 @@ const FictionalCharacters: FC<FictionalCharactersProps> = ({
 
   // ------------------------------------ Constants ----------------------------
   const prompts = useMemo((): string[] => [
-    'Generate a personality profile for a single character from American Horror Story.',
     'Generate a personality profile for a single character from Euphoria.',
     'Generate a personality profile for a single character from The Big Bang Theory.',
+    'Generate a personality profile for a single character from American Horror Story.',
     // Add more prompts if needed
   ], [])
 
