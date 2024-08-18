@@ -33,6 +33,7 @@ const SocialRatingInstructionsDescription = () => {
         <div 
           style={ { 
             padding: '8px',
+            fontSize: '13.85px',
             marginTop: '12px', 
             backgroundColor: '#e0e0e0',
             borderRadius: '8px',
