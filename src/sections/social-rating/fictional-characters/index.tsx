@@ -1,58 +1,29 @@
 'use client'
 
 // Externals
-import { 
+import {
   FC,
+  useCallback,
   useMemo,
-  Fragment, 
-  Dispatch,
-  useState, 
-  useEffect, 
-  useContext, 
-  CSSProperties,
-  SetStateAction,
+  useState
 } from 'react'
 // Locals
-import Instructions from './instructions'
-import SocialRatingNotification from './notification'
 import SocialRatingInstructions from './instructions'
-// Components
-import Spinner from '@/components/Suspense/Spinner'
 // Sections
 import CharacterContent from './character-content'
-import BessiResultsVisualization from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization'
-import BessiResultsSkillsScoresAndDefinitions from '@/sections/assessments/bessi/assessment/results/skills-scores-and-definitions'
-// Contexts
-import { BessiSkillScoresContextType } from '@/contexts/types'
-import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // Utils
 import {
-  UserScoresType,
-  FacetFactorType,
-  findNthOccurrence,
-  generateButtonStyle,
-  BESSI_45_ACTIVITIES,
-  calculateBessiScores,
-  SkillDomainFactorType,
-  BESSI_45_ACTIVITY_BANK,
-} from '@/utils'
-import { 
-  CharacterType, 
-  updateCharacters,
-  generateCharacterProfile,
+  CharacterType,
+  generateCharacterProfile
 } from '@/utils/social-rating/utils'
 // CSS
-import { definitelyCenteredStyle } from '@/theme/styles'
-import mainPortalStyle from '@/sections/main-portal/MainPortal.module.css'
 import styles from '@/sections/social-rating/fictional-characters/FictionalCharacters.module.css'
-
 
 
 
 type FictionalCharactersProps = {
   
 }
-
 
 
 const FictionalCharacters: FC<FictionalCharactersProps> = ({
@@ -70,30 +41,34 @@ const FictionalCharacters: FC<FictionalCharactersProps> = ({
 
 
   // ------------------------------------ Constants ----------------------------
-  const prompts = [
+  const prompts = useMemo((): string[] => [
     'Generate a personality profile for a single character from American Horror Story.',
     'Generate a personality profile for a single character from Euphoria.',
     'Generate a personality profile for a single character from The Big Bang Theory.',
     // Add more prompts if needed
-  ]
+  ], [])
 
   const totalPrompts = prompts.length
 
   // ------------------------------ Memoized constants -------------------------
-  const characterGenerationHelperText = useMemo(() => {
+  const characterGenerationHelperText = useMemo((): string => {
     const promptIndex = loading
       ? currentPromptIndex - 1
       : currentPromptIndex
 
-    const suffix = `${currentPromptIndex !== totalPrompts ? `On prompt ${currentPromptIndex}` : ''
-      }`
+    const suffix = `${
+      currentPromptIndex !== totalPrompts 
+        ? `On prompt ${currentPromptIndex}` 
+        : ''
+    }`
 
-    const _ = `Generated ${progress} characters from ${promptIndex}/${totalPrompts} prompts. ${suffix}`
-  }, [progress, currentPromptIndex])
+    const helperText = `Generated ${progress} characters from ${promptIndex}/${totalPrompts} prompts. ${suffix}`
+    return helperText
+  }, [progress, currentPromptIndex, loading, totalPrompts])
 
 
   // ------------------------------- Event handlers ----------------------------
-  const generateCharacters = async () => {
+  const generateCharacters = useCallback(async (): Promise<void> => {
     setLoading(true)
     setCompleted(false)
     setProgress(0)
@@ -118,7 +93,7 @@ const FictionalCharacters: FC<FictionalCharactersProps> = ({
     setTimeout(() => {
       setCompleted(false)
     }, 8_000) // Hide the notification after 8 seconds
-  }
+  }, [ prompts, characters ])
 
 
 
