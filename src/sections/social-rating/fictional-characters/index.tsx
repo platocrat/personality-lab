@@ -22,7 +22,7 @@ import styles from '@/sections/social-rating/fictional-characters/FictionalChara
 
 
 type FictionalCharactersProps = {
-  
+
 }
 
 
@@ -30,14 +30,14 @@ const FictionalCharacters: FC<FictionalCharactersProps> = ({
 
 }) => {
   // States
-  const [ characters, setCharacters ] = useState<CharacterType[]>([])
+  const [characters, setCharacters] = useState<CharacterType[]>([])
   // Booleans
-  const [ loading, setLoading ] = useState<boolean>(false)
-  const [ completed, setCompleted ] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [completed, setCompleted] = useState<boolean>(false)
   // Numbers
-  const [ progress, setProgress ] = useState<number>(0)
-  const [ totalCharacters, setTotalCharacters ] = useState<number>(0)
-  const [ currentPromptIndex, setCurrentPromptIndex ] = useState<number>(0)
+  const [progress, setProgress] = useState<number>(0)
+  const [totalCharacters, setTotalCharacters] = useState<number>(0)
+  const [currentPromptIndex, setCurrentPromptIndex] = useState<number>(0)
 
 
   // ------------------------------------ Constants ----------------------------
@@ -56,11 +56,10 @@ const FictionalCharacters: FC<FictionalCharactersProps> = ({
       ? currentPromptIndex - 1
       : currentPromptIndex
 
-    const suffix = `${
-      currentPromptIndex !== totalPrompts 
-        ? `On prompt ${currentPromptIndex}` 
+    const suffix = `${currentPromptIndex !== totalPrompts
+        ? `On prompt ${currentPromptIndex}`
         : ''
-    }`
+      }`
 
     const helperText = `Generated ${progress} characters from ${promptIndex}/${totalPrompts} prompts. ${suffix}`
     return helperText
@@ -72,6 +71,8 @@ const FictionalCharacters: FC<FictionalCharactersProps> = ({
     setLoading(true)
     setCompleted(false)
     setProgress(0)
+    setTotalCharacters(0)
+    setCurrentPromptIndex(0)
 
     const newCharacters: CharacterType[] = []
     setCharacters(newCharacters) // Remove any previously generated characters
@@ -93,7 +94,7 @@ const FictionalCharacters: FC<FictionalCharactersProps> = ({
     setTimeout(() => {
       setCompleted(false)
     }, 8_000) // Hide the notification after 8 seconds
-  }, [ prompts, characters ])
+  }, [prompts, characters])
 
 
 
@@ -102,15 +103,16 @@ const FictionalCharacters: FC<FictionalCharactersProps> = ({
       <div className={ styles['container'] }>
         <SocialRatingInstructions
           generateCharacters={ generateCharacters }
-          state={{
+          state={ {
             loading,
             completed,
             totalPrompts,
             setCompleted,
             totalCharacters,
-          }}
+            currentPromptIndex,
+          } }
         />
-        
+
         { /* AI-generated Characters */ }
         <CharacterContent characters={ characters } />
       </div>

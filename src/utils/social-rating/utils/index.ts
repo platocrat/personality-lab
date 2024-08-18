@@ -137,7 +137,7 @@ export const generateCharacterProfile = async (
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'gpt-4o-2024-08-06',
         // stream: true,
         messages: [
           {
@@ -162,7 +162,8 @@ export const generateCharacterProfile = async (
    * @dev 2. Parse the generated content from the LLM
    */
   let content = data.message.content,
-    startIndex = content.indexOf('```json')
+    startIndex = content.indexOf('```json'),
+    genCharacters = []
 
   // Find the end index of '```'
   const firstDelimiter = '```'
@@ -172,15 +173,16 @@ export const generateCharacterProfile = async (
   startIndex = startIndex + (startIndex === -1 ? 3 : 7)
 
   /**
-   * @dev 3.0 If there are no 3 backticks in the string that is returned...
+   * @dev 3.0 If there are 3 backticks in the string that is returned...
    */
   if (endIndex !== -1) {
     // 3.1 Slice the string starting after '```' and ending before the last '```'
     const cleanedString = content.slice(startIndex, endIndex).trim()
-    updateCharacters(characters, setCharacters, cleanedString, setProgress)
+    genCharacters = JSON.parse(cleanedString)
+    updateCharacters(characters, setCharacters, genCharacters, setProgress)
   } else {
     /**
-     * @dev 3.2.0 If there are 3 backticks in the string that is returned...
+     * @dev 3.2 If there are no 3 backticks in the string that is returned...
      */
     try {
       /**

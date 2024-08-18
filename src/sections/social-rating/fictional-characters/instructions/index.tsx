@@ -103,12 +103,21 @@ const SocialRatingInstructions = ({
 
       { /* Progress completion */ }
       <div className={ styles['progress-container'] }>
-        { }
+        { state.loading && !state.completed 
+          ? `Generating prompt ${ state.currentPromptIndex }/${ state.totalPrompts }` 
+          : `Generated characters from ${ state.totalPrompts } prompts`
+        }
         <div className={ styles['progress-bar'] }>
           <div
             className={ styles['progress-bar-fill'] }
             style={{
-              width: `${(state.currentPromptIndex - 1 / state.totalPrompts) * 100}%`
+              width: `${
+                (
+                  (
+                    state.currentPromptIndex - (state.loading ? 1 : 0)
+                  ) / state.totalPrompts
+                ) * 100
+              }%`
             }}
           />
         </div>
