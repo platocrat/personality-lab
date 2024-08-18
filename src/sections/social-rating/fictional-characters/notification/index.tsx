@@ -32,7 +32,7 @@ const SocialRatingNotification = ({ state }) => {
           right: '8px',
         } }
       >
-        { state.completed && (
+        { !state.completed && (
           <>
             <div
               style={ {

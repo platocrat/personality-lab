@@ -27,6 +27,13 @@ type FictionalCharactersProps = {
 }
 
 
+
+/**
+ * @todo Finish rudimentary game mechanics:
+ * 1. Model game invitations and game initiation after Kahoot.
+ * 2. Model game mechanics of rating each other after the PDF that Dr. Roberts
+ *    shared with you
+ */
 const FictionalCharacters: FC<FictionalCharactersProps> = ({
 
 }) => {
@@ -72,7 +79,6 @@ const FictionalCharacters: FC<FictionalCharactersProps> = ({
   const generateCharacters = async (): Promise<void> => {
     setLoading(true)
     setCompleted(false)
-    setProgress(0)
     setCurrentPromptIndex(0)
 
     const newCharacters: CharacterType[] = []
