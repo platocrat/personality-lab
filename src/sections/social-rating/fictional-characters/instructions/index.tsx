@@ -116,7 +116,7 @@ const SocialRatingInstructions = ({
       <div className={ styles['progress-container'] }>
         { state.loading && !state.completed 
           ? `Generating prompt ${ state.currentPromptIndex }/${ state.totalPrompts }` 
-          : `Generated characters from ${ state.totalPrompts } prompts`
+          : `Generated ${ state.totalCharacters } characters from ${ state.totalPrompts } prompts`
         }
         <div className={ styles['progress-bar'] }>
           <div
