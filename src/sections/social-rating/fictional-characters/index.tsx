@@ -3,10 +3,9 @@
 // Externals
 import {
   FC,
-  useCallback,
-  useLayoutEffect,
   useMemo,
-  useState
+  useState,
+  useCallback,
 } from 'react'
 // Locals
 import SocialRatingInstructions from './instructions'
@@ -76,9 +75,11 @@ const FictionalCharacters: FC<FictionalCharactersProps> = ({
 
 
   // ----------------------------- Event handlers ------------------------------
-  const generateCharacters = async (): Promise<void> => {
+  const generateCharacters = useCallback(async (): Promise<void> => {
+    setProgress(0)
     setLoading(true)
     setCompleted(false)
+    setTotalCharacters(0)
     setCurrentPromptIndex(0)
 
     const newCharacters: CharacterType[] = []
@@ -102,21 +103,10 @@ const FictionalCharacters: FC<FictionalCharactersProps> = ({
 
     setTimeout(() => {
       setCompleted(false)
-      setReset(true)
     }, timeout) // Hide the notification after 8 seconds
-  }
+  }, [ prompts, characters ])
 
-  //-- ------------------------- `useLayoutEffect`s ----------------------------
-  useLayoutEffect(() => {
-    if (!loading) {
-      const timeout = 1_000 // 1 seconds
 
-      setTimeout(() => {
-        setProgress(0)
-        setTotalCharacters(0)
-      }, timeout)
-    }
-  }, [ loading, reset ])
 
 
 

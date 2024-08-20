@@ -4,13 +4,12 @@ import { Dispatch, SetStateAction } from 'react'
 import { 
   UserScoresType, 
   FacetFactorType,
+  BESSI_45_ACTIVITIES,
   calculateBessiScores,
   SkillDomainFactorType, 
   BESSI_45_ACTIVITY_BANK,
-  BESSI_45_ACTIVITIES,
 } from '@/utils/assessments'
 import { findNthOccurrence } from '@/utils/misc'
-
 
 
 
@@ -33,6 +32,7 @@ type GeneratedCharacterType = {
     activity: string
   }[]
 }[]
+
 
 
 
@@ -114,15 +114,74 @@ export function updateCharacters(
 
 
 
-// OpenAI API request function
-export const generateCharacterProfile = async (
+
+/**
+ * @dev Parse the AI-generated content, as a string, to JSON and update the 
+ *      state of the array of character objects.
+ * @param content AI-generated content that is returned from the LLM
+ * @param setTotalCharacters 
+ * @param characters Array of AI-generated character objects
+ * @param setCharacters 
+ * @param setProgress 
+ */
+export function parseContentAndUpdateCharacters(
+  content: string,
+  setTotalCharacters: Dispatch<SetStateAction<number>>,
+  characters: CharacterType[],
+  setCharacters: Dispatch<SetStateAction<CharacterType[]>>,
+  setProgress: Dispatch<SetStateAction<number>>,
+) {
+  // Handle edge case where the content that is returned is not an array and
+  // it has no starting nor ending curly brace.
+  if (content.indexOf('[') !== 0 && content.indexOf('{') !== 0) {
+    content = `{
+        ${content.trim()}
+      }`
+  }
+
+  const genCharacters = JSON.parse(content)
+  const _totalCharacters = genCharacters.length
+
+  /**
+   * @dev 3.1.2 Update the counter of the total number of characters that 
+   *            have been generated
+   */
+  setTotalCharacters(
+    prevTotalCharacters => prevTotalCharacters + _totalCharacters
+  )
+
+  /**
+   * @dev 3.1.3 Update the content of each character
+   */
+  if (_totalCharacters > 0) {
+    genCharacters.forEach((_): void => (
+      updateCharacters(characters, setCharacters, _, setProgress)
+    ))
+  } else {
+    updateCharacters(characters, setCharacters, genCharacters, setProgress)
+  }
+}
+
+
+
+
+/**
+ * @dev OpenAI API request function
+ * @param prompt 
+ * @param characters 
+ * @param setCharacters 
+ * @param setTotalCharacters 
+ * @param setProgress 
+ * @param setCurrentPromptIndex 
+ */
+export async function generateCharacterProfile(
   prompt: string,
   characters: CharacterType[],
   setCharacters: Dispatch<SetStateAction<CharacterType[]>>,
   setTotalCharacters: Dispatch<SetStateAction<number>>,
   setProgress: Dispatch<SetStateAction<number>>,
   setCurrentPromptIndex: Dispatch<SetStateAction<number>>,
-): Promise<void> => {
+): Promise<void> {
   setCurrentPromptIndex(prevIndex => prevIndex + 1)
 
   const SYSTEM_CONTENT = `You will be provided with a fictional pop-culture series name (e.g. Harry Potter, Game of Thrones, Euphoria, The Big Bang Theory, American Horror Story, etc.). Your task is to simulate responses to the following 45 activities for up to 3 characters that are from the given pop-culture series: for each activity, respond with a rating between 1 and 5 to represent how others would rate that fictional pop-culture character, with 1 representing not at all likely to do the activity and 5 representing very much likely to do the activity. You must give the rating for each of the 45 activities in your response. Additionally, you must give the description of the personality of the character. For example, if given 'Harry Potter', you should respond with 'Harry Potter from the Harry Potter series is the brave protagonist of the series. Now, here are the responses to each of the 45 activities:'. The description must be around 250 words. Remember that this must be for each character. Furthermore, return your response as an array of JSON objects where each JSON object includes the description, the list of 45-ratings, and the character's name. To be clear, the type of the response that you must return is, 'type ResponsesType = { group: string, name: string, description: string, responses: { response: number, activity: string, id: number }[] }[]'. Below is the list of activities: ${BESSI_45_ACTIVITIES.join('?')}`
@@ -179,54 +238,25 @@ export const generateCharacterProfile = async (
     // 3.1 Slice the string starting after '```' and ending before the last '```'
     let cleanedString = content.slice(startIndex, endIndex).trim()
 
-    // Handle edge case where the content that is returned is not an array and
-    // it has no starting nor ending curly brace.
-    if (cleanedString.indexOf('[') !== 0 && cleanedString.indexOf('{') !== 0) {
-      cleanedString = `{
-        ${cleanedString.trim()}
-      }`
-    }
-
-    genCharacters = JSON.parse(cleanedString)
-    updateCharacters(characters, setCharacters, genCharacters, setProgress)
+    parseContentAndUpdateCharacters(
+      cleanedString,
+      setTotalCharacters,
+      characters,
+      setCharacters,
+      setProgress
+    )
   } else {
     /**
      * @dev 3.2 If there are no 3 backticks in the string that is returned...
      */
     try {
-      /**
-       * @dev 3.2.1 Parse the string for the content
-       */
-      // Handle edge case where the content that is returned is not an array and
-      // it has no starting nor ending curly brace.
-      if (content.indexOf('[') !== 0 && content.indexOf('{') !== 0) {
-        content = `{
-          ${content.trim()}
-        }`
-      }
-
-      let genCharacters = JSON.parse(content)
-
-      const _totalCharacters = genCharacters.length
-
-      /**
-       * @dev 3.2.2 Update the counter of the total number of characters that 
-       *            have been generated
-       */
-      setTotalCharacters(
-        prevTotalCharacters => prevTotalCharacters + _totalCharacters
+      parseContentAndUpdateCharacters(
+        content,
+        setTotalCharacters,
+        characters,
+        setCharacters,
+        setProgress
       )
-
-      /**
-       * @dev 3.2.3 Update the content of each character
-       */
-      if (_totalCharacters > 0) {
-        genCharacters.forEach((_) => (
-          updateCharacters(characters, setCharacters, _, setProgress)
-        ))
-      } else {
-        updateCharacters(characters, setCharacters, genCharacters, setProgress)
-      }
     } catch (error: any) {
       /**
        * @dev 3.2.4 Handle the error on the interface
