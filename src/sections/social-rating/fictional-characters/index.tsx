@@ -11,6 +11,7 @@ import {
 import SocialRatingInstructions from './instructions'
 // Sections
 import CharacterContent from './character-content'
+import InitiateGame from './instructions/initiate-game'
 // Utils
 import {
   CharacterType,
@@ -18,6 +19,8 @@ import {
 } from '@/utils/social-rating/utils'
 // CSS
 import styles from '@/sections/social-rating/fictional-characters/FictionalCharacters.module.css'
+import Generate from './generate'
+import SocialRatingNotification from './notification'
 
 
 
@@ -123,6 +126,30 @@ const FictionalCharacters: FC<FictionalCharactersProps> = ({
             totalCharacters,
             currentPromptIndex,
           } }
+        />
+
+        <InitiateGame />
+
+        <Generate
+          generateCharacters={ generateCharacters }
+          state={{
+            loading,
+            completed,
+            totalPrompts,
+            setCompleted,
+            totalCharacters,
+            currentPromptIndex,
+          }}
+        />
+
+        { /* Green success notification */ }
+        <SocialRatingNotification
+          state={{
+            completed,
+            totalPrompts,
+            setCompleted,
+            totalCharacters,
+          }}
         />
 
         { /* AI-generated Characters */ }
