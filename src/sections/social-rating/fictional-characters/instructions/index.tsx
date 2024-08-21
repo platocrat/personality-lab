@@ -1,16 +1,6 @@
-// Externals 
-import { Dispatch, FC, SetStateAction } from 'react'
-// Locals 
-// Components
-import Spinner from '@/components/Suspense/Spinner'
+// Locals
 // Sections
-import SocialRatingNotification from '../notification'
 import SocialRatingInstructionsDescription from './description'
-import CharacterGenerationSuspense from './character-generation-suspense'
-// CSS
-import { definitelyCenteredStyle } from '@/theme/styles'
-import styles from '@/sections/social-rating/fictional-characters/FictionalCharacters.module.css'
-import Generate from '../generate'
 
 
 
@@ -19,11 +9,7 @@ type SocialRatingInstructionsProps = {
 
 
 
-
-const SocialRatingInstructions = ({
-  state,
-  generateCharacters,
-}) => {
+const SocialRatingInstructions = ({}) => {
   const title = (
     <>
       <div>

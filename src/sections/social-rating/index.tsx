@@ -40,7 +40,12 @@ const SocialRating: FC<SocialRatingProps> = ({
         } }
       >
         <main className={ `${styles.main}` }>
-          <div style={{ ...definitelyCenteredStyle, flexDirection: 'column' } }>
+          <div 
+            style={{ 
+              ...definitelyCenteredStyle, 
+              flexDirection: 'column',
+            }}
+          >
             <FictionalCharacters />
           </div>
         </main>

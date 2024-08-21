@@ -9,6 +9,8 @@ import Spinner from '@/components/Suspense/Spinner'
 import ProgressBar from '@/components/Progress/ProgressBar'
 import BessiSkillScoresLayout from '@/components/Layouts/BessiSkillScoresLayout'
 import UserDemographicsLayout from '@/components/Layouts/UserDemographics'
+// Contexts
+import { GameSessionProvider } from '@/contexts/GameSessionContext'
 // Types
 import {
   ACCOUNT__DYNAMODB,
@@ -58,8 +60,10 @@ export default function RootLayout({
             <UserProvider>
               <UserDemographicsLayout>
                 <BessiSkillScoresLayout>
-                  <Header />
-                  { children }
+                  <GameSessionProvider>
+                    <Header />
+                    { children }
+                  </GameSessionProvider>
                 </BessiSkillScoresLayout>
               </UserDemographicsLayout>
             </UserProvider>
