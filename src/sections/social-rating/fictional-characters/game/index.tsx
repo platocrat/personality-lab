@@ -126,3 +126,5 @@ const SocialRatingGame: FC<SocialRatingGameProps> = ({}) => {
     </>
   )
 }
+
+export default SocialRatingGame
