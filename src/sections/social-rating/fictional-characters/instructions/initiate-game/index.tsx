@@ -8,9 +8,9 @@ import ProgressBarLink from '@/components/Progress/ProgressBarLink'
 import { GameSessionContextType } from '@/contexts/types'
 import { GameSessionContext } from '@/contexts/GameSessionContext'
 // CSS
+import { definitelyCenteredStyle } from '@/theme/styles'
 import pageStyles from '@/sections/social-rating/fictional-characters/FictionalCharacters.module.css'
 import styles from '@/sections/social-rating/fictional-characters/instructions/initiate-game/InitiateGame.module.css'
-import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
