@@ -37,31 +37,8 @@ const ParticipantsTable: FC<ParticipantsTableProps> = ({
 
   // --------------------------- Async functions -------------------------------
   /**
-   * Delete a single participant from the `studies` table using a POST operation
+   * @dev Delete a single participant from the `studies` table using a POST operation
    * @param participantId
-   * @todo Fix duplicate participant registrations for an individual study.
-   * Issue: Duplicate study registrations per account, NOT per participant
-   * Explanation: 
-   * 1. If a participant is deleted,
-   * 2. And the participant still has an account that is stored in the
-   *    database, 
-   * 3. And the same account attempts to re-register for a previously 
-   *    registered study, 
-   * 4. Then the invite page will throw an error saying that the user has
-   *    already registered for that study.
-   *       
-   * Solutions: 
-   * 1. The current solution after the participant has been deleted from the
-   *    study:
-   *    1.1 Delete the account of the participant that was deleted from the 
-   *        study
-   *    1.2 Re-register the participant using the traditional method of
-   *        registering on the Invite page for the specific study
-   * 2. Allow an account to re-register for a study if they have been removed as
-   *    a participant from a study:
-   *    2.1 Delete study from the account's list of studies by filtering 
-   *        `account.participant?.studies` for specific study that the account
-   *        needs to re-register for
    */
   async function handleDeleteParticipant(
     participantId: string,
@@ -76,6 +53,9 @@ const ParticipantsTable: FC<ParticipantsTableProps> = ({
     state.setParticipantsUpdated(false)
 
     try {
+      /**
+       * @todo `Delete` API route fails in GitHub Actions deployment
+       */
       const response = await fetch('/api/study/participant', {
         method: 'DELETE',
         headers: {
