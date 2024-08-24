@@ -54,7 +54,7 @@ const ParticipantsTable: FC<ParticipantsTableProps> = ({
 
     try {
       /**
-       * @todo `Delete` API route fails in GitHub Actions deployment
+       * @todo `DELETE` API route fails in GitHub Actions deployment
        */
       const response = await fetch('/api/study/participant', {
         method: 'DELETE',
