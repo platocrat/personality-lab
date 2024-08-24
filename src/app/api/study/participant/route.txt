@@ -2,13 +2,10 @@
 import {
   QueryCommand,
   UpdateCommand,
-  DeleteCommand,
   QueryCommandInput,
-  DeleteCommandInput,
   UpdateCommandInput,
-  } from '@aws-sdk/lib-dynamodb'
+} from '@aws-sdk/lib-dynamodb'
 import { NextRequest, NextResponse } from 'next/server'
-import { withApiAuthRequired, getSession } from '@auth0/nextjs-auth0'
 // Locals
 import {
   getEntryId,
@@ -82,11 +79,6 @@ export async function POST(
       ) {
         const account = response.Items[0] as ACCOUNT__DYNAMODB
 
-        
-        console.log(`\n\n\nInitiating participant REGISTRATION for study:\n`)
-        console.log(`account.email: `, account.email)
-        console.log(`account.participant?.studies: `, account.participant?.studies)
-        console.log(`participant_: `, participant_)
 
         /**
          * @dev 1.2.1.1 Check if the account had already registered for this 
@@ -135,7 +127,7 @@ export async function POST(
 
           const updatedParticipant: STUDY_SIMPLE__DYNAMODB[] = storedParticipantStudies
             ? [...storedParticipantStudies, participant_.studies[0] ]
-              : [ participant_.studies[0] ]
+            : [ participant_.studies[0] ]
 
 
           const participantWithUpdatedStudies: PARTICIPANT__DYNAMODB = {
