@@ -83,14 +83,14 @@ export async function POST(
          * @dev 1.2.1.1 Check if the account has already registered for this
          *              study
          */
-        const studyToRegisterFor: string = participant_.studies[0].id
-        const studiesForAccount = account.participant?.studies.map(
-          (study: STUDY_SIMPLE__DYNAMODB, i: number): string => study.id
-        ) as string[]
+        const studyToRegisterFor = participant_.studies[0].name
+        const participantStudyNames = participant_.studies.map(
+          (_): string => _.name
+        )
 
-        const isDuplicateRegistration = studiesForAccount?.includes(
+        const isDuplicateRegistration = participantStudyNames.includes(
           studyToRegisterFor
-        ) as boolean
+        )
 
         /**
          * @dev 1.2.1.2 If this is a duplicate registration...
@@ -259,12 +259,12 @@ export async function POST(
                     }
                   )
                 } catch (error: any) {
-                  // console.error(
-                  //   `Error performing Update operation on the '${
-                  //     TableName
-                  //   }' table to update the 'participants' property: `,
-                  //   error
-                  // )
+                  console.error(
+                    `Error performing Update operation on the '${
+                      TableName
+                    }' table to update the 'participants' property: `,
+                    error
+                  )
 
                   // Something went wrong
                   return NextResponse.json(
@@ -289,12 +289,12 @@ export async function POST(
                 )
               }
             } catch (error: any) {
-              // console.error(
-              //   `Error using ID '${studyId}' to perform Query operation on '${
-              //     TableName
-              //   }' to get ownerEmail: `,
-              //   error
-              // )
+              console.error(
+                `Error using ID '${studyId}' to perform Query operation on '${
+                  TableName
+                }' to get ownerEmail: `,
+                error
+              )
 
               // Error sending POST request to DynamoDB table
               return NextResponse.json(
@@ -308,12 +308,12 @@ export async function POST(
               )
             }
           } catch (error: any) {
-            // console.error(
-            //   `Error performing Update operation on EXISTING account entry in the '${
-            //     TableName
-            //   }' to update the 'participant' property: `,
-            //   error
-            // )
+            console.error(
+              `Error performing Update operation on EXISTING account entry in the '${
+                TableName
+              }' to update the 'participant' property: `,
+              error
+            )
 
             // Something went wrong
             return NextResponse.json(
@@ -454,12 +454,12 @@ export async function POST(
                 }
               )
             } catch (error: any) {
-              // console.error(
-              //   `Error performing Update operation on the '${
-              //     TableName
-              //   }' table to update the 'participants' property: `,
-              //   error
-              // )
+              console.error(
+                `Error performing Update operation on the '${
+                  TableName
+                }' table to update the 'participants' property: `,
+                error
+              )
 
               // Something went wrong
               return NextResponse.json(
@@ -484,12 +484,12 @@ export async function POST(
             )
           }
         } catch (error: any) {
-          // console.error(
-          //   `Error using ID '${ studyId }' to perform Query operation on '${
-          //     TableName
-          //   }' to get ownerEmail: `, 
-          //   error
-          // )
+          console.error(
+            `Error using ID '${ studyId }' to perform Query operation on '${
+              TableName
+            }' to get ownerEmail: `, 
+            error
+          )
 
           // Error sending POST request to DynamoDB table
           return NextResponse.json(
@@ -503,12 +503,12 @@ export async function POST(
           )
         }
       } catch (error: any) {
-        // console.error(
-        //   `Error performing Update operation on the NEW account entry '${
-        //     TableName
-        //   }' to update the 'participant' property: `, 
-        //   error
-        // )
+        console.error(
+          `Error performing Update operation on the NEW account entry '${
+            TableName
+          }' to update the 'participant' property: `, 
+          error
+        )
 
         // Something went wrong
         return NextResponse.json(
@@ -608,7 +608,7 @@ export const DELETE = withApiAuthRequired(async function deleteParticipant(
         // Update list of participants using existing participants.
         const updatedParticipants = previousParticipants?.filter(
           participant => participant.id !== participantId
-        ) as PARTICIPANT__DYNAMODB[]
+        ) as PARTICIPANT__DYNAMODB[] | undefined
 
         // 1.2.1.1 Construct the `UpdateCommand` to update the `participant`
         //         property of the study entry in the `studies` table. 
