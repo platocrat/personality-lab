@@ -86,7 +86,7 @@ export async function POST(
         const studyToRegisterFor: string = participant_.studies[0].id
         const studiesForAccount = account.participant?.studies.map(
           (study: STUDY_SIMPLE__DYNAMODB, i: number): string => study.id
-        ) as string[] | undefined
+        ) as string[]
 
         const isDuplicateRegistration = studiesForAccount?.includes(
           studyToRegisterFor
@@ -608,7 +608,7 @@ export const DELETE = withApiAuthRequired(async function deleteParticipant(
         // Update list of participants using existing participants.
         const updatedParticipants = previousParticipants?.filter(
           participant => participant.id !== participantId
-        ) as PARTICIPANT__DYNAMODB[] | undefined
+        ) as PARTICIPANT__DYNAMODB[]
 
         // 1.2.1.1 Construct the `UpdateCommand` to update the `participant`
         //         property of the study entry in the `studies` table. 
