@@ -1,5 +1,6 @@
 # Dockerfile
-FROM --platform=linux/amd64 node:current-alpine
+FROM --platform=linux/amd64 node:22.6-alpine
+
 # Set the working directory
 WORKDIR /personality-lab-app
 
