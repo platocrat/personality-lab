@@ -1,5 +1,5 @@
 # Dockerfile
-FROM --platform=linux/amd64 node:22.6-alpine
+FROM --platform=linux/amd64 node:lts-bookworm-slim
 
 # Set the working directory
 WORKDIR /personality-lab-app
