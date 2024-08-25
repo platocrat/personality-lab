@@ -83,14 +83,14 @@ export async function POST(
          * @dev 1.2.1.1 Check if the account has already registered for this
          *              study
          */
-        const studyToRegisterFor = participant_.studies[0].name
-        const participantStudyNames = participant_.studies.map(
-          (_): string => _.name
-        )
+        const studyToRegisterFor: string = participant_.studies[0].id
+        const studiesForAccount = account.participant?.studies.map(
+          (study: STUDY_SIMPLE__DYNAMODB, i: number): string => study.id
+        ) as string[] | undefined
 
-        const isDuplicateRegistration = participantStudyNames.includes(
+        const isDuplicateRegistration = studiesForAccount?.includes(
           studyToRegisterFor
-        )
+        ) as boolean
 
         /**
          * @dev 1.2.1.2 If this is a duplicate registration...

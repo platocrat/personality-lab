@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20.17.0'
+          node-version: '20.16.0'
       # Phase 0: Create `.env.local` file from Auth0 environment variables
       - name: 0. Extract Auth0 environment variables to create .env.local file
         run: '
