@@ -3,6 +3,7 @@ import {
   FC,
   useState,
   CSSProperties,
+  useMemo,
 } from 'react'
 import { useRouter } from 'next/navigation'
 // Locals
@@ -65,6 +66,13 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
     availableAssessment: { id: string, name: string }
   ): boolean => availableAssessment.id === study?.details.assessmentId
   )?.name
+
+  const studyIdSlice = useMemo((): string => {
+    const length = study?.id.length ?? 0
+    const studyIdSlice = length - 9
+    const studyIdTruncated = study?.id.slice(studyIdSlice, length)
+    return `...` + studyIdTruncated
+  }, [ study?.id ])
 
 
   // ---------------------------- Async functions ------------------------------
@@ -184,7 +192,7 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
         <div 
           style={{ 
             ...definitelyCenteredStyle, 
-            marginBottom: participantRegistered ? '12px' : '36px',
+            marginBottom: participantRegistered ? '12px' : '24px',
           }}
         >
           <h3
@@ -232,6 +240,10 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
                 { study?.name }
               </p>
               <p style={ pStyle }>
+                <span>{ `Study ID:` }</span>
+                  { studyIdSlice }
+              </p>
+              <p style={ pStyle }>
                 <span>{ `Description:` }</span>
                 { study?.details.description }
               </p>
@@ -246,8 +258,6 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
 
             { !isDuplicateRegistration && (
               <>
-                <div style={ { marginBottom: '48px' } } />
-
                 <InviteRegistrationForm 
                   onSubmit={ handleOnRegisterForAssessment }
                   state={{

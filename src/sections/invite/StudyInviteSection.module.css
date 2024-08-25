@@ -2,6 +2,7 @@
 /* Primary blue color: rgb(0, 123, 194, 1) */
 .form-container {
   position: relative;
+  text-align: center;
   width: 100%;
   max-width: 700px;
   margin: 0 auto;
@@ -49,7 +50,6 @@
   border-radius: 5px;
   cursor: pointer;
   border: none;
-  margin-top: 24px;
   transition: background-color 0.15s ease;
 }
 
@@ -59,10 +59,19 @@
 
 /* Additional styling for the paragraph elements */
 .form-container p {
-  margin: 16px 0;
+  margin: 6px 0;
   /* Increased vertical spacing */
   font-size: 16px;
   color: #333;
+}
+
+@media (max-width: 800px) {
+  .form-container p {
+    margin: 6px 0;
+    /* Increased vertical spacing */
+    font-size: 13.5px;
+    color: #333;
+  }
 }
 
 .form-container p span {
