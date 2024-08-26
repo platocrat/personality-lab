@@ -17,6 +17,7 @@ import styles from '@/app/page.module.css'
 
 
 
+
 const getColorForScore = (score) => {
   if (score >= 0 && score <= 20) {
     return '#ff0000' // Red for very low
@@ -34,6 +35,8 @@ const getColorForScore = (score) => {
 }
 
 
+
+
 const SkillsScoresAndDefinitionsTable: FC<{
   facetScores?: FacetFactorType,
   domainScores?: SkillDomainFactorType,
@@ -41,148 +44,149 @@ const SkillsScoresAndDefinitionsTable: FC<{
   facetScores,
   domainScores,
 }) => {
-    const { bessiSkillScores } = useContext(BessiSkillScoresContext)
+  const { bessiSkillScores } = useContext(BessiSkillScoresContext)
 
 
-
-
-    return (
-      <div>
-        { Object.keys(SKILLS_MAPPING.domains).map((domain: string, i: number) => (
-          <div 
-            key={ `skills-scores-and-definitions-${domain}-${i}` } 
-            className={ styles.card }
-            style={{
-              padding: '16px',
-              marginBottom: '16px',
-            }}
-          >
-            <div className={ styles.card_body }>
-              <div className={ styles.card_item }>
-                <div className={ styles.bessi_domain_header }>
-                  { domain }
-                  <span
-                    className={ styles.bessi_definition_score }
-                    style={ {
-                      position: 'relative',
-                      top: '-4px',
-                      fontSize: 'clamp(14px, 2.5vw, 18px)'
-                    } }
-                  >
-                    { domainScores 
-                      ? domainScores[domain] ?? 0 
-                      : bessiSkillScores?.domainScores[domain] ?? 0 
-                    }
-                  </span>
-                  {/* Score range label */}
-                  <div 
+  return (
+    <div>
+      { Object.keys(SKILLS_MAPPING.domains).map((domain: string, i: number) => (
+        <div 
+          key={ `skills-scores-and-definitions-${domain}-${i}` } 
+          className={ styles.card }
+          style={{
+            padding: '16px',
+            marginBottom: '16px',
+          }}
+        >
+          <div className={ styles.card_body }>
+            <div className={ styles.card_item }>
+              <div className={ styles.bessi_domain_header }>
+                { domain }
+                <span
+                  className={ styles.bessi_definition_score }
+                  style={ {
+                    position: 'relative',
+                    top: '-4px',
+                    fontSize: 'clamp(14px, 2.5vw, 18px)'
+                  } }
+                >
+                  { domainScores 
+                    ? domainScores[domain] ?? 0 
+                    : bessiSkillScores?.domainScores[domain] ?? 0 
+                  }
+                </span>
+                {/* Score range label */}
+                <div 
+                  style={{ 
+                    backgroundColor: getColorForScore(
+                        domainScores
+                          ? domainScores[domain] ?? 0
+                          : bessiSkillScores?.domainScores[domain] ?? 0
+                      ), 
+                    borderRadius: '5px', 
+                    padding: '0px 7.5px',
+                    marginLeft: '14px',
+                    position: 'relative',
+                    top: '-1px',
+                  }}
+                >
+                  <p 
                     style={{ 
-                      backgroundColor: getColorForScore(
-                          domainScores
-                            ? domainScores[domain] ?? 0
-                            : bessiSkillScores?.domainScores[domain] ?? 0
-                        ), 
-                      borderRadius: '5px', 
-                      padding: '0px 7.5px',
-                      marginLeft: '14px',
+                      color: 'white', 
+                      fontWeight: '800', 
+                      filter: 'drop-shadow(0px 0px 1px rgba(0, 0, 0, 0.85))',
                       position: 'relative',
-                      top: '-1px',
+                      top: '4.5px',
                     }}
                   >
-                    <p 
-                      style={{ 
-                        color: 'white', 
-                        fontWeight: '800', 
-                        filter: 'drop-shadow(0px 0px 1px rgba(0, 0, 0, 0.85))',
-                        position: 'relative',
-                        top: '4.5px',
-                      }}
-                    >
-                      { 
-                        getRangeLabel(
-                          domainScores 
-                            ? domainScores[domain] ?? 0 
-                            : bessiSkillScores?.domainScores[domain] ?? 0
-                        ) 
-                      }
-                    </p>
-                  </div>
-                </div>
-                <div className={ styles.bessi_definition }>
-                  <span className={ styles.bessi_definition_text }>
-                    { SKILLS_MAPPING.domains[domain].description }
-                  </span>
+                    { 
+                      getRangeLabel(
+                        domainScores 
+                          ? domainScores[domain] ?? 0 
+                          : bessiSkillScores?.domainScores[domain] ?? 0
+                      ) 
+                    }
+                  </p>
                 </div>
               </div>
+              <div className={ styles.bessi_definition }>
+                <span className={ styles.bessi_definition_text }>
+                  { SKILLS_MAPPING.domains[domain].description }
+                </span>
+              </div>
+            </div>
 
-              <div className={ styles.facets_grid }>
-                { Object.keys(SKILLS_MAPPING.domains[domain].facets).map((facet: string, j: number) => (
-                  <div key={ `skills-scores-and-definitions-${domain}-${facet}-${j}` } className={ styles.card_item }>
-                    <div className={ styles.bessi_definition }>
-                      <strong 
-                        style={{ 
-                          display: 'flex', 
-                          flexDirection: 'row' 
+            <div className={ styles.facets_grid }>
+              { Object.keys(SKILLS_MAPPING.domains[domain].facets).map((facet: string, j: number) => (
+                <div key={ `skills-scores-and-definitions-${domain}-${facet}-${j}` } className={ styles.card_item }>
+                  <div className={ styles.bessi_definition }>
+                    <strong 
+                      style={{ 
+                        display: 'flex', 
+                        flexDirection: 'row' 
+                      }}
+                    >
+                      { facet }
+
+                      <span 
+                        className={ styles.bessi_definition_score }
+                        style={{
+                          position: 'relative',
+                          top: '-3px',
                         }}
                       >
-                        { facet }
-
-                        <span 
-                          className={ styles.bessi_definition_score }
-                          style={{
-                            position: 'relative',
-                            top: '-3px',
-                          }}
-                        >
-                          { facetScores ? facetScores[facet] ?? 0 : bessiSkillScores?.facetScores[facet] ?? 0 }
-                        </span>
-                        
-                        {/* Score range label */ }
-                        <div
+                        { facetScores ? facetScores[facet] ?? 0 : bessiSkillScores?.facetScores[facet] ?? 0 }
+                      </span>
+                      
+                      {/* Score range label */ }
+                      <div
+                        style={ {
+                          backgroundColor: getColorForScore(
+                            facetScores
+                              ? facetScores[facet] ?? 0
+                              : bessiSkillScores?.facetScores[facet] ?? 0
+                          ),
+                          borderRadius: '5px',
+                          padding: '0px 7.5px',
+                          marginLeft: '14px',
+                          position: 'relative',
+                        } }
+                      >
+                        <p
                           style={ {
-                            backgroundColor: getColorForScore(
+                            color: 'white',
+                            fontWeight: '800',
+                            filter: 'drop-shadow(0px 0px 1px rgba(0, 0, 0, 0.85))',
+                            position: 'relative',
+                            top: '2.5px',
+                          } }
+                        >
+                          {
+                            getRangeLabel(
                               facetScores
                                 ? facetScores[facet] ?? 0
                                 : bessiSkillScores?.facetScores[facet] ?? 0
-                            ),
-                            borderRadius: '5px',
-                            padding: '0px 7.5px',
-                            marginLeft: '14px',
-                            position: 'relative',
-                          } }
-                        >
-                          <p
-                            style={ {
-                              color: 'white',
-                              fontWeight: '800',
-                              filter: 'drop-shadow(0px 0px 1px rgba(0, 0, 0, 0.85))',
-                              position: 'relative',
-                              top: '2.5px',
-                            } }
-                          >
-                            {
-                              getRangeLabel(
-                                facetScores
-                                  ? facetScores[facet] ?? 0
-                                  : bessiSkillScores?.facetScores[facet] ?? 0
-                              )
-                            }
-                          </p>
-                        </div>
-                      </strong>
-                      <span className={ styles.bessi_definition_text }>
-                        { SKILLS_MAPPING.domains[domain].facets[facet] }
-                      </span>
-                    </div>
+                            )
+                          }
+                        </p>
+                      </div>
+                    </strong>
+                    <span className={ styles.bessi_definition_text }>
+                      { SKILLS_MAPPING.domains[domain].facets[facet] }
+                    </span>
                   </div>
-                )) }
-              </div>
+                </div>
+              )) }
             </div>
           </div>
-        )) }
-      </div>
-    )
-  }
+        </div>
+      )) }
+    </div>
+  )
+}
+
+
+
 
 const BessiResultsSkillsScoresAndDefinitions: FC<{
   facetScores?: FacetFactorType,
@@ -191,20 +195,23 @@ const BessiResultsSkillsScoresAndDefinitions: FC<{
   facetScores,
   domainScores,
 }) => {
-    const title = `Skill Scores and Definitions`
+  const title = `Skill Scores and Definitions`
 
-    return (
-      <div style={ { margin: '12px 0px 48px 0px' } }>
-        <div style={ { margin: '18px' } }>
-          <h3 style={ { fontSize: 'clamp(14px, 2.5vw, 16px)' } }>{ title }</h3>
-        </div>
-
-        <SkillsScoresAndDefinitionsTable
-          facetScores={ facetScores }
-          domainScores={ domainScores }
-        />
+  return (
+    <div style={ { margin: '12px 0px 48px 0px' } }>
+      <div style={ { margin: '18px' } }>
+        <h3 style={ { fontSize: 'clamp(14px, 2.5vw, 16px)' } }>
+          { title }
+        </h3>
       </div>
-    )
-  }
+
+      <SkillsScoresAndDefinitionsTable
+        facetScores={ facetScores }
+        domainScores={ domainScores }
+      />
+    </div>
+  )
+}
+
 
 export default BessiResultsSkillsScoresAndDefinitions

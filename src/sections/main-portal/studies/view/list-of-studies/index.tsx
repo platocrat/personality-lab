@@ -127,6 +127,9 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
         spinnerOptions={{
           showSpinner: true,
           containerStyle: {
+            // `top: '0px'` is required to overwrite the default '80px' that 
+            // positions the spinner out of bounds of the parent container
+            top: '0px',
             margin: '24px 0px',
           }
         }}

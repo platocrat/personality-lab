@@ -54,6 +54,14 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
     noResultsToView,
     setNoResultsToView
   ] = useState<boolean>(false)
+  const [
+    participantsUpdated,
+    setParticipantsUpdated
+  ] = useState<boolean>(false)
+  const [
+    isUpdatingParticipants,
+    setIsUpdatingParticipants
+  ] = useState<boolean>(false)
   const [ isCopied, setIsCopied ] = useState(false)
   const [ participantCreated, setParticipantCreated ] = useState<boolean>(false)
   // Custom
@@ -70,7 +78,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
     return results !== null && results !== undefined
   }, [ participants ])
 
-  // -------------------------- Async functions functions ------------------------------
+  // -------------------------- Async functions --------------------------------
   // ~~~~~~ Button handlers ~~~~~~
   function handleCopyInviteLink ()  {
     navigator.clipboard.writeText(inviteUrl)
@@ -259,7 +267,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
         setIsWaitingForResponse(false)
       })
     }
-  }, [ study?.id, participantCreated ])
+  }, [ study?.id, participantCreated, participantsUpdated ])
 
 
 
@@ -318,20 +326,46 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
                     )) }
                   </div>
                 )}
-
-                { participants !== null && participants.length > 0 ? (
-                  <div 
-                    className={ `${viewStudiesStyles['form-container']}` }
-                    style={{ 
-                      marginTop: participants[0].studies[0].results ? '36px' : ''
-                    }}
-                  >
-                    <ParticipantsTable participants={ participants } />
-                  </div>
+                
+                { isUpdatingParticipants ? (
+                  <>
+                    <div
+                      style={ {
+                        ...definitelyCenteredStyle,
+                        position: 'relative',
+                      } }
+                    >
+                      <Spinner height='36' width='36' />
+                    </div>
+                  </>
                 ) : (
-                  <div style={{ margin: '72px 0px' }}>
-                    <h3>{ `Invite participants to register to your study!` }</h3>
-                  </div>
+                  <>
+                    { participants !== null && participants.length > 0 ? (
+                      <div
+                        className={ `${viewStudiesStyles['form-container']}` }
+                        style={ {
+                          marginTop: participants[0].studies[0].results ? '36px' : ''
+                        } }
+                      >
+                        <ParticipantsTable
+                          state={ {
+                            setParticipantsUpdated,
+                            setIsUpdatingParticipants,
+                            study: {
+                              participants,
+                              id: study?.id,
+                              ownerEmail: study?.ownerEmail,
+                              createdAtTimestamp: study?.createdAtTimestamp,
+                            },
+                          } }
+                        />
+                      </div>
+                    ) : (
+                      <div style={ { margin: '72px 0px' } }>
+                        <h3>{ `Invite participants to register to your study!` }</h3>
+                      </div>
+                    ) }  
+                  </>
                 )}
               </div>
             </>

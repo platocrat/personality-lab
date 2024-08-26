@@ -39,13 +39,13 @@ const SocialRating: FC<SocialRatingProps> = ({
           showSpinner: true,
         } }
       >
-        <main
-          className={ `${styles.main}` }
-          style={ {
-          
-          } }
-        >
-          <div style={{ ...definitelyCenteredStyle, flexDirection: 'column' } }>
+        <main className={ `${styles.main}` }>
+          <div 
+            style={{ 
+              ...definitelyCenteredStyle, 
+              flexDirection: 'column',
+            }}
+          >
             <FictionalCharacters />
           </div>
         </main>

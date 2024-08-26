@@ -1,0 +1,16 @@
+.container {
+  display: grid;
+  grid-gap: 12px;
+  padding: 12px 0px;
+  margin: 12px 0px 0px 0px;
+}
+
+.list-item {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  margin-left: 24px;
+}
+
+.sentence {
+  margin-bottom: 8px;
+}

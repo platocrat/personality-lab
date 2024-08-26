@@ -6,6 +6,10 @@ import styles from '@/app/page.module.css'
 
 type ExternalLinkProps = {
   linkText: string
+  href?: string
+  options?: {
+    target?: string
+  }
 }
 
 
@@ -34,7 +38,9 @@ function getHref(_: string): string {
 
 
 const ExternalLink: FC<ExternalLinkProps> = ({
-  linkText
+  linkText,
+  href,
+  options,
 }) => {
   const _href = getHref(linkText)
 
@@ -42,8 +48,9 @@ const ExternalLink: FC<ExternalLinkProps> = ({
   return (
     <>
       <a
-        href={ _href }
+        href={ href ?? _href }
         className={ styles.externalLink }
+        target={ options?.target }
       >
         { linkText }
       </a>

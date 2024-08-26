@@ -3,6 +3,7 @@ import {
   FC,
   useState,
   CSSProperties,
+  useMemo,
 } from 'react'
 import { useRouter } from 'next/navigation'
 // Locals
@@ -26,6 +27,7 @@ type StudyInviteSectionProps = {
 
 const pStyle: CSSProperties = {
   display: 'flex',
+  textAlign: 'right',
   justifyContent: 'space-between'
 }
 
@@ -65,6 +67,13 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
   ): boolean => availableAssessment.id === study?.details.assessmentId
   )?.name
 
+  const studyIdSlice = useMemo((): string => {
+    const length = study?.id.length ?? 0
+    const studyIdSlice = length - 9
+    const studyIdTruncated = study?.id.slice(studyIdSlice, length)
+    return `...` + studyIdTruncated
+  }, [ study?.id ])
+
 
   // ---------------------------- Async functions ------------------------------
   async function handleOnRegisterForAssessment (
@@ -85,7 +94,8 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
        *      endpoint, i.e. when fetching the user's account entry from the 
        *      `account` table, use the account entry's 
        *      `account.participant.studies` property to update `studies`
-       *      for the participant.
+       *      for the participant, i.e. update `studies.participants` for the 
+       *      specific participant.
        */
       studies: [
         {
@@ -100,9 +110,9 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
       ],
     }
     
-    // // 3. `Put` and/or `Update` the new `participant` object in the appropriate
-    // //     DynamoDB tables.
-    // await storeParticipantInDynamoDB(participant)
+    // 3. `Put` and/or `Update` the new `participant` object in the appropriate
+    //     DynamoDB tables.
+    await storeParticipantInDynamoDB(participant)
   }
 
 
@@ -173,21 +183,36 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
 
 
 
-
   return (
     <>
       <div 
         style={{ marginTop: '24px' }}
         className={ sectionStyles['form-container'] }
       >
-        <div style={{ ...definitelyCenteredStyle, marginBottom: '36px' }}>
+        <div 
+          style={{ 
+            ...definitelyCenteredStyle, 
+            marginBottom: participantRegistered ? '12px' : '24px',
+          }}
+        >
           <h3
             style={{ 
               color: isDuplicateRegistration ? 'red' : '',
             }}
           >
             { participantRegistered
-              ? `Thank you for registering for ${study?.name}!`
+              ? (
+                <>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ marginBottom: '8px' }}>
+                      { `Thank you for registering for` }
+                    </div>
+                    <div>
+                      { `${study?.name}!` }
+                    </div>
+                  </div>
+                </>
+              )
               : isDuplicateRegistration 
                 ? isDuplicateRegistrationMessage 
                 : `You've been invited to the following study`
@@ -215,6 +240,10 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
                 { study?.name }
               </p>
               <p style={ pStyle }>
+                <span>{ `Study ID:` }</span>
+                  { studyIdSlice }
+              </p>
+              <p style={ pStyle }>
                 <span>{ `Description:` }</span>
                 { study?.details.description }
               </p>
@@ -229,8 +258,6 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
 
             { !isDuplicateRegistration && (
               <>
-                <div style={ { marginBottom: '48px' } } />
-
                 <InviteRegistrationForm 
                   onSubmit={ handleOnRegisterForAssessment }
                   state={{

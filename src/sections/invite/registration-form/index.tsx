@@ -32,7 +32,10 @@ const InviteRegistrationForm: FC<InviteRegistrationFormProps> = ({
 
   return (
     <>
-      <form onSubmit={ onSubmit }>
+      <form 
+        style={{ marginTop: '32px' }}
+        onSubmit={ onSubmit }
+      >
         <label>
           { inputLabelText }
           <input
@@ -51,10 +54,10 @@ const InviteRegistrationForm: FC<InviteRegistrationFormProps> = ({
               style={ {
                 ...definitelyCenteredStyle,
                 position: 'relative',
-                marginTop: '24px'
+                marginTop: '8px'
               } }
             >
-              <Spinner height='36' width='36' />
+              <Spinner height='32' width='32' />
             </div>
           </>
         ) : (

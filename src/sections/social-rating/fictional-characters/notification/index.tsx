@@ -41,10 +41,10 @@ const SocialRatingNotification = ({ state }) => {
                 padding: '12px 18px'
               } }
               className={
-                `${styles['notification-card']} ${state.completed ? '' : styles['hide']}`
+                `${styles['notification-card']} ${ state.completed ? '' : styles['hide']}`
               }
             >
-              { `Generated ${state.totalCharacters} characters from ${state.totalPrompts} prompts.` }
+              { `Generated ${ state.totalCharacters } characters from ${ state.totalPrompts } prompts.` }
               <button
                 style={ generateButtonStyle }
                 onClick={ () => state.setCompleted(false) }

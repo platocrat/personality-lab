@@ -33,3 +33,13 @@ export type EditStudyModalContextType = {
   setShowEditStudyModal: Dispatch<SetStateAction<string | null>> | null
   handleOpenEditStudyModal: ((e: any, study: STUDY__DYNAMODB) => void) | null
 }
+
+
+export type GameSessionContextType = {
+  sessionId: string | null
+  sessionPin: string | null
+  sessionQrCode: string | null
+  setSessionId: ((id: string) => void) | null
+  setSessionPin: ((pin: string) => void) | null
+  setSessionQrCode: ((qrCode: string) => void) | null
+}
