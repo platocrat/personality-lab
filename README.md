@@ -812,6 +812,41 @@ Prerequisites for the `screen` example below:
 
             You should see Next.js returning logs from the page(s) you viewed from your browser.
 
+14. To kill a detached session, run the following command:
+
+    ```sh
+    screen -X -S <SESSION_ID_YOU_WANT_TO_KILL> quit
+    ```
+
+    For example, after running:
+
+    ```sh
+    screen -ls
+    ```
+
+    You may see:
+
+    ```sh
+    There are screens on:
+        3662307.caddy   (Detached)
+        82273.nextjs    (Detached)
+        82242.caddy     (Detached)
+    ```
+
+    To kill the session with the ID, `82273.nextjs`, you can run either of the following commands:
+
+    ```sh
+    screen -X -S 82273 quit
+    ```
+
+    or
+
+    ```sh
+    screen -X -S 82273.nextjs quit
+    ```
+
+    Either of these commands kills that session.
+
 ## 8. Auth0
 
 ### 8.1 Set up a Database Connection for DynamoDB
