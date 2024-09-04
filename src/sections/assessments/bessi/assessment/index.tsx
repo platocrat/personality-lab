@@ -1,8 +1,8 @@
 'use client'
 
 // Externals
-import { useUser } from '@auth0/nextjs-auth0/client'
 import { useRouter } from 'next/navigation'
+import { useUser } from '@auth0/nextjs-auth0/client'
 import { FC, Fragment, useContext, useLayoutEffect, useState } from 'react'
 // Locals
 import BessiAssessmentInstructions from '@/sections/assessments/bessi/assessment/instructions'
@@ -21,11 +21,11 @@ import {
   getAccessToken,
   FacetFactorType,
   RESULTS__DYNAMODB,
-  BESSI_ACTIVITY_BANK,
   calculateBessiScores,
   SkillDomainFactorType,
   STUDY_SIMPLE__DYNAMODB,
   getSkillDomainAndWeight,
+  BESSI_192_ACTIVITY_BANK,
   BessiUserResults__DynamoDB,
   WELLNESS_RATINGS_DESCRIPTIONS,
   BessiUserDemographics__DynamoDB,
@@ -85,7 +85,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
   const [ currentQuestionIndex, setCurrentQuestionIndex ] = useState<number>(0)
 
 
-  const questions = BESSI_ACTIVITY_BANK.map(
+  const questions = BESSI_192_ACTIVITY_BANK.map(
     bessiActivity => bessiActivity.activity
   )
 
@@ -122,7 +122,8 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
   function onWellnessRatingChange(e: any, questionIndex: number) {
     const { value } = e.target
 
-    // Use `questionIndex + 1` because `BESSI_ACTIVITY_BANK` has no value for 0.
+    // Use `questionIndex + 1` because `BESSI_192_ACTIVITY_BANK` has no value 
+    // for 0.
     const activityIndex = questionIndex + 1
 
     const _userScore: UserScoresType = {

@@ -15,11 +15,41 @@ const ImportantWeeklyUpdates: FC<ImportantWeeklyUpdatesProps> = ({
   topChanges,
   formatKey,
 }) => {
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [cardWidth, setCardWidth] = useState(0)
+  // Refs
   const carouselRef = useRef<HTMLDivElement>(null)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
+  // State
+  const [ cardWidth, setCardWidth ] = useState(0)
+  const [ currentIndex, setCurrentIndex ] = useState(0)
 
+
+  // ------------------------- Functional Functions ----------------------------
+  const handleDotClick = (index: number) => {
+    setCurrentIndex(index)
+    resetAutoFlip()
+  }
+
+  
+  const resetAutoFlip = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current)
+    }
+
+    const condition = (prevIndex: number): boolean => prevIndex < topChanges.length - 1
+
+    timerRef.current = setInterval(() => {
+      setCurrentIndex(
+        (prevIndex): number => (
+          condition(prevIndex)
+            ? prevIndex + 1 
+            : 0
+        )
+      )
+    }, 5000)
+  }
+
+
+  // ------------------------------ `useEffect`s -------------------------------
   useEffect(() => {
     const handleResize = () => {
       if (carouselRef.current) {
@@ -37,19 +67,6 @@ const ImportantWeeklyUpdates: FC<ImportantWeeklyUpdatesProps> = ({
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  const handleDotClick = (index: number) => {
-    setCurrentIndex(index)
-    resetAutoFlip()
-  }
-
-  const resetAutoFlip = () => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current)
-    }
-    timerRef.current = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex < topChanges.length - 1 ? prevIndex + 1 : 0))
-    }, 5000)
-  }
 
   useEffect(() => {
     resetAutoFlip()
