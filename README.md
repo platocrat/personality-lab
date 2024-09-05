@@ -56,6 +56,7 @@
     - [8.1.1 Specify DynamoDB table for IAM User](#811-specify-dynamodb-table-for-iam-user)
     - [8.1.2 Database Action Scripts](#812-database-action-scripts)
   - [8.2 Application URIs](#82-application-uris)
+  - [8.3 Debugging `Callback URL Mismatch.` error](#83-debugging-callback-url-mismatch-error)
 - [9. Working with Docker containers](#9-working-with-docker-containers)
 
 ## 0. General Information
@@ -1270,7 +1271,7 @@ function deleteUser(email, callback) {
 
 ### 8.2 Application URIs
 
-To ensure that the AWS remote server will be served without any issues from Auth0, under the `Settings` section of your Auth0 Application, update the `Application URIs` inputs with the following:
+Under the `Settings` section of your Auth0 Application, update the `Application URIs` inputs with the following:
 
 1. Application Login URI
 
@@ -1297,6 +1298,19 @@ To ensure that the AWS remote server will be served without any issues from Auth
     ```
 
 Then, click `Save Changes` to save the changes for your Auth0 Application.
+
+### 8.3 Debugging `Callback URL Mismatch.` error
+
+To debug this error, make sure to inspect the logs for your Auth0 application and view the URL that is being used in the callback.
+This URL must be the _exact_ same that is configured in your `Application URIs` settings of your Auth0 application.
+
+To find the logs for your application, click on `Monitoring`, then click on `Logs`.
+
+Next, navigate to your application's URL.
+
+Once you receive the `Callback URL Mismatch.` error, go back to the logs and click on the `Failed Login` or `Failed Logout` log entry and read the object field that named `description` and take note of the URL that is being used.
+
+If the URL that is shown is different than what is configured in your `Application URIs` settings, then make the necessary changes to resolve the error.
 
 ## 9. Working with Docker containers
 
