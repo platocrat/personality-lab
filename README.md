@@ -55,6 +55,7 @@
   - [8.1 Set up a Database Connection for DynamoDB](#81-set-up-a-database-connection-for-dynamodb)
     - [8.1.1 Specify DynamoDB table for IAM User](#811-specify-dynamodb-table-for-iam-user)
     - [8.1.2 Database Action Scripts](#812-database-action-scripts)
+  - [8.2 Application URIs](#82-application-uris)
 - [9. Working with Docker containers](#9-working-with-docker-containers)
 
 ## 0. General Information
@@ -890,7 +891,7 @@ When creating the custom permission policy for the `Auth0DynamoDBUser` IAM User,
 
 #### 8.1.2 Database Action Scripts
 
-As a reference, here are the relevant and modifed Database Action Scripts that I made, using the tutorial as a guide:
+As a reference, here are the relevant and modified Database Action Scripts that I made, using the tutorial as a guide:
 
 ##### 8.2.1.1. Login
 
