@@ -33,6 +33,7 @@
     - [4.1.1. SSH in to EC2 instance](#411-ssh-in-to-ec2-instance)
     - [4.1.2. Install `caddy` from source](#412-install-caddy-from-source)
   - [4.2. Working with Caddy server](#42-working-with-caddy-server)
+    - [4.2.1 Working with multiple domains in a single Caddyfile](#421-working-with-multiple-domains-in-a-single-caddyfile)
   - [4.3. On EC2 instance, install Docker, login, and start the Docker daemon](#43-on-ec2-instance-install-docker-login-and-start-the-docker-daemon)
     - [4.3.1. Install `docker`](#431-install-docker)
     - [4.3.2. Login to Docker](#432-login-to-docker)
@@ -515,17 +516,16 @@ Let's create a `Caddyfile`.
     ```
 
 Paste in the following to ensure that it works to reverse proxy requests made to our Next.js application, which will run on port `3000` from our Docker container:
-
-```apacheconf
-example.com {
-        encode gzip
-        header {
-                Strict-Transport-Security "max-age=31536000;"
-                Access-Control-Allow-Origin "*"
-        }
-        reverse_proxy localhost:3000
-}
-```
+    ```apacheconf
+    example.com {
+            encode gzip
+            header {
+                    Strict-Transport-Security "max-age=31536000;"
+                    Access-Control-Allow-Origin "*"
+            }
+            reverse_proxy localhost:3000
+    }
+    ```
 
 3. Manually start Caddy
 
@@ -534,6 +534,37 @@ example.com {
     ```zsh
     sudo caddy run --config /etc/caddy/Caddyfile
     ```
+
+#### 4.2.1 Working with multiple domains in a single Caddyfile
+
+You can configure _multiple domains_ in a single Caddyfile for different use cases.
+
+1. To serve the same website over multiple domains, your Caddyfile would need to be configured like so:
+
+   ```apacheconf
+   https://example.com, http://example.com, https://example2.com  {
+           encode gzip
+           header {
+                   Strict-Transport-Security "max-age=31536000;"
+                   Access-Control-Allow-Origin "*"
+           }
+           reverse_proxy localhost:3000
+   }
+   ```
+
+2. If you want to serve different websites at different domains, it would look something like this:
+
+   ```apacheconf
+   example.com {
+       root /www/example.com
+   }
+   
+   sub.example.com {
+       root /www/sub.example.com
+       gzip
+       log ../access.log
+   }
+   ```
 
 ### 4.3. On EC2 instance, install Docker, login, and start the Docker daemon
 
