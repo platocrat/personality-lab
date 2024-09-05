@@ -1267,6 +1267,36 @@ function deleteUser(email, callback) {
 }
 ```
 
+### 8.2 Application URIs
+
+To ensure that the AWS remote server will be served without any issues from Auth0, under the `Settings` section of your Auth0 Application, update the `Application URIs` inputs with the following:
+
+1. Application Login URI
+
+    ```sh
+    https://example.com/api/auth/login
+    ```
+
+2. Allowed Callback URLs
+
+    ```sh
+    https://example.com/api/auth/callback, 
+    https://localhost:3000/api/auth/callback
+    ```
+
+    Things to keep in mind for these callback URLs.
+    1. For local development, whenever the local base URL, i.e. `https://localhost:3000`, changes,  remember to also update the value for the `AUTH0_BASE_URL` variable in your `.env.local` file.
+    2. For remote development, whenever the remote base URL, i.e. `https://example.com`, changes, remember to also update the value for the `AUTH0_BASE_URL` GitHub Actions secret in your GitHub repository's security settings. The page for this can be found under your repository by going to `Settings` → `Security` → `Secrets and variables` → `Actions`.
+  
+3. Allowed Logout URLs
+
+    ```sh
+    https://example.com,
+    https://localhost:3000
+    ```
+
+Then, click `Save Changes` to save the changes for your Auth0 Application.
+
 ## 9. Working with Docker containers
 
 ### 9.1 Enter a Docker container's shell
