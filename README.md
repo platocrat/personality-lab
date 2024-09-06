@@ -1312,6 +1312,10 @@ Once you receive the `Callback URL Mismatch.` error, go back to the logs and cli
 
 If the URL that is shown is different than what is configured in your `Application URIs` settings, then make the necessary changes to resolve the error.
 
+> NOTE:
+>
+> Double check whether your domain uses HTTP or HTTPS. Otherwise, you may be confused to find in your Application's logs that your domain's URL uses either `http` or `https`.
+
 ## 9. Working with Docker containers
 
 ### 9.1 Enter a Docker container's shell
