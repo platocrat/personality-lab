@@ -4,6 +4,7 @@
 import { useState, useLayoutEffect } from 'react'
 // Locals
 import { 
+  StudyAsAdmin,
   ACCOUNT__DYNAMODB, 
   PARTICIPANT__DYNAMODB, 
   STUDY_SIMPLE__DYNAMODB,
@@ -12,10 +13,11 @@ import {
 
 
 type UserAccountReturnType = {
-  isAdmin: boolean
+  isGlobalAdmin: boolean
   accountError: string
   isParticipant: boolean
   isFetchingAccount: boolean
+  studiesAsAdmin?: StudyAsAdmin[]
   participant?: PARTICIPANT__DYNAMODB | undefined
   userStudies?: STUDY_SIMPLE__DYNAMODB[] | undefined
 }
@@ -31,10 +33,17 @@ export default function useAccount(): UserAccountReturnType {
     userStudies,
     setUserStudies,
   ] = useState<STUDY_SIMPLE__DYNAMODB[] | undefined>(undefined)
+  const [studiesAsAdmin, setStudiesAsAdmin] = useState<StudyAsAdmin[]>(
+    [{
+      id: '',
+      name: '',
+      isAdmin: false,
+    }]
+  )
   // Strings
   const [accountError, setAccountError] = useState<string>('')
   // Booleans
-  const [isAdmin, setIsAdmin] = useState<boolean>(false)
+  const [isGlobalAdmin, setIsGlobalAdmin] = useState<boolean>(false)
   const [isParticipant, setIsParticipant] = useState<boolean>(false)
   const [isFetchingAccount, setIsFetchingAccount] = useState<boolean>(true)
 
@@ -57,16 +66,17 @@ export default function useAccount(): UserAccountReturnType {
         account
       )
       
-      const isAdmin_ = account.isAdmin
       const participant = account.participant
+      const isGlobalAdmin_ = account.isGlobalAdmin
+      const studiesAsAdmin_ = account.studiesAsAdmin
       const isParticiapnt_ = participant ? true : false
       const studies = participant?.studies as STUDY_SIMPLE__DYNAMODB[] | undefined
       
-      setIsAdmin(isAdmin_)
-      setIsParticipant(isParticiapnt_)
-      
-      setParticipant(participant)
       setUserStudies(studies)
+      setParticipant(participant)
+      setIsGlobalAdmin(isGlobalAdmin_)
+      setIsParticipant(isParticiapnt_)
+      setStudiesAsAdmin(studiesAsAdmin_)
       } catch (error: any) {
       setAccountError(error.message)
     } finally {
@@ -87,11 +97,12 @@ export default function useAccount(): UserAccountReturnType {
 
 
   return { 
-    isAdmin,
     userStudies, 
     participant,
     accountError,
     isParticipant, 
+    isGlobalAdmin,
+    studiesAsAdmin,
     isFetchingAccount, 
   }
 }

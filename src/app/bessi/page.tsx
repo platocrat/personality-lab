@@ -23,7 +23,7 @@ export default function _() {
   const { user, error, isLoading } = useUser()
   // Hooks
   const { 
-    isAdmin,
+    isGlobalAdmin,
     userStudies,
     isParticipant,
     isFetchingAccount,
@@ -73,7 +73,7 @@ export default function _() {
 
   useLayoutEffect(() => {
     if (!isFetchingAccount) {
-      if (!isAdmin) {
+      if (!isGlobalAdmin) {
         if (userStudies) {
           getStudiesForAssessment()
 
@@ -91,7 +91,7 @@ export default function _() {
         setIsGettingStudiesForAssessment(false)
       }
     }
-  }, [ isAdmin, userStudies, isFetchingAccount ])
+  }, [ isGlobalAdmin, userStudies, isFetchingAccount ])
 
 
 

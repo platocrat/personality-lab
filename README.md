@@ -902,7 +902,7 @@ function login (email, password, callback) {
   const { createHash, pbkdf2Sync } = require('crypto');
 
   const ITERATIONS = 1000000; // 1_000_000
-  const KEYLEN = 128;
+  const KEY_LENGTH = 128;
   const HASH_ALGORITHM = 'sha512';
 
   AWS.config.update({
@@ -939,7 +939,7 @@ function login (email, password, callback) {
             password,
             salt,
             ITERATIONS,
-            KEYLEN,
+            KEY_LENGTH,
             HASH_ALGORITHM
           ).toString('hex');
   
@@ -949,8 +949,13 @@ function login (email, password, callback) {
           // Passwords match, return the user profile
           if (isMatch) {
             const email_ = account.email;
-            // Depending on your user schema, you might want to use a different unique identifier
-            const user_id = createHash('shake256', 16).update(account.email).digest('hex');
+            // Depending on your user schema, you might want to use a different
+            // unique identifier
+            const user_id = createHash(
+              'shake256', 
+              16
+            ).update(account.email).digest('hex');
+
             const userProfile = {
               user_id,
               email: email_,
@@ -994,7 +999,9 @@ function create (user, callback) {
     },
   ];
 
-  const isAdmin = ACCOUNT_ADMINS.some(admin => admin.email === user.email);
+  const isGlobalAdmin = ACCOUNT_ADMINS.some(
+    admin => admin.email === user.email
+  );
 
   // Generate a salt and hash the password
   const salt = randomBytes(16).toString('hex');
@@ -1022,14 +1029,15 @@ function create (user, callback) {
     TableName: configuration.dynamoDBTable,
     Item: {
       email: email_,
-      isAdmin,
       password,
-      updatedAtTimestamp,
+      isGlobalAdmin,
       hasVerifiedEmail,
+      updatedAtTimestamp,
       createdAtTimestamp,
       // Add any other user attributes here
     },
-    ConditionExpression: 'attribute_not_exists(email)' // Ensure the user does not already exist
+    // Ensure the user does not already exist
+    ConditionExpression: 'attribute_not_exists(email)'
   };
 
   docClient.put(params, function (err, data) {
@@ -1126,14 +1134,14 @@ function changePassword (email, newPassword, callback) {
   // First, hash the new password
   const salt = randomBytes(16).toString('hex');
   const ITERATIONS = 1000000; // 1_000_000
-  const KEYLEN = 128;
+  const KEY_LENGTH = 128;
   const HASH_ALGORITHM = 'sha512';
 
   const hash = pbkdf2Sync(
     newPassword,
     salt,
     ITERATIONS,
-    KEYLEN,
+    KEY_LENGTH,
     HASH_ALGORITHM
   ).toString('hex');
 
@@ -1220,7 +1228,11 @@ function getByEmail(email, callback) {
         const email_ = account.email;
         const email_verified = account.email_verified;
         // Use a unique identifier for the user_id
-        const user_id = createHash('shake256', 16).update(account.email).digest('hex');
+        const user_id = createHash(
+          'shake256', 
+          16
+        ).update(account.email).digest('hex');
+        
         const userProfile = {
           user_id,
           email: email_,

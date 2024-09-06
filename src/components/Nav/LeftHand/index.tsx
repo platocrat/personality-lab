@@ -2,11 +2,14 @@
 import { CSSProperties, FC, Fragment, ReactNode } from 'react'
 // Locals
 import ProgressBarLink from '@/components/Progress/ProgressBarLink'
+// Hooks
+import useAccount from '@/hooks/useAccount'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/components/Nav/LeftHand/LeftHandNav.module.css'
 
 
+// --------------------------------- Types -------------------------------------
 type LeftHandNavProps = {
   children: ReactNode
   options?: {
@@ -15,6 +18,7 @@ type LeftHandNavProps = {
 }
 
 
+// ------------------------------ Constants ------------------------------------
 const sidebarLinkTextContainerStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'row',
@@ -82,21 +86,42 @@ const BUTTONS = [
 ]
 
 
+
+// --------------------------- Function Component ------------------------------
 const LeftHandNav: FC<LeftHandNavProps> = ({
   options,
   children,
 }) => {
+  // Contexts
+  const {
+    isGlobalAdmin,
+    isParticipant,
+  } = useAccount()
+
+
   return (
     <>
       <div className={ styles.container }>
         <div className={ styles.sidebar }>
           { BUTTONS.map((btn, i: number) => (
             <Fragment key={ i }>
-              <ProgressBarLink href={ btn.href }>
-                <button className={ styles.sidebarLink }>
-                  { btn.text }
-                </button>
-              </ProgressBarLink>
+              { btn.href === '/create-study' && !isGlobalAdmin
+                ? null
+                : (
+                <>
+                  { btn.href === 'view-studies' && !isParticipant 
+                    ? null 
+                    : (
+                    <>
+                      <ProgressBarLink href={ btn.href }>
+                        <button className={ styles.sidebarLink }>
+                          { btn.text }
+                        </button>
+                      </ProgressBarLink>
+                    </>
+                  )}
+                </>
+              )}
             </Fragment>
           )) }
         </div>

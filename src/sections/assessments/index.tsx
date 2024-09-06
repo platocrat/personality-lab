@@ -45,11 +45,7 @@ const PersonalityAssessments = ({ }) => {
   // Auth0 
   const { user, error, isLoading } = useUser()
   // Contexts
-  const { 
-    isAdmin,
-    participant,
-    isParticipant,
-  } = useAccount()
+  const { participant } = useAccount()
   // Hooks
   const windowWidth = useWindowWidth()
 
@@ -67,16 +63,12 @@ const PersonalityAssessments = ({ }) => {
     <Fragment key={ `personality-assessments` }>
       <div 
         className={ styles.main }
-        style={{ top: isParticipant || isAdmin ? '0' : '' }}
+        style={{ top: '0' }}
       > 
         <div 
           style={{ 
-            marginTop: isAdmin
-              ? windowWidth > 800 
-                ? '-24px' 
-                : '-12px'
-               : '', 
-            marginBottom: '8px', 
+            marginBottom: '8px',
+            marginTop: windowWidth > 800 ? '-24px' : '-12px', 
           }}
         >
           <h1>{ title }</h1>

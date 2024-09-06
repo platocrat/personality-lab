@@ -34,7 +34,7 @@ const StudyInvite: FC<StudyInviteProps> = ({
   const { user, error, isLoading } = useUser()
   // Contexts
   const { 
-    isAdmin, 
+    isGlobalAdmin,
     isParticipant,
     isFetchingAccount,
   } = useAccount()
@@ -73,8 +73,8 @@ const StudyInvite: FC<StudyInviteProps> = ({
   useLayoutEffect(() => {
     if (!isFetchingAccount) {
       if (
-        isAdmin || 
-        (!isAdmin && isParticipant)
+        isGlobalAdmin || 
+        (!isGlobalAdmin && isParticipant)
       ) {
         router.push('/')
       } else {
@@ -93,7 +93,7 @@ const StudyInvite: FC<StudyInviteProps> = ({
         }
       }
     }
-  }, [ isAdmin, isParticipant, isFetchingAccount ])
+  }, [ isGlobalAdmin, isParticipant, isFetchingAccount ])
 
 
 
@@ -105,7 +105,7 @@ const StudyInvite: FC<StudyInviteProps> = ({
         spinnerOptions={{
           showSpinner: true,
           containerStyle: {
-            top: !isAdmin && !isParticipant ? '100px' : ''
+            top: !isGlobalAdmin && !isParticipant ? '100px' : ''
           }
         }}
       >

@@ -1,3 +1,7 @@
+import { STUDY__DYNAMODB } from '../types'
+
+
+
 export const ACCOUNT_ADMINS = [
   {
     email: 'bwrobrts@illinois.edu',
@@ -35,3 +39,22 @@ export const AVAILABLE_ASSESSMENTS = [
     name: 'Big Five'
   },
 ]
+
+
+
+// ---------------------------- State Initializers -----------------------------
+export const INIT_STUDY__DYNAMODB: STUDY__DYNAMODB = {
+  id: '',
+  name: '',
+  ownerEmail: '',
+  isActive: false,
+  adminEmails: [],
+  participants: [],
+  details: {
+    inviteUrl: '',
+    description: '',
+    assessmentId: '',
+  },
+  createdAtTimestamp: 0,
+  updatedAtTimestamp: 0,
+}

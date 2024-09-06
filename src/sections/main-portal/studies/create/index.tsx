@@ -15,6 +15,7 @@ import CreateStudyForm from '@/sections/main-portal/studies/create/form'
 // Utils
 import {
   STUDY__DYNAMODB,
+  INIT_STUDY__DYNAMODB,
 } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -38,21 +39,7 @@ const CreateStudy: FC<CreateStudyProps> = ({
   const router = useRouter()
   const pathname = usePathname()
   // States
-  const [ study, setStudy ] = useState<STUDY__DYNAMODB>({
-    id: '',
-    name: '',
-    ownerEmail: '',
-    isActive: false,
-    adminEmails: [],
-    participants: [],
-    details: {
-      inviteUrl: '',
-      description: '',
-      assessmentId: '',
-    },
-    createdAtTimestamp: 0,
-    updatedAtTimestamp: 0,
-  })
+  const [ study, setStudy ] = useState<STUDY__DYNAMODB>(INIT_STUDY__DYNAMODB)
   const [ 
     invalidEmailMessage, 
     setInvalidEmailMessage 
