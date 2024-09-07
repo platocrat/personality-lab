@@ -6,10 +6,9 @@ import {
   PutCommandInput,
 } from '@aws-sdk/lib-dynamodb'
 import { sign } from 'jsonwebtoken'
-import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 // Locals
-import { 
+import {
   MAX_AGE,
   ddbDocClient,
   fetchAwsParameter,
@@ -17,35 +16,32 @@ import {
   DYNAMODB_TABLE_NAMES,
   USER_RESULTS_ACCESS_TOKENS__DYNAMODB,
 } from '@/utils'
-import { withApiAuthRequired, getSession } from '@auth0/nextjs-auth0'
 
 
 
-export const PUT = withApiAuthRequired(async function putAccessToken(
-  req: NextRequest
+export async function PUT(
+  req: NextRequest,
+  res: NextResponse,
 ): Promise<any> {
   if (req.method === 'PUT') {
-    const res = new NextResponse()
+    const {
+      email,
+      studyId,
+      assessmentId,
+      userResultsId,
+    } = await req.json()
 
-    // Auth0
-    const session = await getSession(req, res)
-    const user = session?.user
-
-    if (!user) {
-      const message = `Unauthorized: Auth0 found no 'user' for their session.`
+    if (!email) {
       return NextResponse.json(
-        { message },
+        { error: 'Unauthorized: Email query parameter is required!' },
         {
           status: 401,
+          headers: {
+            'Content-Type': 'application/json',
+          },
         }
       )
     }
-
-    const { 
-      assessmentId, 
-      userResultsId, 
-      studyId,
-    } = await req.json()
 
     const JWT_SECRET = await fetchAwsParameter(AWS_PARAMETER_NAMES.JWT_SECRET)
 
@@ -125,31 +121,33 @@ export const PUT = withApiAuthRequired(async function putAccessToken(
       },
     )
   }
-})
+}
 
 
 
 /**
  * @dev GET `accessToken`
- * @param req
+ * @param req 
+ * @param res 
  * @returns 
  */
-export const GET = withApiAuthRequired(async function getAccessToken(
-  req: NextRequest
-) {
+export async function GET(
+  req: NextRequest,
+  res: NextResponse
+): Promise<NextResponse<{ message: string }> | NextResponse<{
+  accessToken: string
+}> | NextResponse<{ error: any }>> {
   if (req.method === 'GET') {
-    const res = new NextResponse()
+    const email = req.nextUrl.searchParams.get('email')
 
-    // Auth0
-    const session = await getSession(req, res)
-    const user = session?.user
-
-    if (!user) {
-      const message = `Unauthorized: Auth0 found no 'user' for their session.`
+    if (!email) {
       return NextResponse.json(
-        { message },
+        { error: 'Unauthorized: Email query parameter is required!' },
         {
           status: 401,
+          headers: {
+            'Content-Type': 'application/json',
+          },
         }
       )
     }
@@ -223,4 +221,4 @@ export const GET = withApiAuthRequired(async function getAccessToken(
       },
     )
   }
-})
+}

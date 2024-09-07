@@ -3,9 +3,7 @@ import {
   PutCommand,
   PutCommandInput
 } from '@aws-sdk/lib-dynamodb'
-import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
-import { withApiAuthRequired, getSession } from '@auth0/nextjs-auth0'
 // Locals
 import {
   getEntryId,
@@ -18,25 +16,25 @@ import {
 
 /**
  * @dev PUT `userVizRating`
- * @param req
+ * @param req 
+ * @param res 
  * @returns 
  */
-export const PUT = withApiAuthRequired(async function putUserVizRating(
-  req: NextRequest
-) {
+export async function PUT(
+  req: NextRequest,
+  res: NextResponse,
+): Promise<NextResponse<{ message: string }> | NextResponse<{ error: any }>> {
   if (req.method === 'PUT') {
-    const res = new NextResponse()
+    const { email } = await req.json()
 
-    // Auth0
-    const session = await getSession(req, res)
-    const user = session?.user
-
-    if (!user) {
-      const message = `Unauthorized: Auth0 found no 'user' for their session.`
+    if (!email) {
       return NextResponse.json(
-        { message },
+        { error: 'Unauthorized: Email query parameter is required!' },
         {
           status: 401,
+          headers: {
+            'Content-Type': 'application/json',
+          },
         }
       )
     }
@@ -117,4 +115,4 @@ export const PUT = withApiAuthRequired(async function putUserVizRating(
       },
     )
   }
-})
+}

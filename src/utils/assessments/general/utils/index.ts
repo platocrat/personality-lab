@@ -13,6 +13,7 @@ import {
 export async function getAccessToken(
   assessmentId: string,
   userResultsId: string,
+  email?: string,
   studyId?: string,
 ) {
   if (!userResultsId) {
@@ -26,15 +27,16 @@ export async function getAccessToken(
     )
   } else {
     try {
-      const response = await fetch('/api/assessment/access-token', {
+      const response = await fetch('/api/v1/assessment/access-token', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
+          email,
+          studyId,
           assessmentId, 
           userResultsId, 
-          studyId,
         }),
       })
 
@@ -66,10 +68,13 @@ export async function getAccessToken(
 
 /**
   * @dev Note that the password that is returned is a hashed password
+  * @todo `username` is no longer a part of the `CookieType` type definiton.
   */
-export async function getUsernameAndEmailFromCookie() {
+export async function getUsernameAndEmailFromCookie(_email: string) {
   try {
-    const apiEndpoint = `/api/assessment/aws-parameter?parameterName=${
+    const apiEndpoint = `/api/v1/assessment/aws-parameter?email=${ 
+      _email 
+    }&parameterName=${
       AWS_PARAMETER_NAMES.JWT_SECRET
     }`
     const response = await fetch(apiEndpoint, { method: 'GET' })
@@ -85,9 +90,9 @@ export async function getUsernameAndEmailFromCookie() {
       // Cannot use `verify()` because it is only used server-side
       const decoded = decode(token)
       const encryptedEmail = (decoded as CookieType).email
-      const encryptedUsername = (decoded as CookieType).username
+      // const encryptedUsername = (decoded as CookieType).username
 
-      const SECRET_KEY = await getCookieSecretKey()
+      const SECRET_KEY = await getCookieSecretKey(_email)
       const secretKeyCipher = Buffer.from(SECRET_KEY, 'hex')
 
       const email = new SSCrypto().decrypt(
@@ -95,13 +100,13 @@ export async function getUsernameAndEmailFromCookie() {
         secretKeyCipher,
         encryptedEmail.iv
       )
-      const username = new SSCrypto().decrypt(
-        encryptedUsername.encryptedData,
-        secretKeyCipher,
-        encryptedUsername.iv
-      )
+      // const username = new SSCrypto().decrypt(
+      //   encryptedUsername.encryptedData,
+      //   secretKeyCipher,
+      //   encryptedUsername.iv
+      // )
 
-      return { email, username }
+      return { email /*, username */ }
     } else {
       throw new Error(
         `Error getting ${AWS_PARAMETER_NAMES.JWT_SECRET}: ${json.error}`
@@ -122,9 +127,11 @@ export async function getUsernameAndEmailFromCookie() {
 
 
 
-export async function getCookieSecretKey() {
+export async function getCookieSecretKey(email: string) {
   try {
-    const apiEndpoint = `/api/assessment/aws-parameter?parameterName=${
+    const apiEndpoint = `/api/v1/assessment/aws-parameter?email=${
+      email
+    }&parameterName=${
       AWS_PARAMETER_NAMES.COOKIE_ENCRYPTION_SECRET_KEY
     }`
     const response = await fetch(apiEndpoint, { method: 'GET' })
@@ -159,7 +166,7 @@ export async function getCookieSecretKey() {
 export async function sendEmail(fromEmail: string) {
   // Send email
   try {
-    const response = await fetch('/api/assessment/results/SendGrid', {
+    const response = await fetch('/api/v1/assessment/results/email', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

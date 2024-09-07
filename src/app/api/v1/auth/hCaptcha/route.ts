@@ -15,7 +15,19 @@ export async function POST(
   res: NextResponse,
 ) {
   if (req.method === 'POST') {
-    const { token } = await req.json()
+    const { email, token } = await req.json()
+
+    if (!email) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Email query parameter is required!' },
+        {
+          status: 401,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+    }
 
     const METHOD = 'POST'
     const VERIFY_URL = 'https://api.hcaptcha.com/siteverify'

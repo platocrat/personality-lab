@@ -209,7 +209,7 @@ export async function verifiedEmailAndPasswordSwitch(
           const secretKeyCipher = Buffer.from(SECRET_KEY, 'hex')
 
           // Determine if the new user is an admin
-          const isAdmin = ACCOUNT_ADMINS.some(
+          const isGlobalAdmin = ACCOUNT_ADMINS.some(
             admin => admin.email === email
           )
           // Determine if the new user is a participant
@@ -222,7 +222,7 @@ export async function verifiedEmailAndPasswordSwitch(
           const toEncrypt: { [key: string]: string }[] = [
             { email: email as string },
             // { username: username as string },
-            { isAdmin: isAdmin.toString() },
+            { isGlobalAdmin: isGlobalAdmin.toString() },
             { isParticipant: isParticipant.toString() },
             { timestamp: timestamp },
           ]
@@ -247,7 +247,7 @@ export async function verifiedEmailAndPasswordSwitch(
           return NextResponse.json(
             {
               message,
-              isAdmin,
+              isGlobalAdmin,
               isParticipant,
             },
             {

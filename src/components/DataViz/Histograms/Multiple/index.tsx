@@ -47,11 +47,12 @@ export type PopulationResults = {
 
 type MultipleHistogramsProps = {
   userData: BessiUserDataVizType
-  auth0: {
-    user: any
-    error: any
-    isLoading: boolean
-  }
+  email?: string
+  // auth0: {
+  //   user: any
+  //   error: any
+  //   isLoading: boolean
+  // }
   isExample?: boolean
   studyId?: string
 }
@@ -60,13 +61,14 @@ type MultipleHistogramsProps = {
 
 
 const MultipleHistograms: FC<MultipleHistogramsProps> = ({
-  auth0,
+  // auth0,
+  email,
   studyId,
   userData,
   isExample,
 }) => {
-  // Auth0 
-  const { user, error, isLoading } = auth0
+  // // Auth0 
+  // const { user, error, isLoading } = auth0
   // Refs
   const filterRef = useRef<any>(null)
   // State
@@ -248,7 +250,8 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
   // --------------------------- Async functions -------------------------------
   async function getStudyResults() {
     try {
-      const response = await fetch(`/api/study?id=${studyId}`, {
+      const apiEndpoint = `/api/v1/study?email=${ email }&id=${ studyId }`
+      const response = await fetch(apiEndpoint, {
         method: 'GET',
       })
 
@@ -274,7 +277,8 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
 
   // ------------------------- `useLayoutEffect`s ------------------------------
   useLayoutEffect(() => {
-    if (!isLoading && user && user.email) {
+    // if (!isLoading && user && user.email) {
+    if (email) {
       if (studyId) {
         const requests = [
           getStudyResults()
@@ -307,13 +311,16 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
 
         setPopulationResults(histogramPopulationDummyData)
       }
-    } else if (!isLoading && !user) {
-      console.error(
-        `Auth0 couldn't get 'user' from useUser(): `,
-        error
-      )
+    // } else if (!isLoading && !user) {
+    } else {
+      // console.error(
+      //   `Auth0 couldn't get 'user' from useUser(): `,
+      //   error
+      // )
+
+      console.error(`Couldn't get the user's email`)
     }
-  }, [ isLoading ])
+  }, [ /* isLoading */ email ])
 
 
   useLayoutEffect(() => {

@@ -1,28 +1,27 @@
 // Externals
-import Image from 'next/image'
-import { 
-  FC, 
-  useRef, 
+import {
+  FC,
+  useRef,
   useState,
-  Fragment, 
-  Dispatch, 
+  Dispatch,
+  Fragment,
+  useContext,
   SetStateAction,
-  createContext, 
 } from 'react'
 // Locals
 // Sections
 import StudyTableTbody from '@/sections/main-portal/studies/view/list-of-studies/table/tbody'
-// Components
-import ProgressBarLink from '@/components/Progress/ProgressBarLink'
 // Contexts
+import { SessionContext } from '@/contexts/SessionContext'
 import { StudiesTableContext } from '@/contexts/StudiesTableContext'
+// Context Types
+import { SessionContextType } from '@/contexts/types'
 // Hooks
 import useWindowWidth from '@/hooks/useWindowWidth'
 import useClickOutside from '@/hooks/useClickOutside'
 // Utils
 import { STUDY__DYNAMODB } from '@/utils'
 // CSS
-import { definitelyCenteredStyle } from '@/theme/styles'
 import sectionStyles from '@/sections/main-portal/studies/view/list-of-studies/ListOfStudies.module.css'
 
 
@@ -55,6 +54,8 @@ const StudiesTable: FC<StudiesTableProps> = ({
   // Refs
   const editStudyModalRef = useRef<any>(null)
   const studyActionsDropdownRef = useRef<any>(null)
+  // Contexts
+  const { email } = useContext<SessionContextType>(SessionContext)
   // Hooks
   const windowWidth = useWindowWidth()
   // States
@@ -89,12 +90,13 @@ const StudiesTable: FC<StudiesTableProps> = ({
     state.setIsStudyDeleted(false)
 
     try {
-      const response = await fetch('/api/study', {
+      const response = await fetch('/api/v1/study', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
+          email,
           ownerEmail, 
           studyId,
           createdAtTimestamp,

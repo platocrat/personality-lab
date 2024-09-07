@@ -1,12 +1,18 @@
 // Externals
 import { 
   FC,
-  useState,
-  CSSProperties,
   useMemo,
+  useState,
+  useContext,
+  CSSProperties,
 } from 'react'
 import { useRouter } from 'next/navigation'
 // Locals
+import InviteRegistrationForm from './registration-form'
+// Contexts
+import { SessionContext } from '@/contexts/SessionContext'
+// Context Type
+import { SessionContextType } from '@/contexts/types'
 import { 
   STUDY__DYNAMODB,
   PARTICIPANT__DYNAMODB, 
@@ -14,7 +20,6 @@ import {
 } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
-import InviteRegistrationForm from './registration-form'
 import sectionStyles from '@/sections/invite/StudyInviteSection.module.css'
 
 
@@ -35,6 +40,8 @@ const pStyle: CSSProperties = {
 
 
 const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
+  // Contexts
+  const { email } = useContext<SessionContextType>(SessionContext)
   // Hooks
   const router = useRouter()
   // States
@@ -90,7 +97,7 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
       timestamp: 0,
       /**
        * @dev Update `studies` with pre-existing `studies` when updating
-       *      the user's account entry in the `/api/study/participant` API 
+       *      the user's account entry in the `/api/v1/study/participant` API 
        *      endpoint, i.e. when fetching the user's account entry from the 
        *      `account` table, use the account entry's 
        *      `account.participant.studies` property to update `studies`
@@ -122,7 +129,7 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
     try {
       // Send a request to add the `participant` to the `study` entry and to
       // create or update the `account` entry with this `participant`. 
-      const response = await fetch('/api/study/participant', {
+      const response = await fetch('/api/v1/study/participant', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -132,6 +139,7 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
          *      study entry with the new `participant`.
          */
         body: JSON.stringify({ 
+          email,
           participant, 
           studyId: study?.id
         }),

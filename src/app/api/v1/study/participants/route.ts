@@ -1,6 +1,5 @@
 // Externals
 import { NextRequest, NextResponse } from 'next/server'
-import { getSession, withApiAuthRequired } from '@auth0/nextjs-auth0'
 // Locals
 import {
   ddbDocClient,
@@ -17,24 +16,24 @@ import {
 /**
  * @dev GET all `participants` from `accounts` table
  * @param req 
+ * @param res 
  * @returns 
  */
-export const GET = withApiAuthRequired(async function getParticipants(
-  req: NextRequest
+export async function GET(
+  req: NextRequest, 
+  res: NextResponse,
 ) {
   if (req.method === 'GET') {
-    const res = new NextResponse()
+    const email = req.nextUrl.searchParams.get('email')
 
-    // Auth0
-    const session = await getSession(req, res)
-    const user = session?.user
-
-    if (!user) {
-      const message = `Unauthorized: Auth0 found no 'user' for their session.`
+    if (!email) {
       return NextResponse.json(
-        { message },
+        { error: 'Unauthorized: Email query parameter is required!' },
         {
           status: 401,
+          headers: {
+            'Content-Type': 'application/json',
+          },
         }
       )
     }
@@ -113,4 +112,4 @@ export const GET = withApiAuthRequired(async function getParticipants(
       },
     )
   }
-})
+}

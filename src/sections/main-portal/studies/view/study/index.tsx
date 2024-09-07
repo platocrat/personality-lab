@@ -1,19 +1,24 @@
 'use client'
 
-import Image from 'next/image'
 import {
   FC,
   useMemo,
   useState,
   Fragment,
+  useContext,
   useLayoutEffect,
 } from 'react'
+import Image from 'next/image'
 // Locals
 import StudyHeader from './header'
 import ParticipantsTable from './participants-table'
 // Components
 import LeftHandNav from '@/components/Nav/LeftHand'
 import Spinner from '@/components/Suspense/Spinner'
+// Contexts
+import { SessionContext } from '@/contexts/SessionContext'
+// Context Types
+import { SessionContextType } from '@/contexts/types'
 // Utils
 import {
   STUDY__DYNAMODB,
@@ -41,6 +46,8 @@ type ViewStudySectionProps = {
 const ViewStudySection: FC<ViewStudySectionProps> = ({
   study
 }) => {
+  // Contexts
+  const { email } = useContext<SessionContextType>(SessionContext)
   // States
   // Strings
   const [inviteUrl, setInviteUrl] = useState<string>('')
@@ -99,7 +106,8 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
    */
   async function getParticipants() {
     try {
-      const response = await fetch(`/api/study?id=${study?.id}`, {
+      const apiEndpoint = `/api/v1/study?email=${ email }&id=${ study?.id }`
+      const response = await fetch(apiEndpoint, {
         method: 'GET',
       })
 

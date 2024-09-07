@@ -2,49 +2,33 @@
 import {
   QueryCommand,
   QueryCommandInput
-  } from '@aws-sdk/lib-dynamodb'
-  import { NextRequest, NextResponse } from 'next/server'
-  import { getSession, withApiAuthRequired } from '@auth0/nextjs-auth0'
+} from '@aws-sdk/lib-dynamodb'
+import { NextRequest, NextResponse } from 'next/server'
 // Locals
 import {
   ddbDocClient,
   ACCOUNT__DYNAMODB,
   DYNAMODB_TABLE_NAMES,
 } from '@/utils'
-import { randomBytes } from 'crypto'
 
 
 
 /**
  * @dev GET an account entry from the `accounts` table using a user's `email`
  * @param req 
+ * @param res
  * @returns 
  */
-export const GET = withApiAuthRequired(async function getAccountEntry(
-  req: NextRequest
+export async function GET(
+  req: NextRequest,
+  res: NextResponse,
 ) {
   if (req.method === 'GET') {
-    const res = new NextResponse()
-
-    // Auth0
-    const session = await getSession(req, res)
-    const user = session?.user
-
-    if (!user) {
-      const message = `Unauthorized: Auth0 found no 'user' for their session.`
-      return NextResponse.json(
-        { message },
-        {
-          status: 401,
-        }
-      )
-    }
-
-    const email = user.email as string
+    const email = req.nextUrl.searchParams.get('email')
 
     if (!email) {
       return NextResponse.json(
-        { error: `Unauthorized: Auth0 found no email for this user's session!` },
+        { error: 'Unauthorized: Email query parameter is required!' },
         {
           status: 401,
           headers: {
@@ -141,4 +125,4 @@ export const GET = withApiAuthRequired(async function getAccountEntry(
       },
     )
   }
-})
+}

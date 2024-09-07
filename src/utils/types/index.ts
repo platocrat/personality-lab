@@ -119,7 +119,7 @@ export type CookieInputType = {
   email: string
   username: string
   password: string
-  isAdmin: string
+  isGlobalAdmin: string
   isParticipant: string
   timestamp: string
 }
@@ -133,9 +133,9 @@ export type EncryptedCookieFieldType = {
 
 export type CookieType = {
   email: EncryptedCookieFieldType
-  username: EncryptedCookieFieldType
+  // username: EncryptedCookieFieldType
   password: EncryptedCookieFieldType
-  isAdmin: EncryptedCookieFieldType
+  isGlobalAdmin: EncryptedCookieFieldType
   isParticipant: EncryptedCookieFieldType
   timestamp: EncryptedCookieFieldType
 }

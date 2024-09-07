@@ -1,7 +1,6 @@
 // Externals
 import sgMail from '@sendgrid/mail'
 import { NextRequest, NextResponse } from 'next/server'
-import { getSession, withApiAuthRequired } from '@auth0/nextjs-auth0'
 // Locals
 import {
   fetchAwsParameter,
@@ -10,27 +9,28 @@ import {
 
 
 
-export const POST = withApiAuthRequired(async function sendEmail(
-  req: NextRequest
-) {
+export async function POST(
+  req: NextRequest,
+  res: NextResponse,
+): Promise<NextResponse<{ message: string }> | NextResponse<{ error: any }>> {
   if (req.method === 'POST') {
-    const res = new NextResponse()
+    const { 
+      email,
+      subject,
+      text,
+    } = await req.json()
 
-    // Auth0
-    const session = await getSession(req, res)
-    const user = session?.user
-
-    if (!user) {
-      const message = `Unauthorized: Auth0 found no 'user' for their session.`
+    if (!email) {
       return NextResponse.json(
-        { message },
+        { error: 'Unauthorized: Email query parameter is required!' },
         {
           status: 401,
+          headers: {
+            'Content-Type': 'application/json',
+          },
         }
       )
     }
-
-    const { email } = await req.json()
 
     const API_KEY = await fetchAwsParameter(
       AWS_PARAMETER_NAMES.SENDGRID_API_KEY
@@ -50,8 +50,8 @@ export const POST = withApiAuthRequired(async function sendEmail(
       const msg = {
         to: email,
         from: 'bwroberts@illinois.edu', // Use the email address or domain you verified above
-        subject: 'Sending with Twilio SendGrid is Fun',
-        text: 'and easy to do anywhere, even with Node.js',
+        subject,
+        text,
         html: '<strong>and easy to do anywhere, even with Node.js</strong>',
       }
 
@@ -89,4 +89,4 @@ export const POST = withApiAuthRequired(async function sendEmail(
       { status: 405 },
     )
   }
-})
+}

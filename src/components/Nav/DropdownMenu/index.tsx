@@ -9,6 +9,7 @@ import {
   ReactNode,
   useEffect,
   useContext,
+  useLayoutEffect,
   } from 'react'
   import Image from 'next/image'
   // import { useUser } from '@auth0/nextjs-auth0/client'
@@ -21,7 +22,7 @@ import { SessionContextType } from '@/contexts/types'
 // Hooks
 import useClickOutside from '@/hooks/useClickOutside'
 // Utils
-import { imgPaths } from '@/utils'
+import { ACCOUNT__DYNAMODB, imgPaths, PARTICIPANT__DYNAMODB, STUDY_SIMPLE__DYNAMODB } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/components/Nav/DropdownMenu/Dropdown.module.css'
@@ -55,13 +56,52 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
   const dropdownRef = useRef<any>(null)
   const notificationRef = useRef(null)
   // States
-  const [isVisible, setIsVisible] = useState<boolean>(false)
+  const [ isVisible, setIsVisible ] = useState<boolean>(false)
+  const [ gravatarUrl, setGravatarUrl ] = useState<string>('')
 
+  // --------------------- `OnClick` Functions Handlers ------------------------
   const toggleDropdown = () => {
     setIsVisible(!isVisible)
   }
 
+
+  async function getGravatarUrl(
+    userEmail: string
+  ) {
+    try {
+      const apiEndpoint = `/api/v1/auth/gravatar-url?email=${userEmail}`
+      const response = await fetch(apiEndpoint, { method: 'GET' })
+      const json = await response.json()
+
+      if (response.status === 400) throw new Error(json.error)
+      if (response.status === 405) {
+        throw new Error(json.error)
+      } else if (response.status === 200) {
+        const gravatarUrl_ = json.gravatarUrl
+        setGravatarUrl(gravatarUrl_)
+      }
+    } catch (error: any) {
+      throw new Error(error)
+    }
+  }
+
+
+  // -------------------------------- Hooks ------------------------------------
   useClickOutside(dropdownRef, () => setIsVisible(false))
+
+  // ------------------------- `useLayoutEffect`s ------------------------------
+  useLayoutEffect(() => {
+    if (email) {
+      const requests = [
+        getGravatarUrl(email),
+      ]
+
+      Promise.all(requests).then(() => {
+
+      })
+    }
+  }, [ email ])
+
 
 
 
@@ -70,7 +110,7 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
       <div className={ styles.dropdown } ref={ dropdownRef }>
         <div>
           {/* { isLoading && user ? ( */}
-          { email ? (
+          { !email ? (
             <>
               <Image
                 width={ 48 }
@@ -109,7 +149,7 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
                   } }
                   onClick={ toggleDropdown }
                   // src={ user && (user.picture ?? '') }
-                  src={ email ? '' : undefined }
+                  src={ gravatarUrl }
                 />
               </div>
             </>

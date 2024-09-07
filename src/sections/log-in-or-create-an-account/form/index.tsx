@@ -345,7 +345,10 @@ const Form: FC<FormProps> = ({
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: JSON.stringify({ token })
+      body: JSON.stringify({
+        email,
+        token
+      })
     })
 
     const json = await response.json()

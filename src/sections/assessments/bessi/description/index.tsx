@@ -1,11 +1,7 @@
 // Locals
 import EntranceNote from '@/components/Notes/Entrance'
-import BessiResultsVisualization from '../assessment/results/bessi-results-visualization'
 // CSS
 import styles from '@/app/page.module.css'
-
-
-const isExample = true
 
 
 
@@ -31,17 +27,6 @@ const Description = () => {
         {
           `The BESSIE uses a skills inventory format, meaning that each BESSI item describes a specific, skill-relevant behavior, and users rate how well they can perform that behavior.`
         }
-
-        <div>
-          <h3
-            style={ {
-              fontSize: 'clamp(16px, 2.5vw, 20px',
-              marginTop: '28px',
-            } }
-          >
-            { `Example Visualizations` }
-          </h3>
-        </div>
       </div>
     </>
   )
@@ -53,7 +38,6 @@ const BessiDescription = ({ }) => {
   return (
     <>
       <Description />
-      <BessiResultsVisualization isExample={ isExample } />
       <EntranceNote />
     </>
   )

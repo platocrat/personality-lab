@@ -93,7 +93,9 @@ export async function POST(
           /**
            * @dev 1.1.4 Determine if the new user is an admin.
            */
-          const isAdmin = ACCOUNT_ADMINS.some(admin => admin.email === email)
+          const isGlobalAdmin = ACCOUNT_ADMINS.some(
+            admin => admin.email === email
+          )
 
           /**
            * @dev 1.1.5 Set the current timestamp that the account entry is 
@@ -109,11 +111,11 @@ export async function POST(
             createdAtTimestamp
           }
           // const UpdateExpression =
-          //   'set isAdmin = :isAdmin, username = :username, password = :password, updatedAtTimestamp = :updatedAtTimestamp'
+          //   'set isGlobalAdmin = :isGlobalAdmin, username = :username, password = :password, updatedAtTimestamp = :updatedAtTimestamp'
           const UpdateExpression =
-            'set isAdmin = :isAdmin, password = :password, updatedAtTimestamp = :updatedAtTimestamp'
+            'set isGlobalAdmin = :isGlobalAdmin, password = :password, updatedAtTimestamp = :updatedAtTimestamp'
           const ExpressionAttributeValues = {
-            ':isAdmin': isAdmin,
+            ':isGlobalAdmin': isGlobalAdmin,
             // ':username': username,
             ':password': password, // Assuming password is already hashed
             ':updatedAtTimestamp': updatedAtTimestamp
@@ -147,7 +149,7 @@ export async function POST(
                 const toEncrypt: { [key: string]: string }[] = [
                   { email: email as string },
                   // { username: username as string },
-                  { isAdmin: isAdmin.toString() },
+                  { isGlobalAdmin: isGlobalAdmin.toString() },
                   { isParticipant: isParticipant.toString() },
                   { timestamp: updatedAtTimestamp.toString() },
                 ]
@@ -165,13 +167,13 @@ export async function POST(
                 )
 
                 /**
-                 * @dev 1.1.7 Return the cookie value and `isAdmin` in the 
+                 * @dev 1.1.7 Return the cookie value and `isGlobalAdmin` in the 
                  *            response
                  */
                 return NextResponse.json(
                   {
                     message: 'User has successfully signed up',
-                    isAdmin,
+                    isGlobalAdmin,
                     isParticipant,
                   },
                   {
@@ -318,7 +320,7 @@ export async function POST(
     /**
      * @dev 3.1 Determine if the new user is an admin
      */
-    const isAdmin = ACCOUNT_ADMINS.some(admin => admin.email === email)
+    const isGlobalAdmin = ACCOUNT_ADMINS.some(admin => admin.email === email)
 
     /**
      * @dev 3.2 The new user has no pre-existing account entry in the `accounts`
@@ -330,7 +332,7 @@ export async function POST(
       email,
       // username,
       password, // Contains a password that is already hashed
-      isAdmin,
+      isGlobalAdmin,
       createdAtTimestamp,
       updatedAtTimestamp,
     }
@@ -361,7 +363,7 @@ export async function POST(
           const toEncrypt: { [key: string]: string }[] = [
             { email: email as string },
             // { username: username as string },
-            { isAdmin: isAdmin.toString() },
+            { isGlobalAdmin: isGlobalAdmin.toString() },
             { isParticipant: isParticipant.toString() },
             { timestamp: createdAtTimestamp.toString() },
           ]
@@ -379,13 +381,13 @@ export async function POST(
           )
 
           /**
-           * @dev 3.3.1 Return the cookie value and `isAdmin` in the 
+           * @dev 3.3.1 Return the cookie value and `isGlobalAdmin` in the 
            *         response
            */
           return NextResponse.json(
             {
               message: 'User has successfully signed up',
-              isAdmin,
+              isGlobalAdmin,
               isParticipant,
             },
             {

@@ -96,12 +96,12 @@ const SubmitResultsForm: FC<SubmitResultsFormProps> = ({
   //     }
 
   //     try {
-  //       const response = await fetch('/api/assessment/results', {
+  //       const response = await fetch('/api/v1/assessment/results', {
   //         method: 'POST',
   //         headers: {
   //           'Content-Type': 'application/json',
   //         },
-  //         body: JSON.stringify({ userResults_ }),
+  //         body: JSON.stringify({ email, userResults_ }),
   //       })
 
   //       const json = await response.json()

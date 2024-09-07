@@ -43,6 +43,7 @@ const BessiAssessment: FC<BessiAssessmentProps> = ({ }) => {
   //   isParticipant,
   //   isFetchingAccount,
   // } = useAccount()
+
   const router = useRouter()
   // States
   const [ isGettingCurrentStudy, setIsGettingCurrentStudy ] = useState(true)

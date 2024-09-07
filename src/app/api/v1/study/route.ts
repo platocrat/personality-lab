@@ -11,8 +11,7 @@ import {
   DeleteCommandInput,
   UpdateCommandInput,
   } from '@aws-sdk/lib-dynamodb'
-  import { NextRequest, NextResponse } from 'next/server'
-  import { getSession, withApiAuthRequired } from '@auth0/nextjs-auth0'
+import { NextRequest, NextResponse } from 'next/server'
 // Locals
 import {
   getEntryId,
@@ -27,30 +26,30 @@ import {
 /**
  * @dev PUT a new study entry to the `studies` table in DynamoDB.
  * @param req
+ * @param res
  * @returns 
  */
-export const PUT = withApiAuthRequired(async function putStudy(
-  // use `any` to get hide long and opaque type error from Next.js
-  req: NextRequest
-): Promise<any> {
+export async function PUT(
+  req: NextRequest,
+  res: NextResponse
+): Promise<NextResponse<{ 
+  message: string; 
+  studyId: string 
+}> | NextResponse<{ error: any }> | undefined> {
   if (req.method === 'PUT') {
-    const res = new NextResponse()
+    const { email, study } = await req.json()
 
-    // Auth0
-    const session = await getSession(req, res)
-    const user = session?.user
-
-    if (!user) {
-      const message = `Unauthorized: Auth0 found no 'user' for their session.`
+    if (!email) {
       return NextResponse.json(
-        { message },
+        { error: 'Unauthorized: Email query parameter is required!' },
         {
           status: 401,
+          headers: {
+            'Content-Type': 'application/json',
+          },
         }
       )
     }
-
-    const { study } = await req.json()
 
     const studyId = await getEntryId(study)
 
@@ -372,31 +371,31 @@ export const PUT = withApiAuthRequired(async function putStudy(
       },
     )
   }
-})
+}
 
 
 
 /**
  * @dev GET all studies for the `adminEmail` or get a single study by `id`
  * @param req 
+ * @param res 
  * @returns 
  */
-export const GET = withApiAuthRequired(async function getStudy(
-  req: NextRequest
+export async function GET(
+  req: NextRequest,
+  res: NextResponse
 ) { 
   if (req.method === 'GET') {
-    const res = new NextResponse()
-    
-    // Auth0
-    const session = await getSession(req, res)
-    const user = session?.user
+    const email = req.nextUrl.searchParams.get('email')
 
-    if (!user) {
-      const message = `Unauthorized: Auth0 found no 'user' for their session.`
+    if (!email) {
       return NextResponse.json(
-        { message },
+        { error: 'Unauthorized: Email query parameter is required!' },
         {
           status: 401,
+          headers: {
+            'Content-Type': 'application/json',
+          },
         }
       )
     }
@@ -468,7 +467,7 @@ export const GET = withApiAuthRequired(async function getStudy(
     // 2.0 Handle the case where `adminEmail` does not exist and `id` is used 
     //     as a GSI
     } else {
-      const adminEmail = user.email as string
+      const adminEmail = email as string
 
       const TableName = DYNAMODB_TABLE_NAMES.studies
       const FilterExpression = 'contains(adminEmails, :email)'
@@ -601,41 +600,39 @@ export const GET = withApiAuthRequired(async function getStudy(
       },
     )
   }
-})
+}
 
 
 
 /**
  * @dev DELETE a study by its ID from the `studies` table in DynamoDB.
  * @param req 
+ * @param res 
  * @returns 
  */
-export const DELETE = withApiAuthRequired(async function deleteStudy(
-  req: NextRequest
+export async function DELETE(
+  req: NextRequest,
+  res: NextResponse
 ) {
   if (req.method === 'DELETE') {
-    const res = new NextResponse()
-
-    // Auth0
-    const session = await getSession(req, res)
-    const user = session?.user
-
-    if (!user) {
-      const message = `Unauthorized: Auth0 found no 'user' for their session.`
-      return NextResponse.json(
-        { message },
-        {
-          status: 401,
-        }
-      )
-    }
-
-    const { 
+    const {
+      email,
       studyId,
       ownerEmail,
       createdAtTimestamp,
     } = await req.json()
 
+    if (!email) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Email query parameter is required!' },
+        {
+          status: 401,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+    }
 
     const TableName = DYNAMODB_TABLE_NAMES.studies
     const Key = {
@@ -695,38 +692,23 @@ export const DELETE = withApiAuthRequired(async function deleteStudy(
       },
     )
   }
-})
+}
 
 
 
 /**
  * @dev POST: Update an existing study using DynamoDB's `UpdateCommand`
  */
-export const POST = withApiAuthRequired(async function updateStudy(
-  req: NextRequest
+export async function POST(
+  req: NextRequest,
+  res: NextResponse,
 ) {
   if (req.method === 'POST') {
-    const res = new NextResponse()
-
-    // Auth0
-    const session = await getSession(req, res)
-    const user = session?.user
-
-    if (!user) {
-      const message = `Unauthorized: Auth0 found no 'user' for their session.`
-      return NextResponse.json(
-        { message },
-        {
-          status: 401,
-        }
-      )
-    }
-
-    const email = user.email as string
+    const { email } = await req.json()
 
     if (!email) {
       return NextResponse.json(
-        { error: `Unauthorized: Auth0 found no email for this user's session!` },
+        { error: 'Unauthorized: Email query parameter is required!' },
         {
           status: 401,
           headers: {
@@ -807,4 +789,4 @@ export const POST = withApiAuthRequired(async function updateStudy(
       },
     )
   }
-})
+}

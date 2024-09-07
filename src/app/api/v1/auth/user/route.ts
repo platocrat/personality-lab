@@ -44,7 +44,7 @@ export async function GET(
 
         const encryptedEmail = (decoded as CookieType).email
         // const encryptedUsername = (decoded as CookieType).username
-        const encryptedIsAdmin = (decoded as CookieType).isAdmin
+        const encryptedIsGlobalAdmin = (decoded as CookieType).isGlobalAdmin
         const encryptedIsParticipant = (decoded as CookieType).isParticipant
         const encryptedTimestamp = (decoded as CookieType).timestamp
 
@@ -58,7 +58,7 @@ export async function GET(
           const toDecrypt: { [key: string]: EncryptedCookieFieldType }[] = [
             { email: encryptedEmail },
             // { username: encryptedUsername },
-            { isAdmin: encryptedIsAdmin },
+            { isGlobalAdmin: encryptedIsGlobalAdmin },
             { isParticipant: encryptedIsParticipant },
             { timestamp: encryptedTimestamp },
           ]
@@ -70,17 +70,17 @@ export async function GET(
 
           const user = {
             ...decryptedItems,
-            isAdmin: decryptedItems.isAdmin === 'true' ? true : false,
+            isGlobalAdmin: decryptedItems.isGlobalAdmin === 'true' ? true : false,
             isParticipant: decryptedItems.isParticipant === 'true' ? true : false,
           }
 
-          console.log(
-            `\n\n\n`,
-            `[${new Date().toLocaleString()} \ --filepath="src/app/api/v1/auth/user/route.ts"]: server-side decrypted user object on to ensure that hackers aren't intercepting it and changing any of its values:`,
-            '\n',
-            user,
-            '\n\n\n'
-          )
+          // console.log(
+          //   `\n\n\n`,
+          //   `[${new Date().toLocaleString()} \ --filepath="src/app/api/v1/auth/user/route.ts"]: server-side decrypted user object to ensure that hackers aren't intercepting it and changing any of its values:`,
+          //   '\n',
+          //   user,
+          //   '\n\n\n'
+          // )
 
 
           return NextResponse.json(

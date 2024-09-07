@@ -43,13 +43,6 @@ export type SessionResponse = {
 }
 
 
-const INIT_USER = {
-  email: '',
-  username: '',
-  isAdmin: false,
-}
-
-
 
 
 // --------------------------- Function component ------------------------------
@@ -126,7 +119,7 @@ export default function RootLayout({
     userEmail: string
   ): Promise<STUDY_SIMPLE__DYNAMODB[] | undefined> {
     try {
-      const apiEndpoint = `/api/account?email=${userEmail}`
+      const apiEndpoint = `/api/v1/account?email=${userEmail}`
       const response = await fetch(apiEndpoint, { method: 'GET' })
       const json = await response.json()
 

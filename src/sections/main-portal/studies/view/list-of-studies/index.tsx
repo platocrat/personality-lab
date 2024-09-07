@@ -5,16 +5,20 @@ import {
   FC,
   useRef,
   useState,
+  useContext,
   useLayoutEffect,
   } from 'react'
-import { useUser } from '@auth0/nextjs-auth0/client'
+// import { useUser } from '@auth0/nextjs-auth0/client'
 // Locals
 import StudiesTable from './table'
 // Components
 import EditStudyModal from '@/components/Modals/EditStudy'
 import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
 // Contexts
+import { SessionContext } from '@/contexts/SessionContext'
 import { EditStudyModalContext } from '@/contexts/EditStudyModalContext'
+// Context Types
+import { SessionContextType } from '@/contexts/types'
 // Hooks
 import useClickOutside from '@/hooks/useClickOutside'
 // Utils
@@ -38,8 +42,16 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
 }) => {
   // Refs
   const editStudyModalRef = useRef<any>(null)
+
   // Contexts
-  const { user, error, isLoading } = useUser()
+  const {
+    email,
+    accountError,
+  } = useContext<SessionContextType>(SessionContext)
+
+  // // Hooks
+  // const { user, error, isLoading } = useUser()
+
   // States
   const [ 
     isLoadingStudies, 
@@ -76,7 +88,7 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
     setIsLoadingStudies(true)
 
     try {
-      const apiEndpoint = `/api/study`
+      const apiEndpoint = `/api/v1/study?email=${ email }`
       const response = await fetch(apiEndpoint, { method: 'GET' })
 
       const json = await response.json()
@@ -103,19 +115,23 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
 
   // ----------------------------- `useLayoutEffect`s --------------------------
   useLayoutEffect(() => {
-    if (!isLoading && user && user.email) {
+    // if (!isLoading && user && user.email) {
+    if (email) {
       const requests = [
         getStudies(),
       ]
     
       Promise.all(requests)
-    } else if (!isLoading && !user) {
-      console.error(
-        `Auth0 couldn't get 'user' from useUser(): `,
-        error
-      )
+    // } else if (!isLoading && !user) {
+    } else {
+      // console.error(
+      //   `Auth0 couldn't get 'user' from useUser(): `,
+      //   error
+      // )
+
+      console.error(`Couldn't get the user's email`)
     }
-  }, [ isLoading, isStudyDeleted ])
+  }, [ /* isLoading */ email, isStudyDeleted ])
 
 
 
@@ -123,7 +139,7 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
   return (
     <>
       <NetworkRequestSuspense
-        isLoading={ isLoading || isLoadingStudies || isDeletingStudy }
+        isLoading={ /* isLoading */ !email || isLoadingStudies || isDeletingStudy }
         spinnerOptions={{
           showSpinner: true,
           containerStyle: {

@@ -126,7 +126,7 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
    * @dev Used for debugging cookies
    */
   async function _getUsernameAndEmailFromCookie() {
-    const cookieValues = await getUsernameAndEmailFromCookie()
+    const cookieValues = await getUsernameAndEmailFromCookie(email)
 
     console.log(
       `[${new Date().toLocaleString()} \ --filepath="src/sections/assessments/bessi/assessment/index.tsx"]:`,
