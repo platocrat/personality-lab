@@ -11,9 +11,13 @@ import {
   DUMMY_USER_PROFILE_ASSESSMENT_HISTORICAL_DATA
 } from './dummy-data'
 import { FACET_FEEDBACK } from '@/utils'
+// CSS
+import { definitelyCenteredStyle } from '@/theme/styles'
 import dataVizStyles from '@/components/DataViz/DataViz.module.css'
 import styles from '@/sections/profile/historical-assessments/HistoricalAssessments.module.css'
-import { definitelyCenteredStyle } from '@/theme/styles'
+
+
+
 
 export type TopChangesType = {
   key: string
@@ -23,9 +27,11 @@ export type TopChangesType = {
   lastScore: number
 }
 
+// ------------------------------- Utility Functions ---------------------------
 const formatKey = (key) => {
   return key.replace(/([A-Z])/g, ' $1').trim()
 }
+
 
 const generateChartData = (
   scores: {
@@ -58,6 +64,9 @@ const generateChartData = (
   return data
 }
 
+
+
+// ------------------------------ Function Component ---------------------------
 const HistoricalAssessments = () => {
   const { facetScores, domainScores } = DUMMY_USER_PROFILE_ASSESSMENT_HISTORICAL_DATA
 
@@ -67,8 +76,11 @@ const HistoricalAssessments = () => {
   const facetChartData = generateChartData(facetScores)
   const domainChartData = generateChartData(domainScores)
 
-  const [loading, setLoading] = useState(true) // State to manage loading
+  const [ loading, setLoading ] = useState(true) // State to manage loading
 
+
+  // --------------------------- Functions -------------------------------------
+  // ~~~~~~~~ Using `useCallback` ~~~~~~~~
   const facetDescriptions = useCallback((data): string => {
     const facet = FACET_FEEDBACK[data.key]
     let _ = ''
@@ -93,6 +105,8 @@ const HistoricalAssessments = () => {
     return _
   }, [])
 
+
+  // ~~~~~~~~ Regular Functions ~~~~~~~~
   const calculateTopChanges = () => {
     const allScores = [...facetChartData, ...domainChartData]
     const now = new Date()
@@ -120,11 +134,15 @@ const HistoricalAssessments = () => {
     return changes.slice(0, 5)
   }
 
+
+  // ~~~~~~~~ Memoized Functions ~~~~~~~~
   const topChanges: TopChangesType[] = useMemo(
     calculateTopChanges,
     [facetChartData, domainChartData]
   ) as TopChangesType[]
 
+
+  // ~~~~~~~~ d3.js Functions ~~~~~~~~
   const createChart = (
     data: {
       key: string,
@@ -246,6 +264,7 @@ const HistoricalAssessments = () => {
       .text(title)
   }
 
+  // ------------------------------ `useEffect`s -------------------------------
   useEffect(() => {
     facetChartData.forEach(data => {
       createChart(
@@ -267,6 +286,7 @@ const HistoricalAssessments = () => {
     })
     setLoading(false) // Set loading to false when charts are done
   }, [domainChartData])
+
 
 
 
@@ -311,5 +331,6 @@ const HistoricalAssessments = () => {
     </>
   )
 }
+
 
 export default HistoricalAssessments

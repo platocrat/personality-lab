@@ -9,7 +9,7 @@ import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
 import PersonalityAssessments from '@/sections/assessments'
 // Hooks
 import useAccount from '@/hooks/useAccount'
-// CSS
+
 
 
 export default function _() {

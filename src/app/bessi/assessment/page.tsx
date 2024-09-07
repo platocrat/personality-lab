@@ -27,7 +27,7 @@ const BessiAssessment: FC<BessiAssessmentProps> = ({ }) => {
   const { user, error, isLoading } = useUser()
   // Hooks
   const { 
-    isAdmin,
+    isGlobalAdmin,
     isParticipant,
     isFetchingAccount,
   } = useAccount()
@@ -48,14 +48,14 @@ const BessiAssessment: FC<BessiAssessmentProps> = ({ }) => {
           setIsGettingCurrentStudy(false)
         }
       } else {
-        if (isAdmin) {
+        if (isGlobalAdmin) {
           setIsGettingCurrentStudy(false)
         } else {
           router.push('/bessi')
         }
       } 
     }
-  }, [ isAdmin, isParticipant, isFetchingAccount ])
+  }, [ isGlobalAdmin, isParticipant, isFetchingAccount ])
 
 
   return (

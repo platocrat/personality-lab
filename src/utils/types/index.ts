@@ -57,6 +57,13 @@ export type HASHED_PASSWORD__DYNAMODB = {
 }
 
 
+export type StudyAsAdmin = {
+  id: string
+  name: string
+  isAdmin: boolean
+}
+
+
 /**
  * @dev An account can take an assessment without being a participant to a study
  */
@@ -64,7 +71,8 @@ export type ACCOUNT__DYNAMODB = {
   email: string // Partition/Primary Key
   createdAtTimestamp: number // Sort Key
   hasVerifiedEmail: boolean // Auth0
-  isAdmin: boolean
+  isGlobalAdmin: boolean
+  studiesAsAdmin?: StudyAsAdmin[]
   results: RESULTS__DYNAMODB[] // non-study results
   password: HASHED_PASSWORD__DYNAMODB
   participant?: PARTICIPANT__DYNAMODB // `undefined` for a non-participant account

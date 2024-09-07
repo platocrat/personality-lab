@@ -110,8 +110,9 @@ export const POST = withApiAuthRequired(async function updateResults(
 
           const command = new UpdateCommand(input)
 
-          const successMessage = `User results have been added to ${TableName
-            } table`
+          const successMessage = `User results have been added to ${
+            TableName
+          } table`
 
 
           try {
@@ -131,7 +132,7 @@ export const POST = withApiAuthRequired(async function updateResults(
               }
             )
           } catch (error: any) {
-            console.log(
+            console.error(
               `Could not update user results for study ID '${study.id
               }' of the '${TableName}' table: `,
               error
@@ -149,7 +150,9 @@ export const POST = withApiAuthRequired(async function updateResults(
             )
           }
         } else {
-          const error = `Owner email '${ownerEmail}' not found in '${TableName}' table`
+          const error = `Owner email '${
+            ownerEmail
+          }' not found in '${TableName}' table`
 
           return NextResponse.json(
             { error },
@@ -162,7 +165,7 @@ export const POST = withApiAuthRequired(async function updateResults(
           )
         }
       } catch (error: any) {
-        console.log(
+        console.error(
           `Could not Query study ID '${study.id
           }' using owner email '${ownerEmail}': `,
           error
@@ -179,8 +182,8 @@ export const POST = withApiAuthRequired(async function updateResults(
           }
         )
       }
-      // If `study` is undefined, update `results` attribute of the account
-      // entry in the `accounts` table
+    // If `study` is undefined, update `results` attribute of the account
+    // entry in the `accounts` table
     } else {
       const accountEmail = userResults.email as string
 
@@ -295,7 +298,7 @@ export const POST = withApiAuthRequired(async function updateResults(
           )
         }
       } catch (error: any) {
-        console.log(
+        console.error(
           `Could not Query account for '${accountEmail}': `,
           error
         )

@@ -33,6 +33,7 @@
     - [4.1.1. SSH in to EC2 instance](#411-ssh-in-to-ec2-instance)
     - [4.1.2. Install `caddy` from source](#412-install-caddy-from-source)
   - [4.2. Working with Caddy server](#42-working-with-caddy-server)
+    - [4.2.1 Working with multiple domains in a single Caddyfile](#421-working-with-multiple-domains-in-a-single-caddyfile)
   - [4.3. On EC2 instance, install Docker, login, and start the Docker daemon](#43-on-ec2-instance-install-docker-login-and-start-the-docker-daemon)
     - [4.3.1. Install `docker`](#431-install-docker)
     - [4.3.2. Login to Docker](#432-login-to-docker)
@@ -54,6 +55,8 @@
   - [8.1 Set up a Database Connection for DynamoDB](#81-set-up-a-database-connection-for-dynamodb)
     - [8.1.1 Specify DynamoDB table for IAM User](#811-specify-dynamodb-table-for-iam-user)
     - [8.1.2 Database Action Scripts](#812-database-action-scripts)
+  - [8.2 Application URIs](#82-application-uris)
+  - [8.3 Debugging `Callback URL Mismatch.` error](#83-debugging-callback-url-mismatch-error)
 - [9. Working with Docker containers](#9-working-with-docker-containers)
 
 ## 0. General Information
@@ -515,17 +518,16 @@ Let's create a `Caddyfile`.
     ```
 
 Paste in the following to ensure that it works to reverse proxy requests made to our Next.js application, which will run on port `3000` from our Docker container:
-
-```apacheconf
-example.com {
-        encode gzip
-        header {
-                Strict-Transport-Security "max-age=31536000;"
-                Access-Control-Allow-Origin "*"
-        }
-        reverse_proxy localhost:3000
-}
-```
+    ```apacheconf
+    example.com {
+            encode gzip
+            header {
+                    Strict-Transport-Security "max-age=31536000;"
+                    Access-Control-Allow-Origin "*"
+            }
+            reverse_proxy localhost:3000
+    }
+    ```
 
 3. Manually start Caddy
 
@@ -534,6 +536,37 @@ example.com {
     ```zsh
     sudo caddy run --config /etc/caddy/Caddyfile
     ```
+
+#### 4.2.1 Working with multiple domains in a single Caddyfile
+
+You can configure _multiple domains_ in a single Caddyfile for different use cases.
+
+1. To serve the same website over multiple domains, your Caddyfile would need to be configured like so:
+
+   ```apacheconf
+   https://example.com, http://example.com, https://example2.com  {
+           encode gzip
+           header {
+                   Strict-Transport-Security "max-age=31536000;"
+                   Access-Control-Allow-Origin "*"
+           }
+           reverse_proxy localhost:3000
+   }
+   ```
+
+2. If you want to serve different websites at different domains, it would look something like this:
+
+   ```apacheconf
+   example.com {
+       root /www/example.com
+   }
+   
+   sub.example.com {
+       root /www/sub.example.com
+       gzip
+       log ../access.log
+   }
+   ```
 
 ### 4.3. On EC2 instance, install Docker, login, and start the Docker daemon
 
@@ -812,6 +845,41 @@ Prerequisites for the `screen` example below:
 
             You should see Next.js returning logs from the page(s) you viewed from your browser.
 
+14. To kill a detached session, run the following command:
+
+    ```sh
+    screen -X -S <SESSION_ID_YOU_WANT_TO_KILL> quit
+    ```
+
+    For example, after running:
+
+    ```sh
+    screen -ls
+    ```
+
+    You may see:
+
+    ```sh
+    There are screens on:
+        3662307.caddy   (Detached)
+        82273.nextjs    (Detached)
+        82242.caddy     (Detached)
+    ```
+
+    To kill the session with the ID, `82273.nextjs`, you can run either of the following commands:
+
+    ```sh
+    screen -X -S 82273 quit
+    ```
+
+    or
+
+    ```sh
+    screen -X -S 82273.nextjs quit
+    ```
+
+    Either of these commands kills that session.
+
 ## 8. Auth0
 
 ### 8.1 Set up a Database Connection for DynamoDB
@@ -824,7 +892,7 @@ When creating the custom permission policy for the `Auth0DynamoDBUser` IAM User,
 
 #### 8.1.2 Database Action Scripts
 
-As a reference, here are the relevant and modifed Database Action Scripts that I made, using the tutorial as a guide:
+As a reference, here are the relevant and modified Database Action Scripts that I made, using the tutorial as a guide:
 
 ##### 8.2.1.1. Login
 
@@ -834,7 +902,7 @@ function login (email, password, callback) {
   const { createHash, pbkdf2Sync } = require('crypto');
 
   const ITERATIONS = 1000000; // 1_000_000
-  const KEYLEN = 128;
+  const KEY_LENGTH = 128;
   const HASH_ALGORITHM = 'sha512';
 
   AWS.config.update({
@@ -871,7 +939,7 @@ function login (email, password, callback) {
             password,
             salt,
             ITERATIONS,
-            KEYLEN,
+            KEY_LENGTH,
             HASH_ALGORITHM
           ).toString('hex');
   
@@ -881,8 +949,13 @@ function login (email, password, callback) {
           // Passwords match, return the user profile
           if (isMatch) {
             const email_ = account.email;
-            // Depending on your user schema, you might want to use a different unique identifier
-            const user_id = createHash('shake256', 16).update(account.email).digest('hex');
+            // Depending on your user schema, you might want to use a different
+            // unique identifier
+            const user_id = createHash(
+              'shake256', 
+              16
+            ).update(account.email).digest('hex');
+
             const userProfile = {
               user_id,
               email: email_,
@@ -926,7 +999,9 @@ function create (user, callback) {
     },
   ];
 
-  const isAdmin = ACCOUNT_ADMINS.some(admin => admin.email === user.email);
+  const isGlobalAdmin = ACCOUNT_ADMINS.some(
+    admin => admin.email === user.email
+  );
 
   // Generate a salt and hash the password
   const salt = randomBytes(16).toString('hex');
@@ -954,14 +1029,15 @@ function create (user, callback) {
     TableName: configuration.dynamoDBTable,
     Item: {
       email: email_,
-      isAdmin,
       password,
-      updatedAtTimestamp,
+      isGlobalAdmin,
       hasVerifiedEmail,
+      updatedAtTimestamp,
       createdAtTimestamp,
       // Add any other user attributes here
     },
-    ConditionExpression: 'attribute_not_exists(email)' // Ensure the user does not already exist
+    // Ensure the user does not already exist
+    ConditionExpression: 'attribute_not_exists(email)'
   };
 
   docClient.put(params, function (err, data) {
@@ -1058,14 +1134,14 @@ function changePassword (email, newPassword, callback) {
   // First, hash the new password
   const salt = randomBytes(16).toString('hex');
   const ITERATIONS = 1000000; // 1_000_000
-  const KEYLEN = 128;
+  const KEY_LENGTH = 128;
   const HASH_ALGORITHM = 'sha512';
 
   const hash = pbkdf2Sync(
     newPassword,
     salt,
     ITERATIONS,
-    KEYLEN,
+    KEY_LENGTH,
     HASH_ALGORITHM
   ).toString('hex');
 
@@ -1152,7 +1228,11 @@ function getByEmail(email, callback) {
         const email_ = account.email;
         const email_verified = account.email_verified;
         // Use a unique identifier for the user_id
-        const user_id = createHash('shake256', 16).update(account.email).digest('hex');
+        const user_id = createHash(
+          'shake256', 
+          16
+        ).update(account.email).digest('hex');
+        
         const userProfile = {
           user_id,
           email: email_,
@@ -1200,6 +1280,53 @@ function deleteUser(email, callback) {
   });
 }
 ```
+
+### 8.2 Application URIs
+
+Under the `Settings` section of your Auth0 Application, update the `Application URIs` inputs with the following:
+
+1. Application Login URI
+
+    ```sh
+    https://example.com/api/auth/login
+    ```
+
+2. Allowed Callback URLs
+
+    ```sh
+    https://example.com/api/auth/callback, 
+    https://localhost:3000/api/auth/callback
+    ```
+
+    Things to keep in mind for these callback URLs.
+    1. For local development, whenever the local base URL, i.e. `https://localhost:3000`, changes,  remember to also update the value for the `AUTH0_BASE_URL` variable in your `.env.local` file.
+    2. For remote development, whenever the remote base URL, i.e. `https://example.com`, changes, remember to also update the value for the `AUTH0_BASE_URL` GitHub Actions secret in your GitHub repository's security settings. The page for this can be found under your repository by going to `Settings` → `Security` → `Secrets and variables` → `Actions`.
+  
+3. Allowed Logout URLs
+
+    ```sh
+    https://example.com,
+    https://localhost:3000
+    ```
+
+Then, click `Save Changes` to save the changes for your Auth0 Application.
+
+### 8.3 Debugging `Callback URL Mismatch.` error
+
+To debug this error, make sure to inspect the logs for your Auth0 application and view the URL that is being used in the callback.
+This URL must be the _exact_ same that is configured in your `Application URIs` settings of your Auth0 application.
+
+To find the logs for your application, click on `Monitoring`, then click on `Logs`.
+
+Next, navigate to your application's URL.
+
+Once you receive the `Callback URL Mismatch.` error, go back to the logs and click on the `Failed Login` or `Failed Logout` log entry and read the object field that named `description` and take note of the URL that is being used.
+
+If the URL that is shown is different than what is configured in your `Application URIs` settings, then make the necessary changes to resolve the error.
+
+> NOTE:
+>
+> Double check whether your domain uses HTTP or HTTPS. Otherwise, you may be confused to find in your Application's logs that your domain's URL uses either `http` or `https`.
 
 ## 9. Working with Docker containers
 

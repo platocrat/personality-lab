@@ -59,7 +59,7 @@ const AssessmentCards: FC<AssessmentCardsProps> = ({
   // Auth0
   const { user, error, isLoading } = useUser()
   // Hooks
-  const { isAdmin } = useAccount()
+  const { isGlobalAdmin } = useAccount()
 
   // ----------------------- Memoized constants --------------------------------
   const participantAssessmentIds: string[] = useMemo((): string[] => {
@@ -75,7 +75,7 @@ const AssessmentCards: FC<AssessmentCardsProps> = ({
   )
 
 
-  const PAs = isAdmin ? pAssessments : PPAs
+  const PAs = isGlobalAdmin ? pAssessments : PPAs
 
 
 

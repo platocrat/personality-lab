@@ -1,13 +1,15 @@
 // Externals
 import {
   PutCommand,
-  QueryCommand,
   ScanCommand,
+  QueryCommand,
   DeleteCommand,
+  UpdateCommand,
   PutCommandInput,
   ScanCommandInput,
   QueryCommandInput,
   DeleteCommandInput,
+  UpdateCommandInput,
   } from '@aws-sdk/lib-dynamodb'
   import { NextRequest, NextResponse } from 'next/server'
   import { getSession, withApiAuthRequired } from '@auth0/nextjs-auth0'
@@ -16,6 +18,7 @@ import {
   getEntryId,
   ddbDocClient,
   STUDY__DYNAMODB,
+  ACCOUNT__DYNAMODB,
   DYNAMODB_TABLE_NAMES,
 } from '@/utils'
 
@@ -28,8 +31,9 @@ import {
  * @returns 
  */
 export const PUT = withApiAuthRequired(async function putStudy(
+  // use `any` to get hide long and opaque type error from Next.js
   req: NextRequest
-) {
+): Promise<any> {
   if (req.method === 'PUT') {
     const res = new NextResponse()
 
@@ -51,50 +55,312 @@ export const PUT = withApiAuthRequired(async function putStudy(
 
     const studyId = await getEntryId(study)
 
-    const TableName = DYNAMODB_TABLE_NAMES.studies
-    const Item = {
-      ...study,
-      id: studyId,
-      createdAtTimestamp: Date.now(),
-    }
+    // Perform `Update` operation on the user's account in the `accounts`
+    // table to update the `isAdmin` value of the account's `studiesAsAdmin` 
+    // property.
+    let TableName = DYNAMODB_TABLE_NAMES.accounts
 
-    const input: PutCommandInput = { TableName, Item }
-    const command = new PutCommand(input)
+    const adminEmails: string[] | undefined = study.adminEmails
 
-    const successMessage = `Study '${study.name}' has been added to the '${
-      TableName
-    }' table`
+    // 1. If there are admin emails...
+    if (adminEmails) {
+      let email: string = ''
 
+      const isAdmin = true
 
-    try {
-      const response = await ddbDocClient.send(command)
+      // 1.1 Perform `Update` operation on each admin email, updating their
+      //     `studiesAsAdmin` property
+      for (let i = 0; i < adminEmails.length; i++) {
+        email = adminEmails[i]
 
-      const message = successMessage || 'Operation successful'
-
-
-      return NextResponse.json(
-        {
-          message,
-          studyId,
-        },
-        {
-          status: 200,
-          headers: {
-            'Content-Type': 'application/json',
+        // Use the account's `email` to perform a `Query` operation to get
+        //       its `createdAtTimestamp`.
+        let TableName = DYNAMODB_TABLE_NAMES.accounts,
+          KeyConditionExpression: string = 'email = :emailValue',
+          ExpressionAttributeValues: { [key: string]: any } = {
+            ':emailValue': email,
           },
-        }
-      )
-    } catch (error: any) {
-      // Something went wrong
-      return NextResponse.json(
-        { error: error },
-        {
-          status: 500,
-          headers: {
-            'Content-Type': 'application/json',
+          input: QueryCommandInput | UpdateCommandInput | PutCommandInput = {
+            TableName,
+            KeyConditionExpression,
+            ExpressionAttributeValues,
           },
+          command: QueryCommand | UpdateCommand | PutCommand = new QueryCommand(
+            input
+          )
+
+        // 1.1.2. Try to perform `Query` operation to find the account by its 
+        //        `email`
+        try {
+          const response = await ddbDocClient.send(command)
+
+          // Check if the user's email exists in the `accounts` table
+          if (
+            response.Items &&
+            (response.Items[0] as ACCOUNT__DYNAMODB).email
+          ) {
+            // Use the account's `createdAtTimestamp` property to
+            // perform an `Update` operation to update the account's
+            // `studiesAsAdmin` property.
+            const account = response.Items[0] as ACCOUNT__DYNAMODB
+            
+            const createdAtTimestamp = account.createdAtTimestamp
+            const previousStudiesAsAdmin = account?.studiesAsAdmin
+            const studyAsAdmin = [
+              {
+                // `isAdmin` is set to `true` because the email is a part of 
+                // `adminEmails`.
+                isAdmin,
+                id: study.id,
+                name: study.name,
+              }
+            ]
+
+            const updatedStudiesAsAdmin = previousStudiesAsAdmin
+              ? [ ...previousStudiesAsAdmin, studyAsAdmin ]
+              : [ studyAsAdmin ]
+
+            const Key = {
+              email,
+              createdAtTimestamp
+            }
+            const UpdateExpression =
+              'set studiesAsAdmin = :studiesAsAdmin, updatedAtTimestamp = :updatedAtTimestamp'
+            const ExpressionAttributeValues = {
+              ':studiesAsAdmin': updatedStudiesAsAdmin,
+              ':updatedAtTimestamp': Date.now()
+            }
+
+            let input: UpdateCommandInput | PutCommandInput = {
+              TableName,
+              Key,
+              UpdateExpression,
+              ExpressionAttributeValues,
+            },
+              command: UpdateCommand | PutCommand = new UpdateCommand(input)
+
+            // Try to perform `Update` operation.
+            try {
+              const response = await ddbDocClient.send(command)
+
+              // Perform `Put` operation to add the new study to the `studies` 
+              // table.
+              TableName = DYNAMODB_TABLE_NAMES.studies
+
+              const Item = {
+                ...study,
+                id: studyId,
+                createdAtTimestamp: Date.now(),
+              }
+
+              input = { TableName, Item } as PutCommandInput
+              command = new PutCommand(input)
+
+              const message = `Study '${
+                study.name
+              }' has been added to the '${TableName}' table`
+
+              try {
+                const response = await ddbDocClient.send(command)
+
+
+                return NextResponse.json(
+                  {
+                    message,
+                    studyId,
+                  },
+                  {
+                    status: 200,
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                  }
+                )
+              } catch (error: any) {
+                // Something went wrong
+                return NextResponse.json(
+                  { error },
+                  {
+                    status: 500,
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                  }
+                )
+              }
+            } catch (error: any) {
+              console.error(
+                `Could not update 'studiesAsAdmin' for '${
+                  email
+                }' of the '${TableName}' table: `,
+                error
+              )
+
+              // Something went wrong
+              return NextResponse.json(
+                { error },
+                {
+                  status: 500,
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                }
+              )
+            }
+          }
+        // 1.1.3. If the user's email does not exist in the `accounts` table, 
+        //        use the current timestamp to create a completely NEW account 
+        //        entry
+        } catch (error: any) {
+          // Construct the `UpdateCommand` using the current timestamp to send 
+          // to DynamoDB
+          const Key = {
+            email: email,
+            createdAtTimestamp: Date.now() // Current timestamp
+          }
+          const UpdateExpression =
+            'set studiesAsAdmin = :studiesAsAdmin'
+
+          const studyAsAdmin = [
+            {
+              // `isAdmin` is set to `true` because the email is a part of 
+              // `adminEmails`.
+              isAdmin,
+              id: study.id,
+              name: study.name,
+            }
+          ]
+
+          const studiesAsAdmin = [ studyAsAdmin ]
+
+          ExpressionAttributeValues = {
+            ':studiesAsAdmin': studiesAsAdmin,
+          }
+
+          input = {
+            TableName,
+            Key,
+            UpdateExpression,
+            ExpressionAttributeValues
+          }
+
+          command = new UpdateCommand(input)
+
+          // 1.1.4. Perform `Put` operation to add the new study to the 
+          //        `studies` table.
+          try {
+            const response = await ddbDocClient.send(command)
+
+            TableName = DYNAMODB_TABLE_NAMES.studies
+
+            const Item = {
+              ...study,
+              id: studyId,
+              createdAtTimestamp: Date.now(),
+            }
+
+            input = { TableName, Item }
+            command = new PutCommand(input)
+
+            const message = `Study '${study.name
+              }' has been added to the '${TableName}' table`
+
+            try {
+              const response = await ddbDocClient.send(command)
+
+              return NextResponse.json(
+                {
+                  message,
+                  studyId,
+                },
+                {
+                  status: 200,
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                }
+              )
+            } catch (error: any) {
+              // Something went wrong
+              return NextResponse.json(
+                { error },
+                {
+                  status: 500,
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                }
+              )
+            }   
+          } catch (error: any) {
+            console.error(
+              `Error performing Update operation for the NEW account entry '${
+                TableName
+              }' to update the 'participant' property: `,
+              error
+            )
+
+            // Something went wrong
+            return NextResponse.json(
+              { error },
+              {
+                status: 500,
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              }
+            )
+          }
         }
-      )
+      }
+    // 2. If there are NO `adminEmails`...
+    } else {
+      // 2.1 Perform the `Put` operation as you normally would
+      // Perform `Put` operation to add the new study to the `studies` 
+      // table.
+      TableName = DYNAMODB_TABLE_NAMES.studies
+
+      const Item = {
+        ...study,
+        id: studyId,
+        createdAtTimestamp: Date.now(),
+      }
+
+      const input = { TableName, Item } as PutCommandInput
+      const command = new PutCommand(input)
+
+      const message = `Study '${
+        study.name
+      }' has been added to the '${TableName}' table`
+
+      try {
+        const response = await ddbDocClient.send(command)
+
+
+        return NextResponse.json(
+          {
+            message,
+            studyId,
+          },
+          {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+      } catch (error: any) {
+        // Something went wrong
+        return NextResponse.json(
+          { error: error },
+          {
+            status: 500,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+      }
     }
   } else {
     return NextResponse.json(

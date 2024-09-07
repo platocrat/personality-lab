@@ -70,7 +70,7 @@ export const GET = withApiAuthRequired(async function getAccountEntry(
     }
     const command: QueryCommand = new QueryCommand(input)
 
-    const successMessage = `Found account entry for '${
+    const message = `Found account entry for '${
       email
     }' in the ${TableName} table`
 
@@ -84,8 +84,6 @@ export const GET = withApiAuthRequired(async function getAccountEntry(
         (response.Items[0] as ACCOUNT__DYNAMODB).email
       ) {
         const account = (response.Items[0] as ACCOUNT__DYNAMODB)
-
-        const message = successMessage || 'Operation successful'
 
 
         // Return account entry
@@ -102,10 +100,10 @@ export const GET = withApiAuthRequired(async function getAccountEntry(
           }
         )
       } else {
-        const message = `No account found for '${email}' in '${TableName}' table`
+        const error = `No account found for '${email}' in '${TableName}' table`
 
         return NextResponse.json(
-          { message: message },
+          { error },
           {
             status: 404,
             headers: {
@@ -115,14 +113,16 @@ export const GET = withApiAuthRequired(async function getAccountEntry(
         ) 
       }
     } catch (error: any) {
-      console.log(
-        `Error getting account entry from the '${TableName}' table: `,
+      console.error(
+        `Error using Query operation to get account entry for '${ 
+          email
+        }' from the '${TableName}' table: `,
         error
       )
 
       // Something went wrong
       return NextResponse.json(
-        { error: error },
+        { error },
         {
           status: 500,
           headers: {

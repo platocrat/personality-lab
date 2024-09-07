@@ -1,8 +1,8 @@
 'use client'
 
 // Externals
-import { FC, useState } from 'react'
 import { useUser } from '@auth0/nextjs-auth0/client'
+import { FC } from 'react'
 // Locals
 import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
 import HistoricalAssessments from '@/sections/profile/historical-assessments'
