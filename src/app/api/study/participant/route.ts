@@ -330,7 +330,8 @@ export async function POST(
       }
     /**
      * @dev 1.2.2.0 If the user's email does not exist in the `accounts` table, 
-     *              use the current timestamp to create a completely NEW entry
+     *              use the current timestamp to create a completely NEW account
+     *              entry
      */
     } catch (error: any) {
       // 1.2.2.1 Construct the `UpdateCommand` using the current timestamp to
@@ -355,10 +356,6 @@ export async function POST(
       }
 
       command = new UpdateCommand(input)
-
-      const successMessage = `Account entry for ${
-        participant.email
-      } has been updated in the ${TableName} table`
 
       // 1.2.2.2 Attempt to perform the `UpdateCommand` on DynamoDB
       try {
@@ -504,7 +501,7 @@ export async function POST(
         }
       } catch (error: any) {
         console.error(
-          `Error performing Update operation on the NEW account entry '${
+          `Error performing Update operation for the NEW account entry '${
             TableName
           }' to update the 'participant' property: `, 
           error
@@ -512,7 +509,7 @@ export async function POST(
 
         // Something went wrong
         return NextResponse.json(
-          { error: error },
+          { error },
           {
             status: 500,
             headers: {

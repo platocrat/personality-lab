@@ -26,6 +26,10 @@ type UserAccountReturnType = {
 export default function useAccount(): UserAccountReturnType {
   // Customs
   const [
+    studiesAsAdmin, 
+    setStudiesAsAdmin
+  ] = useState<StudyAsAdmin[] | undefined>(undefined)
+  const [
     participant, 
     setParticipant,
   ] = useState<PARTICIPANT__DYNAMODB | undefined>(undefined)
@@ -33,13 +37,6 @@ export default function useAccount(): UserAccountReturnType {
     userStudies,
     setUserStudies,
   ] = useState<STUDY_SIMPLE__DYNAMODB[] | undefined>(undefined)
-  const [studiesAsAdmin, setStudiesAsAdmin] = useState<StudyAsAdmin[]>(
-    [{
-      id: '',
-      name: '',
-      isAdmin: false,
-    }]
-  )
   // Strings
   const [accountError, setAccountError] = useState<string>('')
   // Booleans

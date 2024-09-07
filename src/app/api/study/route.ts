@@ -18,8 +18,8 @@ import {
   getEntryId,
   ddbDocClient,
   STUDY__DYNAMODB,
-  DYNAMODB_TABLE_NAMES,
   ACCOUNT__DYNAMODB,
+  DYNAMODB_TABLE_NAMES,
 } from '@/utils'
 
 
@@ -63,7 +63,7 @@ export const PUT = withApiAuthRequired(async function putStudy(
 
     // 1. If there are admin emails...
     if (adminEmails) {
-      let email = ''
+      let email: string = ''
 
       const isAdmin = true
 
@@ -79,14 +79,17 @@ export const PUT = withApiAuthRequired(async function putStudy(
           ExpressionAttributeValues: { [key: string]: any } = {
             ':emailValue': email,
           },
-          input: QueryCommandInput | UpdateCommandInput = {
+          input: QueryCommandInput | UpdateCommandInput | PutCommandInput = {
             TableName,
             KeyConditionExpression,
             ExpressionAttributeValues,
           },
-          command: QueryCommand | UpdateCommand = new QueryCommand(input)
+          command: QueryCommand | UpdateCommand | PutCommand = new QueryCommand(
+            input
+          )
 
-        // Try to perform `Query` operation to find the account by its `email`
+        // 1.1.2. Try to perform `Query` operation to find the account by its 
+        //        `email`
         try {
           const response = await ddbDocClient.send(command)
 
@@ -102,13 +105,15 @@ export const PUT = withApiAuthRequired(async function putStudy(
             
             const createdAtTimestamp = account.createdAtTimestamp
             const previousStudiesAsAdmin = account?.studiesAsAdmin
-            const studyAsAdmin = [{
-              // `isAdmin` is set to `true` because the email is a part of 
-              // `adminEmails`.
-              isAdmin,
-              id: study.id,
-              name: study.name,
-            }]
+            const studyAsAdmin = [
+              {
+                // `isAdmin` is set to `true` because the email is a part of 
+                // `adminEmails`.
+                isAdmin,
+                id: study.id,
+                name: study.name,
+              }
+            ]
 
             const updatedStudiesAsAdmin = previousStudiesAsAdmin
               ? [ ...previousStudiesAsAdmin, studyAsAdmin ]
@@ -133,18 +138,9 @@ export const PUT = withApiAuthRequired(async function putStudy(
             },
               command: UpdateCommand | PutCommand = new UpdateCommand(input)
 
-            let message = `'studiesAsAdmin' property for ${
-              email
-            } has been updated in the ${TableName} table`
-
             // Try to perform `Update` operation.
             try {
               const response = await ddbDocClient.send(command)
-
-              // Log the success message if the `Update` operation to update an 
-              // account's `studiesAsAdmin` property is successful.
-              console.log(`\n\n\n`, message, `\n\n\n`)
-
 
               // Perform `Put` operation to add the new study to the `studies` 
               // table.
@@ -159,7 +155,7 @@ export const PUT = withApiAuthRequired(async function putStudy(
               input = { TableName, Item } as PutCommandInput
               command = new PutCommand(input)
 
-              message = `Study '${
+              const message = `Study '${
                 study.name
               }' has been added to the '${TableName}' table`
 
@@ -182,7 +178,7 @@ export const PUT = withApiAuthRequired(async function putStudy(
               } catch (error: any) {
                 // Something went wrong
                 return NextResponse.json(
-                  { error: error },
+                  { error },
                   {
                     status: 500,
                     headers: {
@@ -201,7 +197,7 @@ export const PUT = withApiAuthRequired(async function putStudy(
 
               // Something went wrong
               return NextResponse.json(
-                { error: error },
+                { error },
                 {
                   status: 500,
                   headers: {
@@ -210,39 +206,110 @@ export const PUT = withApiAuthRequired(async function putStudy(
                 }
               )
             }
-          } else {
-            const error = `Account email '${ 
-              email
-            }' not found in '${TableName}' table`
+          }
+        // 1.1.3. If the user's email does not exist in the `accounts` table, 
+        //        use the current timestamp to create a completely NEW account 
+        //        entry
+        } catch (error: any) {
+          // Construct the `UpdateCommand` using the current timestamp to send 
+          // to DynamoDB
+          const Key = {
+            email: email,
+            createdAtTimestamp: Date.now() // Current timestamp
+          }
+          const UpdateExpression =
+            'set studiesAsAdmin = :studiesAsAdmin'
 
+          const studyAsAdmin = [
+            {
+              // `isAdmin` is set to `true` because the email is a part of 
+              // `adminEmails`.
+              isAdmin,
+              id: study.id,
+              name: study.name,
+            }
+          ]
+
+          const studiesAsAdmin = [ studyAsAdmin ]
+
+          ExpressionAttributeValues = {
+            ':studiesAsAdmin': studiesAsAdmin,
+          }
+
+          input = {
+            TableName,
+            Key,
+            UpdateExpression,
+            ExpressionAttributeValues
+          }
+
+          command = new UpdateCommand(input)
+
+          // 1.1.4. Perform `Put` operation to add the new study to the 
+          //        `studies` table.
+          try {
+            const response = await ddbDocClient.send(command)
+
+            TableName = DYNAMODB_TABLE_NAMES.studies
+
+            const Item = {
+              ...study,
+              id: studyId,
+              createdAtTimestamp: Date.now(),
+            }
+
+            input = { TableName, Item }
+            command = new PutCommand(input)
+
+            const message = `Study '${study.name
+              }' has been added to the '${TableName}' table`
+
+            try {
+              const response = await ddbDocClient.send(command)
+
+              return NextResponse.json(
+                {
+                  message,
+                  studyId,
+                },
+                {
+                  status: 200,
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                }
+              )
+            } catch (error: any) {
+              // Something went wrong
+              return NextResponse.json(
+                { error },
+                {
+                  status: 500,
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                }
+              )
+            }   
+          } catch (error: any) {
+            console.error(
+              `Error performing Update operation for the NEW account entry '${
+                TableName
+              }' to update the 'participant' property: `,
+              error
+            )
+
+            // Something went wrong
             return NextResponse.json(
               { error },
               {
-                status: 404,
+                status: 500,
                 headers: {
                   'Content-Type': 'application/json',
                 },
               }
             )
           }
-        } catch (error: any) {
-          console.error(
-            `Could not Query account email '${
-              email
-            }' of the '${ TableName }' table: `,
-            error
-          )
-
-          // Something went wrong
-          return NextResponse.json(
-            { error },
-            {
-              status: 500,
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            }
-          )
         }
       }
     // 2. If there are NO `adminEmails`...

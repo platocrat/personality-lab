@@ -182,8 +182,8 @@ export const POST = withApiAuthRequired(async function updateResults(
           }
         )
       }
-      // If `study` is undefined, update `results` attribute of the account
-      // entry in the `accounts` table
+    // If `study` is undefined, update `results` attribute of the account
+    // entry in the `accounts` table
     } else {
       const accountEmail = userResults.email as string
 
