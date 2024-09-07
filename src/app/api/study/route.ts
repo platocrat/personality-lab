@@ -32,8 +32,8 @@ import {
  */
 export const PUT = withApiAuthRequired(async function putStudy(
   // use `any` to get hide long and opaque type error from Next.js
-  req: any
-)  {
+  req: NextRequest
+): Promise<any>  {
   if (req.method === 'PUT') {
     const res = new NextResponse()
 
