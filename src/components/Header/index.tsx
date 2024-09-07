@@ -1,11 +1,11 @@
 // Externals
 import { FC} from 'react'
 import { usePathname } from 'next/navigation'
-import { useUser } from '@auth0/nextjs-auth0/client'
+// import { useUser } from '@auth0/nextjs-auth0/client'
 // Locals
 import Nav from '@/components/Nav'
 import DropdownMenu, { NavLink } from '@/components/Nav/DropdownMenu'
-import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
+// import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
 // CSS
 import styles from '@/components/Header/Header.module.css'
 
@@ -18,13 +18,13 @@ const navTitle = `Personality Lab`
 
 
 const Header: FC<HeaderProps> = ({}) => {  
-  // Auth0
-  const { user, error, isLoading } = useUser()
+  // // Auth0
+  // const { user, error, isLoading } = useUser()
   // Hooks
   const pathname = usePathname()
 
   // Constants
-  const logoutHref = '/api/auth/logout'
+  const logoutHref = '/api/v1/auth/logout'
   const targetPath = '/invite/'
   // Conditionals
   const headerCondition = pathname.slice(0, targetPath.length) !== targetPath
@@ -39,7 +39,7 @@ const Header: FC<HeaderProps> = ({}) => {
     <>
       { headerCondition && (
         <>
-          <NetworkRequestSuspense isLoading={ isLoading && !user }>
+          {/* <NetworkRequestSuspense isLoading={ isLoading && !user }> */}
             {/* Header component */ }
             <header className={ styles.header }>
               <Nav title={ navTitle }>
@@ -54,7 +54,7 @@ const Header: FC<HeaderProps> = ({}) => {
                 </DropdownMenu>
               </Nav>
             </header>
-          </NetworkRequestSuspense>
+          {/* </NetworkRequestSuspense> */}
         </>
       ) }
     </>

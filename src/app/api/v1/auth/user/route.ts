@@ -5,18 +5,17 @@ import { NextRequest, NextResponse } from 'next/server'
 // Locals
 import {
   hasJWT,
-  SSCrypto,
   CookieType,
-  COOKIE_NAME,
   fetchAwsParameter,
-  AWS_PARAMETER_NAMES,
   getDecryptedItems,
+  AWS_PARAMETER_NAMES,
   EncryptedCookieFieldType,
 } from '@/utils'
 
 
 /**
- * Checks whether a cookie exists for the given user
+ * Checks whether a cookie exists for the given user and return the `user`
+ * object that is used to manage app sessions.
  * @param req 
  * @param res 
  * @returns 
@@ -44,7 +43,7 @@ export async function GET(
         const decoded = decode(JWT)
 
         const encryptedEmail = (decoded as CookieType).email
-        const encryptedUsername = (decoded as CookieType).username
+        // const encryptedUsername = (decoded as CookieType).username
         const encryptedIsAdmin = (decoded as CookieType).isAdmin
         const encryptedIsParticipant = (decoded as CookieType).isParticipant
         const encryptedTimestamp = (decoded as CookieType).timestamp
@@ -58,7 +57,7 @@ export async function GET(
 
           const toDecrypt: { [key: string]: EncryptedCookieFieldType }[] = [
             { email: encryptedEmail },
-            { username: encryptedUsername },
+            // { username: encryptedUsername },
             { isAdmin: encryptedIsAdmin },
             { isParticipant: encryptedIsParticipant },
             { timestamp: encryptedTimestamp },
@@ -77,7 +76,7 @@ export async function GET(
 
           console.log(
             `\n\n\n`,
-            `[${new Date().toLocaleString()} \ --filepath="src/app/api/auth/user/route.ts"]: server-side decrypted user object on to ensure that hackers aren't intercepting it and changing any of its values:`,
+            `[${new Date().toLocaleString()} \ --filepath="src/app/api/v1/auth/user/route.ts"]: server-side decrypted user object on to ensure that hackers aren't intercepting it and changing any of its values:`,
             '\n',
             user,
             '\n\n\n'

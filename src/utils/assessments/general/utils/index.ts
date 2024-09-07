@@ -64,6 +64,64 @@ export async function getAccessToken(
 
 
 
+/**
+  * @dev Note that the password that is returned is a hashed password
+  */
+export async function getUsernameAndEmailFromCookie() {
+  try {
+    const apiEndpoint = `/api/assessment/aws-parameter?parameterName=${
+      AWS_PARAMETER_NAMES.JWT_SECRET
+    }`
+    const response = await fetch(apiEndpoint, { method: 'GET' })
+
+    const json = await response.json()
+
+
+    if (response.status === 200) {
+      const JWT_SECRET: string = json.secret
+      const cookies = document.cookie
+      const token = cookies.split('=')[0]
+
+      // Cannot use `verify()` because it is only used server-side
+      const decoded = decode(token)
+      const encryptedEmail = (decoded as CookieType).email
+      const encryptedUsername = (decoded as CookieType).username
+
+      const SECRET_KEY = await getCookieSecretKey()
+      const secretKeyCipher = Buffer.from(SECRET_KEY, 'hex')
+
+      const email = new SSCrypto().decrypt(
+        encryptedEmail.encryptedData,
+        secretKeyCipher,
+        encryptedEmail.iv
+      )
+      const username = new SSCrypto().decrypt(
+        encryptedUsername.encryptedData,
+        secretKeyCipher,
+        encryptedUsername.iv
+      )
+
+      return { email, username }
+    } else {
+      throw new Error(
+        `Error getting ${AWS_PARAMETER_NAMES.JWT_SECRET}: ${json.error}`
+      )
+      /**
+       * @todo Handle error UI here
+       */
+    }
+  } catch (error: any) {
+    throw new Error(
+      `Error fetching ${AWS_PARAMETER_NAMES.JWT_SECRET} from API route! ${error}`
+    )
+    /**
+     * @todo Handle error UI here
+     */
+  }
+}
+
+
+
 export async function getCookieSecretKey() {
   try {
     const apiEndpoint = `/api/assessment/aws-parameter?parameterName=${

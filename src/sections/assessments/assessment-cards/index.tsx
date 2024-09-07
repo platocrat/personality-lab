@@ -1,5 +1,5 @@
 // Externals
-import { useUser } from '@auth0/nextjs-auth0/client'
+// import { useUser } from '@auth0/nextjs-auth0/client'
 import { FC, useContext, useMemo, Fragment, useLayoutEffect } from 'react'
 // Locals
 // Components
@@ -7,13 +7,18 @@ import Card from '@/components/Card'
 // Sections
 import BessiDescription from '../bessi/description'
 import BigFiveDescription from '../big-five/descriptions/entrance'
-// Hooks
-import useAccount from '@/hooks/useAccount'
+// Contexts
+import { SessionContext } from '@/contexts/SessionContext'
+// Context Types
+import { SessionContextType } from '@/contexts/types'
+// // Hooks
+// import useAccount from '@/hooks/useAccount'
+// Utils
+import { PARTICIPANT__DYNAMODB } from '@/utils'
 // Types
 import { PersonalityAssessmentType } from '..'
 // CSS
 import styles from '@/app/page.module.css'
-import { PARTICIPANT__DYNAMODB } from '@/utils'
 import { definitelyCenteredStyle } from '@/theme/styles'
 
 
@@ -56,10 +61,16 @@ const AssessmentCards: FC<AssessmentCardsProps> = ({
   participant,
   fragmentKey,
 }) => {
-  // Auth0
-  const { user, error, isLoading } = useUser()
-  // Hooks
-  const { isGlobalAdmin } = useAccount()
+  // // Auth0
+  // const { user, error, isLoading } = useUser()
+
+  // Contexts
+  const {
+    isGlobalAdmin,
+  } = useContext<SessionContextType>(SessionContext)
+
+  // // Hooks
+  // const { isGlobalAdmin } = useAccount()
 
   // ----------------------- Memoized constants --------------------------------
   const participantAssessmentIds: string[] = useMemo((): string[] => {

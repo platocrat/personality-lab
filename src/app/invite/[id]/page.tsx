@@ -2,8 +2,8 @@
 
 // Externals
 import { useRouter } from 'next/navigation'
-import { useUser } from '@auth0/nextjs-auth0/client'
-import { FC, useLayoutEffect, useState } from 'react'
+// import { useUser } from '@auth0/nextjs-auth0/client'
+import { FC, useContext, useLayoutEffect, useState } from 'react'
 // Locals
 import StudyInviteSection from '@/sections/invite'
 // Components
@@ -13,6 +13,8 @@ import useAccount from '@/hooks/useAccount'
 import { STUDY__DYNAMODB } from '@/utils'
 // CSS
 import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
+import { SessionContext } from '@/contexts/SessionContext'
+import { SessionContextType } from '@/contexts/types'
 
 
 
@@ -30,19 +32,25 @@ const StudyInvite: FC<StudyInviteProps> = ({
 }) => {
   // URL params
   const { id } = params
-  // Auth0
-  const { user, error, isLoading } = useUser()
+  // // Auth0
+  // const { user, error, isLoading } = useUser()
+
   // Contexts
-  const { 
+  const {
     isGlobalAdmin,
     isParticipant,
-    isFetchingAccount,
-  } = useAccount()
-  // Hooks
+  } = useContext<SessionContextType>(SessionContext)
+
+  // // Hooks
+  // const { 
+  //   isGlobalAdmin,
+  //   isParticipant,
+  //   isFetchingAccount,
+  // } = useAccount()
   const router = useRouter()
   // States
-  const [isLoadingStudy, setIsLoadingStudy] = useState(true)
-  const [study, setStudy] = useState<STUDY__DYNAMODB | null>(null)
+  const [ study, setStudy ] = useState<STUDY__DYNAMODB | null>(null)
+  const [ isLoadingStudy, setIsLoadingStudy ] = useState<boolean>(true)
 
 
   // --------------------------- Async functions -------------------------------
@@ -71,7 +79,7 @@ const StudyInvite: FC<StudyInviteProps> = ({
 
   // ----------------------------- `useLayoutEffect`s --------------------------
   useLayoutEffect(() => {
-    if (!isFetchingAccount) {
+    // if (!isFetchingAccount) {
       if (
         isGlobalAdmin || 
         (!isGlobalAdmin && isParticipant)
@@ -92,8 +100,8 @@ const StudyInvite: FC<StudyInviteProps> = ({
           Promise.all(requests).then((response: any) => {})
         }
       }
-    }
-  }, [ isGlobalAdmin, isParticipant, isFetchingAccount ])
+    // }
+  }, [ isGlobalAdmin, isParticipant, /* isFetchingAccount */ ])
 
 
 

@@ -2,11 +2,11 @@
 
 // Externals
 import { FC } from 'react'
-import { useUser } from '@auth0/nextjs-auth0/client'
+// import { useUser } from '@auth0/nextjs-auth0/client'
 // Locals
-import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
-// Hooks
-import useAccount from '@/hooks/useAccount'
+// import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
+// // Hooks
+// import useAccount from '@/hooks/useAccount'
 
 
 type SettingsProps = {
@@ -17,24 +17,24 @@ type SettingsProps = {
 const Settings: FC<SettingsProps> = ({
 
 }) => {
-  // Auth0
-  const { user, error, isLoading } = useUser()
-  // Hooks
-  const { isFetchingAccount } = useAccount()
+  // // Auth0
+  // const { user, error, isLoading } = useUser()
+  // // Hooks
+  // const { isFetchingAccount } = useAccount()
 
 
   return (
     <>
-      <NetworkRequestSuspense
+      {/* <NetworkRequestSuspense
         isLoading={ isLoading && !user && isFetchingAccount }
         spinnerOptions={ {
           showSpinner: true
         } }
-      >
+      > */}
         <div>
 
         </div>
-      </NetworkRequestSuspense>
+      {/* </NetworkRequestSuspense> */}
     </>
   )
 }

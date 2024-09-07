@@ -8,13 +8,15 @@ import {
   useContext,
   useLayoutEffect,
 } from 'react'
-import { useUser } from '@auth0/nextjs-auth0/client'
 // Locals
 // Sections
 import AssessmentCards from './assessment-cards'
+// Contexts
+import { SessionContext } from '@/contexts/SessionContext'
+// Context Types
+import { SessionContextType } from '@/contexts/types'
 // Hooks
-import useAccount from '@/hooks/useAccount'
-// Hooks
+// import useAccount from '@/hooks/useAccount'
 import useWindowWidth from '@/hooks/useWindowWidth'
 // Utils
 import {
@@ -42,11 +44,12 @@ const title = `Assessments`
 
 
 const PersonalityAssessments = ({ }) => {
-  // Auth0 
-  const { user, error, isLoading } = useUser()
   // Contexts
-  const { participant } = useAccount()
+  const {
+    participant,
+  } = useContext<SessionContextType>(SessionContext)
   // Hooks
+  // const { participant } = useAccount()
   const windowWidth = useWindowWidth()
 
 

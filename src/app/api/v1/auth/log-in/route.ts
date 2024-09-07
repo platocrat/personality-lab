@@ -24,9 +24,12 @@ export async function POST(
       password, // Password is already hashed
     } = await req.json()
 
-    if (!email || !password) {
+    if (!email || /* !username || */ !password) {
+      // const message = 'Unauthorized without email, username, and password'
+      const message = 'Unauthorized without email and password'
+
       return NextResponse.json(
-        { message: 'Unauthorized without email and password', },
+        { message, },
         {
           status: 401,
         }
@@ -56,9 +59,11 @@ export async function POST(
         (response.Items[0] as ACCOUNT__DYNAMODB).password
       ) {
         const storedEmail = (response.Items[0] as ACCOUNT__DYNAMODB).email
+        // const storedUsername = (response.Items[0] as ACCOUNT__DYNAMODB).username
         const storedPassword = (response.Items[0] as ACCOUNT__DYNAMODB).password
         const storedParticipant = (response.Items[0] as ACCOUNT__DYNAMODB).participant
 
+        // const verifiedUsername = storedUsername === username
         const verifiedEmail = storedEmail === email
         const verifiedPassword = new SSCrypto().verifyPassword(
           password,
@@ -66,13 +71,22 @@ export async function POST(
           storedPassword.salt,
         )
 
+        // const switchCondition = `${verifiedUsername}-${verifiedPassword}`
         const switchCondition = `${verifiedEmail}-${verifiedPassword}`
+
+        // return await verifiedUsernameAndPasswordSwitch(
+        //   switchCondition,
+        //   cookies,
+        //   email,
+        //   username,
+        //   storedParticipant,
+        //   storedPassword,
+        // ) as NextResponse<{ error: string }> | NextResponse<{ message: string }>
 
         return await verifiedEmailAndPasswordSwitch(
           switchCondition,
           cookies,
           email,
-          // username,
           storedParticipant,
           storedPassword,
         ) as NextResponse<{ error: string }> | NextResponse<{ message: string }>

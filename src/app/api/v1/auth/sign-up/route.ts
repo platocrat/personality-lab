@@ -108,6 +108,8 @@ export async function POST(
             email,
             createdAtTimestamp
           }
+          // const UpdateExpression =
+          //   'set isAdmin = :isAdmin, username = :username, password = :password, updatedAtTimestamp = :updatedAtTimestamp'
           const UpdateExpression =
             'set isAdmin = :isAdmin, password = :password, updatedAtTimestamp = :updatedAtTimestamp'
           const ExpressionAttributeValues = {
@@ -203,12 +205,34 @@ export async function POST(
     }
 
 
+
+
+
+    // /**
+    //  * @dev 2.0 Construct the `QueryCommand` to check if the username exists in
+    //  *         the `accounts table
+    //  */
+    // const IndexName = 'username-index'
+
+    // KeyConditionExpression = 'username = :usernameValue'
+    // ExpressionAttributeValues = { ':usernameValue': username }
+
+    // input = {
+    //   TableName,
+    //   IndexName,
+    //   KeyConditionExpression,
+    //   ExpressionAttributeValues
+    // }
+
+
+
+
+
     /**
      * @dev 2.0 Construct the `QueryCommand` to check if the email exists in
      *         the `accounts table
      */
     const IndexName = 'email-index'
-
     KeyConditionExpression = 'email = :emailValue'
     ExpressionAttributeValues = { ':emailValue': email }
 
@@ -220,6 +244,41 @@ export async function POST(
     }
 
     command = new QueryCommand(input)
+
+
+
+
+
+    // /**
+    //  * @dev 2.1.0 Check if the username, with a password, is already in the 
+    //  *         DynamoDB table
+    //  */
+    // try {
+    //   const response = await ddbDocClient.send(command)
+
+
+    //   if (response.Items && response.Items.length > 0) {
+    //     /**
+    //      * @dev 2.1.1 Only return a response if the username exists in the 
+    //      *          DynamoDB Table.
+    //      */
+    //     if ((response.Items[0] as ACCOUNT__DYNAMODB).username) {
+    //       return NextResponse.json(
+    //         { message: 'Username exists' },
+    //         { status: 200 },
+    //       )
+    //     }
+    //   }
+    // } catch (error: any) {
+    //   return NextResponse.json(
+    //     { error: error },
+    //     { status: 500 },
+    //   )
+    // }
+
+
+
+
 
     /**
      * @dev 2.1.0 Check if the email, with a password, is already in the 
@@ -252,7 +311,7 @@ export async function POST(
     /**
      * @dev 3.0 Store the new user's sign-up data
      */
-    // Get timestamp after the username is validated.
+    // Get timestamp after the email is validated.
     const createdAtTimestamp = Date.now()
     const updatedAtTimestamp = 0
 

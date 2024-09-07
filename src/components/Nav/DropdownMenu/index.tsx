@@ -8,11 +8,16 @@ import {
   Fragment,
   ReactNode,
   useEffect,
+  useContext,
   } from 'react'
   import Image from 'next/image'
-  import { useUser } from '@auth0/nextjs-auth0/client'
+  // import { useUser } from '@auth0/nextjs-auth0/client'
 // Locals
 import ProgressBarLink from '@/components/Progress/ProgressBarLink'
+// Contexts
+import { SessionContext } from '@/contexts/SessionContext'
+// Context Types
+import { SessionContextType } from '@/contexts/types'
 // Hooks
 import useClickOutside from '@/hooks/useClickOutside'
 // Utils
@@ -40,8 +45,12 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
   links,
   children
 }) => {
-  // Auth0 
-  const { user, error, isLoading } = useUser()
+  // // Auth0 
+  // const { user, error, isLoading } = useUser()
+
+  // Contexts
+  const { email } = useContext<SessionContextType>(SessionContext)
+
   // Refs
   const dropdownRef = useRef<any>(null)
   const notificationRef = useRef(null)
@@ -60,7 +69,8 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
     <>
       <div className={ styles.dropdown } ref={ dropdownRef }>
         <div>
-          { isLoading && user ? (
+          {/* { isLoading && user ? ( */}
+          { email ? (
             <>
               <Image
                 width={ 48 }
@@ -98,12 +108,15 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
                       : ''
                   } }
                   onClick={ toggleDropdown }
-                  src={ user && (user.picture ?? '') }
+                  // src={ user && (user.picture ?? '') }
+                  src={ email ? '' : undefined }
                 />
               </div>
             </>
           )}
         </div>
+
+
         { isVisible && (
           <Fragment key={ `dropdown-menu` }>
             <div className={ `${styles.dropdownContent} ${isVisible ? 'slideIn' : 'slideOut'}` }>
@@ -124,7 +137,8 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
                         >
                           <div style={ definitelyCenteredStyle }>
                             <p>
-                              { user?.name }
+                              {/* { user?.name } */}
+                              { email }
                             </p>
                           </div>
                           <div 

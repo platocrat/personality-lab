@@ -17,6 +17,12 @@ type CardProps = {
   buttonText?: string
   href?: string
   cssStyle?: CSSProperties
+  options?: {
+    hasForm?: boolean
+    isSignUp?: boolean
+    isFirstStep?: boolean
+    formContent?: ReactNode
+  }
 }
 
 
@@ -24,6 +30,7 @@ type CardProps = {
 const Card: FC<CardProps> = ({
   href,
   title,
+  options,
   cssStyle,
   buttonText,
   description,
@@ -88,6 +95,48 @@ const Card: FC<CardProps> = ({
                 </div>
               </>
             )}
+
+            { options?.formContent 
+              ? options?.formContent 
+              : typeof href === 'string' && (
+              <>
+                { isLoading
+                  ? (
+                    <>
+                      <div
+                        style={ {
+                          ...definitelyCenteredStyle,
+                          position: 'relative',
+                          marginBottom: '12px',
+                        } }
+                      >
+                        <Spinner height='30' width='30' />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div 
+                        style={{ 
+                          ...definitelyCenteredStyle,
+                          position: 'relative',
+                          marginBottom: '12px'
+                        }}
+                      >
+                        <ProgressBarLink href={ href }>
+                          <button 
+                            style={{ width: '70px' }}
+                            className={ styles.button }
+                            onClick={ (e: any) => handleOnClick(e) }
+                          >
+                            { buttonText }
+                          </button>
+                        </ProgressBarLink>
+                      </div>
+                    </>
+                  )
+                }
+              </>
+            )}            
           </div>
         </div>
       </div>
