@@ -9,10 +9,6 @@ import {
 import { useRouter } from 'next/navigation'
 // Locals
 import InviteRegistrationForm from './registration-form'
-// Contexts
-import { SessionContext } from '@/contexts/SessionContext'
-// Context Type
-import { SessionContextType } from '@/contexts/types'
 import { 
   STUDY__DYNAMODB,
   PARTICIPANT__DYNAMODB, 
@@ -40,8 +36,6 @@ const pStyle: CSSProperties = {
 
 
 const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
-  // Contexts
-  const { email } = useContext<SessionContextType>(SessionContext)
   // Hooks
   const router = useRouter()
   // States
@@ -139,7 +133,7 @@ const StudyInviteSection: FC<StudyInviteSectionProps> = ({ study }) => {
          *      study entry with the new `participant`.
          */
         body: JSON.stringify({ 
-          email,
+          email: participantEmail,
           participant, 
           studyId: study?.id
         }),

@@ -56,7 +56,11 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
   const dropdownRef = useRef<any>(null)
   const notificationRef = useRef(null)
   // States
-  const [ isVisible, setIsVisible ] = useState<boolean>(false)
+  const [ 
+    isLoadingGravatarUrl, 
+    setIsLoadingGravatarUrl
+  ] = useState<boolean>(false)
+  const [ isVisible, setIsVisible ] = useState<boolean>(true)
   const [ gravatarUrl, setGravatarUrl ] = useState<string>('')
 
   // --------------------- `OnClick` Functions Handlers ------------------------
@@ -79,6 +83,7 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
       } else if (response.status === 200) {
         const gravatarUrl_ = json.gravatarUrl
         setGravatarUrl(gravatarUrl_)
+        setIsLoadingGravatarUrl(false)
       }
     } catch (error: any) {
       throw new Error(error)
@@ -97,7 +102,6 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
       ]
 
       Promise.all(requests).then(() => {
-
       })
     }
   }, [ email ])
@@ -110,7 +114,7 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
       <div className={ styles.dropdown } ref={ dropdownRef }>
         <div>
           {/* { isLoading && user ? ( */}
-          { !email ? (
+          { isLoadingGravatarUrl && !email ? (
             <>
               <Image
                 width={ 48 }
