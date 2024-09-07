@@ -8,7 +8,7 @@ import {
   ddbDocClient,
   ACCOUNT__DYNAMODB,
   DYNAMODB_TABLE_NAMES,
-  verifiedUsernameAndPasswordSwitch,
+  verifiedEmailAndPasswordSwitch,
 } from '@/utils'
 
 
@@ -20,13 +20,13 @@ export async function POST(
   if (req.method === 'POST') {
     const {
       email,
-      username,
+      // username,
       password, // Password is already hashed
     } = await req.json()
 
-    if (!email || !username || !password) {
+    if (!email || !password) {
       return NextResponse.json(
-        { message: 'Unauthorized without email, username, and password', },
+        { message: 'Unauthorized without email and password', },
         {
           status: 401,
         }
@@ -55,24 +55,24 @@ export async function POST(
         response.Items &&
         (response.Items[0] as ACCOUNT__DYNAMODB).password
       ) {
-        const storedUsername = (response.Items[0] as ACCOUNT__DYNAMODB).username
+        const storedEmail = (response.Items[0] as ACCOUNT__DYNAMODB).email
         const storedPassword = (response.Items[0] as ACCOUNT__DYNAMODB).password
         const storedParticipant = (response.Items[0] as ACCOUNT__DYNAMODB).participant
 
-        const verifiedUsername = storedUsername === username
+        const verifiedEmail = storedEmail === email
         const verifiedPassword = new SSCrypto().verifyPassword(
           password,
           storedPassword.hash,
           storedPassword.salt,
         )
 
-        const switchCondition = `${verifiedUsername}-${verifiedPassword}`
+        const switchCondition = `${verifiedEmail}-${verifiedPassword}`
 
-        return await verifiedUsernameAndPasswordSwitch(
+        return await verifiedEmailAndPasswordSwitch(
           switchCondition,
           cookies,
           email,
-          username,
+          // username,
           storedParticipant,
           storedPassword,
         ) as NextResponse<{ error: string }> | NextResponse<{ message: string }>

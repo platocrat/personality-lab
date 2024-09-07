@@ -35,7 +35,7 @@ export async function POST(
   if (req.method === 'POST') {
     const {
       email,
-      username,
+      // username,
       password // Contains a password that is already hashed
     } = await req.json()
 
@@ -109,10 +109,10 @@ export async function POST(
             createdAtTimestamp
           }
           const UpdateExpression =
-            'set isAdmin = :isAdmin, username = :username, password = :password, updatedAtTimestamp = :updatedAtTimestamp'
+            'set isAdmin = :isAdmin, password = :password, updatedAtTimestamp = :updatedAtTimestamp'
           const ExpressionAttributeValues = {
             ':isAdmin': isAdmin,
-            ':username': username,
+            // ':username': username,
             ':password': password, // Assuming password is already hashed
             ':updatedAtTimestamp': updatedAtTimestamp
           }
@@ -144,7 +144,7 @@ export async function POST(
 
                 const toEncrypt: { [key: string]: string }[] = [
                   { email: email as string },
-                  { username: username as string },
+                  // { username: username as string },
                   { isAdmin: isAdmin.toString() },
                   { isParticipant: isParticipant.toString() },
                   { timestamp: updatedAtTimestamp.toString() },
@@ -204,13 +204,13 @@ export async function POST(
 
 
     /**
-     * @dev 2.0 Construct the `QueryCommand` to check if the username exists in
+     * @dev 2.0 Construct the `QueryCommand` to check if the email exists in
      *         the `accounts table
      */
-    const IndexName = 'username-index'
+    const IndexName = 'email-index'
 
-    KeyConditionExpression = 'username = :usernameValue'
-    ExpressionAttributeValues = { ':usernameValue': username }
+    KeyConditionExpression = 'email = :emailValue'
+    ExpressionAttributeValues = { ':emailValue': email }
 
     input = {
       TableName,
@@ -222,7 +222,7 @@ export async function POST(
     command = new QueryCommand(input)
 
     /**
-     * @dev 2.1.0 Check if the username, with a password, is already in the 
+     * @dev 2.1.0 Check if the email, with a password, is already in the 
      *         DynamoDB table
      */
     try {
@@ -231,12 +231,12 @@ export async function POST(
 
       if (response.Items && response.Items.length > 0) {
         /**
-         * @dev 2.1.1 Only return a response if the username exists in the 
+         * @dev 2.1.1 Only return a response if the email exists in the 
          *          DynamoDB Table.
          */
-        if ((response.Items[0] as ACCOUNT__DYNAMODB).username) {
+        if ((response.Items[0] as ACCOUNT__DYNAMODB).email) {
           return NextResponse.json(
-            { message: 'Username exists' },
+            { message: 'Email exists' },
             { status: 200 },
           )
         }
@@ -269,7 +269,7 @@ export async function POST(
 
     const Item = {
       email,
-      username,
+      // username,
       password, // Contains a password that is already hashed
       isAdmin,
       createdAtTimestamp,
@@ -301,7 +301,7 @@ export async function POST(
 
           const toEncrypt: { [key: string]: string }[] = [
             { email: email as string },
-            { username: username as string },
+            // { username: username as string },
             { isAdmin: isAdmin.toString() },
             { isParticipant: isParticipant.toString() },
             { timestamp: createdAtTimestamp.toString() },
