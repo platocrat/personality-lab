@@ -24,6 +24,9 @@ const Header: FC<HeaderProps> = ({}) => {
   const pathname = usePathname()
 
   // Constants
+  /**
+   * @todo navigating to `logoutHref` goes to an empty page.
+   */
   const logoutHref = '/api/v1/auth/logout'
   const targetPath = '/invite/'
   // Conditionals
