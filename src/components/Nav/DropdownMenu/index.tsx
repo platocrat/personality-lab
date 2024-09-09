@@ -167,35 +167,30 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
 
         { isVisible && (
           <Fragment key={ `dropdown-menu` }>
-            <div className={ `${styles.dropdownContent} ${isVisible ? 'slideIn' : 'slideOut'}` }>
+            <div 
+              className={ 
+                `${styles['dropdown-content']} ${isVisible ? 'slideIn' : 'slideOut'}`
+              }
+            >
               { links.map((link: NavLink, i: number) => (
                 <Fragment
                   key={ i }
                 >
                   <ProgressBarLink
                     href={ link.href }
-                    className={ styles.dropdownLink }
+                    className={ styles['dropdown-link'] }
                   >
                     { i === 0 
                       ? (
                         <>
-                        <div 
-                          className={ styles.username }
-                          style={{ display: 'flex', gap: '14px' }}
-                        >
+                        <div className={ styles.username }>
                           <div style={ definitelyCenteredStyle }>
                             <p>
                               {/* { user?.name } */}
                               { email }
                             </p>
                           </div>
-                          <div 
-                            style={{ 
-                              ...definitelyCenteredStyle,
-                              textAlign: 'center',
-                              fontSize: 'clamp(6px, 2vw, 10px)',
-                            }}
-                          >
+                          <div className={ styles['view-profile'] }>
                             <p>
                               { `View Profile` }
                             </p>

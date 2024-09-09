@@ -1,14 +1,8 @@
 // Externals
 import { Dispatch, FC, SetStateAction } from 'react'
 // Locals
-// Components
-import Spinner from '@/components/Suspense/Spinner'
-// Sections
-import SocialRatingNotification from '../notification'
-import SocialRatingInstructionsDescription from '../instructions/description'
-import CharacterGenerationSuspense from '../instructions//character-generation-suspense'
+import CharacterGenerationSuspense from '../overview/character-generation-suspense'
 // CSS
-import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/sections/social-rating/fictional-characters/FictionalCharacters.module.css'
 
 

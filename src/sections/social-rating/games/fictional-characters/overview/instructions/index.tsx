@@ -1,22 +1,25 @@
 // Locals
 import ExternalLink from '@/components/Anchors/ExternalLink'
 // CSS
-import styles from '@/sections/social-rating/fictional-characters/instructions/description/game-instructions/GameInstructions.module.css'
+import styles from '@/sections/social-rating/games/fictional-characters/overview/instructions/Instructions.module.css'
 
 
 
-const GameInstructions = () => {
-  const noticeOnOpenAiModelUsed = `The LLM used for this social rating game is OpenAI's `
+const Instructions = () => {
+  const NOTICE_ON_OPENAI_MODEL_USED = `The LLM used for this social rating game is OpenAI's `
 
 
   return (
     <>
       <div className={ styles.container }>
         <div>
-          { `Welcome to the social rating game!` }
+          { `Welcome to the fictional characters social rating game!` }
+        </div>
+        <div>
+          { `This game is enabled by generative AI.` }
         </div>
         <div style={{ marginBottom: '12px' }}>
-          { `Here you can play a friendly game with others to rate each other to find out who has the closest personality to designated pop-culture characters.` }
+          { `Here you can play a friendly game with others to rate each other to find out who has the closest personality to AI-generated pop-culture characters that are chosen by your game's host.` }
         </div>
 
         {/* Game mechanics */ }
@@ -67,7 +70,7 @@ const GameInstructions = () => {
               { `LLM model used:` }
             </strong>
           </div>
-          { noticeOnOpenAiModelUsed }
+          { NOTICE_ON_OPENAI_MODEL_USED }
           <ExternalLink
             options={ { target: `_blank` } }
             linkText={ `gpt-4o-mini` }
@@ -126,4 +129,4 @@ const GameInstructions = () => {
   )
 }
 
-export default GameInstructions
+export default Instructions

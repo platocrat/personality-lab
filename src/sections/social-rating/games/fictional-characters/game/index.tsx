@@ -4,13 +4,13 @@ import { FC, useCallback, useMemo, useState } from 'react'
 // Sections
 import Generate from '../generate'
 import CharacterContent from '../character-content'
-import SocialRatingNotification from '../notification'
+import CharacterGenerationNotification from '../character-generation-notification'
 // Utils
 import { CharacterType, generateCharacterProfile } from '@/utils'
 
 
 
-type SocialRatingGameProps = {
+type GameProps = {
   
 }
 
@@ -23,7 +23,7 @@ type SocialRatingGameProps = {
  * 2. Model game mechanics of rating each other after the PDF that Dr. Roberts
  *    shared with you
  */
-const SocialRatingGame: FC<SocialRatingGameProps> = ({}) => {
+const Game: FC<GameProps> = ({}) => {
   // States
   const [ characters, setCharacters ] = useState<CharacterType[]>([])
   // Booleans
@@ -112,7 +112,7 @@ const SocialRatingGame: FC<SocialRatingGameProps> = ({}) => {
       />
 
       { /* Green success notification */ }
-      <SocialRatingNotification
+      <CharacterGenerationNotification
         state={ {
           completed,
           totalPrompts,
@@ -127,4 +127,4 @@ const SocialRatingGame: FC<SocialRatingGameProps> = ({}) => {
   )
 }
 
-export default SocialRatingGame
+export default Game

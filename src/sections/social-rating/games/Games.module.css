@@ -1,0 +1,12 @@
+.list-of-games-container {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: 18px;
+}
+
+.heading-description {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: 6px; 
+  text-align: left;
+}

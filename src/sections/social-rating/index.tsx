@@ -4,7 +4,7 @@
 import { FC } from 'react'
 // import { useUser } from '@auth0/nextjs-auth0/client'
 // Locals
-import FictionalCharacters from './fictional-characters'
+import Games from './games'
 // import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
 // // Hooks
 // import useAccount from '@/hooks/useAccount'
@@ -40,15 +40,7 @@ const SocialRating: FC<SocialRatingProps> = ({
         } }
       > */}
         <main className={ `${styles.main}` }>
-          <div 
-            style={{ 
-              ...definitelyCenteredStyle, 
-              flexDirection: 'column',
-            }}
-          >
-            {/* <FictionalCharacters /> */}
-            <h2>{ `Coming very soon!` }</h2>
-          </div>
+          <Games />
         </main>
       {/* </NetworkRequestSuspense> */}
     </>
