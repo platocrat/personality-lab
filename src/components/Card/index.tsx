@@ -16,7 +16,7 @@ type CardProps = {
   description: string | ReactNode
   buttonText?: string
   href?: string
-  cssStyle?: CSSProperties
+  cssStyle?: CSSProperties | any
   options?: {
     hasForm?: boolean
     isSignUp?: boolean
@@ -56,7 +56,11 @@ const Card: FC<CardProps> = ({
           </h2>
         </div>
         <div>
-          <div style={ { textAlign: 'center' } }>
+          <div 
+            style={{ 
+              textAlign: cssStyle?.textAlign ?? 'center',
+            }}
+          >
             { description }
           </div>
         </div>
@@ -86,9 +90,9 @@ const Card: FC<CardProps> = ({
                 >
                   <ProgressBarLink href={ href }>
                     <button
-                      style={ { width: '70px' } }
                       className={ styles.button }
                       onClick={ (e: any) => handleOnClick(e) }
+                      style={{ width: cssStyle?.buttonWidth ?? '70px' }}
                     >
                       { buttonText }
                     </button>

@@ -1,7 +1,9 @@
+'use client'
+
 // Externals
 import QRCode from 'qrcode'
 import Image from 'next/image'
-import { useContext, useMemo, useState } from 'react'
+import { FC, useContext, useMemo, useState } from 'react'
 // Locals
 import ProgressBarLink from '@/components/Progress/ProgressBarLink'
 // Contexts
@@ -9,12 +11,18 @@ import { GameSessionContextType } from '@/contexts/types'
 import { GameSessionContext } from '@/contexts/GameSessionContext'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
-import pageStyles from '@/sections/social-rating/fictional-characters/FictionalCharacters.module.css'
-import styles from '@/sections/social-rating/fictional-characters/instructions/initiate-game/InitiateGame.module.css'
+import pageStyles from '@/sections/social-rating/games/fictional-characters/FictionalCharacters.module.css'
+import styles from '@/sections/social-rating/games/fictional-characters/overview/initiate-game/InitiateGame.module.css'
 
 
 
-const InitiateGame = () => {
+type InitiateGameProps = {
+
+}
+
+
+
+const InitiateGame: FC<InitiateGameProps> = ({}) => {
   // Contexts
   const {
     sessionId,
