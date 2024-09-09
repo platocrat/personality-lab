@@ -8,17 +8,12 @@ import { NextResponse } from 'next/server'
 // Locals
 import { 
   REGION,
-  // CREDENTIALS,
   AWS_PARAMETER_NAMES,
 } from '../constants'
 
 
 
 export const ssmClient = new SSMClient({ region: REGION })
-// export const ssmClient = new SSMClient({ 
-//   region: REGION,
-//   credentials: CREDENTIALS,
-// })
 
 /**
  * @dev Fetches the requested parameter from AWS Parameter Store.
@@ -43,7 +38,7 @@ export async function fetchAwsParameter(
       return parameter = response.Parameter?.Value
     } else {
       return NextResponse.json(
-        { error: `${ parameterName } parameter does not exist` },
+        { error: `${ parameterName } parameter does not exist!` },
         { status: 400 }
       )
     }
@@ -51,7 +46,7 @@ export async function fetchAwsParameter(
     // Something went wrong
     return NextResponse.json(
       { error: `Error! Something went wrong fetching ${ parameterName }: ${error}`, },
-      { status: 400, },
+      { status: 500, },
     )
   }
 }

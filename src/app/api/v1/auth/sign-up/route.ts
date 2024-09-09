@@ -86,7 +86,7 @@ export async function POST(
           const createdAtTimestamp = account.createdAtTimestamp
 
           let isParticipant = true,
-            studiesAsAdmin: StudyAsAdmin[] | undefined = undefined
+            studiesAsAdmin: StudyAsAdmin[] | [] = []
 
           /**
            * @dev 1.1.3 If user has `isGlobalAdmin === true`, OR if user is a 
@@ -95,7 +95,7 @@ export async function POST(
            */
           if (account.isGlobalAdmin || account.studiesAsAdmin) {
             isParticipant = false
-            studiesAsAdmin = account.studiesAsAdmin
+            studiesAsAdmin = account.studiesAsAdmin ?? []
           }
 
           /**
