@@ -4,9 +4,12 @@ import { FC } from 'react'
 import styles from '@/sections/social-rating/games/fictional-characters/overview/instructions/Instructions.module.css'
 
 
+
 type InstructionsProps = {
 
 }
+
+
 
 
 const Instructions: FC<InstructionsProps> = ({
