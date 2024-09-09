@@ -57,7 +57,6 @@ const Instructions: FC<InstructionsProps> = ({
           </div>
         </div>
 
-
         {/* Game instructions */ }
         <div>
           <div>
