@@ -1,14 +1,18 @@
 'use client'
 
 // Externals
-import { useUser } from '@auth0/nextjs-auth0/client'
-import { FC } from 'react'
+// import { useUser } from '@auth0/nextjs-auth0/client'
+import { FC, useContext } from 'react'
 // Locals
-import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
-import HistoricalAssessments from '@/sections/profile/historical-assessments'
+// import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
 // Sections
-// Hooks
-import useAccount from '@/hooks/useAccount'
+import HistoricalAssessments from '@/sections/profile/historical-assessments'
+// Contexts
+import { SessionContext } from '@/contexts/SessionContext'
+// Context Types
+import { SessionContextType } from '@/contexts/types'
+// // Hooks
+// import useAccount from '@/hooks/useAccount'
 // CSS
 import appStyles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -24,21 +28,25 @@ type ProfileProps = {
 const Profile: FC<ProfileProps> = ({
 
 }) => {
-  // Auth0
-  const { user, error, isLoading } = useUser()
-  // Hooks
-  const { isFetchingAccount } = useAccount()
+  // // Auth0
+  // const { user, error, isLoading } = useUser()
+
+  // Contexts
+  const { email } = useContext<SessionContextType>(SessionContext)
+
+  // // Hooks
+  // const { isFetchingAccount } = useAccount()
 
 
 
   return (
     <>
-      <NetworkRequestSuspense
+      {/* <NetworkRequestSuspense
         isLoading={ isLoading && !user && isFetchingAccount }
         spinnerOptions={{
           showSpinner: true,
         }}
-      >
+      > */}
         <main 
           className={ `${appStyles.main}` }
           style={{ 
@@ -54,18 +62,19 @@ const Profile: FC<ProfileProps> = ({
               <h2>
                 { `Profile` }
               </h2>
-              { user && (
+              { email && (
                 <>
                   <div style={ { marginBottom: '24px' } }>
                     <p>
-                      { `Welcome, ${user.name}!` }
+                      {/* { `Welcome, ${user.name}!` } */}
+                      { `Welcome, ${ email }!` }
                     </p>
                   </div>
                 </>
               )}
             </div>
 
-            { user && (
+            { email && (
               <>
                 <div
                   className={ sectionStyles['profile-content'] }
@@ -81,7 +90,7 @@ const Profile: FC<ProfileProps> = ({
 
           </div>
         </main>
-      </NetworkRequestSuspense>
+      {/* </NetworkRequestSuspense> */}
     </>
   )
 }

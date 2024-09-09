@@ -1,17 +1,22 @@
 'use client'
 
 // Externals
-import { useUser } from '@auth0/nextjs-auth0/client'
+// import { useUser } from '@auth0/nextjs-auth0/client'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   FC,
   useState,
+  useContext,
   useLayoutEffect,
 } from 'react'
 // Locals
-import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
+// import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
 // Sections
 import CreateStudyForm from '@/sections/main-portal/studies/create/form'
+// Contexts
+import { SessionContext } from '@/contexts/SessionContext'
+// Context Types
+import { SessionContextType } from '@/contexts/types'
 // Utils
 import {
   STUDY__DYNAMODB,
@@ -34,10 +39,16 @@ const CreateStudy: FC<CreateStudyProps> = ({
 
 }) => {
   // Contexts
-  const { user, error, isLoading } = useUser()
+  const {
+    email,
+    // accountError,
+  } = useContext<SessionContextType>(SessionContext)
+  
   // Hooks
   const router = useRouter()
   const pathname = usePathname()
+  // const { user, error, isLoading } = useUser()
+
   // States
   const [ study, setStudy ] = useState<STUDY__DYNAMODB>(INIT_STUDY__DYNAMODB)
   const [ 
@@ -134,17 +145,20 @@ const CreateStudy: FC<CreateStudyProps> = ({
     const study_: STUDY__DYNAMODB = {
       ...study,
       isActive: true,
-      ownerEmail: user?.email ?? '',
+      ownerEmail: email ?? '',
       adminEmails: study ? study.adminEmails : [ '' ],
     }
     
     try {
-      const response = await fetch('/api/study', {
+      const response = await fetch('/api/v1/study', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ study: study_ }),
+        body: JSON.stringify({
+          email,
+          study: study_
+        }),
       })
 
       const json = await response.json()
@@ -174,16 +188,20 @@ const CreateStudy: FC<CreateStudyProps> = ({
 
   
   useLayoutEffect(() => {
-    if (!isLoading && user && user.email) {
+    // if (!isLoading && user && user.email) {
+    if (email) {
       // Do nothing if Auth0 found the user's email
-    } else if (!isLoading && !user) {
-      // Silently log the error to the browser's console
-      console.error(
-        `Auth0 couldn't get 'user' from useUser(): `,
-        error
-      )
+    // } else if (!isLoading && !user) {
+    } else  {
+      // // Silently log the error to the browser's console
+      // console.error(
+      //   `Auth0 couldn't get 'user' from useUser(): `,
+      //   error
+      // )
+
+      console.error(`Couldn't get the user's email`)
     }
-  }, [ isLoading ])
+  }, [ /* isLoading */ email ])
 
 
 
@@ -191,12 +209,12 @@ const CreateStudy: FC<CreateStudyProps> = ({
 
   return (
     <>
-      <NetworkRequestSuspense
+      {/* <NetworkRequestSuspense
         isLoading={ isLoading }
         spinnerOptions={{
           showSpinner: true,
         }}
-      >
+      > */}
         <div className={ sectionStyles['form-container'] }>
           {/* Display invite link */ }
           { inviteLink ? (
@@ -247,7 +265,7 @@ const CreateStudy: FC<CreateStudyProps> = ({
             </>
           ) }
         </div>
-      </NetworkRequestSuspense>
+      {/* </NetworkRequestSuspense> */}
     </>
   )
 }

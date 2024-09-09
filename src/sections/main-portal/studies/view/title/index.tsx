@@ -1,7 +1,12 @@
 // Externals
-import { useMemo } from 'react'
+import { useContext, useMemo } from 'react'
 // Locals
-import useAccount from '@/hooks/useAccount'
+// Contexts
+import { SessionContext } from '@/contexts/SessionContext'
+// Context Types
+import { SessionContextType } from '@/contexts/types'
+// // Hooks
+// import useAccount from '@/hooks/useAccount'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 
@@ -13,7 +18,14 @@ const ViewStudiesTitle = () => {
     isGlobalAdmin,
     isParticipant,
     studiesAsAdmin,
-  } = useAccount()
+  } = useContext<SessionContextType>(SessionContext)
+
+  // // Hooks
+  // const {
+  //   isGlobalAdmin,
+  //   isParticipant,
+  //   studiesAsAdmin,
+  // } = useAccount()
   
 
   const ADMIN_OR_PARTICIPANT = useMemo((): string | undefined => {

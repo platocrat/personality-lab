@@ -1,9 +1,13 @@
 // Externals
-import { CSSProperties, FC, Fragment, ReactNode } from 'react'
+import { CSSProperties, FC, Fragment, ReactNode, useContext } from 'react'
 // Locals
 import ProgressBarLink from '@/components/Progress/ProgressBarLink'
-// Hooks
-import useAccount from '@/hooks/useAccount'
+// Contexts
+import { SessionContext } from '@/contexts/SessionContext'
+// Context Types
+import { SessionContextType } from '@/contexts/types'
+// // Hooks
+// import useAccount from '@/hooks/useAccount'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/components/Nav/LeftHand/LeftHandNav.module.css'
@@ -92,11 +96,17 @@ const LeftHandNav: FC<LeftHandNavProps> = ({
   options,
   children,
 }) => {
+  // Hooks
+  // const {
+  //   isGlobalAdmin,
+  //   isParticipant,
+  // } = useAccount()
+  
   // Contexts
   const {
     isGlobalAdmin,
     isParticipant,
-  } = useAccount()
+  } = useContext<SessionContextType>(SessionContext)
 
 
   return (

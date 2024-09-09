@@ -18,7 +18,6 @@ import { randomBytes } from 'crypto'
 /**
  * @dev GET an account entry from the `accounts` table using a user's `email`
  * @param req 
- * @param res
  * @returns 
  */
 export const GET = withApiAuthRequired(async function getAccountEntry(

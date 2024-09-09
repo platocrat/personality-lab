@@ -17,6 +17,12 @@ type CardProps = {
   buttonText?: string
   href?: string
   cssStyle?: CSSProperties
+  options?: {
+    hasForm?: boolean
+    isSignUp?: boolean
+    isFirstStep?: boolean
+    formContent?: ReactNode
+  }
 }
 
 
@@ -24,6 +30,7 @@ type CardProps = {
 const Card: FC<CardProps> = ({
   href,
   title,
+  options,
   cssStyle,
   buttonText,
   description,
@@ -67,13 +74,14 @@ const Card: FC<CardProps> = ({
               flexDirection: 'column',
             }}
           >
-            { buttonText && href && (
-              <>
+            { options?.formContent
+              ? options?.formContent
+              : buttonText && href && (
                 <div
                   style={ {
                     ...definitelyCenteredStyle,
                     position: 'relative',
-                    marginBottom: '12px'
+                    margin: '12px 0px'
                   } }
                 >
                   <ProgressBarLink href={ href }>
@@ -86,8 +94,8 @@ const Card: FC<CardProps> = ({
                     </button>
                   </ProgressBarLink>
                 </div>
-              </>
-            )}
+              )
+            }        
           </div>
         </div>
       </div>

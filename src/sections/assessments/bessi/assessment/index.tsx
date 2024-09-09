@@ -2,7 +2,7 @@
 
 // Externals
 import { useRouter } from 'next/navigation'
-import { useUser } from '@auth0/nextjs-auth0/client'
+// import { useUser } from '@auth0/nextjs-auth0/client'
 import { FC, Fragment, useContext, useLayoutEffect, useState } from 'react'
 // Locals
 import BessiAssessmentInstructions from '@/sections/assessments/bessi/assessment/instructions'
@@ -12,8 +12,11 @@ import FormButton from '@/components/Buttons/Form'
 import Questionnaire from '@/components/Questionnaire'
 import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
 // Contexts
+import { SessionContext } from '@/contexts/SessionContext'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 import { UserDemographicsContext } from '@/contexts/UserDemographicsContext'
+// Context Type
+import { SessionContextType } from '@/contexts/types'
 // Utilities
 import {
   getFacet,
@@ -32,6 +35,7 @@ import {
 } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
+import { error } from 'console'
 
 
 
@@ -46,8 +50,12 @@ const ASSESSMENT_ID = 'bessi'
 
 
 const BessiAssessment: FC<BessiProps> = ({ }) => {
-  // Auth0
-  const { user, error, isLoading } = useUser()
+  // // Auth0
+  // const { user, error, isLoading } = useUser()
+
+  // Contexts
+  const { email } = useContext<SessionContextType>(SessionContext)
+
   // Hooks
   const router = useRouter()
   // Contexts
@@ -219,13 +227,13 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
      */
     if (isNonStudy) {
       userResults = {
-        email: user?.email ?? '',
+        email: email ?? '',
         timestamp: 0,
         results: bessiUserResults
       }
     } else {
       userResults = {
-        email: user?.email ?? '',
+        email: email ?? '',
         study,
         timestamp: 0,
         results: bessiUserResults
@@ -234,12 +242,15 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
 
 
     try {
-      const response = await fetch('/api/assessment/results', {
+      const response = await fetch('/api/v1/assessment/results', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userResults }),
+        body: JSON.stringify({ 
+          email, 
+          userResults,
+        }),
       })
 
       const json = await response.json()
@@ -251,6 +262,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
         const accessToken = await getAccessToken(
           ASSESSMENT_ID,
           userResultsId,
+          email,
           study?.id
         )
 
@@ -306,16 +318,20 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
 
 
   useLayoutEffect(() => {
-    if (!isLoading && user && user.email) {
+    // if (!isLoading && user && user.email) {
+    if (email) {
       // Do nothing if Auth0 found the user's email
-    } else if (!isLoading && !user) {
-      // Silently log the error to the browser's console
-      console.error(
-        `Auth0 couldn't get 'user' from useUser(): `,
-        error
-      )
+    // } else if (!isLoading && !user) {
+    } else {
+      // // Silently log the error to the browser's console
+      // console.error(
+      //   `Auth0 couldn't get 'user' from useUser(): `,
+      //   error
+      // )
+
+      console.error(`Couldn't get the user's email`)
     }
-  }, [isLoading])
+  }, [ /* isLoading */ email ])
 
 
 

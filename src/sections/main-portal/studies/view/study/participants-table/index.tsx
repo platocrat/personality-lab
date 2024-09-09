@@ -1,9 +1,13 @@
 // Externals
-import { CSSProperties, Dispatch, FC, SetStateAction } from 'react'
+import { CSSProperties, Dispatch, FC, SetStateAction, useContext } from 'react'
 // Locals
 // Sections
 import ParticipantTableHead from './table-head'
 import ParticipantsTableBody from './table-body'
+// Contexts
+import { SessionContext } from '@/contexts/SessionContext'
+// Context Type
+import { SessionContextType } from '@/contexts/types'
 // Utils
 import { PARTICIPANT__DYNAMODB } from '@/utils'
 // CSS
@@ -31,6 +35,9 @@ type ParticipantsTableProps = {
 const ParticipantsTable: FC<ParticipantsTableProps> = ({
   state,
 }) => {
+  // Contexts
+  const { email } = useContext<SessionContextType>(SessionContext)
+
   // Constants
   const tableTitle = `Participants`
 
@@ -56,12 +63,13 @@ const ParticipantsTable: FC<ParticipantsTableProps> = ({
       /**
        * @todo `DELETE` API route fails in GitHub Actions deployment
        */
-      const response = await fetch('/api/study/participant', {
+      const response = await fetch('/api/v1/study/participant', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          email,
           participantId,
           participantEmail,
           studyId: state.study.id,

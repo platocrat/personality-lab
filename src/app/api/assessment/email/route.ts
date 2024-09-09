@@ -1,13 +1,10 @@
 // Externals
 import sgMail from '@sendgrid/mail'
-import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
-import { withApiAuthRequired, getSession } from '@auth0/nextjs-auth0'
-import { GetParameterCommandInput, GetParameterCommand } from '@aws-sdk/client-ssm'
+import { getSession, withApiAuthRequired } from '@auth0/nextjs-auth0'
 // Locals
-import { 
-  ssmClient,
-  fetchAwsParameter, 
+import {
+  fetchAwsParameter,
   AWS_PARAMETER_NAMES,
 } from '@/utils'
 

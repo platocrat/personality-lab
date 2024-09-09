@@ -4,7 +4,6 @@ import {
   UpdateCommand,
   QueryCommandInput,
 } from '@aws-sdk/lib-dynamodb'
-import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession, withApiAuthRequired } from '@auth0/nextjs-auth0'
 // Locals
@@ -24,7 +23,6 @@ import {
 /**
  * @dev POST: Update `results` attribute on the `studies` or `accounts` table
  * @param req 
- * @param res 
  * @returns 
  */
 export const POST = withApiAuthRequired(async function updateResults(
@@ -333,7 +331,6 @@ export const POST = withApiAuthRequired(async function updateResults(
 /**
  * @dev GET `userResults`
  * @param req 
- * @param res 
  * @returns 
  */
 export const GET = withApiAuthRequired(async function getResults(

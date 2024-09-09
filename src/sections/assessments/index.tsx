@@ -1,26 +1,13 @@
-'use client'
-
 // Externals
 import {
-  useState,
   Fragment,
-  ReactNode,
-  useContext,
-  useLayoutEffect,
+  ReactNode
 } from 'react'
-import { useUser } from '@auth0/nextjs-auth0/client'
 // Locals
 // Sections
 import AssessmentCards from './assessment-cards'
 // Hooks
-import useAccount from '@/hooks/useAccount'
-// Hooks
 import useWindowWidth from '@/hooks/useWindowWidth'
-// Utils
-import {
-  ACCOUNT__DYNAMODB,
-  PARTICIPANT__DYNAMODB,
-} from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 
@@ -42,10 +29,6 @@ const title = `Assessments`
 
 
 const PersonalityAssessments = ({ }) => {
-  // Auth0 
-  const { user, error, isLoading } = useUser()
-  // Contexts
-  const { participant } = useAccount()
   // Hooks
   const windowWidth = useWindowWidth()
 
@@ -75,10 +58,7 @@ const PersonalityAssessments = ({ }) => {
         </div>
 
         <div className={ styles.assessmentWrapper }>
-          <AssessmentCards
-            fragmentKey={ fragmentKey }
-            participant={ participant }
-          />
+          <AssessmentCards fragmentKey={ fragmentKey } />
         </div>
 
       </div>

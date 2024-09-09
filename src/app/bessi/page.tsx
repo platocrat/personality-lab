@@ -1,14 +1,18 @@
 'use client'
 
 // Externals
-import { useUser } from '@auth0/nextjs-auth0/client'
-import { Fragment, useLayoutEffect, useState } from 'react'
+// import { useUser } from '@auth0/nextjs-auth0/client'
+import { Fragment, useContext, useLayoutEffect, useState } from 'react'
 // Locals
 import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
 // Sections
 import Bessi from '@/sections/assessments/bessi'
-// Hooks
-import useAccount from '@/hooks/useAccount'
+// Contexts
+import { SessionContext } from '@/contexts/SessionContext'
+// Context Types
+import { SessionContextType } from '@/contexts/types'
+// // Hooks
+// import useAccount from '@/hooks/useAccount'
 // Utils
 import { STUDY_SIMPLE__DYNAMODB } from '@/utils'
 // CSS
@@ -19,15 +23,23 @@ import styles from '@/app/page.module.css'
 
 
 export default function _() {
-  // Auth0
-  const { user, error, isLoading } = useUser()
-  // Hooks
-  const { 
-    isGlobalAdmin,
+  // // Auth0
+  // const { user, error, isLoading } = useUser()
+  // // Hooks
+  // const { 
+  //   userStudies,
+  //   isGlobalAdmin,
+  //   isParticipant,
+  //   isFetchingAccount,
+  // } = useAccount()
+
+  // Contexts
+  const {
     userStudies,
     isParticipant,
-    isFetchingAccount,
-  } = useAccount()
+    isGlobalAdmin,
+  } = useContext<SessionContextType>(SessionContext)
+
   // States
   const [
     studiesForAssessment,
@@ -72,7 +84,7 @@ export default function _() {
 
 
   useLayoutEffect(() => {
-    if (!isFetchingAccount) {
+    // if (!isFetchingAccount) {
       if (!isGlobalAdmin) {
         if (userStudies) {
           getStudiesForAssessment()
@@ -90,8 +102,8 @@ export default function _() {
       } else {
         setIsGettingStudiesForAssessment(false)
       }
-    }
-  }, [ isGlobalAdmin, userStudies, isFetchingAccount ])
+    // }
+  }, [ isGlobalAdmin, userStudies, /* isFetchingAccount */ ])
 
 
 

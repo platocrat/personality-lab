@@ -17,7 +17,6 @@ import {
 /**
  * @dev GET all `participants` from `accounts` table
  * @param req 
- * @param res 
  * @returns 
  */
 export const GET = withApiAuthRequired(async function getParticipants(

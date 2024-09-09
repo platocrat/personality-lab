@@ -1,21 +1,25 @@
 // Externals
 import {
   FC,
-  useRef,
+  useMemo,
   useState,
   Dispatch,
   useEffect,
   useContext,
+  CSSProperties,
   SetStateAction,
   useLayoutEffect,
-  useMemo,
-  CSSProperties,
 } from 'react'
 // Locals
 import Spinner from '@/components/Suspense/Spinner'
 // Contexts
-import { EditStudyModalContextType } from '@/contexts/types'
+import { SessionContext } from '@/contexts/SessionContext'
 import { EditStudyModalContext } from '@/contexts/EditStudyModalContext'
+// Context Types
+import {
+  SessionContextType,
+  EditStudyModalContextType,
+} from '@/contexts/types'
 // Utils
 import { STUDY__DYNAMODB } from '@/utils'
 // CSS
@@ -26,7 +30,7 @@ import mainPortalStyle from '@/sections/main-portal/MainPortal.module.css'
 import createStudyStyle from '@/sections/main-portal/studies/create/CreateStudy.module.css'
 
 
-
+// ----------------------------------- Types -----------------------------------
 type EditStudyModalProps = {
   isModalVisible: string | null
   study: STUDY__DYNAMODB | null
@@ -34,9 +38,7 @@ type EditStudyModalProps = {
   setStudy: Dispatch<SetStateAction<STUDY__DYNAMODB | null>>
 }
 
-
-
-
+// --------------------------- Function component ------------------------------
 const EditStudyModal: FC<EditStudyModalProps> = ({
   ref,
   study,
@@ -47,6 +49,7 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
   const {
     setShowEditStudyModal
   } = useContext<EditStudyModalContextType>(EditStudyModalContext)
+  const { email } = useContext<SessionContextType>(SessionContext)
   // States
   // Strings
   const [ name, setName ] = useState('')
@@ -146,12 +149,15 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
 
   async function updateItemInDynamoDB(study: STUDY__DYNAMODB) {
     try {
-      const response = await fetch('/api/study', {
+      const response = await fetch('/api/v1/study', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ study }),
+        body: JSON.stringify({ 
+          email,
+          study,
+        }),
       })
 
       const json = await response.json()

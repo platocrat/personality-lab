@@ -33,14 +33,14 @@ const BessiRateUserResults: FC<BessiRateUserResultsType> = ({
 
     try {
       // Use the fetch API to send a POST request
-      const response = await fetch('/api/send-email', {
+      const response = await fetch('/api/v1/assessment/email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           subject: 'User Rating Submission',
-          message: `User has rated the results: ${rating}/5`,
+          text: `User has rated the results: ${rating}/5`,
         })
       })
 

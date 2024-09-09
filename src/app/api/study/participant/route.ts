@@ -27,7 +27,6 @@ import {
  *      2. `Update` a study entry's `participants` attribute in the `studies` 
  *         table with the new `participant` object.
  * @param req 
- * @param res
  * @returns 
  */
 export async function POST(

@@ -8,15 +8,21 @@ import {
   Fragment,
   ReactNode,
   useEffect,
+  useContext,
+  useLayoutEffect,
   } from 'react'
   import Image from 'next/image'
-  import { useUser } from '@auth0/nextjs-auth0/client'
+  // import { useUser } from '@auth0/nextjs-auth0/client'
 // Locals
 import ProgressBarLink from '@/components/Progress/ProgressBarLink'
+// Contexts
+import { SessionContext } from '@/contexts/SessionContext'
+// Context Types
+import { SessionContextType } from '@/contexts/types'
 // Hooks
 import useClickOutside from '@/hooks/useClickOutside'
 // Utils
-import { imgPaths } from '@/utils'
+import { ACCOUNT__DYNAMODB, imgPaths, PARTICIPANT__DYNAMODB, STUDY_SIMPLE__DYNAMODB } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/components/Nav/DropdownMenu/Dropdown.module.css'
@@ -34,25 +40,76 @@ export type NavLink = {
 }
 
 
+const GRAVATAR_DEFAULT_IMAGE_URL = `https://gravatar.com/avatar/0
+`
 
 
 const DropdownMenu: FC<DropdownMenuProps> = ({
   links,
   children
 }) => {
-  // Auth0 
-  const { user, error, isLoading } = useUser()
+  // // Auth0 
+  // const { user, error, isLoading } = useUser()
+
+  // Contexts
+  const { email } = useContext<SessionContextType>(SessionContext)
+
   // Refs
   const dropdownRef = useRef<any>(null)
   const notificationRef = useRef(null)
   // States
-  const [isVisible, setIsVisible] = useState<boolean>(false)
+  const [ 
+    gravatarUrl, 
+    setGravatarUrl
+  ] = useState<string>(GRAVATAR_DEFAULT_IMAGE_URL)
+  const [ 
+    isLoadingGravatarUrl, 
+    setIsLoadingGravatarUrl
+  ] = useState<boolean>(false)
+  const [ isVisible, setIsVisible ] = useState<boolean>(false)
 
+  // --------------------- `OnClick` Functions Handlers ------------------------
   const toggleDropdown = () => {
     setIsVisible(!isVisible)
   }
 
+
+  async function getGravatarUrl(
+    userEmail: string
+  ) {
+    try {
+      const apiEndpoint = `/api/v1/auth/gravatar-url?email=${userEmail}`
+      const response = await fetch(apiEndpoint, { method: 'GET' })
+      const json = await response.json()
+
+      if (response.status === 400) throw new Error(json.error)
+      if (response.status === 405) {
+        throw new Error(json.error)
+      } else if (response.status === 200) {
+        const gravatarUrl_ = json.gravatarUrl
+        setGravatarUrl(gravatarUrl_)
+        setIsLoadingGravatarUrl(false)
+      }
+    } catch (error: any) {
+      throw new Error(error)
+    }
+  }
+
+
+  // -------------------------------- Hooks ------------------------------------
   useClickOutside(dropdownRef, () => setIsVisible(false))
+
+  // ------------------------- `useLayoutEffect`s ------------------------------
+  useLayoutEffect(() => {
+    if (email !== undefined || email !== null || email !== '') {
+      const requests = [
+        getGravatarUrl(email),
+      ]
+
+      Promise.all(requests).then(() => { })
+    }
+  }, [ email ])
+
 
 
 
@@ -60,7 +117,8 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
     <>
       <div className={ styles.dropdown } ref={ dropdownRef }>
         <div>
-          { isLoading && user ? (
+          {/* { isLoading && user ? ( */}
+          { isLoadingGravatarUrl && !email ? (
             <>
               <Image
                 width={ 48 }
@@ -88,7 +146,10 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
                   alt='Profile'
                   width={ 44 }
                   height={ 44 }
+                  // src={ user && (user.picture ?? '') }
+                  src={ gravatarUrl }
                   className={ styles.img }
+                  onClick={ toggleDropdown }
                   style={ {
                     position: 'relative',
                     top: '3px',
@@ -97,13 +158,13 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
                       ? '0px 3px 5px 1.5px rgba(0, 75, 118, 0.5)'
                       : ''
                   } }
-                  onClick={ toggleDropdown }
-                  src={ user && (user.picture ?? '') }
                 />
               </div>
             </>
           )}
         </div>
+
+
         { isVisible && (
           <Fragment key={ `dropdown-menu` }>
             <div className={ `${styles.dropdownContent} ${isVisible ? 'slideIn' : 'slideOut'}` }>
@@ -124,7 +185,8 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
                         >
                           <div style={ definitelyCenteredStyle }>
                             <p>
-                              { user?.name }
+                              {/* { user?.name } */}
+                              { email }
                             </p>
                           </div>
                           <div 

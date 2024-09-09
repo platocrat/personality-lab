@@ -16,14 +16,18 @@ import BessiWantToLearnMore from '@/sections/assessments/bessi/assessment/result
 import BessiResultsVisualization from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization'
 import BessiResultsSkillsScoresAndDefinitions from '@/sections/assessments/bessi/assessment/results/skills-scores-and-definitions'
 // Contexts
+import { SessionContext } from '@/contexts/SessionContext'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // Context types
-import { BessiSkillScoresContextType } from '@/contexts/types'
+import { 
+  SessionContextType,
+  BessiSkillScoresContextType, 
+} from '@/contexts/types'
 // Utils
 import {
+  CSCrypto,
   RESULTS__DYNAMODB,
   BessiUserResults__DynamoDB,
-  CSCrypto,
 } from '@/utils'
 // Types
 import {
@@ -35,22 +39,18 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
-
-
-
+// ---------------------------------- Types ------------------------------------
 type BessiUserSharedResultsType = {
   params: {
     eeShareableId: string
   }
 }
 
-
+// ------------------------------- Constants -----------------------------------
 const rateUserResults = true
 const ASSESSMENT_ID = 'bessi'
 
-
-
-
+// --------------------------- Function Component ------------------------------
 const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({ 
   params 
 }) => {
@@ -63,6 +63,7 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
   } = useContext<BessiSkillScoresContextType>(
     BessiSkillScoresContext
   )
+  const { email } = useContext<SessionContextType>(SessionContext)
   // State
   const [ id, setId ] = useState<string>('')
   const [ studyId, setStudyId ] = useState<string>('')
@@ -85,7 +86,9 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
   // --------------------------- Async functions -------------------------------
   async function getUserResults() {
     try {
-      const apiEndpoint = `/api/assessment/share-results?eeShareableId=${ 
+      const apiEndpoint = `/api/v1/assessment/share-results?email=${
+        email
+      }eeShareableId=${ 
         eeShareableId 
       }`
       const response = await fetch(apiEndpoint, { method: 'GET' })

@@ -18,8 +18,7 @@ import {
 
 /**
  * @dev PUT `userVizRating`
- * @param req 
- * @param res 
+ * @param req
  * @returns 
  */
 export const PUT = withApiAuthRequired(async function putUserVizRating(

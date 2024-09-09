@@ -9,8 +9,9 @@ import {
   useContext,
   useLayoutEffect,
   } from 'react'
+import Image from 'next/image'
 import html2canvas from 'html2canvas'
-import { useUser } from '@auth0/nextjs-auth0/client'
+// import { useUser } from '@auth0/nextjs-auth0/client'
 // Locals
 // Sections
 import TitleDropdown from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization/title-dropdown'
@@ -44,11 +45,13 @@ import {
 // Hooks
 import useClickOutside from '@/hooks/useClickOutside'
 // Contexts
+import { SessionContext } from '@/contexts/SessionContext'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // Context Types
 import {
   BessiSkillScoresContextType
 } from '@/contexts/types'
+import { SessionContextType } from '@/contexts/types'
 // Utils
 import {
   transformData,
@@ -67,7 +70,6 @@ import {
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization/BessiResultsVIsualization.module.css'
-import Image from 'next/image'
 
 
 
@@ -98,9 +100,11 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   domainScores,
   rateUserResults,
 }) => {
-  // Auth0
-  const { user, error, isLoading } = useUser()
+  // // Auth0
+  // const { user, error, isLoading } = useUser()
+  
   // Contexts
+  const { email } = useContext<SessionContextType>(SessionContext)
   const {
     bessiSkillScores 
   } = useContext<BessiSkillScoresContextType>(BessiSkillScoresContext)
@@ -312,11 +316,12 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
                 studyId={ studyId }
                 isExample={ isExample }
                 userData={ histogramUserData }
-                auth0={{
-                  user,
-                  error,
-                  isLoading,
-                }}
+                email={ email }
+                // auth0={{
+                //   user,
+                //   error,
+                //   isLoading,
+                // }}
               />
             </>
           )
@@ -483,14 +488,14 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
      */
     if (isNonStudy) {
       userVizRating = {
-        email: user?.email ?? '',
+        email: email ?? '',
         rating,
         vizName,
         timestamp: 0,
       }
     } else {
       userVizRating = {
-        email: user?.email ?? '',
+        email: email ?? '',
         study,
         rating,
         vizName,
@@ -500,12 +505,15 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
 
 
     try {
-      const response = await fetch('/api/assessment/viz-rating', {
+      const response = await fetch('/api/v1/assessment/viz-rating', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userVizRating }),
+        body: JSON.stringify({
+          email,
+          userVizRating,
+        }),
       })
 
       const json = await response.json()
@@ -541,16 +549,20 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   }, [ currentVisualization ])
 
   useLayoutEffect(() => {
-    if (!isLoading && user && user.email) {
+    // if (!isLoading && user && user.email) {
+    if (email) {
       // Do nothing if Auth0 found the user's email
-    } else if (!isLoading && !user) {
-      // Silently log the error to the browser's console
-      console.error(
-        `Auth0 couldn't get 'user' from useUser(): `,
-        error
-      )
+    // } else if (!isLoading && !user) {
+    } else {
+      // // Silently log the error to the browser's console
+      // console.error(
+      //   `Auth0 couldn't get 'user' from useUser(): `,
+      //   error
+      // )
+
+      console.error(`Couldn't get the user's email`)
     }
-  }, [ isLoading ])
+  }, [ /* isLoading */ email ])
 
 
 

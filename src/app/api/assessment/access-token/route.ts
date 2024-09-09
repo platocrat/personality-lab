@@ -131,8 +131,7 @@ export const PUT = withApiAuthRequired(async function putAccessToken(
 
 /**
  * @dev GET `accessToken`
- * @param req 
- * @param res 
+ * @param req
  * @returns 
  */
 export const GET = withApiAuthRequired(async function getAccessToken(

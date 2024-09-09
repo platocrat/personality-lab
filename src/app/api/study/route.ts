@@ -26,8 +26,7 @@ import {
 
 /**
  * @dev PUT a new study entry to the `studies` table in DynamoDB.
- * @param req 
- * @param res 
+ * @param req
  * @returns 
  */
 export const PUT = withApiAuthRequired(async function putStudy(
@@ -380,7 +379,6 @@ export const PUT = withApiAuthRequired(async function putStudy(
 /**
  * @dev GET all studies for the `adminEmail` or get a single study by `id`
  * @param req 
- * @param res 
  * @returns 
  */
 export const GET = withApiAuthRequired(async function getStudy(
@@ -610,7 +608,6 @@ export const GET = withApiAuthRequired(async function getStudy(
 /**
  * @dev DELETE a study by its ID from the `studies` table in DynamoDB.
  * @param req 
- * @param res 
  * @returns 
  */
 export const DELETE = withApiAuthRequired(async function deleteStudy(

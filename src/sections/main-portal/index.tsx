@@ -1,15 +1,21 @@
 'use client'
 
 // Externals
-import { useUser } from '@auth0/nextjs-auth0/client'
-import { FC, useLayoutEffect, useState } from 'react'
+// import { useUser } from '@auth0/nextjs-auth0/client'
+import { FC, useContext, useLayoutEffect, useState } from 'react'
 // Locals
 import PersonalityAssessments from '@/sections/assessments'
 // Components
 import LeftHandNav from '@/components/Nav/LeftHand'
-import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
-// Hooks
-import useAccount from '@/hooks/useAccount'
+// import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
+// Contexts
+import { SessionContext } from '@/contexts/SessionContext'
+// Context Types
+import { SessionContextType } from '@/contexts/types'
+// // Hooks
+// import useAccount from '@/hooks/useAccount'
+// Utils
+import { getUsernameAndEmailFromCookie } from '@/utils'
 // Styles
 import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/sections/main-portal/MainPortal.module.css'
@@ -89,21 +95,44 @@ const ParticipantTitle = ({
 
 
 const MainPortal: FC<MainPortalProps> = ({ }) => {
-  // Auth0
-  const { user, error, isLoading } = useUser()
-  // Hooks
-  const { 
+  // // Auth0
+  // const { user, error, isLoading } = useUser()
+  // // Hooks
+  // const { 
+  //   isParticipant,
+  //   isFetchingAccount,
+  // } = useAccount()
+  
+  // Contexts
+  const {
+    email,
+    isGlobalAdmin,
+    // username,
     isParticipant,
-    isFetchingAccount,
-  } = useAccount()
+  } = useContext<SessionContextType>(SessionContext)
 
-  const TITLE_TEXT = `Welcome, ${user?.name}!`
+  // const TITLE_TEXT = `Welcome, ${user?.name}!`
+  const TITLE_TEXT = `Welcome, ${ email }!`
   const SUBTITLE_TEXT = `Based on the studies you have registered for, listed below are the assessments that you may take.`
 
 
   function resetCurrentStudy(): void {
     const key = 'currentStudy'
     localStorage.removeItem(key)
+  }
+
+
+  /**
+   * @dev Used for debugging cookies
+   */
+  async function _getUsernameAndEmailFromCookie() {
+    const cookieValues = await getUsernameAndEmailFromCookie(email)
+
+    console.log(
+      `[${new Date().toLocaleString()} \ --filepath="src/sections/assessments/bessi/assessment/index.tsx"]:`,
+      `client-side decrypted email and username jwt-cookie ensure. Double-check that these values aren't being intercepted by hackers to change any of its values.`,
+      cookieValues
+    )
   }
 
 
@@ -117,7 +146,7 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
   return (
     <>
       <div className={ styles.mainPortal }>
-        <NetworkRequestSuspense
+        {/* <NetworkRequestSuspense
           isLoading={ isLoading || isFetchingAccount }
           spinnerOptions={{
             showSpinner: true,
@@ -125,13 +154,13 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
               top: '100px',
             }
           }}
-        >
+        > */}
           { isParticipant ? (
             <>
               <div
                 style={ {
                   position: 'relative',
-                  top: '85px',
+                  top: '72px',
                 } }
               >
                 <ParticipantTitle
@@ -154,7 +183,7 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
               </LeftHandNav>
             </>
           ) }
-        </NetworkRequestSuspense>
+        {/* </NetworkRequestSuspense> */}
       </div>
     </>
   )

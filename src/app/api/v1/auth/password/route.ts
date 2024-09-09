@@ -19,12 +19,22 @@ export async function POST(
         salt,
         hash,
       },
-      { status: 200 }
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
     )
   } else {
     return NextResponse.json(
       { error: 'Method Not Allowed' },
-      { status: 405 },
+      {
+        status: 405,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
     )
   }
 }

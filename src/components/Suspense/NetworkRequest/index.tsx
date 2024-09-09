@@ -1,12 +1,9 @@
 // Externals
-import { useUser } from '@auth0/nextjs-auth0/client'
-import { CSSProperties, FC, ReactNode, useMemo } from 'react'
+import { CSSProperties, FC, ReactNode } from 'react'
 // Locals
 import Spinner from '@/components/Suspense/Spinner'
 // Hooks
-import useAccount from '@/hooks/useAccount'
 // CSS
-import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
 
 
