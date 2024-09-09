@@ -46,8 +46,7 @@ const SocialRating: FC<SocialRatingProps> = ({
               flexDirection: 'column',
             }}
           >
-            {/* <FictionalCharacters /> */}
-            <h2>{ `Coming very soon!` }</h2>
+            <FictionalCharacters />
           </div>
         </main>
       {/* </NetworkRequestSuspense> */}
