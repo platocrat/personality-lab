@@ -6,15 +6,16 @@ import { useRouter } from 'next/navigation'
 import { FC, useContext, useLayoutEffect, useState } from 'react'
 // Locals
 import StudyInviteSection from '@/sections/invite'
-// Components
+// Contexts
+import { SessionContext } from '@/contexts/SessionContext'
+// Context Types
+import { SessionContextType } from '@/contexts/types'
 // Hooks
 import useAccount from '@/hooks/useAccount'
 // Utils
 import { STUDY__DYNAMODB } from '@/utils'
 // CSS
 import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
-import { SessionContext } from '@/contexts/SessionContext'
-import { SessionContextType } from '@/contexts/types'
 
 
 

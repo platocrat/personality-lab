@@ -158,7 +158,7 @@ export async function POST(
                 const toEncrypt: { [key: string]: string }[] = [
                   { email: email as string },
                   // { username: username as string },
-                  { studiesAsAdmin: JSON.stringify(studiesAsAdmin as any) },
+                  { studiesAsAdmin: JSON.stringify(studiesAsAdmin) },
                   { isGlobalAdmin: isGlobalAdmin.toString() },
                   { isParticipant: isParticipant.toString() },
                   { timestamp: updatedAtTimestamp.toString() },
@@ -357,11 +357,16 @@ export async function POST(
      *          table, so `isParticipant` is set to `false`.
      */
     const isParticipant = false
+    /**
+     * @dev New accounts have `studiesAsAdmin` default to an empty array
+     */
+    const studiesAsAdmin = []
 
     const Item = {
       email,
       // username,
       password, // Contains a password that is already hashed
+      studiesAsAdmin,
       isGlobalAdmin,
       createdAtTimestamp,
       updatedAtTimestamp,
@@ -393,6 +398,7 @@ export async function POST(
           const toEncrypt: { [key: string]: string }[] = [
             { email: email as string },
             // { username: username as string },
+            { studiesAsAdmin: JSON.stringify(studiesAsAdmin) },
             { isGlobalAdmin: isGlobalAdmin.toString() },
             { isParticipant: isParticipant.toString() },
             { timestamp: createdAtTimestamp.toString() },

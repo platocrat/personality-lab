@@ -346,6 +346,8 @@ export async function POST(
      *              entry
      */
     } catch (error: any) {
+      const studiesAsAdmin = []
+
       // 1.2.2.1 Construct the `UpdateCommand` using the current timestamp to
       //         send to DynamoDB
       const Key = {
@@ -353,11 +355,12 @@ export async function POST(
         createdAtTimestamp: Date.now() // Current timestamp
       }
       const UpdateExpression = 
-        'set participant = :participant, studies = :studies'
+        'set participant = :participant, studies = :studies, studiesAsAdmin = :studiesAsAdmin'
       
-      ExpressionAttributeValues = { 
+      ExpressionAttributeValues = {
         ':participant': participant_,
         ':studies': participant_.studies,
+        ':studiesAsAdmin': studiesAsAdmin, 
       }
 
       input = {

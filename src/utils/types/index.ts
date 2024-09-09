@@ -57,6 +57,9 @@ export type HASHED_PASSWORD__DYNAMODB = {
 }
 
 
+/**
+ * @dev Type definition for a study of an admin of said study.
+ */
 export type StudyAsAdmin = {
   id: string
   name: string
@@ -72,9 +75,9 @@ export type ACCOUNT__DYNAMODB = {
   createdAtTimestamp: number // Sort Key
   hasVerifiedEmail: boolean // Auth0
   isGlobalAdmin: boolean
-  studiesAsAdmin?: StudyAsAdmin[]
-  results: RESULTS__DYNAMODB[] // non-study results
   password: HASHED_PASSWORD__DYNAMODB
+  results: RESULTS__DYNAMODB[] // non-study results
+  studiesAsAdmin: StudyAsAdmin[] | []
   participant?: PARTICIPANT__DYNAMODB // `undefined` for a non-participant account
   updatedAtTimestamp?: number // `undefined` for a non-participant account
 }
@@ -88,10 +91,15 @@ export type PARTICIPANT__DYNAMODB = {
 }
 
 
+/**
+ * @dev Results do not need to be associated with a study, i.e. any account may 
+ *      take a survey or assessment and receive results that will be stored 
+ *      without a `study` property.
+ */
 export type RESULTS__DYNAMODB = {
   id: string
   email: string
-  study?: STUDY_SIMPLE__DYNAMODB
+  study?: STUDY_SIMPLE__DYNAMODB // Results do not require a study-association
   results: any | BessiUserResults__DynamoDB
   timestamp: number
 }

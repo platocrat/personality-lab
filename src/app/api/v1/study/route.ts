@@ -104,15 +104,13 @@ export async function PUT(
             
             const createdAtTimestamp = account.createdAtTimestamp
             const previousStudiesAsAdmin = account?.studiesAsAdmin
-            const studyAsAdmin = [
-              {
-                // `isAdmin` is set to `true` because the email is a part of 
-                // `adminEmails`.
-                isAdmin,
-                id: study.id,
-                name: study.name,
-              }
-            ]
+            const studyAsAdmin = {
+              // `isAdmin` is set to `true` because the email is a part of 
+              // `adminEmails`.
+              isAdmin,
+              id: study.id,
+              name: study.name,
+            }
 
             const updatedStudiesAsAdmin = previousStudiesAsAdmin
               ? [ ...previousStudiesAsAdmin, studyAsAdmin ]
@@ -219,20 +217,16 @@ export async function PUT(
           const UpdateExpression =
             'set studiesAsAdmin = :studiesAsAdmin'
 
-          const studyAsAdmin = [
-            {
-              // `isAdmin` is set to `true` because the email is a part of 
-              // `adminEmails`.
-              isAdmin,
-              id: study.id,
-              name: study.name,
-            }
-          ]
-
-          const studiesAsAdmin = [ studyAsAdmin ]
+          const studyAsAdmin = {
+            // `isAdmin` is set to `true` because the email is a part of 
+            // `adminEmails`.
+            isAdmin,
+            id: study.id,
+            name: study.name,
+          }
 
           ExpressionAttributeValues = {
-            ':studiesAsAdmin': studiesAsAdmin,
+            ':studiesAsAdmin': [ studyAsAdmin ],
           }
 
           input = {
@@ -313,9 +307,8 @@ export async function PUT(
       }
     // 2. If there are NO `adminEmails`...
     } else {
-      // 2.1 Perform the `Put` operation as you normally would
-      // Perform `Put` operation to add the new study to the `studies` 
-      // table.
+      // 2.1 Perform the `Put` operation as you normally would to add the new 
+      //     study to the `studies` table.
       TableName = DYNAMODB_TABLE_NAMES.studies
 
       const Item = {
@@ -425,8 +418,10 @@ export async function GET(
         if (!(response.Items as STUDY__DYNAMODB[])) {
           const message = `No ID found in ${TableName} table`
 
+          console.error(message)
+
           return NextResponse.json(
-            { message: message },
+            { message },
             {
               status: 404,
               headers: {
@@ -535,9 +530,11 @@ export async function GET(
                 adminEmail
               }' in the ${TableName} table`
 
+              console.error(message)
+
               // Something went wrong
               return NextResponse.json(
-                { message: message },
+                { message },
                 {
                   status: 404,
                   headers: {

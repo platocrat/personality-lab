@@ -43,7 +43,7 @@ const ViewStudy: FC<ViewStudyProps> = ({
   // --------------------------- Async functions -------------------------------
   async function getStudy() {
     try {
-      const apiEndpoint = `/api/v1/study?email=${ email }id=${ id }`
+      const apiEndpoint = `/api/v1/study?email=${ email }&id=${ id }`
       const response = await fetch(apiEndpoint, {
         method: 'GET',
       })

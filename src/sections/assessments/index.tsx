@@ -1,28 +1,13 @@
-'use client'
-
 // Externals
 import {
-  useState,
   Fragment,
-  ReactNode,
-  useContext,
-  useLayoutEffect,
+  ReactNode
 } from 'react'
 // Locals
 // Sections
 import AssessmentCards from './assessment-cards'
-// Contexts
-import { SessionContext } from '@/contexts/SessionContext'
-// Context Types
-import { SessionContextType } from '@/contexts/types'
 // Hooks
-// import useAccount from '@/hooks/useAccount'
 import useWindowWidth from '@/hooks/useWindowWidth'
-// Utils
-import {
-  ACCOUNT__DYNAMODB,
-  PARTICIPANT__DYNAMODB,
-} from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 
@@ -44,12 +29,7 @@ const title = `Assessments`
 
 
 const PersonalityAssessments = ({ }) => {
-  // Contexts
-  const {
-    participant,
-  } = useContext<SessionContextType>(SessionContext)
   // Hooks
-  // const { participant } = useAccount()
   const windowWidth = useWindowWidth()
 
 
@@ -78,10 +58,7 @@ const PersonalityAssessments = ({ }) => {
         </div>
 
         <div className={ styles.assessmentWrapper }>
-          <AssessmentCards
-            fragmentKey={ fragmentKey }
-            participant={ participant }
-          />
+          <AssessmentCards fragmentKey={ fragmentKey } />
         </div>
 
       </div>

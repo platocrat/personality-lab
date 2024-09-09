@@ -5,10 +5,8 @@
 import { FC } from 'react'
 // Locals
 import ListOfStudies from './list-of-studies'
-import ViewStudiesTitle from './title'
 // Components
 import LeftHandNav from '@/components/Nav/LeftHand'
-import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
 // // Hooks
 // import useAccount from '@/hooks/useAccount'
 // CSS
@@ -43,7 +41,6 @@ const ViewStudies: FC<ViewStudiesProps> = ({
       > */}
         <LeftHandNav>
           <div className={ `${styles['form-container']}` }>
-            <ViewStudiesTitle />
             <ListOfStudies />
           </div>
         </LeftHandNav>

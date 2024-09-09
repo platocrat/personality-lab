@@ -25,6 +25,7 @@ import useClickOutside from '@/hooks/useClickOutside'
 import { STUDY__DYNAMODB } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
+import ViewStudiesTitle from '../title'
 
 
 
@@ -145,11 +146,12 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
           containerStyle: {
             // `top: '0px'` is required to overwrite the default '80px' that 
             // positions the spinner out of bounds of the parent container
-            top: '0px',
+            top: '-10px',
             margin: '24px 0px',
           }
         }}
       >
+        <ViewStudiesTitle />
         <EditStudyModalContext.Provider
           value={ {
             showEditStudyModal,

@@ -62,6 +62,7 @@ export async function POST(
         // const storedUsername = (response.Items[0] as ACCOUNT__DYNAMODB).username
         const storedPassword = (response.Items[0] as ACCOUNT__DYNAMODB).password
         const storedParticipant = (response.Items[0] as ACCOUNT__DYNAMODB).participant
+        const storedStudiesAsAdmin = (response.Items[0] as ACCOUNT__DYNAMODB).studiesAsAdmin
 
         // const verifiedUsername = storedUsername === username
         const verifiedEmail = storedEmail === email
@@ -88,6 +89,7 @@ export async function POST(
           cookies,
           email,
           storedParticipant,
+          storedStudiesAsAdmin,
           storedPassword,
         ) as NextResponse<{ error: string }> | NextResponse<{ message: string }>
       } else {

@@ -6,6 +6,7 @@ import {
   SSCrypto,
   MAX_AGE,
   COOKIE_NAME,
+  StudyAsAdmin,
   ACCOUNT_ADMINS,
   fetchAwsParameter,
   AWS_PARAMETER_NAMES,
@@ -190,6 +191,7 @@ export async function verifiedEmailAndPasswordSwitch(
   email: string,
   // username: string,
   storedParticipant: PARTICIPANT__DYNAMODB | undefined,
+  storedStudiesAsAdmin: StudyAsAdmin[] | [],
   storedPassword: HASHED_PASSWORD__DYNAMODB,
 ): Promise<NextResponse<{ error: string }> | NextResponse<{ message: string }>> {
   switch (switchCondition) {
@@ -222,6 +224,7 @@ export async function verifiedEmailAndPasswordSwitch(
           const toEncrypt: { [key: string]: string }[] = [
             { email: email as string },
             // { username: username as string },
+            { studiesAsAdmin: JSON.stringify(storedStudiesAsAdmin) },
             { isGlobalAdmin: isGlobalAdmin.toString() },
             { isParticipant: isParticipant.toString() },
             { timestamp: timestamp },

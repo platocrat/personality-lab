@@ -59,11 +59,7 @@ export async function GET(
           const toDecrypt: { [key: string]: EncryptedCookieFieldType }[] = [
             { email: encryptedEmail },
             // { username: encryptedUsername },
-            /**
-             * @todo If `studiesAdAdmin === undefined`, the entire `user` object
-             *       breaks.
-             */
-            // { studiesAsAdmin: encryptedStudiesAdAdmin },
+            { studiesAsAdmin: encryptedStudiesAdAdmin },
             { isGlobalAdmin: encryptedIsGlobalAdmin },
             { isParticipant: encryptedIsParticipant },
             { timestamp: encryptedTimestamp },
@@ -76,7 +72,7 @@ export async function GET(
 
           const user = {
             ...decryptedItems,
-            // studiesAsAdmin: JSON.parse(decryptedItems.studiesAsAdmin),
+            studiesAsAdmin: JSON.parse(decryptedItems.studiesAsAdmin),
             isGlobalAdmin: decryptedItems.isGlobalAdmin === 'true' ? true : false,
             isParticipant: decryptedItems.isParticipant === 'true' ? true : false,
           }
@@ -104,6 +100,8 @@ export async function GET(
           )
         }
       } catch (error: any) {
+        console.log(`Error verifying JWT: `, error)
+
         // Something went wrong
         return NextResponse.json(
           { error },
