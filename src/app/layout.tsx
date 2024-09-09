@@ -94,8 +94,6 @@ export default function RootLayout({
 
       const user_ = json.user as Omit<SessionType, "studies">
 
-      console.log(`user_: `, user_)
-
       if (user_.isParticipant) {
         const userEmail = user_.email
         const userStudies_ = await getUserStudies(user_.email)
