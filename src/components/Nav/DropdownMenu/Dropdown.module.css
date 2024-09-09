@@ -1,4 +1,23 @@
 /* DropdownMenu.module.css */
+
+.username {
+  display: flex;
+  gap: 14px;
+}
+
+.dropdown-link:first-child:hover .view-profile {
+  text-decoration: underline;
+}
+
+.view-profile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  text-decoration: none;
+  font-size: clamp(6px, 2vw, 10px);
+}
+
 .dropdown {
   position: relative;
   display: inline-block;
@@ -26,7 +45,7 @@
   }
 }
 
-.dropdownContent {
+.dropdown-content {
   display: block;
   position: absolute;
   background-color: #f9f9f9;
@@ -39,14 +58,14 @@
   animation: slideIn 0.11s forwards; /* Slide out animation */
 }
 
-.dropdownLink {
+.dropdown-link {
   color: black;
   padding: 12px 16px;
   text-decoration: none;
   display: block;
 }
 
-.dropdownLink:first-child {
+.dropdown-link:first-child {
   color: white;
   background-color: rgba(0, 123, 194, 1);
   display: flex;
@@ -56,12 +75,12 @@
   cursor: pointer;
 }
 
-.dropdownLink:hover {
+.dropdown-link:hover {
   background-color: #f1f1f1;
   cursor: pointer;
 }
 
-.dropdownLink:first-child:hover {
+.dropdown-link:first-child:hover {
   background-color: rgb(0, 101, 159);
   /* text-decoration: underline; */
   cursor: pointer;
