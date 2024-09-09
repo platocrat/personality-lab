@@ -160,7 +160,7 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
               <div
                 style={ {
                   position: 'relative',
-                  top: '85px',
+                  top: '72px',
                 } }
               >
                 <ParticipantTitle

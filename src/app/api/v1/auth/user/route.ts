@@ -44,6 +44,7 @@ export async function GET(
 
         const encryptedEmail = (decoded as CookieType).email
         // const encryptedUsername = (decoded as CookieType).username
+        const encryptedStudiesAdAdmin = (decoded as CookieType).studiesAsAdmin
         const encryptedIsGlobalAdmin = (decoded as CookieType).isGlobalAdmin
         const encryptedIsParticipant = (decoded as CookieType).isParticipant
         const encryptedTimestamp = (decoded as CookieType).timestamp
@@ -58,6 +59,11 @@ export async function GET(
           const toDecrypt: { [key: string]: EncryptedCookieFieldType }[] = [
             { email: encryptedEmail },
             // { username: encryptedUsername },
+            /**
+             * @todo If `studiesAdAdmin === undefined`, the entire `user` object
+             *       breaks.
+             */
+            // { studiesAsAdmin: encryptedStudiesAdAdmin },
             { isGlobalAdmin: encryptedIsGlobalAdmin },
             { isParticipant: encryptedIsParticipant },
             { timestamp: encryptedTimestamp },
@@ -70,17 +76,18 @@ export async function GET(
 
           const user = {
             ...decryptedItems,
+            // studiesAsAdmin: JSON.parse(decryptedItems.studiesAsAdmin),
             isGlobalAdmin: decryptedItems.isGlobalAdmin === 'true' ? true : false,
             isParticipant: decryptedItems.isParticipant === 'true' ? true : false,
           }
 
-          // console.log(
-          //   `\n\n\n`,
-          //   `[${new Date().toLocaleString()} \ --filepath="src/app/api/v1/auth/user/route.ts"]: server-side decrypted user object to ensure that hackers aren't intercepting it and changing any of its values:`,
-          //   '\n',
-          //   user,
-          //   '\n\n\n'
-          // )
+          console.log(
+            `\n\n\n`,
+            `[${new Date().toLocaleString()} \ --filepath="src/app/api/v1/auth/user/route.ts"]: server-side decrypted user object to ensure that hackers aren't intercepting it and changing any of its values:`,
+            '\n',
+            user,
+            '\n\n\n'
+          )
 
 
           return NextResponse.json(
@@ -99,7 +106,7 @@ export async function GET(
       } catch (error: any) {
         // Something went wrong
         return NextResponse.json(
-          { error: error },
+          { error },
           {
             status: 500,
             headers: {

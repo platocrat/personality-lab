@@ -40,6 +40,8 @@ export type NavLink = {
 }
 
 
+const GRAVATAR_DEFAULT_IMAGE_URL = `https://gravatar.com/avatar/0
+`
 
 
 const DropdownMenu: FC<DropdownMenuProps> = ({
@@ -57,11 +59,14 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
   const notificationRef = useRef(null)
   // States
   const [ 
+    gravatarUrl, 
+    setGravatarUrl
+  ] = useState<string>(GRAVATAR_DEFAULT_IMAGE_URL)
+  const [ 
     isLoadingGravatarUrl, 
     setIsLoadingGravatarUrl
   ] = useState<boolean>(false)
-  const [ isVisible, setIsVisible ] = useState<boolean>(true)
-  const [ gravatarUrl, setGravatarUrl ] = useState<string>('')
+  const [ isVisible, setIsVisible ] = useState<boolean>(false)
 
   // --------------------- `OnClick` Functions Handlers ------------------------
   const toggleDropdown = () => {
@@ -96,13 +101,12 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
 
   // ------------------------- `useLayoutEffect`s ------------------------------
   useLayoutEffect(() => {
-    if (email) {
+    if (email !== undefined || email !== null || email !== '') {
       const requests = [
         getGravatarUrl(email),
       ]
 
-      Promise.all(requests).then(() => {
-      })
+      Promise.all(requests).then(() => { })
     }
   }, [ email ])
 
@@ -142,7 +146,10 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
                   alt='Profile'
                   width={ 44 }
                   height={ 44 }
+                  // src={ user && (user.picture ?? '') }
+                  src={ gravatarUrl }
                   className={ styles.img }
+                  onClick={ toggleDropdown }
                   style={ {
                     position: 'relative',
                     top: '3px',
@@ -151,9 +158,6 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
                       ? '0px 3px 5px 1.5px rgba(0, 75, 118, 0.5)'
                       : ''
                   } }
-                  onClick={ toggleDropdown }
-                  // src={ user && (user.picture ?? '') }
-                  src={ gravatarUrl }
                 />
               </div>
             </>

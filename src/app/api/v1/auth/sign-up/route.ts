@@ -7,8 +7,8 @@ import {
   PutCommand,
   QueryCommand,
   UpdateCommand,
-  QueryCommandInput,
   PutCommandInput,
+  QueryCommandInput,
   UpdateCommandInput,
   NativeAttributeValue,
 } from '@aws-sdk/lib-dynamodb'
@@ -17,6 +17,7 @@ import { NextRequest, NextResponse } from 'next/server'
 // Locals
 import {
   ddbDocClient,
+  StudyAsAdmin,
   ACCOUNT_ADMINS,
   fetchAwsParameter,
   getEncryptedItems,
@@ -70,10 +71,10 @@ export async function POST(
         if (
           /**
            * @dev 1.1.1 If the email exists, the user is an unregistered 
-           *            participant, so perform an `Update` operation on the
-           *            unregistered user's account entry in the `accounts` 
-           *            table, updating the entry with the password that is 
-           *            provided.
+           *            participant OR an unregistered study-admin, so perform 
+           *            an `Update` operation on the unregistered user's account
+           *            entry in the `accounts` table, updating the entry with 
+           *            the password that is provided.
            */
           (response.Items[0] as ACCOUNT__DYNAMODB).email &&
           !(response.Items[0] as ACCOUNT__DYNAMODB).password
@@ -84,11 +85,18 @@ export async function POST(
            */
           const createdAtTimestamp = account.createdAtTimestamp
 
+          let isParticipant = true,
+            studiesAsAdmin: StudyAsAdmin[] | undefined = undefined
+
           /**
-           * @dev 1.1.3 Since the email exists, the user is an unregistered 
-           *            participant, so we set `isParticipant` to `true`
+           * @dev 1.1.3 If user has `isGlobalAdmin === true`, OR if user is a 
+           *            study-admin, set `isParticipant = false`, else set it to
+           *            `true`.
            */
-          const isParticipant = true
+          if (account.isGlobalAdmin || account.studiesAsAdmin) {
+            isParticipant = false
+            studiesAsAdmin = account.studiesAsAdmin
+          }
 
           /**
            * @dev 1.1.4 Determine if the new user is an admin.
@@ -113,10 +121,11 @@ export async function POST(
           // const UpdateExpression =
           //   'set isGlobalAdmin = :isGlobalAdmin, username = :username, password = :password, updatedAtTimestamp = :updatedAtTimestamp'
           const UpdateExpression =
-            'set isGlobalAdmin = :isGlobalAdmin, password = :password, updatedAtTimestamp = :updatedAtTimestamp'
+            'set isGlobalAdmin = :isGlobalAdmin, studiesAsAdmin = :studiesAsAdmin, password = :password, updatedAtTimestamp = :updatedAtTimestamp'
           const ExpressionAttributeValues = {
-            ':isGlobalAdmin': isGlobalAdmin,
             // ':username': username,
+            ':isGlobalAdmin': isGlobalAdmin,
+            ':studiesAsAdmin': studiesAsAdmin,
             ':password': password, // Assuming password is already hashed
             ':updatedAtTimestamp': updatedAtTimestamp
           }
@@ -149,6 +158,7 @@ export async function POST(
                 const toEncrypt: { [key: string]: string }[] = [
                   { email: email as string },
                   // { username: username as string },
+                  { studiesAsAdmin: JSON.stringify(studiesAsAdmin as any) },
                   { isGlobalAdmin: isGlobalAdmin.toString() },
                   { isParticipant: isParticipant.toString() },
                   { timestamp: updatedAtTimestamp.toString() },
@@ -194,7 +204,12 @@ export async function POST(
           } catch (error: any) {
             return NextResponse.json(
               { error: error },
-              { status: 500 },
+              { 
+                status: 500,
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              },
             )
           }
         }
@@ -202,7 +217,12 @@ export async function POST(
     } catch (error: any) {
       return NextResponse.json(
         { error: error },
-        { status: 500 },
+        { 
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
       )
     }
 
@@ -298,14 +318,24 @@ export async function POST(
         if ((response.Items[0] as ACCOUNT__DYNAMODB).email) {
           return NextResponse.json(
             { message: 'Email exists' },
-            { status: 200 },
+            { 
+              status: 200,
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            },
           )
         }
       }
     } catch (error: any) {
       return NextResponse.json(
-        { error: error },
-        { status: 500 },
+        { error },
+        { 
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
       )
     }
 
@@ -408,13 +438,23 @@ export async function POST(
     } catch (error: any) {
       return NextResponse.json(
         { error: error },
-        { status: 500 },
+        { 
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
       )
     }
   } else {
     return NextResponse.json(
       { error: 'Method Not Allowed' },
-      { status: 405 },
+      { 
+        status: 405,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
     )
   }
 }

@@ -135,6 +135,7 @@ export type CookieType = {
   email: EncryptedCookieFieldType
   // username: EncryptedCookieFieldType
   password: EncryptedCookieFieldType
+  studiesAsAdmin: EncryptedCookieFieldType,
   isGlobalAdmin: EncryptedCookieFieldType
   isParticipant: EncryptedCookieFieldType
   timestamp: EncryptedCookieFieldType

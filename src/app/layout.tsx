@@ -33,6 +33,7 @@ export type SessionType = {
   // username: string
   isGlobalAdmin: boolean
   isParticipant: boolean
+  studiesAsAdmin?: StudyAsAdmin[] // `undefined` for non-study-admins
   studies?: STUDY_SIMPLE__DYNAMODB[] // `undefined` for a non-participant
 }
 
@@ -92,6 +93,8 @@ export default function RootLayout({
         return { session: undefined, error: json.error }
 
       const user_ = json.user as Omit<SessionType, "studies">
+
+      console.log(`user_: `, user_)
 
       if (user_.isParticipant) {
         const userEmail = user_.email
@@ -178,6 +181,7 @@ export default function RootLayout({
       setEmail((session as SessionType).email)
       // setUsername((session as SessionType).username)
       setUserStudies((session as SessionType).studies ?? [])
+      setStudiesAsAdmin((session as SessionType).studiesAsAdmin ?? [])
       // Update state of the kind of user
       setIsParticipant((session as SessionType).isParticipant)
       setIsGlobalAdmin((session as SessionType).isGlobalAdmin)
