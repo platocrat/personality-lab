@@ -2,7 +2,7 @@
 import { FC } from 'react'
 // Locals
 // Sections
-import Instructions from './instructions'
+import Content from '@/sections/social-rating/fictional-characters/overview/content'
 import NoticeOnInvalidOutput from './notice-on-invalid-output'
 
 
@@ -34,8 +34,7 @@ const Overview: FC<OverviewProps> = ({
       </h2>
 
       <div>
-        <Instructions />
-        <NoticeOnInvalidOutput />
+        <Content />
       </div>
     </>
   )

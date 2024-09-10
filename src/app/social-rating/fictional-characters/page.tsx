@@ -1,5 +1,5 @@
 // Locals
-import FictionalCharacters from '@/sections/social-rating/games/fictional-characters'
+import FictionalCharacters from '@/sections/social-rating/fictional-characters'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'

@@ -3,9 +3,9 @@ import { FC } from 'react'
 // Locals
 import Overview from './overview'
 // Sections
-import InitiateGame from './overview/initiate-game'
+import InitiateGame from '@/components/SocialRating/InitiateGame'
 // CSS
-import styles from '@/sections/social-rating/games/fictional-characters/FictionalCharacters.module.css'
+import styles from '@/sections/social-rating/fictional-characters/FictionalCharacters.module.css'
 
 
 

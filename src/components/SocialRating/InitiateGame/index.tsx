@@ -3,6 +3,7 @@
 // Externals
 import QRCode from 'qrcode'
 import Image from 'next/image'
+import { usePathname } from 'next/navigation'
 import { FC, useContext, useMemo, useState } from 'react'
 // Locals
 import ProgressBarLink from '@/components/Progress/ProgressBarLink'
@@ -11,18 +12,17 @@ import { GameSessionContextType } from '@/contexts/types'
 import { GameSessionContext } from '@/contexts/GameSessionContext'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
-import pageStyles from '@/sections/social-rating/games/fictional-characters/FictionalCharacters.module.css'
-import styles from '@/sections/social-rating/games/fictional-characters/overview/initiate-game/InitiateGame.module.css'
+import pageStyles from '@/sections/social-rating/fictional-characters/FictionalCharacters.module.css'
+import styles from '@/components/SocialRating/InitiateGame/InitiateGame.module.css'
 
 
 
 type InitiateGameProps = {
-
 }
 
 
 
-const InitiateGame: FC<InitiateGameProps> = ({}) => {
+const InitiateGame: FC<InitiateGameProps> = ({ }) => {
   // Contexts
   const {
     sessionId,
@@ -32,16 +32,18 @@ const InitiateGame: FC<InitiateGameProps> = ({}) => {
     setSessionPin, 
     setSessionQrCode,
   } = useContext<GameSessionContextType>(GameSessionContext)
-  // States
-  const [ href, setHref ] = useState<string>('')
-  // Booleans
-  const [ isHosting, setIsHosting ] = useState<boolean>(false)
-  const [ isLoading, setIsLoading ] = useState<boolean>(false)
-
+  // Hooks
+  const pathname = usePathname()
 
   const hostButtonText = `Host`
   const startButtonText = `Start`
-  const pagePath = `/social-rating/session`
+  const pagePath = `${pathname}/session`
+
+  // States
+  const [ href, setHref ] = useState<string>(pagePath)
+  // Booleans
+  const [ isHosting, setIsHosting ] = useState<boolean>(false)
+  const [ isLoading, setIsLoading ] = useState<boolean>(false)
   
   // ------------------------------- Regular functions -------------------------
   // Generate a random session pin

@@ -1,4 +1,5 @@
-import styles from '@/sections/social-rating/games/fictional-characters/overview/notice-on-invalid-output/NoticeOnInvalidOutput.module.css'
+import styles from '@/sections/social-rating/fictional-characters/overview/notice-on-invalid-output/NoticeOnInvalidOutput.module.css'
+
 
 
 const NoticeOnInvalidOutput = () => {
