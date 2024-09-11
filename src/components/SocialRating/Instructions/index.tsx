@@ -3,7 +3,7 @@ import { FC } from 'react'
 // Locals
 import ExternalLink from '@/components/Anchors/ExternalLink'
 // CSS
-import styles from '@/sections/social-rating/fictional-characters/overview/content/Content.module.css'
+import styles from '@/sections/social-rating/SocialRating.module.css'
 
 
 

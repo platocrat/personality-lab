@@ -1,7 +1,12 @@
 // Externals
 import { FC, Fragment } from 'react'
 // Locals
+// Components
 import Card from '@/components/Card'
+import InitiateGame from '@/components/SocialRating/InitiateGame'
+// Sections
+import Bessi from './bessi'
+import FictionalCharacters from './fictional-characters'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/sections/social-rating/SocialRating.module.css'
@@ -23,29 +28,9 @@ type DescriptionProps = {
 
 
 
-// ---------------------------- Function components ----------------------------
-const Description: FC<DescriptionProps> = ({
-  lines,
-}) => {
-  return (
-    <>
-      <div>
-        <div>
-          { lines.first }
-        </div>
-        <div style={ { marginTop: '14px' } }>
-          { lines.second }
-        </div>
-      </div>
-    </>
-  )
-}
-
-
 // --------------------------------- Constants ---------------------------------
-const hrefPrefix = `/social-rating`
-const buttonText = `View Game`
 const cssStyle = {
+  formMargin: '0px',
   buttonWidth: '120px',
   marginRight: 'auto',
   marginLeft: 'auto',
@@ -55,27 +40,11 @@ const cssStyle = {
 
 const gameCards = [
   {
-    title: `The BESSI`,
-    buttonText,
-    href: `${hrefPrefix}/bessi`,
-    description: <Description
-      lines={ {
-        first: `Invite your friends to play a social rating game!`,
-        second: `Using the BESSI personality assessment, see personality scores then compare and contrast to learn things about each other!`,
-      } }
-    />,
+    description: <Bessi />,
     cssStyle,
   },
   {
-    title: `Fictional Characters`,
-    buttonText,
-    href: `${hrefPrefix}/fictional-characters`,
-    description: <Description
-      lines={{
-        first: `See who between you and your friends are have the closest personality to AI-generated fictional characters!`,
-        second: `This game also uses the BESSI to determine your personality scores.`,
-      }}
-    />,
+    description: <FictionalCharacters />,
     cssStyle
   },
 ]
@@ -107,7 +76,7 @@ const SocialRating: FC<SocialRatingProps> = ({
           {/* Description */ }
           <div className={ styles['heading-description'] }>
             <p>
-              { `Welcome to the social ratings game page!` }
+              { `Welcome to the social rating games page!` }
             </p>
             <p>
               { `Select a game from one of the options listed below to navigate to that game's page` }
@@ -119,15 +88,16 @@ const SocialRating: FC<SocialRatingProps> = ({
         <div className={ styles['list-of-games-container'] }>
           { gameCards.map((gameCard, i: number) => (
             <Fragment key={ i }>
-              <Card 
-                title={ gameCard.title }
-                buttonText={ gameCard.buttonText }
-                href={ gameCard.href }
+              <Card
                 description={ gameCard.description }
                 cssStyle={ gameCard.cssStyle }
               />
             </Fragment>
           )) }
+        </div>
+        
+        <div style={{ padding: '24px' }}>
+          <InitiateGame />
         </div>
       </div>
     </>

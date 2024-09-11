@@ -12,8 +12,8 @@ import { GameSessionContextType } from '@/contexts/types'
 import { GameSessionContext } from '@/contexts/GameSessionContext'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
-import pageStyles from '@/sections/social-rating/fictional-characters/FictionalCharacters.module.css'
 import styles from '@/components/SocialRating/InitiateGame/InitiateGame.module.css'
+import pageStyles from '@/sections/social-rating/fictional-characters/FictionalCharacters.module.css'
 
 
 
@@ -98,58 +98,68 @@ const InitiateGame: FC<InitiateGameProps> = ({ }) => {
   return (
     <>
       <div>
+        { !isHosting && (
+          <>
+            <div style={ { textAlign: 'center', marginBottom: '24px' } }>
+              { `Click "Host" to initiate the game you have selected` }
+            </div>
+          </>
+        ) }
+
         <div className={ styles.buttonContainer }>
           {/* Host commits to a game session */}
           { isHosting ? (
             <>
-              <div style={{ ...definitelyCenteredStyle }}>
-                <div 
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    textAlign: 'left',
-                  }}
-                >
-                  <div style={{ margin: '0px 0px 22px 0px' }}>
-                    { `Hosting a new game session with:` }
-                  </div>
-                  <div style={ { color: 'rgb(0, 90, 194)' }}>
-                    <div style={{ display: 'grid', gap: '8px' }}>
-                      <div>
-                        { `Session ID:` }
-                      </div>
-                      <div style={{ textAlign: 'center' }}>
-                        { `${sessionId}` }
-                      </div>
+              <div className={ styles['host-game-session-details'] }>
+                <div style={{ ...definitelyCenteredStyle }}>
+                  <div 
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      textAlign: 'left',
+                    }}
+                  >
+                    <div style={{ margin: '0px 0px 22px 0px' }}>
+                      { `Hosting a new game session with:` }
                     </div>
-                    <div style={ { display: 'grid', gap: '8px', marginTop: '8px' } }>
-                      <div>
-                        { `Session Pin:` }
+                    <div style={ { color: 'rgb(0, 90, 194)' }}>
+                      <div style={{ display: 'grid', gap: '8px' }}>
+                        <div>
+                          { `Session ID:` }
+                        </div>
+                        <div style={{ textAlign: 'center' }}>
+                          { `${sessionId}` }
+                        </div>
                       </div>
-                      <div style={ { textAlign: 'center' } }>
-                        { `${sessionPin}` }
+                      <div style={ { display: 'grid', gap: '8px', marginTop: '8px' } }>
+                        <div>
+                          { `Session Pin:` }
+                        </div>
+                        <div style={ { textAlign: 'center' } }>
+                          { `${sessionPin}` }
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              <div 
-                style={{ 
-                  ...definitelyCenteredStyle,
-                  flexDirection: 'row',
-                }}
-              >
-                { sessionQrCode && (
-                  <div>
-                    <Image
-                      width={ 144 }
-                      height={ 144 }
-                      style={{ borderRadius: '12px' }}
-                      src={ sessionQrCode }
-                      alt='QR Code'
-                    />
-                  </div>
-                ) }
+                <div 
+                  style={{ 
+                    ...definitelyCenteredStyle,
+                    flexDirection: 'row',
+                  }}
+                >
+                  { sessionQrCode && (
+                    <div>
+                      <Image
+                        width={ 144 }
+                        height={ 144 }
+                        style={{ borderRadius: '12px' }}
+                        src={ sessionQrCode }
+                        alt='QR Code'
+                      />
+                    </div>
+                  ) }
+                </div>
               </div>
             </>
           ) : (

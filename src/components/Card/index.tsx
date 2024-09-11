@@ -3,7 +3,6 @@
 // Externals
 import { CSSProperties, FC, ReactNode, useState } from 'react'
 // Locals
-import Spinner from '@/components/Suspense/Spinner'
 import ProgressBarLink from '@/components/Progress/ProgressBarLink'
 // CSS
 import styles from '@/app/page.module.css'
@@ -12,9 +11,9 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 type CardProps = {
-  title: string
   description: string | ReactNode
   buttonText?: string
+  title?: string
   href?: string
   cssStyle?: CSSProperties | any
   options?: {
@@ -50,11 +49,15 @@ const Card: FC<CardProps> = ({
         style={{ ...cssStyle }}
         className={ styles.card }
       >
-        <div style={ { padding: '8px' } }>
-          <h2 style={ { textAlign: 'center' } }>
-            { title }
-          </h2>
-        </div>
+        { title && (
+          <>
+          <div style={ { padding: '8px' } }>
+            <h2 style={ { textAlign: 'center' } }>
+              { title }
+            </h2>
+          </div>
+          </>
+        ) }
         <div>
           <div 
             style={{ 
@@ -67,7 +70,7 @@ const Card: FC<CardProps> = ({
         <div
           style={ {
             ...definitelyCenteredStyle,
-            margin: '18px 0px 0px 0px',
+            margin: cssStyle.formMargin ? '' : '18px 0px 0px 0px',
           } }
         >
           <div 

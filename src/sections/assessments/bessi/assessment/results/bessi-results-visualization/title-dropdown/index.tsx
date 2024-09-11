@@ -8,7 +8,7 @@ import useClickOutside from '@/hooks/useClickOutside'
 import { imgPaths } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
-import styles from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization/BessiResultsVIsualization.module.css'
+import styles from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization/BessiResultsVisualization.module.css'
 
 
 

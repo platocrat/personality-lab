@@ -23,7 +23,6 @@ const Bessi: FC<BessiProps> = ({
     <>
       <div className={ styles['container'] }>
         <Overview />
-        <InitiateGame />
       </div>
     </>
   )

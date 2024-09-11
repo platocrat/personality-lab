@@ -23,7 +23,6 @@ const FictionalCharacters: FC<FictionalCharactersProps> = ({
     <>
       <div className={ styles['container'] }>
         <Overview />
-        <InitiateGame />
       </div>
     </>
   )
