@@ -16,8 +16,8 @@ import {
   HighestFormalEducation,
   CurrentEmploymentStatus,
   BessiUserResults__DynamoDB,
+  getDummyPopulationBessiScores,
   BessiUserDemographics__DynamoDB,
-  getDummyPopulationBessiScoresWithFacets,
 } from '@/utils'
 // Types
 import { 
@@ -289,8 +289,8 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
         // If `studyId` does not exist, use dummy data.
         const histogramPopulationDummyData: PopulationResults = {
           results: {
-            facetScores: getDummyPopulationBessiScoresWithFacets(100, 'facet'),
-            domainScores: getDummyPopulationBessiScoresWithFacets(100, 'domain'),
+            facetScores: getDummyPopulationBessiScores(100, 'facet'),
+            domainScores: getDummyPopulationBessiScores(100, 'domain'),
           },
           demographics: {
             age: 28,
