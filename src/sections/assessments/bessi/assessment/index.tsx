@@ -172,7 +172,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
         accessToken?: string
         facetScores: FacetFactorType
         domainScores: SkillDomainFactorType
-      } = calculateBessiScores(Object.values(userScores))
+      } = calculateBessiScores[192](Object.values(userScores))
 
       // console.log('finalScores: ', finalScores)
 

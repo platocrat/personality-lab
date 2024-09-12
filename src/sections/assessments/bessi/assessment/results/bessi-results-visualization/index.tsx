@@ -59,13 +59,14 @@ import {
   FacetFactorType,
   RATINGS__DYNAMODB,
   StellarPlotDataType,
-  calculateBessiScores,
+  calculateBessiScoresWithFacets,
   SkillDomainFactorType,
   getRandomValueInRange,
   BarChartInputDataType,
   BarChartTargetDataType,
   STUDY_SIMPLE__DYNAMODB,
-  getDummyPopulationBessiScores,
+  getDummyPopulationBessiScoresWithFacets,
+  calculateBessiScores,
 } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -223,7 +224,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
                 facetScores: bessiSkillScores?.facetScores,
                 domainScores: bessiSkillScores?.domainScores,
               }
-              : calculateBessiScores(DUMMY_BESSI_USER_SCORES as UserScoresType[])
+              : calculateBessiScoresWithFacetsWithFacets(DUMMY_BESSI_USER_SCORES as UserScoresType[])
         case 2:
           return facetScores 
             ? {
@@ -235,9 +236,9 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
                 facetScores: bessiSkillScores?.facetScores,
                 domainScores: bessiSkillScores?.domainScores,
               }
-              : calculateBessiScores(DUMMY_BESSI_USER_SCORES as UserScoresType[])
+              : calculateBessiScoresWithFacets(DUMMY_BESSI_USER_SCORES as UserScoresType[])
         default:
-          return calculateBessiScores(DUMMY_BESSI_USER_SCORES as UserScoresType[])
+          return calculateBessiScoresWithFacets(DUMMY_BESSI_USER_SCORES as UserScoresType[])
       }
     } else {
       switch (i) {
@@ -246,7 +247,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
             domainScores 
               ? domainScores as SkillDomainFactorType
               : bessiSkillScores?.domainScores as SkillDomainFactorType
-            ?? calculateBessiScores(
+            ?? calculateBessiScoresWithFacets(
               DUMMY_BESSI_USER_SCORES as UserScoresType[]
             ).domainScores
           ).map(([key, value]) => ({
@@ -269,7 +270,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
               ? inputData
               : bessiSkillScores?.domainScores
                 ? inputData
-                : calculateBessiScores(DUMMY_BESSI_USER_SCORES as UserScoresType[])
+                : calculateBessiScoresWithFacets(DUMMY_BESSI_USER_SCORES as UserScoresType[])
           )
         case 3:
         case 4:
@@ -285,9 +286,9 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
                 facetScores: bessiSkillScores?.facetScores,
                 domainScores: bessiSkillScores?.domainScores,
               }
-              : calculateBessiScores(DUMMY_BESSI_USER_SCORES as UserScoresType[])
+              : calculateBessiScoresWithFacets(DUMMY_BESSI_USER_SCORES as UserScoresType[])
         default:
-          return calculateBessiScores(DUMMY_BESSI_USER_SCORES as UserScoresType[])
+          return calculateBessiScoresWithFacets(DUMMY_BESSI_USER_SCORES as UserScoresType[])
       }
     }
   }
@@ -341,8 +342,8 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
             </>
           )
         case 2:
-          const multipleNormalPopFacetScores = getDummyPopulationBessiScores(100, 'facet')
-          const multipleNormalPopDomainScores = getDummyPopulationBessiScores(100, 'domain')
+          const multipleNormalPopFacetScores = getDummyPopulationBessiScoresWithFacets(100, 'facet')
+          const multipleNormalPopDomainScores = getDummyPopulationBessiScoresWithFacets(100, 'domain')
 
           const multipleNormalIsSample = false
 

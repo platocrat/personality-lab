@@ -4,7 +4,7 @@ import { Dispatch, SetStateAction } from 'react'
 import { 
   UserScoresType, 
   FacetFactorType,
-  BESSI_45_ACTIVITIES,
+  BESSI_ACTIVITIES,
   calculateBessiScores,
   SkillDomainFactorType, 
   BESSI_45_ACTIVITY_BANK,
@@ -61,7 +61,7 @@ function update(
     }
   })
 
-  const { facetScores, domainScores } = calculateBessiScores(responses)
+  const { facetScores, domainScores } = calculateBessiScores[45](responses)
 
   const character: CharacterType = {
     group,
@@ -184,7 +184,7 @@ export async function generateCharacterProfile(
 ): Promise<void> {
   setCurrentPromptIndex(prevIndex => prevIndex + 1)
 
-  const SYSTEM_CONTENT = `You will be provided with a fictional pop-culture series name (e.g. Harry Potter, Game of Thrones, Euphoria, The Big Bang Theory, American Horror Story, etc.). Your task is to simulate responses to the following 45 activities for up to 3 characters that are from the given pop-culture series: for each activity, respond with a rating between 1 and 5 to represent how others would rate that fictional pop-culture character, with 1 representing not at all likely to do the activity and 5 representing very much likely to do the activity. You must give the rating for each of the 45 activities in your response. Additionally, you must give the description of the personality of the character. For example, if given 'Harry Potter', you should respond with 'Harry Potter from the Harry Potter series is the brave protagonist of the series. Now, here are the responses to each of the 45 activities:'. The description must be around 250 words. Remember that this must be for each character. Furthermore, return your response as an array of JSON objects where each JSON object includes the description, the list of 45-ratings, and the character's name. To be clear, the type of the response that you must return is, 'type ResponsesType = { group: string, name: string, description: string, responses: { response: number, activity: string, id: number }[] }[]'. Below is the list of activities: ${BESSI_45_ACTIVITIES.join('?')}`
+  const SYSTEM_CONTENT = `You will be provided with a fictional pop-culture series name (e.g. Harry Potter, Game of Thrones, Euphoria, The Big Bang Theory, American Horror Story, etc.). Your task is to simulate responses to the following 45 activities for up to 3 characters that are from the given pop-culture series: for each activity, respond with a rating between 1 and 5 to represent how others would rate that fictional pop-culture character, with 1 representing not at all likely to do the activity and 5 representing very much likely to do the activity. You must give the rating for each of the 45 activities in your response. Additionally, you must give the description of the personality of the character. For example, if given 'Harry Potter', you should respond with 'Harry Potter from the Harry Potter series is the brave protagonist of the series. Now, here are the responses to each of the 45 activities:'. The description must be around 250 words. Remember that this must be for each character. Furthermore, return your response as an array of JSON objects where each JSON object includes the description, the list of 45-ratings, and the character's name. To be clear, the type of the response that you must return is, 'type ResponsesType = { group: string, name: string, description: string, responses: { response: number, activity: string, id: number }[] }[]'. Below is the list of activities: ${BESSI_ACTIVITIES['self-report'][45].join('?')}`
 
   const apiEndpoint = 'https://api.openai.com/v1/chat/completions'
   const response = await fetch(

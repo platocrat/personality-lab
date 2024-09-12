@@ -58,10 +58,14 @@ const Overview: FC<OverviewProps> = ({
             { `This game is enabled by generative AI.` }
           </div>
           <div className={ styles.text }>
-            { `It also uses the BESSI (see the description for the BESSI social rating game to learn more).` }
+            { 
+              `It also uses the BESSI (see the description for the BESSI social rating game to learn more).`
+            }
           </div>
           <div className={ styles['text'] }>
-            { `Here you can play a friendly game with others to rate each other to find out who has the closest personality to AI-generated pop-culture characters that are chosen by your game's host.` }
+            { 
+              `Here you can play a friendly game with others to rate each other to find out who has the closest personality to AI-generated pop-culture characters that are chosen by your game's host.`
+            }
           </div>
 
           <LearnMore
