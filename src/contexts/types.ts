@@ -39,10 +39,13 @@ export type EditStudyModalContextType = {
 
 
 export type GameSessionContextType = {
-  gameId: string | null // Set when the game host selects a game
+  // Set when the game host selects a game
+  gameId: string | null
   sessionId: string | null
   sessionPin: string | null
   sessionQrCode: string | null
+  // Set when the game host selects a game
+  setGameId: ((id: string) => void) | null
   setSessionId: ((id: string) => void) | null
   setSessionPin: ((pin: string) => void) | null
   setSessionQrCode: ((qrCode: string) => void) | null
