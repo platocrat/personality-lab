@@ -316,13 +316,13 @@ export const calculateBessiScores = {
 
 
 
-export function getDummyPopulationBessiScoresWithFacets(
+export function getDummyPopulationBessiScores(
   n: number,
   domainOrFacet: 'facet' | 'domain'
 ): { [key: string]: number[] } {
   let keys: string[] = []
 
-  const dummyBessiUserScores = calculateBessiScoresWithFacets(
+  const dummyBessiUserScores = calculateBessiScores[192](
     DUMMY_BESSI_USER_SCORES as UserScoresType[]
   )
 

@@ -2,16 +2,9 @@
 import * as d3 from 'd3'
 import { FC, useEffect, useRef } from 'react'
 // Locals
-import Title from '@/components/DataViz/Title'
 import {
   getRangeLabel,
-  FacetFactorType,
-  findFacetByScore,
-  SKILLS_DOMAIN_MAPPING,
-  DOMAIN_TO_FACET_MAPPING,
-  SkillDomainFactorType,
   BarChartTargetDataType,
-  getSkillDomainAndWeight,
 } from '@/utils'
 // CSS
 import styles from '@/components/DataViz/DataViz.module.css'
