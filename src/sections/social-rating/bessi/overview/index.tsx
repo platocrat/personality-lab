@@ -4,6 +4,7 @@
 import { FC, useState } from 'react'
 // Locals
 import LearnMore from '@/components/SocialRating/LearnMore'
+import SelectGame from '@/components/SocialRating/SelectGame'
 // Sections
 import GameMechanics from './game-mechanics'
 // CSS
@@ -15,6 +16,10 @@ import styles from '@/sections/social-rating/SocialRating.module.css'
 type OverviewProps = {
 
 }
+
+
+
+const GAME_ID = `bessi`
 
 
 
@@ -57,6 +62,9 @@ const Overview: FC<OverviewProps> = ({
           }
         </div>
 
+        <SelectGame 
+          gameId={ GAME_ID }
+        />
         <LearnMore 
           content={ (
             <>
