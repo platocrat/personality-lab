@@ -759,6 +759,10 @@ export const BESSI_ACTIVITIES = {
 
 
 
+/**
+ * @todo Refactor this to support all BESSI versions and both `self-report` and 
+ *       `observer-report` forms.
+ */
 export const BESSI_192_ACTIVITY_BANK: BessiActivityType[] = BESSI_ACTIVITIES['self-report'][192].map(
   (activity, index) => ({
   id: index + 1,
