@@ -4,11 +4,11 @@ import { createContext } from 'react'
 // Context Types
 import { BessiSkillScoresContextType } from './types'
 // Utils
-import { Facet, SkillDomain } from '@/utils'
+import { BessiSkillScoresType, Facet, SkillDomain } from '@/utils'
 
 
 
-const INIT_BESSI_SKILL_SCORES = {
+const INIT_BESSI_SKILL_SCORES: BessiSkillScoresType = {
   id: '',
   studyId: '',
   accessToken: '',

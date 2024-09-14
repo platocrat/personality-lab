@@ -33,9 +33,9 @@ export type UserScoresType = {
 }
 
 export type BessiSkillScoresType = {
-  id: string
-  studyId: string
-  accessToken: string
+  id?: string
+  studyId?: string
+  accessToken?: string
   facetScores: FacetFactorType,
   domainScores: SkillDomainFactorType
 }
@@ -50,7 +50,7 @@ export type BessiActivityType = {
 
 export type BessiUserDemographics__DynamoDB = {
   age: number
-  gender: Gender
+  gender: Gender | string | number
   usState: USState
   zipCode: string
   isParent: YesOrNo
@@ -58,10 +58,10 @@ export type BessiUserDemographics__DynamoDB = {
   englishFluency: YesOrNo
   priorCompletion: YesOrNo
   socialClass: SocialClass
-  raceOrEthnicity: RaceOrEthnicity
-  currentMaritalStatus: CurrentMaritalStatus
-  highestFormalEducation: HighestFormalEducation
-  currentEmploymentStatus: CurrentEmploymentStatus
+  raceOrEthnicity: RaceOrEthnicity[]
+  currentMaritalStatus: CurrentMaritalStatus | string | number
+  highestFormalEducation: HighestFormalEducation | string | number
+  currentEmploymentStatus: CurrentEmploymentStatus | string | number
 }
 
 export type BessiUserResults__DynamoDB = {

@@ -16,7 +16,7 @@ import { SessionContext } from '@/contexts/SessionContext'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 import { UserDemographicsContext } from '@/contexts/UserDemographicsContext'
 // Context Type
-import { SessionContextType } from '@/contexts/types'
+import { BessiSkillScoresContextType, SessionContextType } from '@/contexts/types'
 // Utilities
 import {
   getFacet,
@@ -35,7 +35,6 @@ import {
 } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
-import { error } from 'console'
 
 
 
@@ -59,7 +58,9 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
   // Hooks
   const router = useRouter()
   // Contexts
-  const { setBessiSkillScores } = useContext(BessiSkillScoresContext)
+  const { 
+    setBessiSkillScores 
+  } = useContext<BessiSkillScoresContextType>(BessiSkillScoresContext)
   const { 
     // State variables
     age,
@@ -269,7 +270,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
         // 5. Create new object with final scores and access token to cache 
         //    on the client so that we can use the access token to share the 
         //    user's results to others.
-        finalScores= {
+        finalScores = {
           ...finalScores,
           id: userResultsId,
           accessToken: accessToken,
