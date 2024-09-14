@@ -1,3 +1,30 @@
+.srg-card {
+  outline: none;
+  border: none;
+  cursor: pointer;
+  background: none;
+}
+
+.srg-card:hover {
+  border-radius: 1rem;
+  background-color: aliceblue;
+  box-shadow: 0px 0px 3.5px inset rgba(0, 80, 172, 0.514);
+
+  transition: 0.1s ease-in-out;
+
+  transform: scale(0.999);
+}
+
+.srg-card:active{
+  border-radius: 1rem;
+  background-color: rgb(238, 247, 255);
+  box-shadow: 0px 0px 7px inset rgba(0, 80, 172, 0.514);
+
+  transition: 0.1s ease-in-out;
+  
+  transform: scale(0.995);
+}
+
 .list-of-games-container {
   display: grid;
   grid-auto-rows: min-content; /* Ensure rows adjust to the content */
@@ -5,8 +32,8 @@
 }
 
 .heading-description {
-  display: grid;
-  grid-template-rows: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 6px; 
   text-align: left;
 }

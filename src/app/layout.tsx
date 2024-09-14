@@ -9,11 +9,11 @@ import { usePathname, useRouter } from 'next/navigation'
 import Header from '@/components/Header'
 import Spinner from '@/components/Suspense/Spinner'
 import ProgressBar from '@/components/Progress/ProgressBar'
+import GameSessionLayout from '@/components/Layouts/GameSessionLayout'
 import UserDemographicsLayout from '@/components/Layouts/UserDemographics'
 import BessiSkillScoresLayout from '@/components/Layouts/BessiSkillScoresLayout'
 // Contexts
 import { SessionContext } from '@/contexts/SessionContext'
-import { GameSessionProvider } from '@/contexts/GameSessionContext'
 // Utils
 import { 
   StudyAsAdmin,
@@ -245,15 +245,15 @@ export default function RootLayout({
                     setIsAuthenticated,
                   } }
                 >
-                  <UserDemographicsLayout>
-                    <BessiSkillScoresLayout>
-                      <GameSessionProvider>
-                        {/* <Header /> */}
-                        { isAuthenticated && <Header /> }
-                        { children }
-                      </GameSessionProvider>
-                    </BessiSkillScoresLayout>
-                  </UserDemographicsLayout>
+                  <GameSessionLayout>
+                    <UserDemographicsLayout>
+                      <BessiSkillScoresLayout>
+                          {/* <Header /> */}
+                          { isAuthenticated && <Header /> }
+                          { children }
+                      </BessiSkillScoresLayout>
+                    </UserDemographicsLayout>
+                  </GameSessionLayout>
                 </SessionContext.Provider>
                 {/* </UserProvider> */ }
               </ProgressBar>

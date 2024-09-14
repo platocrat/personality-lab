@@ -4,9 +4,8 @@
 import { FC, ReactNode, useState } from 'react'
 // Locals
 // CSS
-import appStyles from '@/app/page.module.css'
+import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
-import styles from '@/sections/social-rating/SocialRating.module.css'
 
 
 
@@ -21,7 +20,8 @@ const LearnMore: FC<LearnMoreProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false)
 
-  const toggleContent = () => {
+  const toggleContent = (e: any) => {
+    e.stopPropagation() // Prevents the parent handler from being triggered
     setIsExpanded(prev => !prev)
   }
 
@@ -32,7 +32,7 @@ const LearnMore: FC<LearnMoreProps> = ({
         <button 
           style={{ width: '130px' }}
           onClick={ toggleContent }
-          className={ appStyles.button }
+          className={ styles.button }
         >
           <span
             style={ {

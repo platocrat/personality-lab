@@ -1,14 +1,12 @@
 'use client'
 
 // Externals
-import { FC, useState } from 'react'
+import { FC } from 'react'
 // Locals
 import LearnMore from '@/components/SocialRating/LearnMore'
-import SelectGame from '@/components/SocialRating/SelectGame'
 // Sections
 import GameMechanics from './game-mechanics'
 // CSS
-import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/sections/social-rating/SocialRating.module.css'
 
 
@@ -62,9 +60,6 @@ const Overview: FC<OverviewProps> = ({
           }
         </div>
 
-        <SelectGame 
-          gameId={ GAME_ID }
-        />
         <LearnMore 
           content={ (
             <>

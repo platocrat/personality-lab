@@ -1,15 +1,23 @@
 'use client'
 
 // Externals
+import { 
+  FC, 
+  useMemo, 
+  useState,
+  Dispatch, 
+  useContext, 
+  SetStateAction,
+} from 'react'
 import QRCode from 'qrcode'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { FC, useContext, useMemo, useState } from 'react'
 // Locals
 import ProgressBarLink from '@/components/Progress/ProgressBarLink'
+import InvitationDetails from '@/components/SocialRating/GameSession/InvitationDetails'
 // Contexts
 import { GameSessionContextType } from '@/contexts/types'
-import { GameSessionContext } from '@/contexts/GameSessionContext'
+import { GameSessionContext } from '@/components/Layouts/GameSessionLayout'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/components/SocialRating/InitiateGame/InitiateGame.module.css'
@@ -18,16 +26,27 @@ import pageStyles from '@/sections/social-rating/fictional-characters/FictionalC
 
 
 type InitiateGameProps = {
+  isHosting: boolean
+  setIsHosting: Dispatch<SetStateAction<boolean>>
 }
 
 
 
-const InitiateGame: FC<InitiateGameProps> = ({ }) => {
+const isLobby = false
+
+
+
+const InitiateGame: FC<InitiateGameProps> = ({
+  isHosting,
+  setIsHosting,
+}) => {
   // Contexts
   const {
+    gameId,
     sessionId,
     sessionPin,
     sessionQrCode,
+    setGameId,
     setSessionId, 
     setSessionPin, 
     setSessionQrCode,
@@ -42,7 +61,6 @@ const InitiateGame: FC<InitiateGameProps> = ({ }) => {
   // States
   const [ href, setHref ] = useState<string>(pagePath)
   // Booleans
-  const [ isHosting, setIsHosting ] = useState<boolean>(false)
   const [ isLoading, setIsLoading ] = useState<boolean>(false)
   
   // ------------------------------- Regular functions -------------------------
@@ -56,6 +74,7 @@ const InitiateGame: FC<InitiateGameProps> = ({ }) => {
     return crypto.randomUUID()
   }
 
+  // ------------------------------- Async functions ---------------------------
   // Generate a QR code for the session
   async function generateSessionQrCode(sessionId: string) {
     try {
@@ -66,7 +85,6 @@ const InitiateGame: FC<InitiateGameProps> = ({ }) => {
     }
   }
 
-  // ------------------------------- Async functions ---------------------------
   // Handle host commitment
   async function handleOnHostCommitment(e: any): Promise<void> {
     const sessionId = generateSessionId()
@@ -83,13 +101,74 @@ const InitiateGame: FC<InitiateGameProps> = ({ }) => {
     setHref(`${href}/${sessionId}`)
   }
   
-  
-  // Handle game initiation
-  async function handleOnGameInitiation(e: any): Promise<void> {
+
+  const handleOnGameInitiation = async (e: any): Promise<void> => {
+    e.preventDefault()
     setIsLoading(true)
 
-    // Navigate to the next page (you can use Next.js router or ProgressBarLink)
-    // For now, I'm assuming ProgressBarLink will handle the navigation
+    try {
+      const origin = window.location.origin
+      const newWindow: any = window.open(href, '_blank', /* 'noopener,noreferrer' */)
+
+      const source = 'personality-lab--social-rating-game'
+
+      const data = {
+        source,
+        gameId,
+        sessionId,
+        sessionPin,
+        sessionQrCode,
+      }
+
+      // Convert data object to a string
+      const message = JSON.stringify(data)
+
+      const sendMessage = () => {
+        if (
+          origin === 'https://localhost:3000' || 
+          origin === 'https://canpersonalitychange.com' &&
+          pathname === '/social-rating'
+        ) {
+          newWindow.postMessage(message, origin)
+        } else {
+          throw new Error(
+            `Invalid origin and pathname! Cannot send messages from this origin and pathname.`
+          )
+        }
+
+      }
+
+      const timeout = 500 // 500 milliseconds
+
+      // Use an interval to keep trying to send the message until it's received
+      const messageInterval = setInterval(() => {
+        if (newWindow.closed) {
+          clearInterval(messageInterval)
+          return
+        }
+
+        sendMessage()
+      }, timeout)
+
+      // Listen for acknowledgment
+      const receiveAck = (event: MessageEvent) => {
+        if (event.origin !== origin) {
+          return
+        }
+
+        // Clear the interval once the new window acknowledges receipt
+        if (event.data === 'acknowledged') {
+          clearInterval(messageInterval)
+          window.removeEventListener('message', receiveAck)
+        }
+      }
+
+      window.addEventListener('message', receiveAck)
+    } catch (error: any) {
+      console.error('Failed to open the new window: ', error)
+    }
+
+    setIsLoading(false)
   }
 
 
@@ -98,7 +177,7 @@ const InitiateGame: FC<InitiateGameProps> = ({ }) => {
   return (
     <>
       <div>
-        { !isHosting && (
+        { !isHosting && gameId && (
           <>
             <div style={ { textAlign: 'center', marginBottom: '24px' } }>
               { `Click "Host" to initiate the game you have selected` }
@@ -108,87 +187,37 @@ const InitiateGame: FC<InitiateGameProps> = ({ }) => {
 
         <div className={ styles.buttonContainer }>
           {/* Host commits to a game session */}
-          { isHosting ? (
+          { isHosting && gameId !== null ? (
             <>
-              <div className={ styles['host-game-session-details'] }>
-                <div style={{ ...definitelyCenteredStyle }}>
-                  <div 
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      textAlign: 'left',
-                    }}
-                  >
-                    <div style={{ margin: '0px 0px 22px 0px' }}>
-                      { `Hosting a new game session with:` }
-                    </div>
-                    <div style={ { color: 'rgb(0, 90, 194)' }}>
-                      <div style={{ display: 'grid', gap: '8px' }}>
-                        <div>
-                          { `Session ID:` }
-                        </div>
-                        <div style={{ textAlign: 'center' }}>
-                          { `${sessionId}` }
-                        </div>
-                      </div>
-                      <div style={ { display: 'grid', gap: '8px', marginTop: '8px' } }>
-                        <div>
-                          { `Session Pin:` }
-                        </div>
-                        <div style={ { textAlign: 'center' } }>
-                          { `${sessionPin}` }
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div 
-                  style={{ 
-                    ...definitelyCenteredStyle,
-                    flexDirection: 'row',
-                  }}
-                >
-                  { sessionQrCode && (
-                    <div>
-                      <Image
-                        width={ 144 }
-                        height={ 144 }
-                        style={{ borderRadius: '12px' }}
-                        src={ sessionQrCode }
-                        alt='QR Code'
-                      />
-                    </div>
-                  ) }
-                </div>
-              </div>
+              <InvitationDetails isLobby={ isLobby } />
             </>
           ) : (
             <>
-              <button
-                style={ { margin: '0px' } }
-                className={ pageStyles['generate-button'] }
-                onClick={ (e: any): Promise<void> => handleOnHostCommitment(e) }
-              >
-                { hostButtonText }
-              </button>
+              { gameId && (
+                <button
+                  style={ { margin: '0px' } }
+                  className={ pageStyles['generate-button'] }
+                  onClick={ (e: any): Promise<void> => handleOnHostCommitment(e) }
+                >
+                  { hostButtonText }
+                </button>
+              ) }
             </>
           )}
           
           {/* Host starts the game session */}
-          <ProgressBarLink href={ href }>
-            <button
-              className={ pageStyles['generate-button'] }
-              onClick={ (e: any): Promise<void> => handleOnGameInitiation(e) }
-              disabled={ isHosting ? false : true }
-              style={{
-                margin: '0px',
-                cursor: isHosting ? 'pointer' : 'not-allowed',
-                backgroundColor: isHosting ? '' : 'gray',
-              }}
-            >
-              { startButtonText }
-            </button>
-          </ProgressBarLink>
+          <button
+            disabled={ isHosting ? false : true }
+            className={ pageStyles['generate-button'] }
+            onClick={ (e: any): Promise<void> => handleOnGameInitiation(e) }
+            style={{
+              margin: '0px',
+              cursor: isHosting ? 'pointer' : 'not-allowed',
+              backgroundColor: isHosting ? '' : 'gray',
+            }}
+          >
+            { startButtonText }
+          </button>
         </div>
       </div>
     </>

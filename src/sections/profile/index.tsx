@@ -14,9 +14,8 @@ import { SessionContextType } from '@/contexts/types'
 // // Hooks
 // import useAccount from '@/hooks/useAccount'
 // CSS
-import appStyles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
-import sectionStyles from '@/sections/profile/Profile.module.css'
+import styles from '@/sections/profile/Profile.module.css'
 
 
 type ProfileProps = {
@@ -47,49 +46,43 @@ const Profile: FC<ProfileProps> = ({
           showSpinner: true,
         }}
       > */}
-        <main 
-          className={ `${appStyles.main}` }
-          style={{ 
+        <div
+          style={{
+            ...definitelyCenteredStyle,
+            flexDirection: 'column',
           }}
         >
-          <div
-            style={{
-              ...definitelyCenteredStyle,
-              flexDirection: 'column',
-            }}
-          >
-            <div>
-              <h2>
-                { `Profile` }
-              </h2>
-              { email && (
-                <>
-                  <div style={ { marginBottom: '24px' } }>
-                    <p>
-                      {/* { `Welcome, ${user.name}!` } */}
-                      { `Welcome, ${ email }!` }
-                    </p>
-                  </div>
-                </>
-              )}
-            </div>
-
+          <div>
+            <h2>
+              { `Profile` }
+            </h2>
             { email && (
               <>
-                <div
-                  className={ sectionStyles['profile-content'] }
-                  style={ {
-                    ...definitelyCenteredStyle,
-                    flexDirection: 'column',
-                  } }
-                >
-                  <HistoricalAssessments />
+                <div style={ { marginBottom: '24px' } }>
+                  <p>
+                    {/* { `Welcome, ${user.name}!` } */}
+                    { `Welcome, ${ email }!` }
+                  </p>
                 </div>
               </>
             )}
-
           </div>
-        </main>
+
+          { email && (
+            <>
+              <div
+                className={ styles['profile-content'] }
+                style={ {
+                  ...definitelyCenteredStyle,
+                  flexDirection: 'column',
+                } }
+              >
+                <HistoricalAssessments />
+              </div>
+            </>
+          )}
+
+        </div>
       {/* </NetworkRequestSuspense> */}
     </>
   )

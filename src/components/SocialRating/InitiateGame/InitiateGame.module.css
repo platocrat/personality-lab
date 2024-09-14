@@ -6,7 +6,8 @@
   gap: 18px;
 }
 
-.host-game-session-details {
+.session-invitation-details {
+  max-width: 350px;
   padding: 12px;
   background-color: #f9f9f9;
   border-radius: 8px;

@@ -1,7 +1,8 @@
 // Externals
 import { createContext, useState, ReactNode } from 'react'
 // Locals
-import { GameSessionContextType } from './types'
+import { GameSessionContextType } from '@/contexts/types'
+
 
 
 const INIT_GAME_SESSION_CONTEXT = {
@@ -20,7 +21,9 @@ export const GameSessionContext = createContext<GameSessionContextType>(
   INIT_GAME_SESSION_CONTEXT
 )
 
-export const GameSessionProvider = ({ children }: { children: ReactNode }) => {
+
+
+const GameSessionLayout = ({ children }: { children: ReactNode }) => {
   const [ gameId, setGameId ] = useState('')
   const [ sessionId, setSessionId ] = useState('')
   const [ sessionPin, setSessionPin ] = useState('')
@@ -43,3 +46,6 @@ export const GameSessionProvider = ({ children }: { children: ReactNode }) => {
     </GameSessionContext.Provider>
   )
 }
+
+
+export default GameSessionLayout
