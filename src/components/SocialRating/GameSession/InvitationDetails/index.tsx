@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 // Locals
 // Contexts
 import { GameSessionContextType } from '@/contexts/types'
-import { GameSessionContext } from '@/components/Layouts/GameSessionLayout'
+import { GameSessionContext } from '@/contexts//GameSessionContext'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/components/SocialRating/InitiateGame/InitiateGame.module.css'
@@ -28,29 +28,8 @@ const InvitationDetails: FC<InvitationDetailsProps> = ({
     sessionPin,
     sessionQrCode,
   } = useContext<GameSessionContextType>(GameSessionContext)
-  // Hooks
-  const pathname = usePathname()
   // States
   const [gameTitle, setGameTitle] = useState<string>('')
-
-
-  // ---------------------------- Memoized constants ---------------------------
-  const isGameSession = useMemo((): boolean => {
-    let pathname_ = '',
-      sessionId_ = ''
-    
-    const startIndex = '/social-rating/'.length
-    const endIndex = startIndex + 'session'.length
-    
-    pathname_ = pathname.slice(startIndex, endIndex)
-    sessionId_ = pathname.slice(endIndex + 1)
-
-    if (pathname_ === 'session' && sessionId_ === sessionId) {
-      return true
-    } else {
-      return false
-    }
-  }, [ pathname ])
 
 
   // -------------------------- `useLayoutEffect`s -----------------------------

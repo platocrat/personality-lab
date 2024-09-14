@@ -8,8 +8,9 @@ import DropdownMenu, { NavLink } from '@/components/Nav/DropdownMenu'
 // import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
 // Contexts
 import { SessionContext } from '@/contexts/SessionContext'
+import { GameSessionContext } from '@/contexts/GameSessionContext'
 // Context Types
-import { SessionContextType } from '@/contexts/types'
+import { GameSessionContextType, SessionContextType } from '@/contexts/types'
 // CSS
 import styles from '@/components/Header/Header.module.css'
 
@@ -26,7 +27,14 @@ const Header: FC<HeaderProps> = ({}) => {
   // const { user, error, isLoading } = useUser()
 
   // Contexts
-  const { setIsAuthenticated } = useContext<SessionContextType>(SessionContext)
+  const {
+    isGameSession
+  } = useContext<GameSessionContextType>(GameSessionContext)
+  const { 
+    isAuthenticated,
+    isFetchingSession,
+    setIsAuthenticated,
+  } = useContext<SessionContextType>(SessionContext)
   // Hooks
   const router = useRouter()
   const pathname = usePathname()
@@ -35,8 +43,11 @@ const Header: FC<HeaderProps> = ({}) => {
   const targetPath = '/invite/'
   // const logoutHref = '/api/auth/logout'
 
-  // Conditionals
-  const headerCondition = pathname.slice(0, targetPath.length) !== targetPath
+  // Conditionals)
+  const headerCondition = (
+    !isGameSession &&
+    pathname.slice(0, targetPath.length) !== targetPath
+  )
 
   const links: NavLink[] = [
     { label: 'Profile', href: '/profile' },

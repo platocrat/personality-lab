@@ -10,6 +10,7 @@ import {
 import { UserDemographicsContext } from '@/contexts/UserDemographicsContext'
 
 
+
 type UserDemographicsLayoutProps = {
   children: ReactNode
 }
@@ -36,9 +37,6 @@ const UserDemographicsLayout: FC<UserDemographicsLayoutProps> = ({
   const [zipCode, setZipCode] = useState<string>('')
   const [foreignCountry, setForeignCountry] = useState<string>('')
   // Enums
-  const [isParent, setIsParent] = useState<YesOrNo>(YesOrNo.No)
-  const [usState, setUSState] = useState<USState>(USState.Alabama)
-  const [priorCompletion, setPriorCompletion] = useState<YesOrNo>(YesOrNo.No)
   const [
     isFluentInEnglish,
     setIsFluentInEnglish
@@ -47,6 +45,9 @@ const UserDemographicsLayout: FC<UserDemographicsLayoutProps> = ({
     raceOrEthnicity,
     setRaceOrEthnicity
   ] = useState<RaceOrEthnicity[]>([])
+  const [isParent, setIsParent] = useState<YesOrNo>(YesOrNo.No)
+  const [usState, setUSState] = useState<USState>(USState.Alabama)
+  const [priorCompletion, setPriorCompletion] = useState<YesOrNo>(YesOrNo.No)
   // Generics
   const [
     highestFormalEducation,
@@ -66,7 +67,7 @@ const UserDemographicsLayout: FC<UserDemographicsLayoutProps> = ({
   ] = useState<SocialClass>(SocialClass.LowerMiddleClass)
   const [gender, setGender] = useState<string | number>('')
   const [religion, setReligion] = useState<string | number>('')
-
+  
 
   
 

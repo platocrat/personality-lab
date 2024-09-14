@@ -17,7 +17,7 @@ import ProgressBarLink from '@/components/Progress/ProgressBarLink'
 import InvitationDetails from '@/components/SocialRating/GameSession/InvitationDetails'
 // Contexts
 import { GameSessionContextType } from '@/contexts/types'
-import { GameSessionContext } from '@/components/Layouts/GameSessionLayout'
+import { GameSessionContext } from '@/contexts/GameSessionContext'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/components/SocialRating/InitiateGame/InitiateGame.module.css'

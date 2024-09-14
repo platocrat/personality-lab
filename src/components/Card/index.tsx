@@ -70,7 +70,7 @@ const Card: FC<CardProps> = ({
         <div
           style={ {
             ...definitelyCenteredStyle,
-            margin: cssStyle.formMargin ? '' : '18px 0px 0px 0px',
+            margin: cssStyle?.formMargin ? '' : '18px 0px 0px 0px',
           } }
         >
           <div 

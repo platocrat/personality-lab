@@ -1,33 +1,52 @@
 // Externals
-import { createContext, useState, ReactNode } from 'react'
+import { usePathname } from 'next/navigation'
+import { createContext, useState, ReactNode, useLayoutEffect, FC } from 'react'
 // Locals
+// Contexts
+import { GameSessionContext } from '@/contexts/GameSessionContext'
+// Context Types
 import { GameSessionContextType } from '@/contexts/types'
 
 
 
-const INIT_GAME_SESSION_CONTEXT = {
-  gameId: null,
-  sessionId: null,
-  sessionPin: null,
-  sessionQrCode: null,
-  setGameId: null,
-  setSessionId: null,
-  setSessionPin: null,
-  setSessionQrCode: null,
+type GameSessionLayoutProps = {
+  children: ReactNode
 }
 
 
-export const GameSessionContext = createContext<GameSessionContextType>(
-  INIT_GAME_SESSION_CONTEXT
-)
+
+const GameSessionLayout: FC<GameSessionLayoutProps> = ({
+  children,
+}) => {
+  // Hooks
+  const pathname = usePathname()
+  // States
+  const [ gameId, setGameId ] = useState<string>('')
+  const [ sessionId, setSessionId ] = useState<string>('')
+  const [ sessionPin, setSessionPin ] = useState<string>('')
+  const [ sessionQrCode, setSessionQrCode ] = useState<string>('')
+  const [ isGameSession, setIsGameSession ] = useState<boolean>(false)
+
+
+  useLayoutEffect(() => {
+    let pathname_ = '',
+      sessionId_ = ''
+
+    const startIndex = '/social-rating/'.length
+    const endIndex = startIndex + 'session'.length
+
+    pathname_ = pathname.slice(startIndex, endIndex)
+    sessionId_ = pathname.slice(endIndex + 1)
+
+    if (pathname_ === 'session' && sessionId_ === sessionId) {
+      setIsGameSession(true)
+    } else {
+      setIsGameSession(false)
+    }
+  }, [ pathname, sessionId ])
 
 
 
-const GameSessionLayout = ({ children }: { children: ReactNode }) => {
-  const [ gameId, setGameId ] = useState('')
-  const [ sessionId, setSessionId ] = useState('')
-  const [ sessionPin, setSessionPin ] = useState('')
-  const [ sessionQrCode, setSessionQrCode ] = useState('')
 
   return (
     <GameSessionContext.Provider 
@@ -36,10 +55,12 @@ const GameSessionLayout = ({ children }: { children: ReactNode }) => {
         sessionId, 
         sessionPin, 
         sessionQrCode,
+        isGameSession,
         setGameId,
         setSessionId, 
         setSessionPin, 
-        setSessionQrCode 
+        setSessionQrCode,
+        setIsGameSession,
       } }
     >
       { children }

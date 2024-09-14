@@ -5,17 +5,26 @@ import {
   StudyAsAdmin,
   STUDY__DYNAMODB,
   BessiSkillScoresType, 
-  STUDY_SIMPLE__DYNAMODB,
   PARTICIPANT__DYNAMODB,
+  STUDY_SIMPLE__DYNAMODB,
+  USState,
+  YesOrNo,
+  SocialClass,
+  RaceOrEthnicity,
+  CurrentMaritalStatus,
+  HighestFormalEducation,
+  CurrentEmploymentStatus,
 } from '@/utils'
 
 
 
 
 export type BessiSkillScoresContextType = {
-  bessiSkillScores: BessiSkillScoresType | null,
-  setBessiSkillScores: Dispatch<SetStateAction<BessiSkillScoresType | null>>
+  bessiSkillScores: BessiSkillScoresType,
+  setBessiSkillScores: Dispatch<SetStateAction<BessiSkillScoresType>>
 }
+
+
 
 export type StudiesTableContextType = {
   buttonHandlers: {
@@ -27,29 +36,34 @@ export type StudiesTableContextType = {
       ownerEmail: string,
       createdAtTimestamp: number
     ) => void
-  } | null
+  }
 }
+
 
 
 export type EditStudyModalContextType = {
-  showEditStudyModal: string | null
-  setShowEditStudyModal: Dispatch<SetStateAction<string | null>> | null
-  handleOpenEditStudyModal: ((e: any, study: STUDY__DYNAMODB) => void) | null
+  showEditStudyModal: string
+  setShowEditStudyModal: Dispatch<SetStateAction<string>>
+  handleOpenEditStudyModal: ((e: any, study: STUDY__DYNAMODB) => void)
 }
+
 
 
 export type GameSessionContextType = {
   // Set when the game host selects a game
-  gameId: string | null
-  sessionId: string | null
-  sessionPin: string | null
-  sessionQrCode: string | null
+  gameId: string
+  sessionId: string
+  sessionPin: string
+  sessionQrCode: string
+  isGameSession: boolean
   // Set when the game host selects a game
-  setGameId: ((id: string) => void) | null
-  setSessionId: ((id: string) => void) | null
-  setSessionPin: ((pin: string) => void) | null
-  setSessionQrCode: ((qrCode: string) => void) | null
+  setGameId: Dispatch<SetStateAction<string>>
+  setSessionId: Dispatch<SetStateAction<string>>
+  setSessionPin: Dispatch<SetStateAction<string>>
+  setSessionQrCode: Dispatch<SetStateAction<string>>
+  setIsGameSession: Dispatch<SetStateAction<boolean>>
 }
+
 
 
 export type SessionContextType = {
@@ -59,13 +73,54 @@ export type SessionContextType = {
   isGlobalAdmin: boolean
   isParticipant: boolean
   isAuthenticated: boolean
+  isFetchingSession: boolean
   studiesAsAdmin?: StudyAsAdmin[]
   userStudies?: STUDY_SIMPLE__DYNAMODB[] // `undefined` for a non-participant
   participant?: PARTICIPANT__DYNAMODB | undefined
   setEmail: Dispatch<SetStateAction<string>>
   // setUsername: Dispatch<SetStateAction<string>>
-  setIsGlobalAdmin: Dispatch<SetStateAction<string>>
+  setIsGlobalAdmin: Dispatch<SetStateAction<boolean>>
   setIsParticipant: Dispatch<SetStateAction<boolean>>
   setIsAuthenticated: Dispatch<SetStateAction<boolean>>
-  setUserStudies: Dispatch<SetStateAction<STUDY_SIMPLE__DYNAMODB>>
+  setUserStudies: Dispatch<SetStateAction<STUDY_SIMPLE__DYNAMODB[] | undefined>>
+}
+
+
+
+export type UserDemographicsContextType = {
+  age: number
+  gender: string | number
+  usState: USState
+  zipCode: string
+  religion: string | number
+  isParent: YesOrNo
+  familySize: number
+  socialClass: SocialClass
+  foreignCountry: string
+  raceOrEthnicity: RaceOrEthnicity[]
+  priorCompletion: YesOrNo
+  isFluentInEnglish: YesOrNo
+  currentMaritalStatus: string | number
+  areaOfScienceTraining: string
+  annualHouseholdIncome: number
+  highestFormalEducation: string | number
+  currentEmploymentStatus: string | number
+  // Form input handlers
+  onAgeChange: (e: any) => void
+  onGenderChange: (e: any) => void
+  onZipCodeChange: (e: any) => void
+  onReligionChange: (e: any) => void
+  onIsParentChange: (e: any) => void
+  onUsLocationChange: (e: any) => void
+  onFamilySizeChange: (e: any) => void
+  onSocialClassChange: (e: any) => void
+  onEnglishFluencyChange: (e: any) => void
+  onRaceOrEthnicityChange: (e: any) => void
+  onPriorCompletionChange: (e: any) => void
+  onForeignLocationChange: (e: any) => void
+  onCurrentMaritalStatusChange: (e: any) => void
+  onAreaOfScienceTrainingChange: (e: any) => void
+  onHighestEducationLevelChange: (e: any) => void
+  onAnnualHouseholdIncomeChange: (e: any) => void
+  onCurrentEmploymentStatusChange: (e: any) => void
 }

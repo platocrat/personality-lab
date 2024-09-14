@@ -104,9 +104,7 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
   }
 
   function closeModal(e: any) {
-    return setShowEditStudyModal
-      ? setShowEditStudyModal(null)
-      : null
+    setShowEditStudyModal('')
   }
 
 
@@ -142,7 +140,7 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
 
     await updateItemInDynamoDB(updatedStudy)
     setIsUpdatingStudy(false)
-    setShowEditStudyModal !== null ? setShowEditStudyModal(null) : null
+    setShowEditStudyModal('')
     setShowNotification(true)
   }
 
@@ -166,7 +164,7 @@ const EditStudyModal: FC<EditStudyModalProps> = ({
         const message = json.message
         
         setIsUpdatingStudy(false)
-        setShowEditStudyModal !== null ? setShowEditStudyModal(null) : null
+        setShowEditStudyModal('')
         setShowNotification(true)
 
         return message

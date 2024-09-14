@@ -10,7 +10,7 @@ import InitiateGame from '@/components/SocialRating/InitiateGame'
 import Bessi from './bessi'
 import FictionalCharacters from './fictional-characters'
 // Contexts
-import { GameSessionContext } from '@/components/Layouts/GameSessionLayout'
+import { GameSessionContext } from '@/contexts/GameSessionContext'
 // Context Types
 import { GameSessionContextType } from '@/contexts/types'
 // CSS

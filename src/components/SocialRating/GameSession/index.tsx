@@ -7,7 +7,7 @@ import SelfReport from '@/components/SocialRating/GameSession/SelfReport'
 import ObserverReport from '@/components/SocialRating/GameSession/ObserverReport'
 import InvitationDetails from '@/components/SocialRating/GameSession/InvitationDetails'
 // Contexts
-import { GameSessionContext } from '@/components/Layouts/GameSessionLayout'
+import { GameSessionContext } from '@/contexts/GameSessionContext'
 // Context Types
 import { GameSessionContextType } from '@/contexts/types'
 // CSS

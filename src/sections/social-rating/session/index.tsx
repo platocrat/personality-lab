@@ -5,7 +5,7 @@ import { FC, useContext, useLayoutEffect, useMemo, useState } from 'react'
 // Locals
 import GameSession from '@/components/SocialRating/GameSession'
 // Contexts
-import { GameSessionContext } from '@/components/Layouts/GameSessionLayout'
+import { GameSessionContext } from '@/contexts/GameSessionContext'
 // Context Types
 import { GameSessionContextType } from '@/contexts/types'
 // CSS
