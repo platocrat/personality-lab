@@ -1,7 +1,7 @@
 'use client'
 
 // Externals
-import { FC, Fragment, useContext, useMemo, useState } from 'react'
+import { CSSProperties, FC, Fragment, useCallback, useContext, useMemo, useState } from 'react'
 // Locals
 // Components
 import Card from '@/components/Card'
@@ -75,13 +75,15 @@ const SocialRating: FC<SocialRatingProps> = ({
   const [ isHosting, setIsHosting ] = useState<boolean>(false)
 
 
-  const selectedGameCss = (i: number) => useMemo(() => {
+  const selectedGameCss = (
+    i: number
+  ): () => CSSProperties | null => useCallback((): CSSProperties | null => {
     if (selectedGame === i) {
       return {
         boxShadow: '0px 0px 7px inset green',
         borderRadius: '1rem',
         transition: '0.15s ease-in-out'
-      }
+      } as CSSProperties
     } else {
       return null
     }
