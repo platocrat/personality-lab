@@ -8,6 +8,7 @@ import {
   Dispatch,
   useContext,
   SetStateAction,
+  useLayoutEffect,
 } from 'react'
 import QRCode from 'qrcode'
 import { usePathname } from 'next/navigation'
@@ -59,12 +60,11 @@ const InitiateGame: FC<InitiateGameProps> = ({
   // Hooks
   const pathname = usePathname()
   // States
+  const [ origin, setOrigin ] = useState<string>('')
   const [ isCreatingGame, setIsCreatingGame ] = useState<boolean>(false)
 
   const hostButtonText = `Host`
   const startButtonText = `Start`
-  // const origin = window !== undefined ? window.location.origin : ''
-  const origin = 'https://localhost:3000/'
 
   const pagePath = `${origin}${pathname}/session`
 
@@ -256,6 +256,16 @@ const InitiateGame: FC<InitiateGameProps> = ({
       Promise.all(requests).then(() => {})
     }
   }, [ gameId ])
+
+
+  // ------------------------- `useLayoutEffect`s ------------------------------
+  useLayoutEffect(() => {
+    if (window !== undefined) {
+      const origin_ = window.location.origin
+      setOrigin(origin_)
+    }
+  }, [ email ])
+
 
   
 
