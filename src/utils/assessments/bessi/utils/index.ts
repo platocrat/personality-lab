@@ -1,5 +1,7 @@
 // Locals
-import { DUMMY_BESSI_USER_SCORES } from '@/components/DataViz/BarChart/PerDomain/dummy-data'
+import { 
+  generateDummyBessiUserScores,
+} from '@/components/DataViz/BarChart/PerDomain/dummy-data'
 // Constants
 import { getRandomValueInRange } from '@/utils/misc'
 // Enums
@@ -323,7 +325,7 @@ export function getDummyPopulationBessiScores(
   let keys: string[] = []
 
   const dummyBessiUserScores = calculateBessiScores[192](
-    DUMMY_BESSI_USER_SCORES as UserScoresType[]
+    generateDummyBessiUserScores()
   )
 
   if (domainOrFacet === 'domain') {

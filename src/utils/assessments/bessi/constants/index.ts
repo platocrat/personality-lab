@@ -1,14 +1,10 @@
-// Dummy data
-import { DUMMY_BESSI_USER_SCORES } from '@/components/DataViz/BarChart/PerDomain/dummy-data'
 // Utility functions
-import { getRandomValueInRange } from '@/utils/misc'
 import {
   getFacet,
-  calculateBessiScores,
-  getSkillDomainAndWeight,
+  getSkillDomainAndWeight
 } from '../utils'
 // Types
-import { BessiActivityType, UserScoresType } from '../types'
+import { BessiActivityType } from '../types'
 // Enums
 import { Facet, SkillDomain } from '../enums'
 

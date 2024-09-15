@@ -39,8 +39,7 @@ import ResultsVisualizationModal from '@/components/Modals/BESSI/ResultsVisualiz
 import SingleNormalDistributionChart from '@/components/DataViz/Distributions/Normal/Single'
 // Dummy data
 import {
-  DUMMY_BESSI_USER_SCORES,
-  generateDummyBessiUserScores,
+  generateDummyBessiUserScores
 } from '@/components/DataViz/BarChart/PerDomain/dummy-data'
 // Hooks
 import useClickOutside from '@/hooks/useClickOutside'
@@ -224,7 +223,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
           //       facetScores: bessiSkillScores?.facetScores,
           //       domainScores: bessiSkillScores?.domainScores,
           //     }
-          //     : calculateBessiScores[192](DUMMY_BESSI_USER_SCORES as UserScoresType[])
+          //     : calculateBessiScores[192](generateDummyBessiUserScores())
 
           if (facetScores) {
             return {
@@ -238,13 +237,11 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
                 domainScores: bessiSkillScores?.domainScores,
               }
             } else {
-              return calculateBessiScores[192](
-                DUMMY_BESSI_USER_SCORES as UserScoresType[]
-              )
+              return calculateBessiScores[192](generateDummyBessiUserScores())
             }
           }
         default:
-          return calculateBessiScores[192](DUMMY_BESSI_USER_SCORES as UserScoresType[])
+          return calculateBessiScores[192](generateDummyBessiUserScores())
       }
     } else {
       switch (i) {
@@ -277,7 +274,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
               ? inputData
               : bessiSkillScores?.domainScores
                 ? inputData
-                : calculateBessiScores[192](DUMMY_BESSI_USER_SCORES as UserScoresType[])
+                : calculateBessiScores[192](generateDummyBessiUserScores())
           )
         case 3:
         case 4:
@@ -293,7 +290,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
           //       facetScores: bessiSkillScores?.facetScores,
           //       domainScores: bessiSkillScores?.domainScores,
           //     }
-          //     : calculateBessiScores[192](DUMMY_BESSI_USER_SCORES as UserScoresType[])
+          //     : calculateBessiScores[192](generateDummyBessiUserScores())
 
           if (facetScores) {
             return {
@@ -307,14 +304,12 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
                 domainScores: bessiSkillScores?.domainScores,
               }
             } else {
-              return calculateBessiScores[192](
-                DUMMY_BESSI_USER_SCORES as UserScoresType[]
-              )
+              return calculateBessiScores[192](generateDummyBessiUserScores())
             }
           }
 
         default:
-          return calculateBessiScores[192](DUMMY_BESSI_USER_SCORES as UserScoresType[])
+          return calculateBessiScores[192](generateDummyBessiUserScores())
       }
     }
   }
