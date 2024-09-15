@@ -58,7 +58,7 @@ export type BessiUserDemographics__DynamoDB = {
   englishFluency: YesOrNo
   priorCompletion: YesOrNo
   socialClass: SocialClass
-  raceOrEthnicity: RaceOrEthnicity[]
+  raceOrEthnicity: RaceOrEthnicity | RaceOrEthnicity[]
   currentMaritalStatus: CurrentMaritalStatus | string | number
   highestFormalEducation: HighestFormalEducation | string | number
   currentEmploymentStatus: CurrentEmploymentStatus | string | number
