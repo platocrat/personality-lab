@@ -50,7 +50,7 @@ export type BessiActivityType = {
 
 export type BessiUserDemographics__DynamoDB = {
   age: number
-  gender: Gender | string | number
+  gender: Gender
   usState: USState
   zipCode: string
   isParent: YesOrNo
@@ -58,7 +58,7 @@ export type BessiUserDemographics__DynamoDB = {
   englishFluency: YesOrNo
   priorCompletion: YesOrNo
   socialClass: SocialClass
-  raceOrEthnicity: RaceOrEthnicity | RaceOrEthnicity[]
+  raceOrEthnicity: RaceOrEthnicity
   currentMaritalStatus: CurrentMaritalStatus | string | number
   highestFormalEducation: HighestFormalEducation | string | number
   currentEmploymentStatus: CurrentEmploymentStatus | string | number
