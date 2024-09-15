@@ -234,6 +234,20 @@ const StellarPlot: FC<StellarPlotProps> = ({
       line
         .datum(d as any)
         .on('mouseover', function (event, d) {
+          /**
+           * @todo 1. Make sure that the height and width of the tooltip's 
+           *       parent-most `div` of the tooltip is the same for every 
+           *       domain.
+           *       2. Make sure that the tooltip is activated `onClick` and not
+           *       `onHover`. This will ensure that the content within the 
+           *       tooltip that is displayed is also interactive, allowing the
+           *       user to click on a facet's bar to view more of its details,
+           *       while still inside of the tooltip.
+           *       3. Part 2) should function like a tooltip inside of a 
+           *       tooltip, until I come up with better ideas for how to 
+           *       present the facet-details all within the same small data viz
+           *       area.
+           */
           setTooltipData(d.barChartData)
 
           const containerRect = d3Container.current.getBoundingClientRect()
