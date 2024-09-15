@@ -63,10 +63,8 @@ const InitiateGame: FC<InitiateGameProps> = ({
 
   const hostButtonText = `Host`
   const startButtonText = `Start`
-  
-  let origin = ''
-
-  if (window !== undefined) origin = window.location.origin
+  // const origin = window !== undefined ? window.location.origin : ''
+  const origin = 'https://localhost:3000/'
 
   const pagePath = `${origin}${pathname}/session`
 
