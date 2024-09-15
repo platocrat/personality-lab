@@ -1,7 +1,7 @@
 // Externals
 import Image from 'next/image'
-import { FC, useContext, useLayoutEffect, useMemo, useState } from 'react'
 import { usePathname } from 'next/navigation'
+import { FC, useContext, useLayoutEffect, useMemo, useState } from 'react'
 // Locals
 // Contexts
 import { GameSessionContextType } from '@/contexts/types'
@@ -59,80 +59,38 @@ const InvitationDetails: FC<InvitationDetailsProps> = ({
   return (
     <>
       <div className={ styles['session-invitation-details'] }>
-        <div style={ { ...definitelyCenteredStyle } }>
-          <div
-            style={ {
-              display: 'flex',
-              textAlign: 'left',
-              flexDirection: 'column',
-            } }
-          >
+        <div className={ styles['content-container'] }>
+          <div className={ styles.container }>
             { !isLobby && (
               <>
-                <div
-                  style={ {
-                    fontWeight: '500',
-                    margin: '0px 0px 24px 0px',
-                  } }
-                >
+                <div className={ styles.label }>
                   { `Hosting a new game session for:` }
                 </div>
-                <div style={ { display: 'grid', margin: '0px 0px 24px 0px' } }>
-                  <div style={ { textAlign: 'center', fontWeight: '700' } }>
-                    { `${gameTitle}` }
-                  </div>
-                </div>
+                <div className={ styles['first-value'] }>{ gameTitle }</div>
               </>
-            )}
+            ) }
 
-            <div
-              style={ {
-                gap: '8px',
-                display: 'grid',
-                color: 'rgb(0, 90, 194)',
-              } }
-            >
-              <div style={ { display: 'grid', gap: '8px' } }>
-                <div>{ `Session ID:` }</div>
-                <div style={ { textAlign: 'center', fontWeight: '700' } }>
-                  { `${sessionId}` }
-                </div>
+            <div className={ styles.section }>
+              <div>
+                <div className={ styles.label }>{ `Session ID:` }</div>
+                <div className={ styles.value }>{ sessionId }</div>
               </div>
-              <div
-                style={ {
-                  gap: '8px',
-                  display: 'grid',
-                  marginTop: '8px',
-                } }
-              >
-                <div>{ `Session PIN:` }</div>
-                <div
-                  style={ {
-                    fontWeight: '700',
-                    textAlign: 'center',
-                    marginBottom: '20px',
-                  } }
-                >
-                  { `${sessionPin}` }
-                </div>
+              <div>
+                <div className={ styles.label }>{ `Session PIN:` }</div>
+                <div className={ styles.value }>{ sessionPin }</div>
               </div>
             </div>
           </div>
         </div>
-        <div
-          style={ {
-            ...definitelyCenteredStyle,
-            flexDirection: 'row',
-          } }
-        >
+        <div className={ styles['qr-code-container'] }>
           { sessionQrCode && (
             <div>
               <Image
                 width={ 144 }
                 height={ 144 }
-                style={ { borderRadius: '12px' } }
-                src={ sessionQrCode }
                 alt='QR Code'
+                src={ sessionQrCode }
+                className={ styles['qr-code'] }
               />
             </div>
           ) }

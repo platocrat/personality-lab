@@ -50,11 +50,11 @@ const gameCards = [
     description: <Bessi />,
     cssStyle,
   },
-  {
-    gameId: 'fictional-characters',
-    description: <FictionalCharacters />,
-    cssStyle
-  },
+  // {
+  //   gameId: 'fictional-characters',
+  //   description: <FictionalCharacters />,
+  //   cssStyle
+  // },
 ]
 
 
@@ -114,9 +114,6 @@ const SocialRating: FC<SocialRatingProps> = ({
           </div>
           {/* Description */ }
           <div className={ styles['heading-description'] }>
-            <p>
-              { `Welcome to the social rating games page!` }
-            </p>
             { !isHosting && (
               <p>
                 {

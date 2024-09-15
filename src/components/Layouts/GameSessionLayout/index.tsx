@@ -22,6 +22,8 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
   const pathname = usePathname()
   // States
   const [ gameId, setGameId ] = useState<string>('')
+  const [ isHost, setIsHost ] = useState<boolean>(false)
+  const [ players, setPlayers ] = useState<string[]>([''])
   const [ sessionId, setSessionId ] = useState<string>('')
   const [ sessionPin, setSessionPin ] = useState<string>('')
   const [ sessionQrCode, setSessionQrCode ] = useState<string>('')
@@ -52,11 +54,15 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
     <GameSessionContext.Provider 
       value={ { 
         gameId,
+        isHost,
+        players,
         sessionId, 
         sessionPin, 
         sessionQrCode,
         isGameSession,
+        setIsHost,
         setGameId,
+        setPlayers,
         setSessionId, 
         setSessionPin, 
         setSessionQrCode,

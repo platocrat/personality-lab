@@ -1,7 +1,7 @@
 'use client'
 
 // Externals
-import { FC, useContext, useLayoutEffect, useMemo, useState } from 'react'
+import { FC, useContext, useLayoutEffect, useState } from 'react'
 // Locals
 import GameSession from '@/components/SocialRating/GameSession'
 // Contexts
@@ -13,21 +13,23 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
-type SocialRatingSessionSectionProps = {
+type SocialRatingSessionProps = {
 }
 
 
 
-const SocialRatingSessionSection: FC<SocialRatingSessionSectionProps> = ({
+const SocialRatingSession: FC<SocialRatingSessionProps> = ({
 }) => {
   // Contexts
   const {
-    gameId
+    gameId,
   } = useContext<GameSessionContextType>(GameSessionContext)
   // States
   const [ gameTitle, setGameTitle ] = useState<string>('')
 
 
+  // ----------------------------`useLayoutEffect`s ----------------------------
+  // Sets the game title
   useLayoutEffect(() => {
     if (gameId) {
       let _
@@ -50,17 +52,26 @@ const SocialRatingSessionSection: FC<SocialRatingSessionSectionProps> = ({
 
 
 
+
   return (
     <>
       <div>
-        <div style={{ ...definitelyCenteredStyle, marginBottom: '12px' }}>
-          <h2>{ gameTitle }</h2>
+        <div 
+          style={{ 
+            ...definitelyCenteredStyle, 
+            marginBottom: '12px',
+            textAlign: 'center',
+          }}
+        >
+          <h1>{ gameTitle }</h1>
         </div>
 
         <GameSession isLobby={ true }>
           {/* Game content */}
-          <div>
-
+          <div style={{ margin: '48px' }}>
+            <h2 style={{ ...definitelyCenteredStyle }}>
+              { `Waiting for other players...` }
+            </h2>
           </div>
         </GameSession>
       </div>
@@ -69,4 +80,4 @@ const SocialRatingSessionSection: FC<SocialRatingSessionSectionProps> = ({
 }
 
 
-export default SocialRatingSessionSection
+export default SocialRatingSession

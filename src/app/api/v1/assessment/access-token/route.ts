@@ -79,7 +79,7 @@ export async function PUT(
         const response = await ddbDocClient.send(command)
 
         const message = `Access token has been added to ${
-          DYNAMODB_TABLE_NAMES.userResultsAccessTokens
+          TableName
         } table`
 
 

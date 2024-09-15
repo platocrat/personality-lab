@@ -1,3 +1,4 @@
+import { GameSessionContextType } from '@/contexts/types'
 import { 
   FacetFactorType, 
   SkillDomainFactorType, 
@@ -120,6 +121,18 @@ export type RATINGS__DYNAMODB = {
   study?: STUDY_SIMPLE__DYNAMODB // undefined for a non-study
   rating: number
   vizName: string
+}
+
+
+export type SOCIAL_RATING_GAME__DYNAMODB = {
+  sessionId: string // Partition/Primary Key
+  timestamp: number //  Sort Key
+  hostEmail: string // Global Secondary Index
+  gameId: string
+  players: string[]
+  isActive: boolean
+  sessionPin: string
+  sessionQrCode: string
 }
 
 

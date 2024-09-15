@@ -50,14 +50,18 @@ export type EditStudyModalContextType = {
 
 
 export type GameSessionContextType = {
-  // Set when the game host selects a game
-  gameId: string
+  gameId: string // Set when the game host selects a game
+  isHost: boolean
+  hostEmail: string
+  players: string[]
   sessionId: string
   sessionPin: string
   sessionQrCode: string
   isGameSession: boolean
-  // Set when the game host selects a game
-  setGameId: Dispatch<SetStateAction<string>>
+  setGameId: Dispatch<SetStateAction<string>> // Set when the game host selects a game
+  setIsHost: Dispatch<SetStateAction<boolean>>
+  setHostEmail: Dispatch<SetStateAction<string>>
+  setPlayers: Dispatch<SetStateAction<string[]>>
   setSessionId: Dispatch<SetStateAction<string>>
   setSessionPin: Dispatch<SetStateAction<string>>
   setSessionQrCode: Dispatch<SetStateAction<string>>

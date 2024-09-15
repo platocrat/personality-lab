@@ -48,7 +48,7 @@ export async function GET(
         const message = `No ID found in ${TableName} table`
 
         return NextResponse.json(
-          { message: message },
+          { message },
           {
             status: 404,
             headers: {
