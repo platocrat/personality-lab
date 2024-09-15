@@ -69,7 +69,7 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
   const [
     showEditStudyModal,
     setShowEditStudyModal
-  ] = useState<string | null>(null)
+  ] = useState<string>('')
   const [ 
     studyToEdit, 
     setStudyToEdit 
@@ -106,11 +106,15 @@ const ListOfStudies: FC<ListOfStudiesProps> = ({
 
 
   // --------------------------------- Hooks -----------------------------------
+  /**
+   * @dev This call of `useClickOutside` does nothing.
+   *      So, this needs to be fixed!
+   */
   useClickOutside(
     editStudyModalRef,
     () => {
       console.log(`Clicked outside of EditStudyModal!`)
-      return setShowEditStudyModal(null)
+      return setShowEditStudyModal('')
     }
   ) 
 
