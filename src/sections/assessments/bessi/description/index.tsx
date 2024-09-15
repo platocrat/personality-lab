@@ -2,6 +2,7 @@
 import EntranceNote from '@/components/Notes/Entrance'
 // CSS
 import styles from '@/app/page.module.css'
+import BessiResultsVisualization from '../assessment/results/bessi-results-visualization'
 
 
 
@@ -38,6 +39,7 @@ const BessiDescription = ({ }) => {
   return (
     <>
       <Description />
+      <BessiResultsVisualization isExample={ true } />
       <EntranceNote />
     </>
   )

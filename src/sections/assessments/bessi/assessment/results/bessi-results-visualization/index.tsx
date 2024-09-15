@@ -213,41 +213,49 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
       switch (i) {
         case 0:
         case 1:
-          return facetScores
-            ? {
-              facetScores: facetScores as FacetFactorType,
-              domainScores: domainScores as SkillDomainFactorType,
-            }
-            : bessiSkillScores?.domainScores
-              ? {
-                facetScores: bessiSkillScores?.facetScores,
-                domainScores: bessiSkillScores?.domainScores,
-              }
-              : calculateBessiScores[192](DUMMY_BESSI_USER_SCORES as UserScoresType[])
         case 2:
-          return facetScores 
-            ? {
+          // return facetScores
+          //   ? {
+          //     facetScores: facetScores as FacetFactorType,
+          //     domainScores: domainScores as SkillDomainFactorType,
+          //   }
+          //   : bessiSkillScores?.domainScores
+          //     ? {
+          //       facetScores: bessiSkillScores?.facetScores,
+          //       domainScores: bessiSkillScores?.domainScores,
+          //     }
+          //     : calculateBessiScores[192](DUMMY_BESSI_USER_SCORES as UserScoresType[])
+
+          if (facetScores) {
+            return {
               facetScores: facetScores as FacetFactorType,
               domainScores: domainScores as SkillDomainFactorType,
             }
-            : bessiSkillScores?.domainScores
-              ? {
+          } else {
+            if (bessiSkillScores?.domainScores) {
+              return {
                 facetScores: bessiSkillScores?.facetScores,
                 domainScores: bessiSkillScores?.domainScores,
               }
-              : calculateBessiScores[192](DUMMY_BESSI_USER_SCORES as UserScoresType[])
+            } else {
+              return calculateBessiScores[192](
+                DUMMY_BESSI_USER_SCORES as UserScoresType[]
+              )
+            }
+          }
         default:
           return calculateBessiScores[192](DUMMY_BESSI_USER_SCORES as UserScoresType[])
       }
     } else {
       switch (i) {
         case 0:
+
           return Object.entries(
             domainScores 
               ? domainScores as SkillDomainFactorType
               : bessiSkillScores?.domainScores as SkillDomainFactorType
             ?? calculateBessiScores[192](
-              DUMMY_BESSI_USER_SCORES as UserScoresType[]
+              generateDummyBessiUserScores()
             ).domainScores
           ).map(([key, value]) => ({
             axis: key,
@@ -275,17 +283,36 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         case 4:
         case 5:
         case 6:
-          return domainScores
-            ? {
+          // return facetScores
+          //   ? {
+          //     facetScores: facetScores as FacetFactorType,
+          //     domainScores: domainScores as SkillDomainFactorType,
+          //   }
+          //   : bessiSkillScores?.domainScores
+          //     ? {
+          //       facetScores: bessiSkillScores?.facetScores,
+          //       domainScores: bessiSkillScores?.domainScores,
+          //     }
+          //     : calculateBessiScores[192](DUMMY_BESSI_USER_SCORES as UserScoresType[])
+
+          if (facetScores) {
+            return {
               facetScores: facetScores as FacetFactorType,
               domainScores: domainScores as SkillDomainFactorType,
             }
-            : bessiSkillScores?.domainScores
-              ? {
+          } else {
+            if (bessiSkillScores?.domainScores) {
+              return {
                 facetScores: bessiSkillScores?.facetScores,
                 domainScores: bessiSkillScores?.domainScores,
               }
-              : calculateBessiScores[192](DUMMY_BESSI_USER_SCORES as UserScoresType[])
+            } else {
+              return calculateBessiScores[192](
+                DUMMY_BESSI_USER_SCORES as UserScoresType[]
+              )
+            }
+          }
+
         default:
           return calculateBessiScores[192](DUMMY_BESSI_USER_SCORES as UserScoresType[])
       }
