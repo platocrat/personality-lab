@@ -39,7 +39,6 @@ const BessiDescription = ({ }) => {
   return (
     <>
       <Description />
-      <BessiResultsVisualization isExample={ true } />
       <EntranceNote />
     </>
   )

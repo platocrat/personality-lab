@@ -1,0 +1,18 @@
+.tooltip {
+  position: absolute;
+  pointer-events: none;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid #d3d3d3;
+  border-radius: 8px;
+  padding: 10px 0px;
+  z-index: 100;
+  /* Set fixed width */
+  /* width: 340px;  */
+   /* Set fixed height */
+  /* height: 275px; */
+  width: auto;
+  height: auto;
+  max-width: 400px; /* Set a maximum width */
+  overflow: hidden; /* Hide overflow if content exceeds fixed size */
+  /* opacity: 0; */
+}

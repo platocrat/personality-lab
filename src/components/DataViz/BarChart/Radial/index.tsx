@@ -3,8 +3,6 @@ import * as d3 from 'd3'
 import React, { FC, useEffect, useRef } from 'react'
 // Locals
 import Title from '@/components/DataViz/Title'
-// Hooks
-import useWindowWidth from '@/hooks/useWindowWidth'
 // Utils
 import { BarChartTargetDataType, getRangeLabel } from '@/utils'
 // CSS
@@ -27,8 +25,6 @@ const RadialBarChart: FC<RadialBarChartProps> = ({
 }) => {
   // Refs
   const d3Container = useRef<any>(null)
-  // Hooks
-  const windowWidth = useWindowWidth()
 
 
   useEffect(() => {

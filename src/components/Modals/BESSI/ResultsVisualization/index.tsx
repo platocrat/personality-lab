@@ -22,16 +22,16 @@ type ResultsVisualizationModalProps = {
     setIsCopied: Dispatch<SetStateAction<boolean>>
     isModalVisible: boolean
   }
-  viz: {
-    visualizations: any[]
-    currentVisualization: number
-  }
+  // viz: {
+  //   visualizations: any[]
+  //   currentVisualization: number
+  // }
 }
 
 
 
 const ResultsVisualizationModal: FC<ResultsVisualizationModalProps> = ({
-  viz,
+  // viz,
   refs,
   state,
   screenshotUrl,
@@ -41,10 +41,11 @@ const ResultsVisualizationModal: FC<ResultsVisualizationModalProps> = ({
 
   const handleShareScreenshot = () => {
     const timeout = 2_000 // 2 seconds
-    const viz_ = viz.visualizations[viz.currentVisualization]
+    // const viz_ = viz.visualizations[viz.currentVisualization]
 
     // Ask the user if they want to download the screenshot
-    const alertMessage = `Download PNG of the ${viz_.name}?`
+    // const alertMessage = `Download PNG of the ${viz_.name}?`
+    const alertMessage = `Download PNG of the Stellar Plot?`
 
     let userConfirmation
 
@@ -61,7 +62,8 @@ const ResultsVisualizationModal: FC<ResultsVisualizationModalProps> = ({
           state.setIsCopied(true)
 
           link.href = url
-          link.download = `bessi-${viz_.imgName}.png`
+          // link.download = `bessi-${viz_.imgName}.png`
+          link.download = `bessi-stellar-plot.png`
 
           document.body.appendChild(link)
 

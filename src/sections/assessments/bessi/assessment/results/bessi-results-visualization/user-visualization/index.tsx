@@ -11,10 +11,13 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 type UserVisualizationType = {
   isExample: boolean
   rateUserResults: boolean
-  currentVisualization: number
+  // currentVisualization: number
   screenshot1Ref: MutableRefObject<any>
   bessiSkillScores: BessiSkillScoresType | null
-  renderVisualization: (isExample: boolean, i: number) => JSX.Element | null
+  renderVisualization: (
+    isExample: boolean, 
+    // i: number,
+  ) => JSX.Element | null
 }
 
 
@@ -27,7 +30,7 @@ const UserVisualization: FC<UserVisualizationType> = ({
   rateUserResults,
   bessiSkillScores,
   renderVisualization,
-  currentVisualization,
+  // currentVisualization,
 }) => {
   return (
     <>
@@ -35,7 +38,12 @@ const UserVisualization: FC<UserVisualizationType> = ({
         ? (
           <>
             <div ref={ screenshot1Ref }>
-              { renderVisualization(isExample, currentVisualization) }
+              { 
+                renderVisualization(
+                  isExample, 
+                  // currentVisualization
+                ) 
+              }
             </div>
           </>
         ) : (

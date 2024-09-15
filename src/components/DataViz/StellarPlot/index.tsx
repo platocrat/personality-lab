@@ -1,8 +1,9 @@
 // Externals
 import * as d3 from 'd3'
-import React, { useRef, useEffect, FC, useState } from 'react'
+import React, { useRef, FC, useState, useEffect } from 'react'
 // Locals
 import Title from '@/components/DataViz/Title'
+import BarChartPerDomain from '@/components/DataViz/BarChart/PerDomain'
 // Utils
 import { 
   FacetFactorType,
@@ -12,8 +13,8 @@ import {
 } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
-import styles from '@/components/DataViz/DataViz.module.css'
-import BarChartPerDomain from '../BarChart/PerDomain'
+import dataVizStyles from '@/components/DataViz/DataViz.module.css'
+import styles from '@/components/DataViz/StellarPlot/StellarPlot.module.css'
 
 
 
@@ -45,6 +46,43 @@ const StellarPlot: FC<StellarPlotProps> = ({
   const title = `BESSI Stellar Plot`
 
 
+  // Helper function to update tooltip position
+  const updateTooltipPosition = (event) => {
+    if (!d3Container.current) return
+
+    const containerRect = d3Container.current.getBoundingClientRect()
+
+    // Get the mouse position relative to the container
+    let x = event.pageX - containerRect.left - window.pageXOffset
+    let y = event.pageY - containerRect.top - window.pageYOffset
+
+    // Tooltip dimensions (should match the fixed width and height)
+    const tooltipWidth = 340
+    const tooltipHeight = 275
+
+    // Offset the tooltip slightly so it doesn't cover the cursor
+    const offsetX = 15
+    const offsetY = 15
+
+    x += offsetX
+    y += offsetY
+
+    // Adjust position if tooltip exceeds container bounds
+    if (x + tooltipWidth > containerRect.width) {
+      x = containerRect.width - tooltipWidth - 10 // 10px padding
+    }
+    
+    if (y + tooltipHeight > containerRect.height) {
+      y = containerRect.height - tooltipHeight - 10
+    }
+
+    // Prevent negative positioning
+    if (x < 0) x = 10
+    if (y < 0) y = 10
+
+    setTooltipPosition({ x, y })
+  }
+
 
   useEffect(() => {
     const width = 500,
@@ -61,7 +99,7 @@ const StellarPlot: FC<StellarPlotProps> = ({
       .append('svg')
       .attr('preserveAspectRatio', 'xMinYMin meet')
       .attr('viewBox', '-270 -190 540 440')
-      .classed(styles.svgContent, true)
+      .classed(dataVizStyles.svgContent, true)
 
     // Scale for the radius
     const rScale = d3.scaleLinear()
@@ -178,6 +216,23 @@ const StellarPlot: FC<StellarPlotProps> = ({
         `translate(-${width / 2}, ${height / 2 - margin.bottom + 20})`
       )
 
+
+    // // Create a tooltip
+    // const tooltip = d3.select(d3Container.current).append('div')
+    //   .attr('class', 'tooltip')
+    //   .style('opacity', 0)
+    //   .style('position', 'fixed')
+    //   .style('height', '275px')
+    //   .style('width', '340px')
+    //   .style('pointer-events', 'none')
+    //   .style('background', 'rgba(255, 255, 255, 0.9)')
+    //   .style('text-align', 'left')
+    //   .style('border', '1px solid #d3d3d3')
+    //   .style('padding', '10px')
+    //   .style('border-radius', '8px')
+    //   .style('z-index', '100')
+
+
     // Add the data points
     // Draw tapered lines for each data point
     data.forEach((d: { axis: string, value: number }, i: number): void => {
@@ -230,43 +285,80 @@ const StellarPlot: FC<StellarPlotProps> = ({
         .style('text-align', 'left')
         .text(`${d.axis}: ${Math.floor(d.value * 100)}`) // Display the label and its value
 
-      // Bind data to the line and add event listeners
+      /**
+       * @todo 1. Make sure that the height and width of the tooltip's 
+       *       parent-most `div` of the tooltip is the same for every 
+       *       domain.
+       *       2. Make sure that the tooltip is activated `onClick` and not
+       *       `onHover`. This will ensure that the content within the 
+       *       tooltip that is displayed is also interactive, allowing the
+       *       user to click on a facet's bar to view more of its details,
+       *       while still inside of the tooltip.
+       *       3. Part 2) should function like a tooltip inside of a 
+       *       tooltip, until I come up with better ideas for how to 
+       *       present the facet-details all within the same small data viz
+       *       area.
+       */
       line
         .datum(d as any)
         .on('mouseover', function (event, d) {
-          /**
-           * @todo 1. Make sure that the height and width of the tooltip's 
-           *       parent-most `div` of the tooltip is the same for every 
-           *       domain.
-           *       2. Make sure that the tooltip is activated `onClick` and not
-           *       `onHover`. This will ensure that the content within the 
-           *       tooltip that is displayed is also interactive, allowing the
-           *       user to click on a facet's bar to view more of its details,
-           *       while still inside of the tooltip.
-           *       3. Part 2) should function like a tooltip inside of a 
-           *       tooltip, until I come up with better ideas for how to 
-           *       present the facet-details all within the same small data viz
-           *       area.
-           */
+          // Set tooltip data
           setTooltipData(d.barChartData)
+          updateTooltipPosition(event)
 
-          const containerRect = d3Container.current.getBoundingClientRect()
+          // tooltip.style('opacity', 1)
 
-          setTooltipPosition({
-            x: event.clientX - containerRect.left,
-            y: event.clientY - containerRect.top,
-          })
+          // Highlight the line
+          d3.select(this)
+            .style('cursor', 'pointer')
+            .transition()
+            .duration(175)
+            .attr('stroke-width', 20)
+            .attr('stroke-opacity', 0.8)
         })
         .on('mousemove', function (event) {
-          const containerRect = d3Container.current.getBoundingClientRect()
-          setTooltipPosition({
-            x: event.clientX - containerRect.left,
-            y: event.clientY - containerRect.top,
-          })
+          updateTooltipPosition(event)
+
+          d3
+            .transition()
+            .duration(100) // Duration of the transition in milliseconds
+            .style('left', (event.x) + 'px')
+            .style('top', (event.y) + 'px')
+
+          // tooltip
+          //   .html(
+          //     `
+          //     <div>
+          //       ${ tooltipData && (
+          //         <>
+          //           <BarChartPerDomain
+          //             data={ tooltipData }
+          //             isExample={ isExample }
+          //           />
+          //         </>
+          //       )}
+          //     </div>
+          //   `
+          //   )
+          //   .transition()
+          //   .duration(100) // Duration of the transition in milliseconds
+          //   .style('left', (event.x - 150) + 'px')
+          //   .style('top', (event.y) + 'px')
         })
+        // Remove the mousemove event handler
         .on('mouseout', function () {
+          // Clear tooltip data
           setTooltipData(null)
           setTooltipPosition(null)
+
+          // tooltip.style('opacity', 0)
+
+          // Reset line style
+          d3.select(this)
+            .transition()
+            .duration(100)
+            .attr('stroke-width', 15)
+            .attr('stroke-opacity', 0.5)
         })
     })
   }, [data]) // Ensure effect runs when data changes
@@ -281,29 +373,27 @@ const StellarPlot: FC<StellarPlotProps> = ({
         }}
       >
         <Title isExample={ isExample } title={ title } />
+        
         <div 
           ref={ d3Container } 
-          style={ definitelyCenteredStyle } 
-          className={ styles.svgContainer }
-        />
-
-        { tooltipData && tooltipPosition && (
-          <div
-            style={ {
-              position: 'absolute',
-              left: tooltipPosition.x,
-              top: tooltipPosition.y,
-              pointerEvents: 'none',
-              backgroundColor: 'rgba(255, 255, 255, 0.9)',
-              border: '1px solid #d3d3d3',
-              borderRadius: '8px',
-              padding: '10px',
-              zIndex: 1000,
-            } }
-          >
-            <BarChartPerDomain data={ tooltipData } isExample={ isExample } />
-          </div>
-        ) }
+          className={ dataVizStyles.svgContainer }
+          style={{ 
+            ...definitelyCenteredStyle,
+            position: 'relative',
+          }} 
+        >
+          { tooltipData && tooltipPosition && (
+            <div 
+              className={ styles['tooltip'] }
+              style={{
+                left: tooltipPosition?.x,
+                top: tooltipPosition?.y,
+              }}
+            >
+              <BarChartPerDomain data={ tooltipData } isExample={ isExample } />
+            </div>
+          ) }
+        </div>
       </div>
     </>
   )

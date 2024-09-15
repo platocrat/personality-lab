@@ -2,6 +2,9 @@
 import * as d3 from 'd3'
 import { FC, useEffect, useRef } from 'react'
 // Locals
+// Hooks
+import useWindowWidth from '@/hooks/useWindowWidth'
+// Utils
 import {
   getRangeLabel,
   BarChartTargetDataType,
@@ -29,7 +32,15 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
   data,
   isExample,
 }) => {
+  // Refs
   const d3Container = useRef<HTMLDivElement | null>(null)
+  // Hooks
+  const windowWidth = useWindowWidth()
+
+
+  const color = d3.scaleLinear<string>()
+    .domain([0, 50, 100])
+    .range(['#ff0000', '#ffff00', '#00ff00'])
 
 
   useEffect(() => {
@@ -44,18 +55,15 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
     const width = svgWidth - margin.left - margin.right
     const height = svgHeight - margin.top - margin.bottom
 
+    const adaptiveWidthAndHeight = windowWidth < 800 ? '88%' : '100%'
 
     const svg = d3.select(d3Container.current)
       .append('svg')
+      .attr('width', adaptiveWidthAndHeight)
+      .attr('height', adaptiveWidthAndHeight)
       .attr('preserveAspectRatio', 'xMinYMin meet')
       .attr('viewBox', '-50 -10 605 400')
       .classed(styles.svgContent, true)
-
-
-    const color = d3.scaleLinear<string>()
-      .domain([0, 50, 100])
-      .range(['#ff0000', '#ffff00', '#00ff00'])
-
 
     const x0 = d3.scaleBand()
       .domain([(data as BarChartTargetDataType).name])
@@ -74,9 +82,6 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
 
     // Create a tooltip
     const tooltip = d3.select(d3Container.current).append('div')
-      /**
-       * @todo Tooltip is not being displayed
-       */
       .attr('class', 'tooltip')
       .style('opacity', 0)
       .style('position', 'fixed')
@@ -97,9 +102,6 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
       .attr('width', x1.bandwidth())
       .attr('height', d => y(0)! - y(d.score))
       .attr('fill', d => color(d.score))
-      /**
-       * @todo Tooltip is not being displayed
-       */
       .on('mouseover', function (event, d) {
         tooltip.style('opacity', 1)
         
@@ -189,40 +191,40 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
       .attr('class', 'legend')
       .attr('transform', `translate(${width - 20},20)`)
 
-    const legendTitle = legend.append('foreignObject')
-      .attr('width', 120)
-      .attr('height', 50)
-      .attr('x', -14.15)
-      .attr('y', -20)
-      .html(
-        `
-          <p style="font-size: 16px;">Domain Score: </p>
-        `
-      )
+    // const legendTitle = legend.append('foreignObject')
+    //   .attr('width', 120)
+    //   .attr('height', 50)
+    //   .attr('x', -14.15)
+    //   .attr('y', -20)
+    //   .html(
+    //     `
+    //       <p style="font-size: 16px;">Domain Score: </p>
+    //     `
+    //   )
 
-    const domainScore: any = legend.append('foreignObject')
-      .attr('width', 120)
-      .attr('height', 40)
-      .attr('x', 0)
-      .attr('y', 8)
-      .html(
-        `
-          <div style="display: flex; flex-direction: row; gap: 8px; justify-content: left; align-items: left;">
-            <div>
-              <p style="font-size: 16px;">
-                <strong>
-                  ${ (data as BarChartTargetDataType).domainScore }
-                </strong>
-              </p>
-            </div>
-            <div style="width: max-content; background-color: ${ color((data as BarChartTargetDataType).domainScore) }; border-radius: 5px; padding: 0px 7.5px;">
-              <p style="position: relative; top: 1px; color: white; font-size: 14px; font-weight: 800; filter: drop-shadow(0px 0px 1px rgba(0, 0, 0, 1));">
-                ${ getRangeLabel((data as BarChartTargetDataType).domainScore) }
-              </p>
-            </div>
-          </div>
-        `
-      )
+    // const domainScore: any = legend.append('foreignObject')
+    //   .attr('width', 120)
+    //   .attr('height', 40)
+    //   .attr('x', 0)
+    //   .attr('y', 8)
+    //   .html(
+    //     `
+    //       <div style="display: flex; flex-direction: row; gap: 8px; justify-content: left; align-items: left;">
+    //         <div>
+    //           <p style="font-size: 16px;">
+    //             <strong>
+    //               ${ (data as BarChartTargetDataType).domainScore }
+    //             </strong>
+    //           </p>
+    //         </div>
+    //         <div style="width: max-content; background-color: ${ color((data as BarChartTargetDataType).domainScore) }; border-radius: 5px; padding: 0px 7.5px;">
+    //           <p style="position: relative; top: 1px; color: white; font-size: 14px; font-weight: 800; filter: drop-shadow(0px 0px 1px rgba(0, 0, 0, 1));">
+    //             ${ getRangeLabel((data as BarChartTargetDataType).domainScore) }
+    //           </p>
+    //         </div>
+    //       </div>
+    //     `
+    //   )
 
     // Add drop shadow filter
     svg.append('defs')
@@ -284,14 +286,18 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
           flexDirection: 'column',
         } }
       >
-        <h4 
+        {/* <h4 
           style={{ 
             ...definitelyCenteredStyle,
             margin: '12px 0px 4px 0px',
           }}
         >
           { (data as BarChartTargetDataType).name }
-        </h4>
+        </h4> */}
+
+        {/* Tooltip Facet Scores */}
+        <p style={{ fontSize: '11px' }}>{ `Facet Scores ` }</p>
+
         <div 
           ref={ d3Container } 
           className={ styles.svgContainer }
