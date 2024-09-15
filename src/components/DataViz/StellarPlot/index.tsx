@@ -1,6 +1,6 @@
 // Externals
 import * as d3 from 'd3'
-import React, { useRef, useEffect, FC } from 'react'
+import React, { useRef, useEffect, FC, useState } from 'react'
 // Locals
 import Title from '@/components/DataViz/Title'
 // Utils
@@ -13,6 +13,8 @@ import {
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/components/DataViz/DataViz.module.css'
+import BarChartPerDomain from '../BarChart/PerDomain'
+
 
 
 type StellarPlotProps = {
@@ -22,11 +24,23 @@ type StellarPlotProps = {
 
 
 
+
 const StellarPlot: FC<StellarPlotProps> = ({ 
   data,
   isExample,
 }) => {
+  // Refs
   const d3Container = useRef<any>(null)
+  // States
+  const [
+    tooltipData, 
+    setTooltipData
+  ] = useState<BarChartTargetDataType | null>(null)
+  const [
+    tooltipPosition, 
+    setTooltipPosition
+  ] = useState<{ x: number; y: number } | null>(null)
+
 
   const title = `BESSI Stellar Plot`
 
@@ -215,6 +229,33 @@ const StellarPlot: FC<StellarPlotProps> = ({
         .attr('alignment-baseline', 'middle')
         .style('text-align', 'left')
         .text(`${d.axis}: ${Math.floor(d.value * 100)}`) // Display the label and its value
+
+      // Bind data to the line and add event listeners
+      line
+        .datum(d as any)
+        .on('mouseover', function (event, d) {
+          console.log(`d.barChartData: `, d.barChartData)
+
+          setTooltipData(d.barChartData)
+
+          const containerRect = d3Container.current.getBoundingClientRect()
+
+          setTooltipPosition({
+            x: event.clientX - containerRect.left,
+            y: event.clientY - containerRect.top,
+          })
+        })
+        .on('mousemove', function (event) {
+          const containerRect = d3Container.current.getBoundingClientRect()
+          setTooltipPosition({
+            x: event.clientX - containerRect.left,
+            y: event.clientY - containerRect.top,
+          })
+        })
+        .on('mouseout', function () {
+          setTooltipData(null)
+          setTooltipPosition(null)
+        })
     })
   }, [data]) // Ensure effect runs when data changes
 
@@ -233,6 +274,24 @@ const StellarPlot: FC<StellarPlotProps> = ({
           style={ definitelyCenteredStyle } 
           className={ styles.svgContainer }
         />
+
+        { tooltipData && tooltipPosition && (
+          <div
+            style={ {
+              position: 'absolute',
+              left: tooltipPosition.x,
+              top: tooltipPosition.y,
+              pointerEvents: 'none',
+              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+              border: '1px solid #d3d3d3',
+              borderRadius: '8px',
+              padding: '10px',
+              zIndex: 1000,
+            } }
+          >
+            <BarChartPerDomain data={ tooltipData } isExample={ isExample } />
+          </div>
+        ) }
       </div>
     </>
   )

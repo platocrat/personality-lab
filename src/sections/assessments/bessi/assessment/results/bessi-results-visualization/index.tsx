@@ -246,18 +246,37 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
     } else {
       switch (i) {
         case 0:
+          // Step 1: Prepare inputData (you've already done this)
+          const stellarInputData: BarChartInputDataType = {
+            facetScores: facetScores
+              ? facetScores
+              : (bessiSkillScores?.facetScores as FacetFactorType),
+            domainScores: domainScores
+              ? domainScores
+              : (bessiSkillScores?.domainScores as SkillDomainFactorType),
+          }
 
-          return Object.entries(
+          // Step 2: Transform inputData to get barChartDataArray
+          const stellarBarChartData: BarChartTargetDataType[] = transformData(
             domainScores 
-              ? domainScores as SkillDomainFactorType
-              : bessiSkillScores?.domainScores as SkillDomainFactorType
-            ?? calculateBessiScores[192](
-              generateDummyBessiUserScores()
-            ).domainScores
-          ).map(([key, value]) => ({
-            axis: key,
-            value: value / 100
-          }))
+              ? stellarInputData
+              : bessiSkillScores?.domainScores
+                ? stellarInputData
+                : calculateBessiScores[192](generateDummyBessiUserScores())
+          )
+
+          // Step 3: Map over barChartDataArray to create stellarPlotData
+          const stellarPlotData = stellarBarChartData.map(
+            (d): { axis: string, value: number, barChartData: BarChartTargetDataType } => ({
+              axis: d.name, // Domain name
+              value: d.domainScore / 100, // Normalized domain score
+              barChartData: d, // Detailed data for `BarChartPerDomain`
+            })
+          )
+
+          console.log(`stellarPlotData: `, stellarPlotData)
+
+          return stellarPlotData as StellarPlotDataType[]
         case 1:
         case 2:
           const inputData: BarChartInputDataType = {
@@ -394,7 +413,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
     } else {
       switch (i) {
         case 0:
-          const stellarPlotData = getUserData(i) as { axis: string, value: number }[]
+          const stellarPlotData = getUserData(i) as StellarPlotDataType[]
           return <StellarPlot isExample={ isExample } data={ stellarPlotData } />
         case 1:
           const barChartTitle = 'BESSI Bar Chart'

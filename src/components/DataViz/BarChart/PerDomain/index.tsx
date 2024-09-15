@@ -12,7 +12,7 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
-type BarChartPerDomainType = {
+export type BarChartPerDomainType = {
   isExample: boolean
   data: BarChartTargetDataType | {
     axis: string
