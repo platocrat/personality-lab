@@ -16,16 +16,16 @@
     "clean": "rm -rf .next .turbo node_modules package-lock.json && npm i"
   },
   "dependencies": {
-    "next": "^14.2.9",
+    "next": "^14.2.11",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@auth0/nextjs-auth0": "^3.5.0",
-    "@aws-sdk/client-dynamodb": "^3.650.0",
-    "@aws-sdk/client-ssm": "^3.650.0",
-    "@aws-sdk/lib-dynamodb": "^3.650.0",
-    "@aws-sdk/util-dynamodb": "^3.650.0",
+    "@aws-sdk/client-dynamodb": "^3.651.1",
+    "@aws-sdk/client-ssm": "^3.651.1",
+    "@aws-sdk/lib-dynamodb": "^3.651.1",
+    "@aws-sdk/util-dynamodb": "^3.651.1",
     "@castleio/castle-js": "^2.4.3",
     "@hcaptcha/react-hcaptcha": "^1.11.0",
     "@sendgrid/mail": "^8.1.3",
@@ -33,7 +33,7 @@
     "@types/jsonwebtoken": "^9.0.6",
     "@types/libsodium-wrappers": "^0.7.14",
     "@types/libsodium-wrappers-sumo": "^0.7.8",
-    "@types/node": "^22.5.4",
+    "@types/node": "^22.5.5",
     "@types/qrcode": "^1.5.5",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
