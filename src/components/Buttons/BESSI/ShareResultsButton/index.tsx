@@ -4,7 +4,7 @@
 import Image from 'next/image'
 import { useContext, useMemo, useState } from 'react'
 // Locals
-import { CSCrypto, LibsodiumUtils, imgPaths } from '@/utils'
+import { CSCrypto, imgPaths } from '@/utils'
 // Contexts
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // Types
@@ -12,9 +12,6 @@ import { BessiSkillScoresContextType } from '@/contexts/types'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
-import { timeout } from 'd3'
-import { gunzip, gzip } from 'zlib'
-
 
 
 
