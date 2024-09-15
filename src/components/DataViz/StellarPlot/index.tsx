@@ -234,8 +234,6 @@ const StellarPlot: FC<StellarPlotProps> = ({
       line
         .datum(d as any)
         .on('mouseover', function (event, d) {
-          console.log(`d.barChartData: `, d.barChartData)
-
           setTooltipData(d.barChartData)
 
           const containerRect = d3Container.current.getBoundingClientRect()
