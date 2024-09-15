@@ -45,6 +45,7 @@ const Header: FC<HeaderProps> = ({}) => {
 
   // Conditionals)
   const headerCondition = (
+    isAuthenticated &&
     !isGameSession &&
     pathname.slice(0, targetPath.length) !== targetPath
   )

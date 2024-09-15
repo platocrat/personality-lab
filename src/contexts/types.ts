@@ -20,8 +20,8 @@ import {
 
 
 export type BessiSkillScoresContextType = {
-  bessiSkillScores: BessiSkillScoresType,
-  setBessiSkillScores: Dispatch<SetStateAction<BessiSkillScoresType>>
+  bessiSkillScores: BessiSkillScoresType | null,
+  setBessiSkillScores: Dispatch<SetStateAction<BessiSkillScoresType | null>>
 }
 
 
@@ -103,7 +103,7 @@ export type UserDemographicsContextType = {
   currentMaritalStatus: string | number
   areaOfScienceTraining: string
   annualHouseholdIncome: number
-  highestFormalEducation: string | number
+  highestEducationLevel: string | number
   currentEmploymentStatus: string | number
   // Form input handlers
   onAgeChange: (e: any) => void
