@@ -25,6 +25,7 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
   const [ isHost, setIsHost ] = useState<boolean>(false)
   const [ players, setPlayers ] = useState<string[]>([''])
   const [ sessionId, setSessionId ] = useState<string>('')
+  const [ hostEmail, setHostEmail ] = useState<string>('')
   const [ sessionPin, setSessionPin ] = useState<string>('')
   const [ sessionQrCode, setSessionQrCode ] = useState<string>('')
   const [ isGameSession, setIsGameSession ] = useState<boolean>(false)
@@ -56,6 +57,7 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
         gameId,
         isHost,
         players,
+        hostEmail,
         sessionId, 
         sessionPin, 
         sessionQrCode,
@@ -64,6 +66,7 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
         setGameId,
         setPlayers,
         setSessionId, 
+        setHostEmail,
         setSessionPin, 
         setSessionQrCode,
         setIsGameSession,
