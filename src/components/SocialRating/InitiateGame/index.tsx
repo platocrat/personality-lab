@@ -4,8 +4,8 @@
 import {
   FC,
   useState,
-  useEffect,
   Dispatch,
+  useEffect,
   useContext,
   SetStateAction,
   useLayoutEffect,
@@ -13,16 +13,18 @@ import {
 import QRCode from 'qrcode'
 import { usePathname } from 'next/navigation'
 // Locals
+import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
+// Contexts
 import { SessionContext } from '@/contexts/SessionContext'
 import { GameSessionContext } from '@/contexts/GameSessionContext'
-// Contexts
 import { GameSessionContextType, SessionContextType } from '@/contexts/types'
+// Hooks
+import useOrigin from '@/hooks/useOrigin'
 // Utils
-import { SOCIAL_RATING_GAME__DYNAMODB } from '@/utils'
+import { handleEnterGameSession, SOCIAL_RATING_GAME__DYNAMODB } from '@/utils'
 // CSS
 import styles from '@/components/SocialRating/InitiateGame/InitiateGame.module.css'
-import pageStyles from '@/sections/social-rating/fictional-characters/FictionalCharacters.module.css'
-import ProgressBarLink from '@/components/Progress/ProgressBarLink'
+import fictionalCharactersStyles from '@/sections/social-rating/fictional-characters/FictionalCharacters.module.css'
 
 
 
@@ -52,6 +54,7 @@ const InitiateGame: FC<InitiateGameProps> = ({
     sessionPin,
     sessionQrCode,
     isGameSession,
+    // Setters
     setGameId,
     setSessionId, 
     setSessionPin, 
@@ -59,18 +62,17 @@ const InitiateGame: FC<InitiateGameProps> = ({
   } = useContext<GameSessionContextType>(GameSessionContext)
   // Hooks
   const pathname = usePathname()
+  const origin = useOrigin(email)
   // States
-  const [ origin, setOrigin ] = useState<string>('')
-  const [ isCreatingGame, setIsCreatingGame ] = useState<boolean>(false)
-
-  const hostButtonText = `Host`
-  const startButtonText = `Start`
-
   const pagePath = `${origin}${pathname}/session`
 
+  const [ gameSessionUrl, setGameSessionUrl ] = useState<string>(pagePath)
+  const [ isCreatingGame, setIsCreatingGame ] = useState<boolean>(false)
+  const [ showHostButton, setShowHostButton ] = useState<boolean>(true)
+
+  const hostButtonText = `Host`
+
   // States
-  const [ href, setHref ] = useState<string>(pagePath)
-  // Booleans
   const [ isLoading, setIsLoading ] = useState<boolean>(false)
   
   // ------------------------------- Regular functions -------------------------
@@ -86,9 +88,9 @@ const InitiateGame: FC<InitiateGameProps> = ({
 
   // ------------------------------- Async functions ---------------------------
   // Generate a QR code for the session
-  async function generateSessionQrCode(sessionId: string) {
+  async function generateSessionQrCode(_url: string) {
     try {
-      const qrCodeUrl = await QRCode.toDataURL(`${href}/${sessionId}`)
+      const qrCodeUrl = await QRCode.toDataURL(_url)
       return qrCodeUrl
     } catch (error: any) {
       console.error(error)
@@ -98,22 +100,24 @@ const InitiateGame: FC<InitiateGameProps> = ({
   // Handle host commitment
   async function onHostCommitment(): Promise<void> {
     const sessionId = generateSessionId()
+
+    // Update the URL dynamically with the sessionId
+    const url_ = `${gameSessionUrl}/${sessionId}`
+
+    setGameSessionUrl(url_)
+
     const sessionPin = generateSessionPin()
     const sessionQrCode = await generateSessionQrCode(sessionId) ?? ''
 
     setSessionId(sessionId)
     setSessionPin(sessionPin)
     setSessionQrCode(sessionQrCode)
-
-    // Update the href dynamically with the sessionId
-    setHref(`${href}/${sessionId}`)
   }
   
 
-  const handleOnGameInitiation = async (e: any): Promise<void> => {
+  async function handleOnGameInitiation(e: any): Promise<void> {
     e.preventDefault()
 
-    setIsHosting(true)
     setIsLoading(true)
 
     const successMessage = await storeGameInDynamoDB()
@@ -179,6 +183,10 @@ const InitiateGame: FC<InitiateGameProps> = ({
     //   console.error('Failed to open the new window: ', error)
     // }
 
+    await handleEnterGameSession(gameSessionUrl)
+    
+    setShowHostButton(false)
+    setIsHosting(true)
     setIsLoading(false)
   }
 
@@ -227,7 +235,9 @@ const InitiateGame: FC<InitiateGameProps> = ({
         setIsCreatingGame(false)
         setIsLoading(false)
 
-        const error = `Error putting new social rating game with session ID '${sessionId}' to DynamoDB: `
+        const error = `Error putting new social rating game with session ID '${
+          sessionId
+        }' to DynamoDB: `
         /**
          * @todo Handle error UI here
          */
@@ -258,15 +268,6 @@ const InitiateGame: FC<InitiateGameProps> = ({
   }, [ gameId ])
 
 
-  // ------------------------- `useLayoutEffect`s ------------------------------
-  useLayoutEffect(() => {
-    if (window !== undefined) {
-      const origin_ = window.location.origin
-      setOrigin(origin_)
-    }
-  }, [ email ])
-
-
   
 
   return (
@@ -274,20 +275,33 @@ const InitiateGame: FC<InitiateGameProps> = ({
       <div>
         <div className={ styles.buttonContainer }>
           {/* Host starts the game session */}
-          <ProgressBarLink href={ href }>
-            <button
-              disabled={ gameId ? false : true }
-              className={ pageStyles['generate-button'] }
-              onClick={ (e: any): Promise<void> => handleOnGameInitiation(e) }
-              style={{
-                margin: '0px',
-                cursor: gameId ? 'pointer' : 'not-allowed',
-                backgroundColor: gameId ? '' : 'gray',
-              }}
-            >
-              { startButtonText }
-            </button>
-          </ProgressBarLink>
+          <NetworkRequestSuspense
+            isLoading={ isLoading }
+            spinnerOptions={ { 
+              showSpinner: true,
+              height: '30',
+              width: '30',
+              containerStyle: {
+                top: '0px',
+              }
+            } }
+          >
+            { showHostButton && (
+              <button
+                disabled={ gameId ? false : true }
+                className={ fictionalCharactersStyles['generate-button'] }
+                onClick={ (e: any): Promise<void> => handleOnGameInitiation(e) }
+                style={ {
+                  margin: '0px',
+                  width: '125px',
+                  cursor: gameId ? 'pointer' : 'not-allowed',
+                  backgroundColor: gameId ? '' : 'gray',
+                } }
+              >
+                { hostButtonText }
+              </button>
+            ) }
+          </NetworkRequestSuspense>
         </div>
       </div>
     </>

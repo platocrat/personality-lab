@@ -2,17 +2,17 @@
   display: flex;
   justify-content: left;
   align-items: left;
-  transition: 0.11s;
+  transition: 0.05s;
 }
 
 .navTitle:hover {
   transform: scale(0.96);
-  transition: 0.11s;
+  transition: 0.05s;
 }
 
 .navTitle:active {
   transform: scale(0.91);
-  transition: 0.11s;
+  transition: 0.05s;
 }
 
 .navImage {

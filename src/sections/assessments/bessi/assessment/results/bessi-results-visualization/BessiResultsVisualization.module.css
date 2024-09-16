@@ -88,7 +88,7 @@ input:checked + .slider:before {
 
   transform: scale(1);
 
-  transition: 0.1s ease-in-out;
+  transition: 0.05s ease-in-out;
 }
 
 .dropdownButton:hover {
@@ -97,7 +97,7 @@ input:checked + .slider:before {
   background-color: rgba(0, 80, 172, 0.114);
   transform: scale(0.975);
 
-  transition: 0.1s ease-in-out;
+  transition: 0.05s ease-in-out;
 }
 
 .dropdown {
@@ -124,7 +124,7 @@ input:checked + .slider:before {
 .dropdownItem {
   /* padding: 0px 24px; */
   background-color: #0050ac1d;
-  transition: 0.15s ease-in-out;
+  transition: 0.055s ease-in-out;
   cursor: pointer;
 
   border: 0.5px solid rgba(0, 55, 118, 0.192);

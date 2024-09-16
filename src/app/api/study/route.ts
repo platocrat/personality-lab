@@ -10,7 +10,7 @@ import {
   QueryCommandInput,
   DeleteCommandInput,
   UpdateCommandInput,
-  } from '@aws-sdk/lib-dynamodb'
+} from '@aws-sdk/lib-dynamodb'
   import { NextRequest, NextResponse } from 'next/server'
   import { getSession, withApiAuthRequired } from '@auth0/nextjs-auth0'
 // Locals

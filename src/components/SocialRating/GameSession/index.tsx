@@ -7,6 +7,7 @@ import {
   useContext, 
   useLayoutEffect, 
 } from 'react'
+import { usePathname } from 'next/navigation'
 // Locals
 import Spinner from '@/components/Suspense/Spinner'
 import Results from '@/components/SocialRating/GameSession/Results'
@@ -59,6 +60,8 @@ const GameSession: FC<GameSessionProps> = ({
     setSessionPin,
     setSessionQrCode,
   } = useContext<GameSessionContextType>(GameSessionContext)
+  // Hooks
+  const pathname = usePathname()
   // State to manage game phases
   const [ isFetchingGame, setIsFetchingGame ] = useState<boolean>(true)
   const [ phase, setPhase ] = useState<GamePhases>(GamePhases.SelfReport)
@@ -85,7 +88,7 @@ const GameSession: FC<GameSessionProps> = ({
   
   
   // --------------------------- Async functions -------------------------------
-  async function getGame() {
+  async function getGame(): Promise<void> {
     setIsFetchingGame(true)
 
     try {
@@ -96,6 +99,7 @@ const GameSession: FC<GameSessionProps> = ({
 
       const json = await response.json()
 
+      if (response.status === 404) throw new Error(json.error)
       if (response.status === 500) throw new Error(json.error)
       if (response.status === 405) throw new Error(json.error)
 
@@ -182,36 +186,25 @@ const GameSession: FC<GameSessionProps> = ({
   // ])
 
 
-  // Check if session data is available
-  useEffect(() => {
-    if (!sessionId) {
-      // Optionally, redirect or show a loading state until session data is 
-      // available
-      console.log('Waiting for session data...')
-    } else {
-      // Session data is available proceed with game logic
-      console.log(
-        'Session data received:', 
-        {
-          gameId, 
-          sessionId, 
-          sessionPin, 
-          sessionQrCode 
-        }
-      )
-    }
-  }, [ sessionId ])
-
-
   // ----------------------------`useLayoutEffect`s ----------------------------
+  // Check if session data is available
   useLayoutEffect(() => {
-    const requests = [
-      getGame,
-    ]
+    const targetIndex = '/social-rating/session/'.length
+    const sessionId_ = pathname.slice(targetIndex)
+    setSessionId(sessionId_)
+  }, [ ])
 
-    Promise.all(requests).then(() => { })
-  }, [])
 
+  // Get the rest of game session details from `sessionId`
+  useLayoutEffect(() => {
+    if (sessionId) {
+      const requests = [
+        getGame(),
+      ]
+      
+      Promise.all(requests).then(() => { })
+    }
+  }, [ sessionId ])
 
 
   

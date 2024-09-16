@@ -10,29 +10,7 @@ import {
   BESSI_45_ACTIVITY_BANK,
 } from '@/utils/assessments'
 import { findNthOccurrence } from '@/utils/misc'
-
-
-
-export type CharacterType = {
-  name: string
-  group: string
-  description: string
-  facetScores: FacetFactorType
-  domainScores: SkillDomainFactorType
-}
-
-
-type GeneratedCharacterType = {
-  group: string
-  name: string
-  description: string
-  responses: {
-    response: number
-    id: number
-    activity: string
-  }[]
-}[]
-
+import { CharacterType, GeneratedCharacterType } from '../types'
 
 
 
@@ -272,4 +250,11 @@ export async function generateCharacterProfile(
       throw new Error(errorWithContent)
     }
   }
+}
+
+
+
+
+export async function handleEnterGameSession(_url: string): Promise<void> {
+  window.open(_url, '_blank', 'noopener,noreferrer')
 }

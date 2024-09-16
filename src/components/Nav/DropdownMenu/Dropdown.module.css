@@ -101,10 +101,10 @@
 
 .img:hover {
   transform: scale(0.965);
-  transition: 0.11s ease-in-out;
+  transition: 0.05s ease-in-out;
 }
 
 .img:active {
   transform: scale(0.91);
-  transition: 0.11s ease-in-out;
+  transition: 0.05s ease-in-out;
 }

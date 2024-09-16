@@ -42,6 +42,14 @@
 
 .generate-button:hover {
   background-color: #005bb5;
+  transform: scale(0.985);
+  transition: 0.05s ease-in-out;
+}
+
+.generate-button:active {
+  background-color: #005bb5;
+  transform: scale(0.965);
+  transition: 0.05s ease-in-out;
 }
 
 .character-card {

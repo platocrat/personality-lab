@@ -25,12 +25,12 @@
   /* Darker shade on hover */
   background-color: #0056b3;
   transform: scale(0.98);
-  transition: 0.1s ease-in-out;
+  transition: 0.05s ease-in-out;
 }
 
 .copyInviteLink:active {
   transform: scale(0.955);
-  transition: 0.1s ease-in-out;
+  transition: 0.05s ease-in-out;
   background-color: #004085;
   /* Even darker shade on click */
 }
@@ -83,5 +83,5 @@
 .pageNav button[type="button"]:active {
   transform: scale(0.965);
   background-color: #004997;
-  transition: 0.15s ease;
+  transition: 0.055s ease;
 }

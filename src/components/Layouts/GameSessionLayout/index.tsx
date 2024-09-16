@@ -62,6 +62,7 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
         sessionPin, 
         sessionQrCode,
         isGameSession,
+        // Setters
         setIsHost,
         setGameId,
         setPlayers,

@@ -360,20 +360,20 @@
 
   transform: scale(1);
 
-  transition: 0.1s ease-in-out;
+  transition: 0.05s ease-in-out;
 }
 
 .button:hover {
   background-color: rgb(0, 123, 194, 0.85);
   transform: scale(0.98);
-  transition: 0.1s ease-in-out;
+  transition: 0.05s ease-in-out;
   cursor: pointer;
 }
 
 .button:active::before {
   background-color: rgb(0, 123, 194, 0.95);
   transform: scale(0.955);
-  transition: 0.1s ease-in-out;
+  transition: 0.05s ease-in-out;
 }
 
 .card {

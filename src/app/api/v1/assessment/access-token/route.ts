@@ -1,9 +1,9 @@
 // Externals
 import {
-  GetCommand,
   PutCommand,
-  GetCommandInput,
+  QueryCommand,
   PutCommandInput,
+  QueryCommandInput,
 } from '@aws-sdk/lib-dynamodb'
 import { sign } from 'jsonwebtoken'
 import { NextRequest, NextResponse } from 'next/server'
@@ -139,10 +139,13 @@ export async function GET(
 }> | NextResponse<{ error: any }>> {
   if (req.method === 'GET') {
     const email = req.nextUrl.searchParams.get('email')
+    const id = req.nextUrl.searchParams.get('id')
 
-    if (!email) {
+    if (!email || !id) {
+      const error = `Unauthorized: 'email' and 'id' query parameters is required!`
+
       return NextResponse.json(
-        { error: 'Unauthorized: Email query parameter is required!' },
+        { error },
         {
           status: 401,
           headers: {
@@ -152,19 +155,26 @@ export async function GET(
       )
     }
 
-    const { assessmentId, id } = await req.json()
-
     const TableName = DYNAMODB_TABLE_NAMES.userResultsAccessTokens
-    const Key = { id: id }
+    
+    const IndexName = 'id-index'
+    const KeyConditionExpression = 'id = :idValue'
+    const ExpressionAttributeValues = { ':idValue': id }
 
-    const input: GetCommandInput = { TableName, Key }
-    const command = new GetCommand(input)
+    const input: QueryCommandInput = {
+      TableName,
+      IndexName,
+      KeyConditionExpression,
+      ExpressionAttributeValues,
+    }
+
+    const command: QueryCommand = new QueryCommand(input)
 
 
     try {
       const response = await ddbDocClient.send(command)
 
-      if (!response.Item) {
+      if (!response.Items) {
         const message = `No access token found in ${
           TableName
         } table`
@@ -184,7 +194,8 @@ export async function GET(
          *          retrieved.
          *       2. Decrypt the access token.
          */
-        const accessToken = response.Item.accessToken as string
+        const items = response.Items as USER_RESULTS_ACCESS_TOKENS__DYNAMODB[]
+        const accessToken = items[0].accessToken as string
 
         return NextResponse.json(
           { accessToken },

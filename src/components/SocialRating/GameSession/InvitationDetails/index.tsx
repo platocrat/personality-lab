@@ -1,7 +1,14 @@
 // Externals
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { FC, useContext, useLayoutEffect, useMemo, useState } from 'react'
+import { 
+  FC, 
+  useMemo, 
+  useState,
+  ReactNode, 
+  useContext, 
+  useLayoutEffect, 
+} from 'react'
 // Locals
 // Contexts
 import { GameSessionContextType } from '@/contexts/types'
@@ -14,12 +21,14 @@ import styles from '@/components/SocialRating/InitiateGame/InitiateGame.module.c
 
 type InvitationDetailsProps = {
   isLobby: boolean
+  children?: ReactNode
 }
 
 
 
 const InvitationDetails: FC<InvitationDetailsProps> = ({
   isLobby,
+  children,
 }) => {
   // Contexts
   const {
@@ -29,12 +38,12 @@ const InvitationDetails: FC<InvitationDetailsProps> = ({
     sessionQrCode,
   } = useContext<GameSessionContextType>(GameSessionContext)
   // States
-  const [gameTitle, setGameTitle] = useState<string>('')
+  const [ gameTitle, setGameTitle ] = useState<string>('')
 
 
   // -------------------------- `useLayoutEffect`s -----------------------------
   useLayoutEffect(() => {
-    if (gameId) {
+    if (gameId && sessionId && sessionPin && sessionQrCode) {
       let _
 
       switch (gameId) {
@@ -51,7 +60,7 @@ const InvitationDetails: FC<InvitationDetailsProps> = ({
 
       setGameTitle(_)
     }
-  }, [gameId])
+  }, [ gameId, sessionId, sessionPin, sessionQrCode ])
 
 
   
@@ -59,41 +68,47 @@ const InvitationDetails: FC<InvitationDetailsProps> = ({
   return (
     <>
       <div className={ styles['session-invitation-details'] }>
-        <div className={ styles['content-container'] }>
-          <div className={ styles.container }>
-            { !isLobby && (
-              <>
-                <div className={ styles.label }>
-                  { `Hosting a new game session for:` }
-                </div>
-                <div className={ styles['first-value'] }>{ gameTitle }</div>
-              </>
-            ) }
+        <div className={ styles['top-container'] }>
+          <div className={ styles['content-container'] }>
+            <div className={ styles.container }>
+              { !isLobby && (
+                <>
+                  <div className={ styles.label }>
+                    { `You are hosting a game session for:` }
+                  </div>
+                  <div className={ styles['first-value'] }>{ gameTitle }</div>
+                </>
+              ) }
 
-            <div className={ styles.section }>
-              <div>
-                <div className={ styles.label }>{ `Session ID:` }</div>
-                <div className={ styles.value }>{ sessionId }</div>
-              </div>
-              <div>
-                <div className={ styles.label }>{ `Session PIN:` }</div>
-                <div className={ styles.value }>{ sessionPin }</div>
+              <div className={ styles.section }>
+                <div>
+                  <div className={ styles.label }>{ `Session ID:` }</div>
+                  <div className={ styles.value }>{ sessionId }</div>
+                </div>
+                <div>
+                  <div className={ styles.label }>{ `Session PIN:` }</div>
+                  <div className={ styles.value }>{ sessionPin }</div>
+                </div>
               </div>
             </div>
           </div>
+          <div className={ styles['qr-code-container'] }>
+            { sessionQrCode && (
+              <div>
+                <Image
+                  width={ 144 }
+                  height={ 144 }
+                  alt='QR Code'
+                  src={ sessionQrCode }
+                  className={ styles['qr-code'] }
+                />
+              </div>
+            ) }
+          </div>
         </div>
-        <div className={ styles['qr-code-container'] }>
-          { sessionQrCode && (
-            <div>
-              <Image
-                width={ 144 }
-                height={ 144 }
-                alt='QR Code'
-                src={ sessionQrCode }
-                className={ styles['qr-code'] }
-              />
-            </div>
-          ) }
+
+        <div className={ styles['children-container'] }>
+          { children }
         </div>
       </div>
     </>

@@ -47,9 +47,7 @@ export async function POST(
      *          exists in the `accounts` table
      */
     let KeyConditionExpression = 'email = :emailValue',
-      ExpressionAttributeValues: Record<string, NativeAttributeValue> = {
-        ':emailValue': email
-      }
+      ExpressionAttributeValues = { ':emailValue': email }
 
     let input: QueryCommandInput | PutCommandInput
       | GetParameterCommandInput | UpdateCommandInput = {
