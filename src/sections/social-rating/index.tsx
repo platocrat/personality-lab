@@ -163,17 +163,25 @@ const SocialRating: FC<SocialRatingProps> = ({
 
       const socialRatingGame = json.socialRatingGame as SOCIAL_RATING_GAME__DYNAMODB
 
-      setGameId(socialRatingGame.gameId)
-      setHostEmail(socialRatingGame.hostEmail)
-      setSessionId(socialRatingGame.sessionId)
-      setSessionPin(socialRatingGame.sessionPin)
-      setSessionQrCode(socialRatingGame.sessionQrCode)
-
-      const pagePath = `${origin}${pathname}/session`
-      const gameSessionUrl_ = `${pagePath}/${sessionId}`
+      const gameId_ = socialRatingGame.gameId
+      const hostEmail_ = socialRatingGame.hostEmail
+      const sessionId_ = socialRatingGame.sessionId
+      const sessionPin_ = socialRatingGame.sessionPin
+      const sessionQrCode_ = socialRatingGame.sessionQrCode
       
+      const pagePath = `${origin}${pathname}/session`
+      const gameSessionUrl_ = `${pagePath}/${sessionId_}`
+      
+      const isActive_ = socialRatingGame.isActive
+
+      setGameId(gameId_)
+      setHostEmail(hostEmail_)
+      setSessionId(sessionId_)
+      setSessionPin(sessionPin_)
+      setSessionQrCode(sessionQrCode_)
       setGameSessionUrl(gameSessionUrl_)
-      setHasActiveGame(socialRatingGame.isActive)
+      
+      setHasActiveGame(isActive_)
       setIsFetchingActiveGamesAsHost(false)
     } catch (error: any) {
       setIsFetchingActiveGamesAsHost(false)
@@ -246,8 +254,8 @@ const SocialRating: FC<SocialRatingProps> = ({
                 <InvitationDetails isLobby={ isLobby }>
                   {/* Button to enter the ACTIVE game session */ }
                   <button
-                    className={ fictionalCharactersStyles['generate-button'] }
                     style={ { margin: '0px', width: '138px' } }
+                    className={ fictionalCharactersStyles['generate-button'] }
                     onClick={
                       (e: any): Promise<void> => handleEnterGameSession(
                         gameSessionUrl
