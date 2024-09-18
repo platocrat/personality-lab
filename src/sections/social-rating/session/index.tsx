@@ -51,7 +51,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
         </div>
 
         <GameSession isLobby={ true }>
-          {/* Game content */}
+          {/* Game content */ }
           <div style={ { margin: '48px' } }>
             { isPlayerInGame && storedNickname.nickname ? (
               <>
@@ -62,7 +62,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
             ) : (
               <>
                 <h2 style={ { ...definitelyCenteredStyle } }>
-                    { `Waiting for other players...` }
+                  { `Waiting for other players...` }
                 </h2>
               </>
             ) }

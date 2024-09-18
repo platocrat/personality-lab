@@ -4,8 +4,8 @@ import { useLayoutEffect, useState } from 'react'
 export default function useGameTitle(
   gameId: string, 
   sessionId: string,
-): string {
-  const [ gameTitle, setGameTitle ] = useState<string>('')
+): string | undefined {
+  const [ gameTitle, setGameTitle ] = useState<string | undefined>(undefined)
 
 
   async function getGameTitle(): Promise<void> {

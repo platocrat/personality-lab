@@ -55,7 +55,9 @@ const InvitationDetails: FC<InvitationDetailsProps> = ({
                   <div className={ styles.label }>
                     { `You are hosting a game session for:` }
                   </div>
-                  <div className={ styles['first-value'] }>{ gameTitle }</div>
+                  <div className={ styles['first-value'] }>
+                    { gameTitle }
+                  </div>
                 </>
               ) }
 
