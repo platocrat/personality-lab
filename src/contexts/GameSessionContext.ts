@@ -7,11 +7,11 @@ import { GameSessionContextType } from './types'
 const INIT_GAME_SESSION_CONTEXT: GameSessionContextType = {
   gameId: '',
   isHost: false,
-  players: [''],
   hostEmail: '',
   sessionId: '',
   sessionPin: '',
   sessionQrCode: '',
+  players: undefined,
   isGameSession: false,
   setIsHost: () => { },
   setGameId: () => { },

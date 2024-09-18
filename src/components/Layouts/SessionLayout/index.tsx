@@ -144,7 +144,10 @@ const SessionLayout: FC<SessionLayoutProps> = ({
       const timeout = 200 // 200 ms
 
       if (pathname !== undefined) {
-        if (pathname.startsWith('/invite/')) {
+        if (
+          pathname.startsWith('/invite/') || 
+          pathname.startsWith('/social-rating/session/')
+        ) {
           setIsInviteUrl(true)
           setIsFetchingSession(false)
           // End the if/else control statement here

@@ -131,7 +131,7 @@ const SocialRating: FC<SocialRatingProps> = ({
 
 
   // --------------------------- Async functions -------------------------------
-  async function getActiveGamesAsHost(): Promise<void> {
+  async function getGame(): Promise<void> {
     setIsFetchingActiveGamesAsHost(true)
 
     try {
@@ -180,7 +180,7 @@ const SocialRating: FC<SocialRatingProps> = ({
       setSessionPin(sessionPin_)
       setSessionQrCode(sessionQrCode_)
       setGameSessionUrl(gameSessionUrl_)
-      
+
       setHasActiveGame(isActive_)
       setIsFetchingActiveGamesAsHost(false)
     } catch (error: any) {
@@ -194,7 +194,7 @@ const SocialRating: FC<SocialRatingProps> = ({
   useLayoutEffect(() => {
     if (email) {
       const requests = [
-        getActiveGamesAsHost(),
+        getGame(),
       ]
   
       Promise.all(requests).then(() => { })

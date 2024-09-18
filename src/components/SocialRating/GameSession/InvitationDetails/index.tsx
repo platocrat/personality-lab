@@ -13,9 +13,11 @@ import {
 // Contexts
 import { GameSessionContextType } from '@/contexts/types'
 import { GameSessionContext } from '@/contexts//GameSessionContext'
+// Hooks
+import useGameTitle from '@/hooks/useGameTitle'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
-import styles from '@/components/SocialRating/InitiateGame/InitiateGame.module.css'
+import styles from '@/components/SocialRating/GameSession/GameSession.module.css'
 
 
 
@@ -37,31 +39,8 @@ const InvitationDetails: FC<InvitationDetailsProps> = ({
     sessionPin,
     sessionQrCode,
   } = useContext<GameSessionContextType>(GameSessionContext)
-  // States
-  const [ gameTitle, setGameTitle ] = useState<string>('')
-
-
-  // -------------------------- `useLayoutEffect`s -----------------------------
-  useLayoutEffect(() => {
-    if (gameId && sessionId && sessionPin && sessionQrCode) {
-      let _
-
-      switch (gameId) {
-        case 'bessi':
-          _ = 'The BESSI'
-          break
-        case 'fictional-characters':
-          _ = 'Gen AI Fictional Characters'
-          break
-        default:
-          _ = 'No game ID was found'
-          break
-      }
-
-      setGameTitle(_)
-    }
-  }, [ gameId, sessionId, sessionPin, sessionQrCode ])
-
+  // Hooks
+  const gameTitle = useGameTitle(gameId, sessionId)
 
   
 

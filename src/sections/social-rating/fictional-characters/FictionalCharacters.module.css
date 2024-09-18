@@ -36,7 +36,7 @@
   color: #fff;
   background-color: #0070f3;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
 }
 
@@ -47,7 +47,7 @@
 }
 
 .generate-button:active {
-  background-color: #005bb5;
+  background-color: #1c78d3;
   transform: scale(0.965);
   transition: 0.05s ease-in-out;
 }

@@ -6,6 +6,7 @@ import { createContext, useState, ReactNode, useLayoutEffect, FC } from 'react'
 import { GameSessionContext } from '@/contexts/GameSessionContext'
 // Context Types
 import { GameSessionContextType } from '@/contexts/types'
+import { SocialRatingGamePlayer } from '@/utils'
 
 
 
@@ -21,9 +22,12 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
   // Hooks
   const pathname = usePathname()
   // States
+  const [ 
+    players, 
+    setPlayers 
+  ] = useState<SocialRatingGamePlayer[] | undefined>(undefined)
   const [ gameId, setGameId ] = useState<string>('')
   const [ isHost, setIsHost ] = useState<boolean>(false)
-  const [ players, setPlayers ] = useState<string[]>([''])
   const [ sessionId, setSessionId ] = useState<string>('')
   const [ hostEmail, setHostEmail ] = useState<string>('')
   const [ sessionPin, setSessionPin ] = useState<string>('')

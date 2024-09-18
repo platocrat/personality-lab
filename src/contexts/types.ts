@@ -14,6 +14,7 @@ import {
   CurrentMaritalStatus,
   HighestFormalEducation,
   CurrentEmploymentStatus,
+  SocialRatingGamePlayer,
 } from '@/utils'
 
 
@@ -53,19 +54,19 @@ export type GameSessionContextType = {
   gameId: string // Set when the game host selects a game
   isHost: boolean
   hostEmail: string
-  players: string[]
   sessionId: string
   sessionPin: string
   sessionQrCode: string
   isGameSession: boolean
+  players: SocialRatingGamePlayer[] | undefined
   setGameId: Dispatch<SetStateAction<string>> // Set when the game host selects a game
   setIsHost: Dispatch<SetStateAction<boolean>>
   setHostEmail: Dispatch<SetStateAction<string>>
-  setPlayers: Dispatch<SetStateAction<string[]>>
   setSessionId: Dispatch<SetStateAction<string>>
   setSessionPin: Dispatch<SetStateAction<string>>
   setSessionQrCode: Dispatch<SetStateAction<string>>
   setIsGameSession: Dispatch<SetStateAction<boolean>>
+  setPlayers: Dispatch<SetStateAction<SocialRatingGamePlayer[] | undefined>>
 }
 
 

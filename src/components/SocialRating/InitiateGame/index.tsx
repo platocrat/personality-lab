@@ -8,7 +8,6 @@ import {
   useEffect,
   useContext,
   SetStateAction,
-  useLayoutEffect,
 } from 'react'
 import QRCode from 'qrcode'
 import { usePathname } from 'next/navigation'
@@ -49,7 +48,6 @@ const InitiateGame: FC<InitiateGameProps> = ({
   } = useContext<SessionContextType>(SessionContext)
   const {
     gameId,
-    players,
     sessionId,
     sessionPin,
     sessionQrCode,
@@ -122,67 +120,6 @@ const InitiateGame: FC<InitiateGameProps> = ({
 
     const successMessage = await storeGameInDynamoDB()
 
-    // try {
-    //   const origin = window.location.origin
-    //   const newWindow: any = window.open(href, '_blank', /* 'noopener,noreferrer' */)
-
-    //   const source = 'personality-lab--social-rating-game'
-
-    //   const data = {
-    //     source,
-    //     gameId,
-    //     sessionId,
-    //     sessionPin,
-    //     sessionQrCode,
-    //   }
-
-    //   // Convert data object to a string
-    //   const message = JSON.stringify(data)
-
-    //   const sendMessage = () => {
-    //     if (
-    //       origin === 'https://localhost:3000' || 
-    //       origin === 'https://canpersonalitychange.com' &&
-    //       pathname === '/social-rating'
-    //     ) {
-    //       newWindow.postMessage(message, origin)
-    //     } else {
-    //       throw new Error(
-    //         `Invalid origin and pathname! Cannot send messages from this origin and pathname.`
-    //       )
-    //     }
-    //   }
-
-    //   const timeout = 500 // 500 milliseconds
-
-    //   // Use an interval to keep trying to send the message until it's received
-    //   const messageInterval = setInterval(() => {
-    //     if (newWindow.closed) {
-    //       clearInterval(messageInterval)
-    //       return
-    //     }
-
-    //     sendMessage()
-    //   }, timeout)
-
-    //   // Listen for acknowledgment
-    //   const receiveAck = (event: MessageEvent) => {
-    //     if (event.origin !== origin) {
-    //       return
-    //     }
-
-    //     // Clear the interval once the new window acknowledges receipt
-    //     if (event.data === 'acknowledged') {
-    //       clearInterval(messageInterval)
-    //       window.removeEventListener('message', receiveAck)
-    //     }
-    //   }
-
-    //   window.addEventListener('message', receiveAck)
-    // } catch (error: any) {
-    //   console.error('Failed to open the new window: ', error)
-    // }
-
     await handleEnterGameSession(gameSessionUrl)
     
     setShowHostButton(false)
@@ -196,6 +133,7 @@ const InitiateGame: FC<InitiateGameProps> = ({
 
     const isActive = true
     const hostEmail = email ?? ''
+    const players = [ { 'host': true } ]
 
     /**
      * @dev This is the object that we store in DynamoDB using AWS's 
@@ -206,12 +144,12 @@ const InitiateGame: FC<InitiateGameProps> = ({
       "id" | "timestamp"
     > = {
       gameId,
+      players,
       isActive,
       hostEmail,
       sessionId,
       sessionPin,
       sessionQrCode,
-      players: players ?? [''],
     }
 
     try {
@@ -238,6 +176,7 @@ const InitiateGame: FC<InitiateGameProps> = ({
         const error = `Error putting new social rating game with session ID '${
           sessionId
         }' to DynamoDB: `
+
         /**
          * @todo Handle error UI here
          */

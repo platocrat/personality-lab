@@ -8,6 +8,9 @@ import GameSession from '@/components/SocialRating/GameSession'
 import { GameSessionContext } from '@/contexts/GameSessionContext'
 // Context Types
 import { GameSessionContextType } from '@/contexts/types'
+// Hooks
+import useGameTitle from '@/hooks/useGameTitle'
+import useStoredNickname from '@/hooks/useStoredNickname'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 
@@ -23,34 +26,15 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
   // Contexts
   const {
     gameId,
+    players,
+    sessionId,
   } = useContext<GameSessionContextType>(GameSessionContext)
-  // States
-  const [ gameTitle, setGameTitle ] = useState<string>('')
+  // Hooks
+  const storedNickname = useStoredNickname()
+  const gameTitle = useGameTitle(gameId, sessionId)
 
-
-  // ----------------------------`useLayoutEffect`s ----------------------------
-  // Sets the game title
-  useLayoutEffect(() => {
-    if (gameId) {
-      let _
-
-      switch (gameId) {
-        case 'bessi':
-          _ = 'The BESSI'
-          break
-        case 'fictional-characters':
-          _ = 'AI-generated Fictional Characters'
-          break
-        default: 
-          _ = 'No game ID was found'
-          break
-      }
-
-      setGameTitle(_)
-    }
-  }, [ gameId ])
-
-
+  // Check if nickname is in players list
+  const isPlayerInGame = players ? players[storedNickname.nickname] : false
 
 
   return (
@@ -68,10 +52,20 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
 
         <GameSession isLobby={ true }>
           {/* Game content */}
-          <div style={{ margin: '48px' }}>
-            <h2 style={{ ...definitelyCenteredStyle }}>
-              { `Waiting for other players...` }
-            </h2>
+          <div style={ { margin: '48px' } }>
+            { isPlayerInGame && storedNickname.nickname ? (
+              <>
+                <h2 style={ { ...definitelyCenteredStyle } }>
+                  { `Welcome, ${storedNickname.nickname}!` }
+                </h2>
+              </>
+            ) : (
+              <>
+                <h2 style={ { ...definitelyCenteredStyle } }>
+                    { `Waiting for other players...` }
+                </h2>
+              </>
+            ) }
           </div>
         </GameSession>
       </div>
