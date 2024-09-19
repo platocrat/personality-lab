@@ -37,8 +37,7 @@ import styles from '@/sections/social-rating/session/GameSession.module.css'
 
 
 type SocialRatingSessionProps = {
-  isLobby: boolean
-  children: ReactNode
+
 }
 
 
@@ -52,9 +51,7 @@ enum GamePhases {
 
 
 const SocialRatingSession: FC<SocialRatingSessionProps> = ({
-  isLobby,
-  children,
-  // sessionId,
+
 }) => {
   // Contexts
   const {
@@ -371,14 +368,16 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
                 <>
                   { /* User is a player */ }
                   <div>
-                    {/* ------------------ Game invite details -------------------- */ }
+                    {/* ------------------ Game lobby -------------------- */ }
                     { phase === GamePhases.Lobby ? (
-                      <InvitationDetails isLobby={ isLobby } />
+                      <InvitationDetails 
+                        isLobby={ phase === GamePhases.Lobby } 
+                      />
                     ) : (
                       <>
                         {/* --------------- Render other game components -------------- */ }
 
-                        {/* --------------------- Game content ------------------------ */ }
+                        {/* ------------------- In-game content ------------------- */ }
 
                         {/* Game content */ }
                         <div style={ { margin: '48px' } }>
@@ -418,8 +417,8 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
                 </>
               ) : (
                 <>
+                  {/* Render session PIN input */}
                   { needsSessionPin ? (
-                    // Render session PIN input
                     <div className={ styles['input-section'] }>
                       <h4 className={ styles['input-label'] }>
                         { `Enter Session PIN` }
