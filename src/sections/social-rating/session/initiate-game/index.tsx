@@ -22,7 +22,7 @@ import useOrigin from '@/hooks/useOrigin'
 // Utils
 import { handleEnterGameSession, SOCIAL_RATING_GAME__DYNAMODB } from '@/utils'
 // CSS
-import styles from '@/components/SocialRating/InitiateGame/InitiateGame.module.css'
+import styles from '@/sections/social-rating/session/initiate-game/InitiateGame.module.css'
 import fictionalCharactersStyles from '@/sections/social-rating/fictional-characters/FictionalCharacters.module.css'
 
 

@@ -17,7 +17,7 @@ import { GameSessionContext } from '@/contexts//GameSessionContext'
 import useGameTitle from '@/hooks/useGameTitle'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
-import styles from '@/components/SocialRating/GameSession/GameSession.module.css'
+import styles from '@/sections/social-rating/session/GameSession.module.css'
 
 
 

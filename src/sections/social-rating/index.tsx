@@ -13,9 +13,9 @@ import { usePathname } from 'next/navigation'
 // Locals
 // Components
 import Card from '@/components/Card'
-import InitiateGame from '@/components/SocialRating/InitiateGame'
+import InitiateGame from '@/sections/social-rating/session/initiate-game'
 import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
-import InvitationDetails from '@/components/SocialRating/GameSession/InvitationDetails'
+import InvitationDetails from '@/sections/social-rating/session/invitation-details'
 // Sections
 import Bessi from './bessi'
 import FictionalCharacters from './fictional-characters'
