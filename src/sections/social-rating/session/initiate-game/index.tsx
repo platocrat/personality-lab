@@ -133,7 +133,7 @@ const InitiateGame: FC<InitiateGameProps> = ({
 
     const isActive = true
     const hostEmail = email ?? ''
-    const players = [ { 'host': true } ]
+    const players = { 'host': true }
 
     /**
      * @dev This is the object that we store in DynamoDB using AWS's 
@@ -141,7 +141,7 @@ const InitiateGame: FC<InitiateGameProps> = ({
      */
     const socialRatingGame: Omit<
       SOCIAL_RATING_GAME__DYNAMODB, 
-      "id" | "timestamp"
+      'id' | 'createdAtTimestamp' | 'updatedAtTimestamp'
     > = {
       gameId,
       players,

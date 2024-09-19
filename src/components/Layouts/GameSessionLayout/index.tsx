@@ -25,7 +25,7 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
   const [ 
     players, 
     setPlayers 
-  ] = useState<SocialRatingGamePlayer[] | undefined>(undefined)
+  ] = useState<SocialRatingGamePlayer | undefined>(undefined)
   const [ gameId, setGameId ] = useState<string>('')
   const [ isHost, setIsHost ] = useState<boolean>(false)
   const [ sessionId, setSessionId ] = useState<string>('')

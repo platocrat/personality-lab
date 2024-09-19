@@ -131,13 +131,14 @@ export type SocialRatingGamePlayer = {
 
 export type SOCIAL_RATING_GAME__DYNAMODB = {
   sessionId: string // Partition/Primary Key
-  timestamp: number //  Sort Key
+  createdAtTimestamp: number // Sort Key
   hostEmail: string // Global Secondary Index
   gameId: string
-  players: SocialRatingGamePlayer[]
+  players: SocialRatingGamePlayer
   isActive: boolean
   sessionPin: string
   sessionQrCode: string
+  updatedAtTimestamp: number
 }
 
 

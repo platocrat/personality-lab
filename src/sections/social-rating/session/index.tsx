@@ -152,27 +152,29 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
 
 
   // Handle nickname submission
-  const handleNicknameSubmit = () => {
-    if (nickname) {
-      if (players) {
-        if (nickname in players) {
-          if (players[nickname]) {
-            // Nickname is already taken by someone who has joined
-            alert('Nickname already taken. Please choose a different nickname.')
-          } else {
-            // Player exists but hasn't joined yet
-            setNeedsSessionPin(true)
-          }
-        } else {
-          // The player doesn't exist we need to add them
-          setNeedsSessionPin(true)
-        }
-      } else {
-        alert('Players data not loaded yet. Please try again.')
-      }
-    } else {
-      alert('Please enter a nickname')
-    }
+  async function handleNicknameSubmit() {
+    await updatePlayers(nickname)
+
+    // if (nickname) {
+    //   if (players) {
+    //     if (nickname in players) {
+    //       if (players[nickname]) {
+    //         // Nickname is already taken by someone who has joined
+    //         alert('Nickname already taken. Please choose a different nickname.')
+    //       } else {
+    //         // Player exists but hasn't joined yet
+    //         setNeedsSessionPin(true)
+    //       }
+    //     } else {
+    //       // The player doesn't exist we need to add them
+    //       setNeedsSessionPin(true)
+    //     }
+    //   } else {
+    //     alert('Players data not loaded yet. Please try again.')
+    //   }
+    // } else {
+    //   alert('Please enter a nickname')
+    // }
   }
 
 
@@ -199,9 +201,12 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
   }
 
   // Add or update player in the game
-  async function updatePlayers() {
+  async function updatePlayers(_nickname: string): Promise<void> {
+    const hasJoined = true
+    const _players: SocialRatingGamePlayer = { [ _nickname ]: hasJoined }
+
     try {
-      const apiEndpoint = `/api/v1/social-rating/game/update-player`
+      const apiEndpoint = `/api/v1/social-rating/game/update-players`
       const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: {
@@ -209,7 +214,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
         },
         body: JSON.stringify({
           sessionId,
-          players,
+          players: _players,
         }),
       })
 
@@ -218,7 +223,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
       if (response.status === 200) {
         const players_ = json.players
         // Assuming the API returns the updated players array
-        const updatedPlayers = json.players as SocialRatingGamePlayer[]
+        const updatedPlayers = json.players as SocialRatingGamePlayer
         setPlayers(updatedPlayers)
         setIsUpdatingPlayers(false)
       } else {
@@ -470,8 +475,10 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
                           onChange={ (e: any) => onNicknameChange(e) }
                         />
                         <button
-                          onClick={ handleNicknameSubmit }
                           className={ styles['input-button'] }
+                          onClick={ 
+                            (e: any): Promise<void> => handleNicknameSubmit() 
+                          }
                         >
                           { `Join` }
                         </button>

@@ -8,9 +8,9 @@ import {
 } from '@aws-sdk/lib-dynamodb'
 // Locals
 import { 
+  getEntryId, 
   ddbDocClient, 
   DYNAMODB_TABLE_NAMES, 
-  getEntryId, 
   SOCIAL_RATING_GAME__DYNAMODB,
 } from '@/utils'
 
@@ -36,103 +36,52 @@ export async function PUT(
       )
     }
 
-    const TableName = DYNAMODB_TABLE_NAMES.socialRatingGames
     const sessionId = socialRatingGame.sessionId
 
-    const KeyConditionExpression = 'sessionId = :sessionIdValue'
-    const ExpressionAttributeValues = { ':sessionIdValue': sessionId }
+    const TableName = DYNAMODB_TABLE_NAMES.socialRatingGames
+    const Item: SOCIAL_RATING_GAME__DYNAMODB = {
+      ...socialRatingGame,
+      createdAtTimestamp: Date.now(),
+    }
     
-    let input: QueryCommandInput | PutCommandInput = {
-      TableName,
-      KeyConditionExpression,
-      ExpressionAttributeValues,
-    },
-      command: QueryCommand | PutCommand = new QueryCommand(input)
+    const input: PutCommandInput = { TableName, Item }
+    const command: PutCommand = new PutCommand(input)
+
+    const message = `Social rating game with '${
+      sessionId
+    }' has been added to ${ TableName } table`
 
     try {
       const response = await ddbDocClient.send(command)
-      const Items = (response.Items as any) as SOCIAL_RATING_GAME__DYNAMODB[]
 
-      if (Items[0].sessionId) {
-        const error = `Social rating game with session ID '${
-          sessionId
-        }' already exists in the '${TableName}' table!`
-
-        console.error(error)
-
-        return NextResponse.json(
-          { error },
-          {
-            status: 200,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        )
-      } else {
-        const error = `Social rating game with session ID '${
-          sessionId
-        }' not found in the '${TableName}' table`
-        
-        console.error(error)
-
-        // Something went wrong
-        return NextResponse.json(
-          { error },
-          {
-            status: 404,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        )
-      }
+      return NextResponse.json(
+        {
+          message,
+        },
+        {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
     } catch (error: any) {
-      const Item: SOCIAL_RATING_GAME__DYNAMODB = {
-        ...socialRatingGame,
-        timestamp: Date.now(),
-      }
+      const errorMessage = `Could not 'PUT' social rating game with session ID '${
+        sessionId
+      }' to the '${TableName}' table: `
 
-      input = { TableName, Item }
-      command = new PutCommand(input)
+      console.error(errorMessage, error)
 
-      try {
-        const response = await ddbDocClient.send(command)
-
-        const message = `Social rating game has been added to ${
-          TableName
-        } table`
-
-        return NextResponse.json(
-          {
-            message,
+      // Something went wrong
+      return NextResponse.json(
+        { error: `${ errorMessage }: ${ error }` },
+        {
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json',
           },
-          {
-            status: 200,
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          },
-        )
-      } catch (error: any) {
-        console.error(
-          `Could not 'Put' social rating game with session ID '${
-            sessionId
-          }' to the '${TableName}' table: `,
-          error
-        )
-
-        // Something went wrong
-        return NextResponse.json(
-          { error },
-          {
-            status: 500,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        )
-      }
+        }
+      )
     }
   } else {
     return NextResponse.json(
