@@ -102,6 +102,10 @@ const ResultsVisualizationModal: FC<ResultsVisualizationModalProps> = ({
               </h3>
 
               <div ref={ refs.screenshot2Ref }>
+                {/**
+                  * @todo StellarPlot shareable image cuts off the domain labels on the 5
+                  *      axis of the circle
+                  */}
                 <Image
                   width={ 200 }
                   height={ 200 }

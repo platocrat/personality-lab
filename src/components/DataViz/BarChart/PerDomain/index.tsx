@@ -62,7 +62,7 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
       .attr('width', adaptiveWidthAndHeight)
       .attr('height', adaptiveWidthAndHeight)
       .attr('preserveAspectRatio', 'xMinYMin meet')
-      .attr('viewBox', '-50 -10 605 400')
+      .attr('viewBox', '-55 -15 595 390')
       .classed(styles.svgContent, true)
 
     const x0 = d3.scaleBand()
@@ -296,7 +296,12 @@ const BarChartPerDomain: FC<BarChartPerDomainType> = ({
         </h4> */}
 
         {/* Tooltip Facet Scores */}
-        <p style={{ fontSize: '11px' }}>{ `Facet Scores ` }</p>
+        <p style={{ fontSize: '11px' }}>
+          { `${(data as BarChartTargetDataType).name}` }
+        </p>
+        <p style={ { fontSize: '11px' } }>
+          { `Facet Scores` }
+        </p>
 
         <div 
           ref={ d3Container } 

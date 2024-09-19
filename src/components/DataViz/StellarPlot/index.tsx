@@ -98,6 +98,10 @@ const StellarPlot: FC<StellarPlotProps> = ({
     const svg = d3.select(d3Container.current)
       .append('svg')
       .attr('preserveAspectRatio', 'xMinYMin meet')
+      /**
+       * @todo StellarPlot shareable image cuts off the domain labels on the 5
+       *      axis of the circle
+       */
       .attr('viewBox', '-270 -190 540 440')
       .classed(dataVizStyles.svgContent, true)
 
