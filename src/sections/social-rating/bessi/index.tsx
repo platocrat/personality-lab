@@ -3,7 +3,7 @@ import { FC } from 'react'
 // Locals
 import Overview from './overview'
 // Sections
-import InitiateGame from '@/sections/social-rating/session/InitiateGame'
+import InitiateGame from '@/sections/social-rating/session/initiate-game'
 // CSS
 import styles from '@/sections/social-rating/fictional-characters/FictionalCharacters.module.css'
 
