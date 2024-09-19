@@ -21,20 +21,6 @@ export async function GET(
   res: NextResponse,
 ) {
   if (req.method === 'GET') {
-    const email = req.nextUrl.searchParams.get('email')
-
-    if (!email) {
-      return NextResponse.json(
-        { error: 'Unauthorized: Email query parameter is required!' },
-        {
-          status: 401,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      )
-    }
-
     const name = 'eeShareableId'
     const eeShareableId = req.nextUrl.searchParams.get(name) ?? ''
 
@@ -45,6 +31,7 @@ export async function GET(
 
     const id = parts[0]
     const accessToken = parts[1]
+    const email = parts[2]
     // const studyId = parts[2]
 
     // 1. Fetch JWT secret to verify if the user is authorized to access the 
@@ -59,6 +46,7 @@ export async function GET(
         accessToken,
         JWT_SECRET,
         req,
+        email,
       )
     } else { // Return the error in the json of the `NextResponse`
       return JWT_SECRET as NextResponse<{ error: string }>

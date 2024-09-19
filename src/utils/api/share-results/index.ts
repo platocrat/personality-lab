@@ -36,6 +36,7 @@ export async function verfiyAccessTokenAndFetchUserResults(
   accessToken: string,
   JWT_SECRET: string,
   req: NextRequest,
+  email?: string,
 ) {
   try {
     // 3. If verification of `accessToken` using JWT secret is successful,
@@ -53,7 +54,7 @@ export async function verfiyAccessTokenAndFetchUserResults(
     // 4. Send the `GetCommand` to fetch the `id` from the 
     //    `user-results-access-tokens` table, then try to fetch user's `results`
     //    from the `studies` table
-    return await fetchUserResultsIdAndUserResults(command, req)
+    return await fetchUserResultsIdAndUserResults(command, req, email)
   } catch (error: any) {
     if (error.message === jwtErrorMessages.expiredJWT) {
       /**
@@ -98,6 +99,7 @@ export async function verfiyAccessTokenAndFetchUserResults(
 export async function fetchUserResultsIdAndUserResults(
   command: GetCommand,
   req: NextRequest,
+  email?: string,
 ) {
   try {
     const response = await ddbDocClient.send(command)
@@ -126,7 +128,7 @@ export async function fetchUserResultsIdAndUserResults(
       const userResultsId = item.id
 
       // 7. Use `userResultsId` to fetch `userResults`
-      return fetchUserResults(userResultsId, req, studyId)
+      return fetchUserResults(userResultsId, req, email, studyId)
     }
   } catch (error: any) {
     const errorMessage = `Failed fetching 'id' using 'accessToken'`
@@ -156,6 +158,7 @@ export async function fetchUserResultsIdAndUserResults(
 export async function fetchUserResults(
   userResultsId: string,
   req: NextRequest,
+  email?: string,
   studyId?: string,
 ) {
   // If `studyId` is not undefined, fetch user's `results` from the `studies` 
@@ -249,9 +252,10 @@ export async function fetchUserResults(
         )
       }
     } catch (error: any) {
-      const errorMessage = `Failed getting study entry with ID '${studyId
+      const errorMessage = `Failed getting study entry with ID '${
+        studyId
       }' from the '${
-          TableName
+        TableName
       }' table`
 
       console.error(`${errorMessage}: `, error)
@@ -270,35 +274,35 @@ export async function fetchUserResults(
     // If `studyId` is `undefined`, fetch user's results from the `accounts` 
     // table.
   } else {
-    const res = new NextResponse()
+    // const res = new NextResponse()
 
-    // Auth0
-    const session = await getSession(req, res)
-    const user = session?.user
+    // // Auth0
+    // const session = await getSession(req, res)
+    // const user = session?.user
 
-    if (!user) {
-      const message = `Unauthorized: Auth0 found no 'user' for their session.`
-      return NextResponse.json(
-        { message },
-        {
-          status: 401,
-        }
-      )
-    }
+    // if (!user) {
+    //   const message = `Unauthorized: Auth0 found no 'user' for their session.`
+    //   return NextResponse.json(
+    //     { message },
+    //     {
+    //       status: 401,
+    //     }
+    //   )
+    // }
 
-    const email = user.email as string
+    // const email = user.email as string
 
-    if (!email) {
-      return NextResponse.json(
-        { error: `Unauthorized: Auth0 found no email for this user's session!` },
-        {
-          status: 401,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      )
-    }
+    // if (!email) {
+    //   return NextResponse.json(
+    //     { error: `Unauthorized: Auth0 found no email for this user's session!` },
+    //     {
+    //       status: 401,
+    //       headers: {
+    //         'Content-Type': 'application/json',
+    //       },
+    //     }
+    //   )
+    // }
 
     const TableName = DYNAMODB_TABLE_NAMES.accounts
     const KeyConditionExpression: string = 'email = :emailValue'

@@ -88,7 +88,7 @@ const ResultsVisualizationModal: FC<ResultsVisualizationModalProps> = ({
       { state.isModalVisible && (
         <>
           <div style={ definitelyCenteredStyle }>
-            <div 
+            <div
               ref={ refs.modalRef }
               className={ `${ modalStyle.modal } ${ modalStyle.background }` }
             >
@@ -107,7 +107,7 @@ const ResultsVisualizationModal: FC<ResultsVisualizationModalProps> = ({
                   height={ 200 }
                   src={ screenshotUrl }
                   alt='Screenshot of Visualization'
-                  style={ { width: '100%',  height: 'auto'  } } 
+                  style={ { width: '100%',  height: 'max-content'  } } 
                 />
 
                 {/**
