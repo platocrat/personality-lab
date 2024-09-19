@@ -91,15 +91,22 @@ const UserDemographicsLayout: FC<UserDemographicsLayoutProps> = ({
   }
 
   function onRaceOrEthnicityChange(e: any) {
-    const _ = Object.values(RaceOrEthnicity)[e.target.value]
+    const selectedRace = e.target.value
+
+    // Find the enum key that matches the selected value
+    const raceEnumValue = Object.values(RaceOrEthnicity).find(
+      (value): boolean => value === selectedRace
+    )
+
+    if (!raceEnumValue) return // Handle the case where no match is found
 
     setRaceOrEthnicity((previousState) => {
-      if (previousState.includes(_)) {
-        // If the current state is already in the array, remove it
-        return previousState.filter(item => item !== _)
+      if (previousState.includes(raceEnumValue)) {
+        // If the current value is already in the array, remove it
+        return previousState.filter(item => item !== raceEnumValue)
       } else {
         // Otherwise, add it to the array
-        return [...previousState, _]
+        return [...previousState, raceEnumValue]
       }
     })
   }
