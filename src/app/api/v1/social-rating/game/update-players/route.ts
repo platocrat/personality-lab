@@ -6,6 +6,7 @@ import {
   QueryCommandInput,
   UpdateCommandInput,
 } from '@aws-sdk/lib-dynamodb'
+import { ReturnValue } from '@aws-sdk/client-dynamodb'
 // Locals
 import {
   ddbDocClient,
@@ -56,9 +57,6 @@ export async function POST(
           ...players_,
         }
 
-        // 1.2.1.4 Construct the `UpdateCommand` to send to DynamoDB to update
-        //         the `participant` attribute of the account entry in the
-        //         `accounts` table.
         const Key = {
           sessionId,
           createdAtTimestamp: storedCreatedAtTimestamp
@@ -69,21 +67,57 @@ export async function POST(
           ':players': updatedPlayers,
           ':updatedAtTimestamp': Date.now(),
         }
+        const ReturnValues: ReturnValue = 'UPDATED_NEW'
 
         input = {
           TableName,
           Key,
           UpdateExpression,
           ExpressionAttributeValues,
+          ReturnValues,
         }
 
         command = new UpdateCommand(input)
 
-        const successMessage = `List of 'players' has been updated in the '${
+        const message = `List of 'players' has been updated in the '${
           TableName
         }' table for social rating game with session ID '${
           sessionId
         }`
+
+        try {
+          const response = await ddbDocClient.send(command)
+          
+          /**
+           * @todo See that DynamoDB returns `players` in the response object.
+           * 
+           *       If it does, then return `players` in the NextResponse JSON
+           *       object below to send it to client.
+           *  
+           *       The updated `players` object is required in the 
+           *       `handleNicknameSubmit` function to determine if a nickname is
+           *       already taken and whether the user `hasJoined` the game.
+           */
+          console.log(`response: `, response)
+
+          // const updatedPlayers = response.
+
+
+          return NextResponse.json(
+            {
+              message,
+              updatedPlayers,
+            },
+            {
+              status: 200,
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            }
+          )
+        } catch (error: any) {
+          
+        }
 
       } else {
         const error = `Social rating game with session ID '${

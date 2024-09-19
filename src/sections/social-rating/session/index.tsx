@@ -223,7 +223,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
       if (response.status === 200) {
         const players_ = json.players
         // Assuming the API returns the updated players array
-        const updatedPlayers = json.players as SocialRatingGamePlayer
+        const updatedPlayers = json.updatedPlayers as SocialRatingGamePlayer
         setPlayers(updatedPlayers)
         setIsUpdatingPlayers(false)
       } else {
