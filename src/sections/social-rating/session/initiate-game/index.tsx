@@ -20,7 +20,11 @@ import { GameSessionContextType, SessionContextType } from '@/contexts/types'
 // Hooks
 import useOrigin from '@/hooks/useOrigin'
 // Utils
-import { handleEnterGameSession, SOCIAL_RATING_GAME__DYNAMODB } from '@/utils'
+import { 
+  Player,
+  handleEnterGameSession,
+  SOCIAL_RATING_GAME__DYNAMODB,
+} from '@/utils'
 // CSS
 import styles from '@/sections/social-rating/session/initiate-game/InitiateGame.module.css'
 import fictionalCharactersStyles from '@/sections/social-rating/fictional-characters/FictionalCharacters.module.css'
@@ -133,7 +137,19 @@ const InitiateGame: FC<InitiateGameProps> = ({
 
     const isActive = true
     const hostEmail = email ?? ''
-    const players = { 'host': true }
+
+    const nickname = 'host'
+    const hasJoined = true
+    const ipAddress = ''
+    const joinedAtTimestamp = 0
+    
+    const player = {
+      hasJoined,
+      ipAddress,
+      joinedAtTimestamp,
+    } as Player
+    
+    const players = { [ nickname ]: player }
 
     /**
      * @dev This is the object that we store in DynamoDB using AWS's 

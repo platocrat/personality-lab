@@ -12,6 +12,8 @@ import {
   ddbDocClient, 
   DYNAMODB_TABLE_NAMES, 
   SOCIAL_RATING_GAME__DYNAMODB,
+  SocialRatingGamePlayers,
+  Player,
 } from '@/utils'
 
 
@@ -36,7 +38,22 @@ export async function PUT(
       )
     }
 
-    const sessionId = socialRatingGame.sessionId
+    const requestHeaders = req.headers
+    
+    const sessionId: string = socialRatingGame.sessionId
+    const players = socialRatingGame.players as SocialRatingGamePlayers
+    
+    const playerNickname: string = Object.keys(players)[0]
+    
+    const hasJoined = players[playerNickname].hasJoined
+    const ipAddress = requestHeaders.get('x-forwarded-for') ?? ''
+    const joinedAtTimestamp = Date.now()
+
+    const player: Player = {
+      hasJoined,
+      ipAddress,
+      joinedAtTimestamp
+    }
 
     const TableName = DYNAMODB_TABLE_NAMES.socialRatingGames
     const Item: SOCIAL_RATING_GAME__DYNAMODB = {
