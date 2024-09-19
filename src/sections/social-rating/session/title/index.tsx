@@ -31,7 +31,7 @@ const Title = () => {
           textAlign: 'center',
         } }
       >
-        <h1>{ gameTitle }</h1>
+        <h1 style={{ fontSize: '30px' }}>{ gameTitle }</h1>
       </div>
     </>
   )

@@ -185,3 +185,13 @@
   transform: scale(0.965);
   transition: 0.05s ease-in-out;
 }
+
+.player-nickname { 
+  margin: 4px;
+  padding: 14px 18px;
+  
+  border-radius: 8px;
+  
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+}

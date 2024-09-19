@@ -52,73 +52,98 @@ export async function POST(
         const storedPlayers = socialRatingGame.players || {}
         const storedCreatedAtTimestamp = socialRatingGame.createdAtTimestamp
 
-        const updatedPlayers: SocialRatingGamePlayer = {
-          ...storedPlayers,
-          ...players_,
-        }
+        // Check for duplicate nicknames
+        const hasDuplicateNicknames = Object.keys(players_).filter(
+          (nickname: string): boolean => nickname in storedPlayers
+        )
 
-        const Key = {
-          sessionId,
-          createdAtTimestamp: storedCreatedAtTimestamp
-        }
-        const UpdateExpression =
-          'set players = :players, updatedAtTimestamp = :updatedAtTimestamp'
-        const ExpressionAttributeValues = {
-          ':players': updatedPlayers,
-          ':updatedAtTimestamp': Date.now(),
-        }
-        const ReturnValues: ReturnValue = 'UPDATED_NEW'
-
-        input = {
-          TableName,
-          Key,
-          UpdateExpression,
-          ExpressionAttributeValues,
-          ReturnValues,
-        }
-
-        command = new UpdateCommand(input)
-
-        const message = `List of 'players' has been updated in the '${
-          TableName
-        }' table for social rating game with session ID '${
-          sessionId
-        }`
-
-        try {
-          const response = await ddbDocClient.send(command)
-
-          /**
-           * @todo See that DynamoDB returns `players` in the response object.
-           * 
-           *       If it does, then return `players` in the NextResponse JSON
-           *       object below to send it to client.
-           *  
-           *       The updated `players` object is required in the 
-           *       `handleNicknameSubmit` function to determine if a nickname is
-           *       already taken and whether the user `hasJoined` the game.
-           */
-          console.log(`response: `, response)
-
-          // const updatedPlayers = response.
-
+        if (hasDuplicateNicknames.length > 0) {
+          console.error(
+            `Duplicate nicknames found: ${hasDuplicateNicknames.join(', ')}`
+          )
+          
+          // Handle the case where duplicates are found
+          const message = `Nickname already taken. Please choose a different nickname.`
 
           return NextResponse.json(
+            { message },
             {
-              message,
-              updatedPlayers,
-            },
-            {
-              status: 200,
+              status: 400,
               headers: {
-                'Content-Type': 'application/json',
-              },
-            }
+                'Content-Type': 'application/json'
+              }
+            },
           )
-        } catch (error: any) {
-          
-        }
+        } else {
+          const updatedPlayers: SocialRatingGamePlayer = {
+            ...storedPlayers,
+            ...players_,
+          }
 
+          const Key = {
+            sessionId,
+            createdAtTimestamp: storedCreatedAtTimestamp
+          }
+          const UpdateExpression =
+            'set players = :players, updatedAtTimestamp = :updatedAtTimestamp'
+          const ExpressionAttributeValues = {
+            ':players': updatedPlayers,
+            ':updatedAtTimestamp': Date.now(),
+          }
+          const ReturnValues: ReturnValue = 'UPDATED_NEW'
+
+          input = {
+            TableName,
+            Key,
+            UpdateExpression,
+            ExpressionAttributeValues,
+            ReturnValues,
+          }
+
+          command = new UpdateCommand(input)
+
+          const message = `List of 'players' has been updated in the '${
+            TableName
+          }' table for social rating game with session ID '${
+            sessionId
+          }`
+
+          try {
+            const response = await ddbDocClient.send(command)
+
+            const updatedPlayers = response.Attributes?.players
+
+            return NextResponse.json(
+              {
+                message,
+                updatedPlayers,
+              },
+              {
+                status: 200,
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              }
+            )
+          } catch (error: any) {
+            const errorMessage = `Failed to update 'players' of social rating game with session ID '${
+              sessionId
+            }' not found in the '${TableName}' table`
+
+            console.error(errorMessage, error)
+
+            // Something went wrong
+            return NextResponse.json(
+              { error: `${errorMessage}: ${error}` },
+              {
+                status: 500,
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              }
+            )
+          }
+        }
       } else {
         const error = `Social rating game with session ID '${
           sessionId

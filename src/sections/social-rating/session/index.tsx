@@ -5,6 +5,7 @@ import {
   FC,
   useState,
   useEffect,
+  Fragment,
   ReactNode,
   useContext,
   useLayoutEffect,
@@ -88,22 +89,33 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
     isInvalidSessionPin,
     setIsInvalidSessionPin
   ] = useState<boolean>(false)
+  const [ 
+    isDuplicateNickname, 
+    setIsDuplicateNickname
+  ] = useState<boolean>(false)
+  const [ 
+    duplicateNicknameErrorMessage,
+    setDuplicateNicknameErrorMessage
+  ] = useState<boolean>(false)
   const [sessionPinInput, setSessionPinInput] = useState<string>('')
   const [needsSessionPin, setNeedsSessionPin] = useState<boolean>(true)
   // Suspense states
   const [isFetchingGame, setIsFetchingGame] = useState<boolean>(true)
   const [isUpdatingPlayers, setIsUpdatingPlayers] = useState<boolean>(false)
 
-  
-  // Check if nickname is in players list
-  const isPlayerInGame = players ? players[storedNickname.nickname] : false
-
 
   // ------------------------- Regular functions -------------------------------
   // ~~~~ Input handlers ~~~~
   const onNicknameChange = (e: any): void => {
     const value = e.target.value
-    setNickname(value)
+    // Regular expression to allow only alphanumeric characters, underscores, 
+    // and hyphens
+    const sanitizedValue = value.replace(/[^a-zA-Z0-9-_]/g, '')
+    // Optionally limit the length of the nickname (e.g., max 12 characters)
+    const maxLength = 12
+    const secureNickname = sanitizedValue.slice(0, maxLength)
+
+    setNickname(secureNickname)
   }
 
 
@@ -113,17 +125,22 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
     setSessionPinInput(e.target.value)
   }
 
-  // const onSessionPinPaste = (e: any): void => {
-  //   const pastedValue = e.clipboardData.getData('Text')
-  //   const numericValue = pastedValue.replace(/\D/g, '') // Allow only numbers
+  const onSessionPinPaste = (e: any): void => {
+    const pastedValue = e.clipboardData.getData('Text')
+    const numericValue = pastedValue.replace(/\D/g, '') // Allow only numbers
 
-  //   setIsInvalidSessionPin(false)
-  //   setSessionPinInput(pastedValue) // Ensure max length of 6
+    e.preventDefault() // Prevent the default paste behavior
+    setIsInvalidSessionPin(false)
+    setSessionPinInput(numericValue) // Ensure max length of 6
 
-  //   e.preventDefault() // Prevent the default paste behavior
-  // }
+  }
 
   const onSessionPinKeyDown = (e: any) => {
+    // Allow CMD + V (macOS) or CTRL + V (Windows/Linux) to paste
+    if ((e.metaKey || e.ctrlKey) && e.key === 'v') {
+      return // Allow pasting
+    }
+
     if (INVALID_CHARS_EXCEPT_NUMBERS.includes(e.key)) {
       e.preventDefault()
     } else {
@@ -152,42 +169,62 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
 
 
   // Handle nickname submission
-  async function handleNicknameSubmit() {
-    await updatePlayers(nickname)
+  async function handleNicknameSubmit(e: any) {
+    e.preventDefault()
 
-    // if (nickname) {
-    //   if (players) {
-    //     if (nickname in players) {
-    //       if (players[nickname]) {
-    //         // Nickname is already taken by someone who has joined
-    //         alert('Nickname already taken. Please choose a different nickname.')
-    //       } else {
-    //         // Player exists but hasn't joined yet
-    //         setNeedsSessionPin(true)
-    //       }
-    //     } else {
-    //       // The player doesn't exist we need to add them
-    //       setNeedsSessionPin(true)
-    //     }
-    //   } else {
-    //     alert('Players data not loaded yet. Please try again.')
-    //   }
-    // } else {
-    //   alert('Please enter a nickname')
-    // }
+    if (nickname) {
+      const key = 'nickname'
+      const value = nickname
+      localStorage.setItem(key, value) // Cache nickname in local storage
+
+      await updatePlayers(nickname)
+
+      // if (nickname) {
+      //   if (players) {
+      //     if (nickname in players) {
+      //       if (players[nickname]) {
+      //         // Nickname is already taken by someone who has joined
+      //         alert('Nickname already taken. Please choose a different nickname.')
+      //       } else {
+      //         // Player exists but hasn't joined yet
+      //         setNeedsSessionPin(true)
+      //       }
+      //     } else {
+      //       // The player doesn't exist we need to add them
+      //       setNeedsSessionPin(true)
+      //     }
+      //   } else {
+      //     alert('Players data not loaded yet. Please try again.')
+      //   }
+      // } else {
+      //   alert('Please enter a nickname')
+      // }
+    }
   }
 
 
   // --------------------------- Async functions -------------------------------
-  async function getIsHost(): Promise<boolean> {
-    let isHost_ = false
-    if (email) isHost_ = email === hostEmail
+  async function getIsHost() {
+    let isHost_ = false,
+      isPlayer_ = false
+    
+    if (email) {
+      const hostHasJoined = players ? players['host'] : false
+
+      if (email === hostEmail && hostHasJoined) {
+        isHost_ = true
+        isPlayer_ = true
+      }
+    }
+    
     setIsHost(isHost_)
-    return isHost_
+    setIsPlayer(isPlayer_)
   }
 
   // Handle session PIN submission
-  async function handleSessionPinSubmit(): Promise<void> {
+  async function handleSessionPinSubmit(e: any): Promise<void> {
+    e.preventDefault()
+
     if (sessionPinInput.length !== 6) {
       setIsInvalidSessionPin(true)
       return
@@ -226,6 +263,11 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
         const updatedPlayers = json.updatedPlayers as SocialRatingGamePlayer
         setPlayers(updatedPlayers)
         setIsUpdatingPlayers(false)
+      } else if (response.status === 400) {
+        const message = json.message
+
+        setDuplicateNicknameErrorMessage(message)
+        setIsDuplicateNickname(true)
       } else if (response.status === 500) {
         throw new Error(json.error)
       } else if (response.status === 405) {
@@ -251,8 +293,6 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
 
 
   async function getGame(): Promise<void> {
-    setIsFetchingGame(true)
-
     try {
       const apiEndpoint = `/api/v1/social-rating/game?sessionId=${sessionId}`
       const response = await fetch(apiEndpoint, {
@@ -297,6 +337,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
       // setHasActiveGame(isActive_)
 
       setGameId(gameId_)
+      setPlayers(players_)
       setHostEmail(hostEmail_)
       setSessionId(sessionId_)
       setSessionPin(sessionPin_)
@@ -308,6 +349,8 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
       if (storedNickname && players_[storedNickname]) {
         setNickname(storedNickname)
         setIsPlayer(true)
+      } else {
+        await getIsHost()
       }
 
       setIsFetchingGame(false)
@@ -326,32 +369,43 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
   }, [phase])
 
 
-  useLayoutEffect(() => {
-    const key = 'nickname'
-    const storedNickname = localStorage.getItem(key)
-
-    if (storedNickname) {
-      setNickname(storedNickname)
-      setIsPlayer(true)
-    }
-  }, [])
-
-
+  
+  
   // ----------------------------`useLayoutEffect`s ----------------------------
-  // Check if session data is available
+  // ~~~~~ Check if nickname is in players list ~~~~~
+  useLayoutEffect(() => {
+    let isPlayer_ = false
+
+    if (isHost) {
+      isPlayer_ = true
+    } else {
+      if (storedNickname.isPlayer) {
+        isPlayer_ = true
+      } else {
+        if (players && storedNickname.nickname) {
+          isPlayer_ = players[storedNickname.nickname]
+        } else {
+          isPlayer_ = false
+        }
+      }
+    }
+
+    setIsPlayer(isPlayer_)
+  }, [isHost, storedNickname, players])
+
+  // ~~~~~ Check if session data is available ~~~~~
   useLayoutEffect(() => {
     const targetIndex = '/social-rating/session/'.length
     const sessionId_ = pathname.slice(targetIndex)
     setSessionId(sessionId_)
-  }, [])
+  }, [ ])
 
 
-  // Get the rest of game session details from `sessionId`
+  // ~~~~~ Get the rest of game session details from `sessionId` ~~~~~
   useLayoutEffect(() => {
     if (sessionId) {
       const requests = [
         getGame(),
-        getIsHost()
       ]
 
       Promise.all(requests).then(() => { })
@@ -364,7 +418,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
 
   return (
     <>
-      { sessionId && gameId ? (
+      { !isFetchingGame && sessionId && gameId ? (
         <>
           <div
             style={ {
@@ -380,31 +434,46 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
                   <div>
                     {/* ------------------ Game lobby -------------------- */ }
                     { phase === GamePhases.Lobby ? (
-                      <InvitationDetails 
-                        isLobby={ phase === GamePhases.Lobby } 
-                      />
+                      <>
+                        <InvitationDetails 
+                          isLobby={ phase === GamePhases.Lobby } 
+                        />
+
+                        <div 
+                          style={ { 
+                            ...definitelyCenteredStyle,
+                            margin: '48px', 
+                            flexDirection: 'row',
+                          } }
+                        >
+                          { players && Object.keys(players).length > 0 ? (
+                            <>
+                              { Object.keys(players).map((
+                                _nickname: string, 
+                                i: number
+                              ) => (
+                                <Fragment key={ i }>
+                                  <h3
+                                    key={ _nickname }
+                                    className={ styles['player-nickname'] }
+                                  >
+                                    { _nickname }
+                                  </h3>
+                                </Fragment>
+                              )) }
+                            </>
+                          ) : (
+                            <h2>
+                              { `Waiting for other players...` }
+                            </h2>
+                          ) }
+                        </div>
+                      </>
                     ) : (
                       <>
                         {/* --------------- Render other game components -------------- */ }
 
                         {/* ------------------- In-game content ------------------- */ }
-
-                        {/* Game content */ }
-                        <div style={ { margin: '48px' } }>
-                          { isPlayerInGame && storedNickname.nickname ? (
-                            <>
-                              <h2 style={ { ...definitelyCenteredStyle } }>
-                                { `Welcome, ${storedNickname.nickname}!` }
-                              </h2>
-                            </>
-                          ) : (
-                            <>
-                              <h2 style={ { ...definitelyCenteredStyle } }>
-                                { `Waiting for other players...` }
-                              </h2>
-                            </>
-                          ) }
-                        </div>
 
                         <div>
                           { phase === GamePhases.SelfReport && (
@@ -432,7 +501,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
                     <form 
                       className={ styles['input-section'] }
                       onSubmit={
-                        (e: any): Promise<void> => handleSessionPinSubmit()
+                        (e: any): Promise<void> => handleSessionPinSubmit(e)
                       }
                     >
                       <h4 className={ styles['input-label'] }>
@@ -443,9 +512,9 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
                         maxLength={ 6 }
                         inputMode={ 'numeric' }
                         value={ sessionPinInput }
-                        placeholder={ 'Enter 6-digit PIN ' }
+                        placeholder={ 'Enter 6-digit PIN' }
                         className={ styles['input-field'] }
-                        // onPaste={ (e: any): void => onSessionPinPaste(e) }
+                        onPaste={ (e: any): void => onSessionPinPaste(e) }
                         onChange={ (e: any): void => onSessionPinChange(e) }
                         onKeyDown={ (e: any): any => onSessionPinKeyDown(e) }
                         style={ {
@@ -475,7 +544,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
                       <form 
                         className={ styles['input-section'] }
                         onSubmit={
-                          (e: any): Promise<void> => handleNicknameSubmit() 
+                          (e: any): Promise<void> => handleNicknameSubmit(e) 
                         }
                       >
                         <h4 className={ styles['input-label'] }>
@@ -484,6 +553,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
                         <input
                           type='text'
                           value={ nickname }
+                          placeholder={ 'Enter a Nickname' }
                           className={ styles['input-field'] }
                           onChange={ (e: any) => onNicknameChange(e) }
                         />
