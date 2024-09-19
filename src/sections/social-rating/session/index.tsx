@@ -226,11 +226,16 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
         const updatedPlayers = json.updatedPlayers as SocialRatingGamePlayer
         setPlayers(updatedPlayers)
         setIsUpdatingPlayers(false)
+      } else if (response.status === 500) {
+        throw new Error(json.error)
+      } else if (response.status === 405) {
+        throw new Error(json.error)
       } else {
         setIsUpdatingPlayers(false)
 
-        const error = `Error posting new players to social rating game with session ID '${sessionId
-          }' to DynamoDB: `
+        const error = `Error posting new players to social rating game with session ID '${
+          sessionId
+        }' to DynamoDB: `
 
         throw new Error(json.error)
       }
@@ -424,7 +429,12 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
                 <>
                   {/* Render session PIN input */}
                   { needsSessionPin ? (
-                    <div className={ styles['input-section'] }>
+                    <form 
+                      className={ styles['input-section'] }
+                      onSubmit={
+                        (e: any): Promise<void> => handleSessionPinSubmit()
+                      }
+                    >
                       <h4 className={ styles['input-label'] }>
                         { `Enter Session PIN` }
                       </h4>
@@ -448,23 +458,26 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
                         } }
                       />
                       <button
+                        type={ 'submit' }
                         disabled={ isInvalidSessionPin }
                         className={
                           isInvalidSessionPin
                             ? styles['input-button-disabled']
                             : styles['input-button']
                         }
-                        onClick={
-                          (e: any): Promise<void> => handleSessionPinSubmit()
-                        }
                       >
                         { `Enter Session` }
                       </button>
-                    </div>
+                    </form>
                   ) : (
                     <>
                       { /* Render nickname input */ }
-                      <div className={ styles['input-section'] }>
+                      <form 
+                        className={ styles['input-section'] }
+                        onSubmit={
+                          (e: any): Promise<void> => handleNicknameSubmit() 
+                        }
+                      >
                         <h4 className={ styles['input-label'] }>
                           { `Enter Nickname` }
                         </h4>
@@ -475,14 +488,12 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
                           onChange={ (e: any) => onNicknameChange(e) }
                         />
                         <button
+                          type={ 'submit' }
                           className={ styles['input-button'] }
-                          onClick={ 
-                            (e: any): Promise<void> => handleNicknameSubmit() 
-                          }
                         >
                           { `Join` }
                         </button>
-                      </div>
+                      </form>
                     </>
                   ) }
                 </>

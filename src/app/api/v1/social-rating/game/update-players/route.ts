@@ -87,7 +87,7 @@ export async function POST(
 
         try {
           const response = await ddbDocClient.send(command)
-          
+
           /**
            * @todo See that DynamoDB returns `players` in the response object.
            * 
