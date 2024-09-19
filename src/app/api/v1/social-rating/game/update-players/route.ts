@@ -9,10 +9,11 @@ import {
 import { ReturnValue } from '@aws-sdk/client-dynamodb'
 // Locals
 import {
-  ddbDocClient,
+  Player,
   getEntryId,
+  ddbDocClient,
   DYNAMODB_TABLE_NAMES,
-  SocialRatingGamePlayer,
+  SocialRatingGamePlayers,
   SOCIAL_RATING_GAME__DYNAMODB,
 } from '@/utils'
 
@@ -29,9 +30,10 @@ export async function POST(
       players,
     } = await req.json()
 
-    const TableName = DYNAMODB_TABLE_NAMES.socialRatingGames
+    const ipAddress = req.headers['x-forwarded-for']
+    const players_ = players as SocialRatingGamePlayers
 
-    const players_ = players as SocialRatingGamePlayer
+    const TableName = DYNAMODB_TABLE_NAMES.socialRatingGames
 
     const KeyConditionExpression = 'sessionId = :sessionIdValue'
     const ExpressionAttributeValues = { ':sessionIdValue': sessionId }
@@ -75,9 +77,18 @@ export async function POST(
             },
           )
         } else {
-          const updatedPlayers: SocialRatingGamePlayer = {
+          const hasJoined = players_[0].hasJoined
+          const joinedAtTimestamp = Date.now()
+
+          const newPlayer = {
+            hasJoined,
+            ipAddress,
+            joinedAtTimestamp,
+          } as Player
+
+          const updatedPlayers: SocialRatingGamePlayers = {
             ...storedPlayers,
-            ...players_,
+            newPlayer,
           }
 
           const Key = {

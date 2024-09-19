@@ -124,8 +124,14 @@ export type RATINGS__DYNAMODB = {
 }
 
 
-export type SocialRatingGamePlayer = {
-  [nickname: string]: boolean // Mapping from nickname to hasJoined status
+export type Player = {
+  hasJoined: boolean
+  ipAddress: string
+  joinedAtTimestamp: number
+}
+
+export type SocialRatingGamePlayers = {
+  [nickname: string]: Player
 }
 
 
@@ -134,7 +140,7 @@ export type SOCIAL_RATING_GAME__DYNAMODB = {
   createdAtTimestamp: number // Sort Key
   hostEmail: string // Global Secondary Index
   gameId: string
-  players: SocialRatingGamePlayer
+  players: SocialRatingGamePlayers
   isActive: boolean
   sessionPin: string
   sessionQrCode: string

@@ -4,9 +4,9 @@
 import {
   FC,
   useState,
-  useEffect,
   Fragment,
   ReactNode,
+  useEffect,
   useContext,
   useLayoutEffect,
 } from 'react'
@@ -27,7 +27,7 @@ import { GameSessionContextType, SessionContextType } from '@/contexts/types'
 import useStoredNickname from '@/hooks/useStoredNickname'
 // Utils
 import {
-  SocialRatingGamePlayer,
+  SocialRatingGamePlayers,
   INVALID_CHARS_EXCEPT_NUMBERS,
   SOCIAL_RATING_GAME__DYNAMODB,
 } from '@/utils'
@@ -116,6 +116,8 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
     const secureNickname = sanitizedValue.slice(0, maxLength)
 
     setNickname(secureNickname)
+    // Reset the duplicate flag when nickname changes
+    setIsDuplicateNickname(false)
   }
 
 
@@ -125,6 +127,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
     setSessionPinInput(e.target.value)
   }
 
+
   const onSessionPinPaste = (e: any): void => {
     const pastedValue = e.clipboardData.getData('Text')
     const numericValue = pastedValue.replace(/\D/g, '') // Allow only numbers
@@ -132,8 +135,8 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
     e.preventDefault() // Prevent the default paste behavior
     setIsInvalidSessionPin(false)
     setSessionPinInput(numericValue) // Ensure max length of 6
-
   }
+
 
   const onSessionPinKeyDown = (e: any) => {
     // Allow CMD + V (macOS) or CTRL + V (Windows/Linux) to paste
@@ -156,11 +159,13 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
     setPhase(GamePhases.SelfReport)
   }
 
+
   const handleObserverReportCompletion = () => {
     // Collect observer-report data
     // Move to results phase
     setPhase(GamePhases.Results)
   }
+
 
   const computeResults = () => {
     // Compute profile correlations
@@ -178,27 +183,6 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
       localStorage.setItem(key, value) // Cache nickname in local storage
 
       await updatePlayers(nickname)
-
-      // if (nickname) {
-      //   if (players) {
-      //     if (nickname in players) {
-      //       if (players[nickname]) {
-      //         // Nickname is already taken by someone who has joined
-      //         alert('Nickname already taken. Please choose a different nickname.')
-      //       } else {
-      //         // Player exists but hasn't joined yet
-      //         setNeedsSessionPin(true)
-      //       }
-      //     } else {
-      //       // The player doesn't exist we need to add them
-      //       setNeedsSessionPin(true)
-      //     }
-      //   } else {
-      //     alert('Players data not loaded yet. Please try again.')
-      //   }
-      // } else {
-      //   alert('Please enter a nickname')
-      // }
     }
   }
 
@@ -240,7 +224,16 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
   // Add or update player in the game
   async function updatePlayers(_nickname: string): Promise<void> {
     const hasJoined = true
-    const _players: SocialRatingGamePlayer = { [ _nickname ]: hasJoined }
+    const ipAddress = ''
+    const joinedAtTimestamp = 0
+
+    const player = {
+      hasJoined,
+      ipAddress,
+      joinedAtTimestamp,
+    } 
+
+    const _players: SocialRatingGamePlayers = { [ _nickname ]: player }
 
     try {
       const apiEndpoint = `/api/v1/social-rating/game/update-players`
@@ -258,14 +251,11 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
       const json = await response.json()
 
       if (response.status === 200) {
-        const players_ = json.players
-        // Assuming the API returns the updated players array
-        const updatedPlayers = json.updatedPlayers as SocialRatingGamePlayer
+        const updatedPlayers = json.updatedPlayers as SocialRatingGamePlayers
         setPlayers(updatedPlayers)
         setIsUpdatingPlayers(false)
       } else if (response.status === 400) {
         const message = json.message
-
         setDuplicateNicknameErrorMessage(message)
         setIsDuplicateNickname(true)
       } else if (response.status === 500) {
@@ -369,8 +359,6 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
   }, [phase])
 
 
-  
-  
   // ----------------------------`useLayoutEffect`s ----------------------------
   // ~~~~~ Check if nickname is in players list ~~~~~
   useLayoutEffect(() => {
@@ -383,7 +371,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
         isPlayer_ = true
       } else {
         if (players && storedNickname.nickname) {
-          isPlayer_ = players[storedNickname.nickname]
+          isPlayer_ = players[storedNickname.nickname].hasJoined
         } else {
           isPlayer_ = false
         }
@@ -392,6 +380,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
 
     setIsPlayer(isPlayer_)
   }, [isHost, storedNickname, players])
+
 
   // ~~~~~ Check if session data is available ~~~~~
   useLayoutEffect(() => {
@@ -435,11 +424,11 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
                     {/* ------------------ Game lobby -------------------- */ }
                     { phase === GamePhases.Lobby ? (
                       <>
-                        <InvitationDetails 
+                        <InvitationDetails
                           isLobby={ phase === GamePhases.Lobby } 
                         />
 
-                        <div 
+                        <div
                           style={ { 
                             ...definitelyCenteredStyle,
                             margin: '48px', 
@@ -449,7 +438,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
                           { players && Object.keys(players).length > 0 ? (
                             <>
                               { Object.keys(players).map((
-                                _nickname: string, 
+                                _nickname: string,
                                 i: number
                               ) => (
                                 <Fragment key={ i }>

@@ -1,10 +1,11 @@
 'use client'
 
 // Externals
-// import * as Castle from '@castleio/castle-js'
 import { useContext } from 'react'
+import * as Castle from '@castleio/castle-js'
 // import { UserProvider } from '@auth0/nextjs-auth0/client'
 // Locals
+import Header from '@/components/Header'
 import Spinner from '@/components/Suspense/Spinner'
 import ProgressBar from '@/components/Progress/ProgressBar'
 import SessionLayout from '@/components/Layouts/SessionLayout'
@@ -16,11 +17,8 @@ import { SessionContext } from '@/contexts/SessionContext'
 // Context Types
 import { SessionContextType } from '@/contexts/types'
 // CSS
-import Header from '@/components/Header'
-import { definitelyCenteredStyle } from '@/theme/styles'
 import './globals.css'
-
-
+import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 // --------------------------- Function component ------------------------------

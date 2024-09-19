@@ -50,7 +50,12 @@ export async function POST(
       if (json.success === true) {
         return NextResponse.json(
           { success: json.success },
-          { status: 200 }
+          { 
+            status: 200,
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          }
         )
       } else {
         // Something went wrong
@@ -58,20 +63,35 @@ export async function POST(
 
         return NextResponse.json(
           { error: `Something went wrong with the response: ${ error }` },
-          { status: 200 },
+          { 
+            status: 200,
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          },
         )
       }
     } catch (error: any) {
       // Something went wrong
       return NextResponse.json(
         { error: error, },
-        { status: 500, },
+        { 
+          status: 500, 
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        },
       )
     }
   } else {
     return NextResponse.json(
       { error: 'Method Not Allowed' },
-      { status: 405 },
+      { 
+        status: 405,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      },
     )
   }
 }
