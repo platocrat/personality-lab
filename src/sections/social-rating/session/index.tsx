@@ -23,10 +23,9 @@ import { SessionContext } from '@/contexts/SessionContext'
 import { GameSessionContext } from '@/contexts/GameSessionContext'
 // Context Types
 import { GameSessionContextType, SessionContextType } from '@/contexts/types'
-// Hooks
-import useStoredNickname from '@/hooks/useStoredNickname'
 // Utils
 import {
+  Player,
   SocialRatingGamePlayers,
   INVALID_CHARS_EXCEPT_NUMBERS,
   SOCIAL_RATING_GAME__DYNAMODB,
@@ -77,13 +76,13 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
   } = useContext<GameSessionContextType>(GameSessionContext)
   // Hooks
   const pathname = usePathname()
-  const storedNickname = useStoredNickname()
   // States
   // State to manage game phases
   const [phase, setPhase] = useState<GamePhases>(GamePhases.Lobby)
   // Player states
   const [nickname, setNickname] = useState<string>('')
   const [isPlayer, setIsPlayer] = useState<boolean>(false)
+  const [userIP, setUserIP] = useState<string | null>(null)
   // Input states
   const [
     isInvalidSessionPin,
@@ -100,6 +99,10 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
   const [sessionPinInput, setSessionPinInput] = useState<string>('')
   const [needsSessionPin, setNeedsSessionPin] = useState<boolean>(true)
   // Suspense states
+  const [
+    isFetchingIpAddress, 
+    setIsFetchingIpAddress
+  ] = useState<boolean>(true)
   const [isFetchingGame, setIsFetchingGame] = useState<boolean>(true)
   const [isUpdatingPlayers, setIsUpdatingPlayers] = useState<boolean>(false)
 
@@ -173,22 +176,73 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
   }
 
 
-  // Handle nickname submission
+  // --------------------------- Async functions -------------------------------
+  // ~~~~~ Handle nickname submission ~~~~~
   async function handleNicknameSubmit(e: any) {
     e.preventDefault()
 
+    
     if (nickname) {
-      const key = 'nickname'
-      const value = nickname
-      localStorage.setItem(key, value) // Cache nickname in local storage
+      const isPlayer_ = true
 
       await updatePlayers(nickname)
+
+      // After successful update, store the data in localStorage
+      const key = 'nickname'
+      const value = nickname
+      localStorage.setItem(key, value)
+      
+      const player = players[nickname]
+
+      if (player) {
+        const key = 'player'
+        const value = JSON.stringify(player)
+        localStorage.setItem(key, value)
+      }
+
+      setIsPlayer(isPlayer_)
     }
   }
 
 
-  // --------------------------- Async functions -------------------------------
-  async function getIsHost() {
+  // ~~~~~ Checks if the user is a player ~~~~~
+  async function getIsPlayer(): Promise<void> {
+    if (userIP) {
+      // Check if stored nickname is in the players list
+      const storedNickname = localStorage.getItem('nickname')
+      const storedPlayer = localStorage.getItem('player')
+
+      if (storedNickname && storedPlayer && players[storedNickname]) {
+        const player = JSON.parse(storedPlayer) as Player
+
+        if (player.ipAddress === userIP) {
+          setNickname(storedNickname)
+          setIsPlayer(true)
+        }
+      } else if (players) {
+        await getIsHost() // Check if the player is the game's host
+
+        // If no data in localStorage, check if IP matches any player
+        const matchingEntry = Object.entries(players).find(
+          ([ nickname, player ]): boolean => player.ipAddress === userIP
+        )
+
+        if (matchingEntry) {
+          const [matchedNickname, matchedPlayer] = matchingEntry
+          setNickname(matchedNickname)
+          setIsPlayer(true)
+          
+          // Store in localStorage
+          localStorage.setItem('nickname', matchedNickname)
+          localStorage.setItem('player', JSON.stringify(matchedPlayer))
+        }
+      }
+    }
+  }
+
+
+  // ~~~~~ Check if the player is the game's host ~~~~~
+  async function getIsHost(): Promise<void> {
     let isHost_ = false,
       isPlayer_ = false
     
@@ -205,7 +259,8 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
     setIsPlayer(isPlayer_)
   }
 
-  // Handle session PIN submission
+
+  // ~~~~~ Handle session PIN submission ~~~~~
   async function handleSessionPinSubmit(e: any): Promise<void> {
     e.preventDefault()
 
@@ -213,13 +268,37 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
       setIsInvalidSessionPin(true)
       return
     } else if (sessionPinInput === sessionPin) {
-      // await updatePlayers()
-      // setHasJoined(true)
       setNeedsSessionPin(false)
     } else {
       setIsInvalidSessionPin(true)
     }
   }
+
+
+  async function getUserIP(): Promise<void> {
+    try {
+      const apiEndpoint = `/api/v1/social-rating/game/ip-address`
+      const response = await fetch(apiEndpoint, { method: 'GET' })
+      
+      const json = await response.json()
+
+      if (response.status === 405) throw new Error(json.error)
+      if (response.status === 500) throw new Error(json.error)
+
+      const ipAddress = json.ipAddress
+      
+      setUserIP(ipAddress)      
+      setIsFetchingIpAddress(false)
+    } catch (error: any) {
+      setIsFetchingIpAddress(false)
+      
+      /**
+       * @todo Handle error UI here
+       */
+      throw new Error(`Error getting user's IP address`, error.message)
+    }
+  }
+
 
   // Add or update player in the game
   async function updatePlayers(_nickname: string): Promise<void> {
@@ -269,7 +348,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
           sessionId
         }' to DynamoDB: `
 
-        throw new Error(json.error)
+        throw new Error(`${error}: ${json.error}`)
       }
     } catch (error: any) {
       setIsUpdatingPlayers(false)
@@ -333,16 +412,6 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
       setSessionPin(sessionPin_)
       setSessionQrCode(sessionQrCode_)
 
-      // Check if stored nickname is in the players list
-      const storedNickname = localStorage.getItem('nickname')
-
-      if (storedNickname && players_[storedNickname]) {
-        setNickname(storedNickname)
-        setIsPlayer(true)
-      } else {
-        await getIsHost()
-      }
-
       setIsFetchingGame(false)
     } catch (error: any) {
       setIsFetchingGame(false)
@@ -356,38 +425,38 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
     if (phase === GamePhases.Results) {
       computeResults()
     }
-  }, [phase])
+  }, [ phase ])
 
 
   // ----------------------------`useLayoutEffect`s ----------------------------
-  // ~~~~~ Check if nickname is in players list ~~~~~
-  useLayoutEffect(() => {
-    let isPlayer_ = false
-
-    if (isHost) {
-      isPlayer_ = true
-    } else {
-      if (storedNickname.isPlayer) {
-        isPlayer_ = true
-      } else {
-        if (players && storedNickname.nickname) {
-          isPlayer_ = players[storedNickname.nickname].hasJoined
-        } else {
-          isPlayer_ = false
-        }
-      }
-    }
-
-    setIsPlayer(isPlayer_)
-  }, [isHost, storedNickname, players])
-
-
   // ~~~~~ Check if session data is available ~~~~~
   useLayoutEffect(() => {
     const targetIndex = '/social-rating/session/'.length
     const sessionId_ = pathname.slice(targetIndex)
     setSessionId(sessionId_)
   }, [ ])
+
+
+  // ~~~~~ Get the user's IP ~~~~~~
+  useLayoutEffect(() => {
+    const requests = [ 
+      getUserIP(),
+    ]
+
+    Promise.all(requests).then(() => { })
+  }, [ ])
+
+
+  // ~~~~~ Check if the user is a player ~~~~~
+  useLayoutEffect(() => {
+    if (players && userIP) {
+      const requests = [
+        getIsPlayer(),
+      ]
+
+      Promise.all(requests).then(() => { })
+    }
+  }, [ players, userIP ])
 
 
   // ~~~~~ Get the rest of game session details from `sessionId` ~~~~~
@@ -399,7 +468,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
 
       Promise.all(requests).then(() => { })
     }
-  }, [email, sessionId])
+  }, [ email, sessionId ])
 
 
 
@@ -424,38 +493,33 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
                     {/* ------------------ Game lobby -------------------- */ }
                     { phase === GamePhases.Lobby ? (
                       <>
-                        <InvitationDetails
-                          isLobby={ phase === GamePhases.Lobby } 
-                        />
+                        <div className={ styles['lobby-container'] }>
+                          <InvitationDetails
+                            isLobby={ phase === GamePhases.Lobby } 
+                          />
 
-                        <div
-                          style={ { 
-                            ...definitelyCenteredStyle,
-                            margin: '48px', 
-                            flexDirection: 'row',
-                          } }
-                        >
-                          { players && Object.keys(players).length > 0 ? (
-                            <>
-                              { Object.keys(players).map((
-                                _nickname: string,
-                                i: number
-                              ) => (
-                                <Fragment key={ i }>
-                                  <h3
-                                    key={ _nickname }
-                                    className={ styles['player-nickname'] }
-                                  >
-                                    { _nickname }
-                                  </h3>
-                                </Fragment>
-                              )) }
-                            </>
-                          ) : (
-                            <h2>
-                              { `Waiting for other players...` }
-                            </h2>
-                          ) }
+                          <div className={ styles['player-nickname-grid'] }>
+                            { players && Object.keys(players).length > 0 ? (
+                              <>
+                                { Object.keys(players).map((
+                                    _nickname: string, 
+                                    i: number
+                                  ) => (
+                                    <Fragment key={ i }>
+                                      <h2 className={ styles['player-nickname'] }>
+                                        { _nickname }
+                                      </h2>
+                                    </Fragment>
+                                  )) }
+                              </>
+                            ) : (
+                              <>
+                                <h2>
+                                  { `Waiting for other players...` }
+                                </h2>
+                              </>
+                            ) }
+                          </div>
                         </div>
                       </>
                     ) : (
@@ -546,6 +610,17 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
                           className={ styles['input-field'] }
                           onChange={ (e: any) => onNicknameChange(e) }
                         />
+                        
+                        { isDuplicateNickname && (
+                          <>
+                            <div className={ styles['error-message'] }>
+                              { duplicateNicknameErrorMessage || 
+                                'This nickname is already taken.' 
+                              }
+                            </div>
+                          </>
+                        ) }
+
                         <button
                           type={ 'submit' }
                           className={ styles['input-button'] }

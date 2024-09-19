@@ -68,7 +68,11 @@ const InvitationDetails: FC<InvitationDetailsProps> = ({
                 </div>
                 <div>
                   <div className={ styles.label }>{ `Session PIN:` }</div>
-                  <div className={ styles.value }>{ sessionPin }</div>
+                  <div 
+                    className={ `${styles.value} ${styles['wide-letter-spacing']}` }
+                  >
+                    { `${ sessionPin.slice(0, 3) } ${sessionPin.slice(3, 6) }` }
+                  </div>
                 </div>
               </div>
             </div>

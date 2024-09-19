@@ -1,7 +1,16 @@
 /* GameSession.module.css */
 /* Primary blue color: #0070f3 */
+
+.lobby-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
 .session-invitation-details {
   display: flex;
+  width: max-content;
   flex-direction: column;
   align-items: center;
   /* width: 100%; */
@@ -97,6 +106,10 @@
   margin-bottom: 12px;
 }
 
+.wide-letter-spacing {
+  letter-spacing: 7px;
+}
+
 .first-value {
   font-weight: 700;
   text-align: center;
@@ -187,11 +200,27 @@
 }
 
 .player-nickname { 
-  margin: 4px;
+  flex: 1 1 auto-fit; /* Stretching */
+
+  margin: 12px;
   padding: 14px 18px;
   
   border-radius: 8px;
   
   background-color: rgba(0, 0, 0, 0.6);
   color: white;
+}
+
+.player-nickname-grid {
+  margin: 48px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 500px;
+}
+
+.error-message {
+  color: red;
+  margin-top: 8px;
+  font-size: 14px;
 }

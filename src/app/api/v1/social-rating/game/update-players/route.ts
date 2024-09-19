@@ -30,8 +30,8 @@ export async function POST(
       players,
     } = await req.json()
 
-    const ipAddress = req.headers['x-forwarded-for']
-    const players_ = players as SocialRatingGamePlayers
+    const requestHeaders = req.headers
+    const ipAddress = requestHeaders.get('x-forwarded-for')
 
     const TableName = DYNAMODB_TABLE_NAMES.socialRatingGames
 
@@ -55,9 +55,9 @@ export async function POST(
         const storedCreatedAtTimestamp = socialRatingGame.createdAtTimestamp
 
         // Check for duplicate nicknames
-        const hasDuplicateNicknames = Object.keys(players_).filter(
-          (nickname: string): boolean => nickname in storedPlayers
-        )
+        const hasDuplicateNicknames = Object.keys(
+          players as SocialRatingGamePlayers
+        ).filter((nickname: string): boolean => nickname in storedPlayers)
 
         if (hasDuplicateNicknames.length > 0) {
           console.error(
@@ -77,7 +77,8 @@ export async function POST(
             },
           )
         } else {
-          const hasJoined = players_[0].hasJoined
+          const nickname = Object.keys(players)[0]
+          const hasJoined = players[nickname].hasJoined
           const joinedAtTimestamp = Date.now()
 
           const newPlayer = {
@@ -86,10 +87,11 @@ export async function POST(
             joinedAtTimestamp,
           } as Player
 
-          const updatedPlayers: SocialRatingGamePlayers = {
-            ...storedPlayers,
-            newPlayer,
-          }
+          const updatedPlayers: SocialRatingGamePlayers = storedPlayers 
+            ? { ...storedPlayers, [ nickname ]: newPlayer } 
+            : { [nickname]: newPlayer }
+
+          console.log(`updatedPlayers: `, updatedPlayers)
 
           const Key = {
             sessionId,
@@ -139,7 +141,7 @@ export async function POST(
           } catch (error: any) {
             const errorMessage = `Failed to update 'players' of social rating game with session ID '${
               sessionId
-            }' not found in the '${TableName}' table`
+            }' in the '${TableName}' table: `
 
             console.error(errorMessage, error)
 
