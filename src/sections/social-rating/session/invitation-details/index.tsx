@@ -47,11 +47,20 @@ const InvitationDetails: FC<InvitationDetailsProps> = ({
   const [ gameSessionUrl, setGameSessionUrl ] = useState<string>('')
 
 
-  useLayoutEffect(() => {
+  async function getGameSessionUrl(): Promise<void> {
     if (window !== undefined) {
-      const origin = window.location.origin
-      setGameSessionUrl(`${origin}/${gameSessionUrlSlug}`)
+      const origin_ = window.location.origin
+      setGameSessionUrl(`${origin_}/${gameSessionUrlSlug}`)
     }
+  }
+
+
+  useLayoutEffect(() => {
+    const requests = [
+      getGameSessionUrl(),
+    ]
+
+    Promise.all(requests).then(() => {})
   }, [ gameSessionUrlSlug ])
 
   
