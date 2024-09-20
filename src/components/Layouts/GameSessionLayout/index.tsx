@@ -2,6 +2,7 @@
 import { usePathname } from 'next/navigation'
 import { createContext, useState, ReactNode, useLayoutEffect, FC } from 'react'
 // Locals
+import useOrigin from '@/hooks/useOrigin'
 // Contexts
 import { GameSessionContext } from '@/contexts/GameSessionContext'
 // Context Types
@@ -21,6 +22,7 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
   children,
 }) => {
   // Hooks
+  const origin = useOrigin()
   const pathname = usePathname()
   // States
   const [ 
@@ -34,6 +36,32 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
   const [ sessionPin, setSessionPin ] = useState<string>('')
   const [ sessionQrCode, setSessionQrCode ] = useState<string>('')
   const [ isGameSession, setIsGameSession ] = useState<boolean>(false)
+  const [ gameSessionUrl, setGameSessionUrl ] = useState<string>('Loading...')
+
+
+
+  // Call the API to shorten the `gameSessionUrl`
+  async function getGameSessionUrl() {
+    const originalUrl = `${origin}/social-rating/session/${sessionId}`
+
+    try {
+      const response = await fetch('/api/url/shorten', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          originalUrl
+        }),
+      })
+
+      const { shortenedUrl } = await response.json()
+
+      if (shortenedUrl) setGameSessionUrl(shortenedUrl)
+    } catch (error: any) {
+      throw new Error('Error shortening the URL: ', error)
+    }
+  }
 
 
   useLayoutEffect(() => {
@@ -52,6 +80,17 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
       setIsGameSession(false)
     }
   }, [ pathname, sessionId ])
+  
+  
+  useLayoutEffect(() => {
+    if (sessionId !== '') {
+      const requests = [
+        getGameSessionUrl(),
+      ]
+  
+      Promise.all(requests).then(() => {})
+    }
+  }, [ sessionId ])
 
 
 
@@ -67,6 +106,7 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
         sessionPin, 
         sessionQrCode,
         isGameSession,
+        gameSessionUrl,
         // Setters
         setIsHost,
         setGameId,
@@ -76,6 +116,7 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
         setSessionPin, 
         setSessionQrCode,
         setIsGameSession,
+        setGameSessionUrl,
       } }
     >
       { children }

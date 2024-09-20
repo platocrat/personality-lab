@@ -5,6 +5,7 @@ export const REGION = 'us-east-1'
 export const DYNAMODB_TABLE_NAMES = {
   studies: 'studies',
   accounts: 'accounts',
+  shortUrls: 'short-urls',
   vizRating: 'viz-ratings',
   socialRatingGames: 'social-rating-games',
   userResultsAccessTokens: 'user-results-access-tokens',

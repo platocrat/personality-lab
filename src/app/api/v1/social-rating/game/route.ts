@@ -8,12 +8,12 @@ import {
 } from '@aws-sdk/lib-dynamodb'
 // Locals
 import { 
+  Player,
   getEntryId, 
   ddbDocClient, 
   DYNAMODB_TABLE_NAMES, 
-  SOCIAL_RATING_GAME__DYNAMODB,
   SocialRatingGamePlayers,
-  Player,
+  SOCIAL_RATING_GAME__DYNAMODB,
 } from '@/utils'
 
 
@@ -27,8 +27,12 @@ export async function PUT(
     const { email, socialRatingGame } = await req.json()
 
     if (!email) {
+      const error = `Unauthorized: 'email' query parameter is required!`
+
       return NextResponse.json(
-        { error: 'Unauthorized: Email query parameter is required!' },
+        { 
+          error,
+        },
         {
           status: 401,
           headers: {

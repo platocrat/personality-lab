@@ -56,26 +56,20 @@ const InitiateGame: FC<InitiateGameProps> = ({
     sessionPin,
     sessionQrCode,
     isGameSession,
+    gameSessionUrl,
     // Setters
     setGameId,
     setSessionId, 
     setSessionPin, 
     setSessionQrCode,
+    setGameSessionUrl,
   } = useContext<GameSessionContextType>(GameSessionContext)
-  // Hooks
-  const pathname = usePathname()
-  const origin = useOrigin(email)
   // States
-  const pagePath = `${origin}${pathname}/session`
-
-  const [ gameSessionUrl, setGameSessionUrl ] = useState<string>(pagePath)
+  const [ isLoading, setIsLoading ] = useState<boolean>(false)
   const [ isCreatingGame, setIsCreatingGame ] = useState<boolean>(false)
   const [ showHostButton, setShowHostButton ] = useState<boolean>(true)
 
   const hostButtonText = `Host`
-
-  // States
-  const [ isLoading, setIsLoading ] = useState<boolean>(false)
   
   // ------------------------------- Regular functions -------------------------
   // Generate a random session pin
@@ -105,16 +99,57 @@ const InitiateGame: FC<InitiateGameProps> = ({
     const sessionId = generateSessionId()
 
     // Update the URL dynamically with the sessionId
-    const url_ = `${gameSessionUrl}/${sessionId}`
+    const longUrl = `${gameSessionUrl}/${sessionId}`
+    setGameSessionUrl(longUrl)
 
-    setGameSessionUrl(url_)
+    // 1. Call the API to shorten the URL for the QR code
+    try {
+      const response = await fetch('/api/url/shorten', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          originalUrl: `${longUrl}?from=qr`,
+        }),
+      })
+
+      const { shortenedUrl } = await response.json()
+
+      if (shortenedUrl) {
+        // Update the shortened URL in state
+        const sessionQrCode = await generateSessionQrCode(shortenedUrl) ?? ''
+        setSessionQrCode(sessionQrCode)
+      }
+    } catch (error: any) {
+      throw new Error('Error shortening the URL:', error)
+    }
+    
+    // 2. Call the API to shorten the URL for everything else
+    try {
+      const response = await fetch('/api/url/shorten', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          originalUrl: longUrl
+        }),
+      })
+
+      const { shortenedUrl } = await response.json()
+
+      console.log(`shortenedUrl: `, shortenedUrl)
+
+      if (shortenedUrl) setGameSessionUrl(shortenedUrl)
+    } catch (error: any) {
+      throw new Error('Error shortening the URL: ', error)
+    }
 
     const sessionPin = generateSessionPin()
-    const sessionQrCode = await generateSessionQrCode(url_) ?? ''
 
     setSessionId(sessionId)
     setSessionPin(sessionPin)
-    setSessionQrCode(sessionQrCode)
   }
   
 
@@ -167,6 +202,7 @@ const InitiateGame: FC<InitiateGameProps> = ({
       sessionId,
       sessionPin,
       sessionQrCode,
+      gameSessionUrl,
     }
 
     try {

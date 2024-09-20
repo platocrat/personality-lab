@@ -38,6 +38,7 @@ const InvitationDetails: FC<InvitationDetailsProps> = ({
     sessionId,
     sessionPin,
     sessionQrCode,
+    gameSessionUrl,
   } = useContext<GameSessionContextType>(GameSessionContext)
   // Hooks
   const pathname = usePathname()
@@ -65,9 +66,14 @@ const InvitationDetails: FC<InvitationDetailsProps> = ({
               <div className={ styles.section }>
                 <div>
                   <div>
-                    <div className={ styles.label }>{ `Session URL:` }</div>
-                    <div className={ styles.value }>
-                      { `${window.location.origin}/social-rating/session/${sessionId}` }
+                    <div className={ styles.label }>
+                      { `Session URL:` }
+                    </div>
+                    <div 
+                      className={ styles.value }
+                      style={ { marginBottom: '24px' } }
+                    >
+                      { gameSessionUrl }
                     </div>
                   </div>
                   <div className={ styles.label }>

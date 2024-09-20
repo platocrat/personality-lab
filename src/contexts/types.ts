@@ -57,6 +57,7 @@ export type GameSessionContextType = {
   sessionId: string
   sessionPin: string
   sessionQrCode: string
+  gameSessionUrl: string
   isGameSession: boolean
   players: SocialRatingGamePlayers
   setGameId: Dispatch<SetStateAction<string>> // Set when the game host selects a game
@@ -66,6 +67,7 @@ export type GameSessionContextType = {
   setSessionPin: Dispatch<SetStateAction<string>>
   setSessionQrCode: Dispatch<SetStateAction<string>>
   setIsGameSession: Dispatch<SetStateAction<boolean>>
+  setGameSessionUrl: Dispatch<SetStateAction<string>>
   setPlayers: Dispatch<SetStateAction<SocialRatingGamePlayers>>
 }
 
