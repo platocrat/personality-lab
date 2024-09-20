@@ -428,13 +428,6 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
         const sessionQrCode_ = socialRatingGame.sessionQrCode
         const gameSessionUrlSlug_ = socialRatingGame.gameSessionUrlSlug
 
-        // const pagePath = `${origin}${pathname}/session`
-        // const gameSessionUrl_ = `${pagePath}/${sessionId_}`
-        // setGameSessionUrl(gameSessionUrl_)
-
-        // const isActive_ = socialRatingGame.isActive
-        // setHasActiveGame(isActive_)
-
         setGameId(gameId_)
         setPlayers(players_)
         setHostEmail(hostEmail_)

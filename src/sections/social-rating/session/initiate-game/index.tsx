@@ -94,60 +94,67 @@ const InitiateGame: FC<InitiateGameProps> = ({
 
   // Handle host commitment
   async function onHostCommitment(): Promise<void> {
-    const sessionId = generateSessionId()
+    if (window !== undefined) {
+      const origin = window.location.origin
+      const sessionId = generateSessionId()
 
-    // Update the URL dynamically with the sessionId
-    const longUrl = `${origin}/social-rating/session/${sessionId}`
-    const sessionQrCode = await generateSessionQrCode(longUrl) ?? ''
+      // Update the URL dynamically with the sessionId
+      const longUrl = `${origin}/social-rating/session/${sessionId}`
+      const sessionQrCode = await generateSessionQrCode(longUrl) ?? ''
 
-    setSessionQrCode(sessionQrCode)
-    
-    // Call the API to shorten the URL for everything else
-    try {
-      const response = await fetch('/api/url/shorten', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          originalUrl: longUrl
-        }),
-      })
+      setSessionQrCode(sessionQrCode)
+      
+      // Call the API to shorten the URL for everything else
+      try {
+        const response = await fetch('/api/url/shorten', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            originalUrl: longUrl
+          }),
+        })
 
-      const { shortenedUrl } = await response.json()
+        const { shortenedUrl } = await response.json()
 
-      if (shortenedUrl) {
-        const target = 'api/url/'
-        const targetIndex = shortenedUrl.indexOf(target) + target.length
-        const shortId = shortenedUrl.slice(targetIndex)
-        const gameSessionUrlSlug_ = target + shortId
+        if (shortenedUrl) {
+          const target = 'api/url/'
+          const targetIndex = shortenedUrl.indexOf(target) + target.length
+          const shortId = shortenedUrl.slice(targetIndex)
+          const gameSessionUrlSlug_ = target + shortId
 
-        setGameSessionUrlSlug(gameSessionUrlSlug_)
+          setGameSessionUrlSlug(gameSessionUrlSlug_)
+        }
+      } catch (error: any) {
+        throw new Error('Error shortening the URL: ', error)
       }
-    } catch (error: any) {
-      throw new Error('Error shortening the URL: ', error)
+
+      const sessionPin = generateSessionPin()
+
+      setSessionId(sessionId)
+      setSessionPin(sessionPin)
     }
-
-    const sessionPin = generateSessionPin()
-
-    setSessionId(sessionId)
-    setSessionPin(sessionPin)
   }
   
 
   async function handleOnGameInitiation(e: any): Promise<void> {
-    e.preventDefault()
+    if (window !== undefined) {
+      e.preventDefault()
 
-    setIsLoading(true)
+      setIsLoading(true)
 
-    const successMessage = await storeGameInDynamoDB()
+      const successMessage = await storeGameInDynamoDB()
+      
+      const origin = window.location.origin
+      const gameSessionUrl = `${origin}/${gameSessionUrlSlug}`
 
-    const gameSessionUrl = `${origin}/${gameSessionUrlSlug}`
-    await handleEnterGameSession(gameSessionUrl)
-    
-    setShowHostButton(false)
-    setIsHosting(true)
-    setIsLoading(false)
+      await handleEnterGameSession(gameSessionUrl)
+      
+      setShowHostButton(false)
+      setIsHosting(true)
+      setIsLoading(false)
+    }
   }
 
 

@@ -106,13 +106,8 @@ const SocialRating: FC<SocialRatingProps> = ({
     setSelectedGame
   ] = useState<number | undefined>(undefined)
   const [ isHosting, setIsHosting ] = useState<boolean>(false)
+  const [ gameSessionUrl, setGameSessionUrl ] = useState<string>('')
   const [ hasActiveGame, setHasActiveGame ] = useState<boolean>(false)
-
-
-  // ------------------------ Memoized constants -------------------------------
-  const gameSessionUrl = useMemo((): string => {
-    return `${origin}/${gameSessionUrlSlug}`
-  }, [ gameSessionUrlSlug ])
 
 
   // ------------------------- Regular functions -------------------------------
@@ -136,6 +131,14 @@ const SocialRating: FC<SocialRatingProps> = ({
 
 
   // --------------------------- Async functions -------------------------------
+  async function getGameSessionUrl(): Promise<void> {
+    if (window !== undefined) {
+      const origin_ = window.location.origin
+      setGameSessionUrl(`${origin_}/${gameSessionUrlSlug}`)
+    }
+  }
+
+
   async function getGame(): Promise<void> {
     setIsFetchingActiveGamesAsHost(true)
 
@@ -202,6 +205,17 @@ const SocialRating: FC<SocialRatingProps> = ({
       Promise.all(requests).then(() => { })
     }
   }, [ email, isHosting ])
+
+
+  useLayoutEffect(() => {
+    const requests = [
+      getGameSessionUrl(),
+    ]
+
+    Promise.all(requests).then(() => { })
+  }, [ gameSessionUrlSlug ])
+
+
 
 
 
