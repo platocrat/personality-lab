@@ -68,7 +68,9 @@ export async function POST(
           const message = `Nickname already taken. Please choose a different nickname.`
 
           return NextResponse.json(
-            { message },
+            { 
+              message,
+            },
             {
               status: 400,
               headers: {

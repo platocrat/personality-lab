@@ -95,7 +95,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
   const [ 
     duplicateNicknameErrorMessage,
     setDuplicateNicknameErrorMessage
-  ] = useState<boolean>(false)
+  ] = useState<string>('')
   const [sessionPinInput, setSessionPinInput] = useState<string>('')
   const [needsSessionPin, setNeedsSessionPin] = useState<boolean>(true)
   // Suspense states
@@ -333,13 +333,20 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
         const updatedPlayers = json.updatedPlayers as SocialRatingGamePlayers
         setPlayers(updatedPlayers)
         setIsUpdatingPlayers(false)
-      } else if (response.status === 400) {
+      } else if (
+        response.status === 400 && 
+        json.message === `Nickname already taken. Please choose a different nickname.`
+      ) {
         const message = json.message
+        
         setDuplicateNicknameErrorMessage(message)
         setIsDuplicateNickname(true)
+        setIsUpdatingPlayers(false)
       } else if (response.status === 500) {
+        setIsUpdatingPlayers(false)
         throw new Error(json.error)
       } else if (response.status === 405) {
+        setIsUpdatingPlayers(false)
         throw new Error(json.error)
       } else {
         setIsUpdatingPlayers(false)
@@ -614,9 +621,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
                         { isDuplicateNickname && (
                           <>
                             <div className={ styles['error-message'] }>
-                              { duplicateNicknameErrorMessage || 
-                                'This nickname is already taken.' 
-                              }
+                              { duplicateNicknameErrorMessage }
                             </div>
                           </>
                         ) }
