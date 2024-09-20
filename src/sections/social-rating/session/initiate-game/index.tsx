@@ -56,14 +56,16 @@ const InitiateGame: FC<InitiateGameProps> = ({
     sessionPin,
     sessionQrCode,
     isGameSession,
-    gameSessionUrl,
+    gameSessionUrlSlug,
     // Setters
     setGameId,
     setSessionId, 
     setSessionPin, 
     setSessionQrCode,
-    setGameSessionUrl,
+    setGameSessionUrlSlug,
   } = useContext<GameSessionContextType>(GameSessionContext)
+  // Hooks
+  const origin = useOrigin()
   // States
   const [ isLoading, setIsLoading ] = useState<boolean>(false)
   const [ isCreatingGame, setIsCreatingGame ] = useState<boolean>(false)
@@ -99,8 +101,7 @@ const InitiateGame: FC<InitiateGameProps> = ({
     const sessionId = generateSessionId()
 
     // Update the URL dynamically with the sessionId
-    const longUrl = `${gameSessionUrl}/${sessionId}`
-    setGameSessionUrl(longUrl)
+    const longUrl = `${origin}/${gameSessionUrlSlug}/${sessionId}`
 
     // 1. Call the API to shorten the URL for the QR code
     try {
@@ -139,9 +140,14 @@ const InitiateGame: FC<InitiateGameProps> = ({
 
       const { shortenedUrl } = await response.json()
 
-      console.log(`shortenedUrl: `, shortenedUrl)
+      if (shortenedUrl) {
+        const target = 'api/url/'
+        const targetIndex = shortenedUrl.indexOf(target) + target.length
+        const shortId = shortenedUrl.slice(targetIndex)
+        const gameSessionUrlSlug_ = target + shortId
 
-      if (shortenedUrl) setGameSessionUrl(shortenedUrl)
+        setGameSessionUrlSlug(gameSessionUrlSlug_)
+      }
     } catch (error: any) {
       throw new Error('Error shortening the URL: ', error)
     }
@@ -160,6 +166,7 @@ const InitiateGame: FC<InitiateGameProps> = ({
 
     const successMessage = await storeGameInDynamoDB()
 
+    const gameSessionUrl = `${origin}/${gameSessionUrlSlug}`
     await handleEnterGameSession(gameSessionUrl)
     
     setShowHostButton(false)
@@ -202,7 +209,7 @@ const InitiateGame: FC<InitiateGameProps> = ({
       sessionId,
       sessionPin,
       sessionQrCode,
-      gameSessionUrl,
+      gameSessionUrlSlug,
     }
 
     try {

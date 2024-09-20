@@ -143,7 +143,7 @@ export type SOCIAL_RATING_GAME__DYNAMODB = {
   isActive: boolean
   sessionPin: string
   sessionQrCode: string
-  gameSessionUrl: string
+  gameSessionUrlSlug: string
   players: SocialRatingGamePlayers
   updatedAtTimestamp: number
 }

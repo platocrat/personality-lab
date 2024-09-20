@@ -14,6 +14,7 @@ import {
 import { GameSessionContextType } from '@/contexts/types'
 import { GameSessionContext } from '@/contexts//GameSessionContext'
 // Hooks
+import useOrigin from '@/hooks/useOrigin'
 import useGameTitle from '@/hooks/useGameTitle'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -38,11 +39,17 @@ const InvitationDetails: FC<InvitationDetailsProps> = ({
     sessionId,
     sessionPin,
     sessionQrCode,
-    gameSessionUrl,
+    gameSessionUrlSlug,
   } = useContext<GameSessionContextType>(GameSessionContext)
   // Hooks
+  const origin = useOrigin()
   const pathname = usePathname()
   const gameTitle = useGameTitle(gameId, sessionId)
+
+
+  const gameSessionUrl = useMemo((): string => {
+    return `${origin}/${gameSessionUrlSlug}`
+  }, [ gameSessionUrlSlug ])
 
   
 

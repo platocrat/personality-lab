@@ -26,6 +26,10 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
   const pathname = usePathname()
   // States
   const [ 
+    gameSessionUrlSlug, 
+    setGameSessionUrlSlug 
+  ] = useState<string>('Loading...')
+  const [ 
     players, 
     setPlayers 
   ] = useState<SocialRatingGamePlayers>({})
@@ -36,7 +40,6 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
   const [ sessionPin, setSessionPin ] = useState<string>('')
   const [ sessionQrCode, setSessionQrCode ] = useState<string>('')
   const [ isGameSession, setIsGameSession ] = useState<boolean>(false)
-  const [ gameSessionUrl, setGameSessionUrl ] = useState<string>('Loading...')
 
 
 
@@ -57,7 +60,14 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
 
       const { shortenedUrl } = await response.json()
 
-      if (shortenedUrl) setGameSessionUrl(shortenedUrl)
+      if (shortenedUrl) {
+        const target = 'api/url/'
+        const targetIndex = shortenedUrl.indexOf(target) + target.length
+        const shortId = shortenedUrl.slice(targetIndex)
+        const gameSessionUrlSlug_ = target + shortId
+
+        setGameSessionUrlSlug(gameSessionUrlSlug_)
+      }
     } catch (error: any) {
       throw new Error('Error shortening the URL: ', error)
     }
@@ -106,7 +116,7 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
         sessionPin, 
         sessionQrCode,
         isGameSession,
-        gameSessionUrl,
+        gameSessionUrlSlug,
         // Setters
         setIsHost,
         setGameId,
@@ -116,7 +126,7 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
         setSessionPin, 
         setSessionQrCode,
         setIsGameSession,
-        setGameSessionUrl,
+        setGameSessionUrlSlug,
       } }
     >
       { children }

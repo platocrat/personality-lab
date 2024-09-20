@@ -7,7 +7,8 @@ import {
   useState,
   useContext, 
   useCallback, 
-  useLayoutEffect, 
+  useLayoutEffect,
+  useMemo, 
 } from 'react'
 import { usePathname } from 'next/navigation'
 // Locals
@@ -86,12 +87,14 @@ const SocialRating: FC<SocialRatingProps> = ({
   } = useContext<SessionContextType>(SessionContext)
   const {
     sessionId,
+    gameSessionUrlSlug,
     // Setters
     setGameId,
     setHostEmail,
     setSessionId,
     setSessionPin,
     setSessionQrCode,
+    setGameSessionUrlSlug,
   } = useContext<GameSessionContextType>(GameSessionContext)
   // Hooks
   const origin = useOrigin()
@@ -106,8 +109,13 @@ const SocialRating: FC<SocialRatingProps> = ({
     setSelectedGame
   ] = useState<number | undefined>(undefined)
   const [ isHosting, setIsHosting ] = useState<boolean>(false)
-  const [ gameSessionUrl, setGameSessionUrl ] = useState<string>('')
   const [ hasActiveGame, setHasActiveGame ] = useState<boolean>(false)
+
+
+  // ------------------------ Memoized constants -------------------------------
+  const gameSessionUrl = useMemo((): string => {
+    return `${origin}/${gameSessionUrlSlug}`
+  }, [ gameSessionUrlSlug ])
 
 
   // ------------------------- Regular functions -------------------------------
@@ -169,7 +177,7 @@ const SocialRating: FC<SocialRatingProps> = ({
       const sessionId_ = socialRatingGame.sessionId
       const sessionPin_ = socialRatingGame.sessionPin
       const sessionQrCode_ = socialRatingGame.sessionQrCode
-      const gameSessionUrl_ = socialRatingGame.gameSessionUrl
+      const gameSessionUrlSlug_ = socialRatingGame.gameSessionUrlSlug
       
 
       setGameId(gameId_)
@@ -177,7 +185,7 @@ const SocialRating: FC<SocialRatingProps> = ({
       setSessionId(sessionId_)
       setSessionPin(sessionPin_)
       setSessionQrCode(sessionQrCode_)
-      setGameSessionUrl(gameSessionUrl_)
+      setGameSessionUrlSlug(gameSessionUrlSlug_)
       
       setHasActiveGame(isActive_)
       setIsFetchingActiveGamesAsHost(false)
