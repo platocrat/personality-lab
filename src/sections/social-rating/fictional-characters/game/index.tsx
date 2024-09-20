@@ -17,12 +17,6 @@ type GameProps = {
 
 
 
-/**
- * @todo Finish rudimentary game mechanics:
- * 1. Model game invitations and game initiation after Kahoot.
- * 2. Model game mechanics of rating each other after the PDF that Dr. Roberts
- *    shared with you
- */
 const Game: FC<GameProps> = ({}) => {
   // States
   const [ characters, setCharacters ] = useState<CharacterType[]>([])

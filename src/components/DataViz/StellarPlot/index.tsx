@@ -86,7 +86,7 @@ const StellarPlot: FC<StellarPlotProps> = ({
 
   useEffect(() => {
     const width = 500,
-      height = 500,
+      height = 485,
       margin = { top: 90, right: 90, bottom: 90, left: 90 },
       radius = (Math.min(width, height) / 2) - Math.max(
         ...Object.values(margin)
@@ -98,10 +98,6 @@ const StellarPlot: FC<StellarPlotProps> = ({
     const svg = d3.select(d3Container.current)
       .append('svg')
       .attr('preserveAspectRatio', 'xMinYMin meet')
-      /**
-       * @todo StellarPlot shareable image cuts off the domain labels on the 5
-       *      axis of the circle
-       */
       .attr('viewBox', '-270 -190 540 440')
       .classed(dataVizStyles.svgContent, true)
 
@@ -201,7 +197,7 @@ const StellarPlot: FC<StellarPlotProps> = ({
         )
       )
       .attr('width', 170)  // Adjust width as needed
-      .attr('height', 20)  // Adjust height as needed
+      .attr('height', 40)  // Adjust height as needed
       .html(
         (d: any) => `
           <p style="font-size: 14px; text-align: center;">
@@ -265,9 +261,12 @@ const StellarPlot: FC<StellarPlotProps> = ({
         .attr('stroke-width', 1) // Make this line thinner to enhance the tapered effect
         .attr('stroke-opacity', 0.65) // Optional: adjust opacity for stylistic effect
 
-      const columnIndex = Math.floor(i / itemsPerColumn) // Determine which column this item belongs to
-      const xPosition = (columnIndex * columnWidth) + 10 // Calculate the x position based on the column
-      const yPosition = (i % itemsPerColumn) * 20 // Calculate the y position within the column
+      // Determine which column this item belongs to
+      const columnIndex = Math.floor(i / itemsPerColumn)
+      // Calculate the x position based on the column
+      const xPosition = (columnIndex * columnWidth) + 10
+      // Calculate the y position within the column
+      const yPosition = (i % itemsPerColumn) * 20 + 20
 
       // Draw legend symbols (e.g., rectangles)
       legend.append('rect')
@@ -289,20 +288,6 @@ const StellarPlot: FC<StellarPlotProps> = ({
         .style('text-align', 'left')
         .text(`${d.axis}: ${Math.floor(d.value * 100)}`) // Display the label and its value
 
-      /**
-       * @todo 1. Make sure that the height and width of the tooltip's 
-       *       parent-most `div` of the tooltip is the same for every 
-       *       domain.
-       *       2. Make sure that the tooltip is activated `onClick` and not
-       *       `onHover`. This will ensure that the content within the 
-       *       tooltip that is displayed is also interactive, allowing the
-       *       user to click on a facet's bar to view more of its details,
-       *       while still inside of the tooltip.
-       *       3. Part 2) should function like a tooltip inside of a 
-       *       tooltip, until I come up with better ideas for how to 
-       *       present the facet-details all within the same small data viz
-       *       area.
-       */
       line
         .datum(d as any)
         .on('mouseover', function (event, d) {

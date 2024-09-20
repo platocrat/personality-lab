@@ -8,6 +8,7 @@ import { imgPaths } from '@/utils'
 import appStyles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
 import modalStyle from '@/components/Modals/Modal.module.css'
+import styles from '@/components/Modals/BESSI/ResultsVisualization/ResultsVisualziation.module.css'
 
 
 
@@ -40,7 +41,7 @@ const ResultsVisualizationModal: FC<ResultsVisualizationModalProps> = ({
 
 
   const handleShareScreenshot = () => {
-    const timeout = 2_000 // 2 seconds
+    const timeout = 100 // 1 ms
     // const viz_ = viz.visualizations[viz.currentVisualization]
 
     // Ask the user if they want to download the screenshot
@@ -98,20 +99,16 @@ const ResultsVisualizationModal: FC<ResultsVisualizationModalProps> = ({
                   margin: '8px 0px 24px 0px',
                 }}
               >
-                  { title }
+                { title }
               </h3>
 
               <div ref={ refs.screenshot2Ref }>
-                {/**
-                  * @todo StellarPlot shareable image cuts off the domain labels on the 5
-                  *      axis of the circle
-                  */}
                 <Image
-                  width={ 200 }
-                  height={ 200 }
+                  width={ 300 }
+                  height={ 300 }
                   src={ screenshotUrl }
                   alt='Screenshot of Visualization'
-                  style={ { width: '100%',  height: 'max-content'  } } 
+                  className={ styles['downloadable-image'] }
                 />
 
                 {/**
