@@ -220,7 +220,11 @@
 }
 
 .error-message {
-  color: red;
+  text-align: center;
+  width: 200px;
+  max-width: 200px;
+  margin-bottom: 24px;
+  color: rgb(243, 0, 0);
   margin-top: 8px;
   font-size: 14px;
 }

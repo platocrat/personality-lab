@@ -180,27 +180,28 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
   // ~~~~~ Handle nickname submission ~~~~~
   async function handleNicknameSubmit(e: any) {
     e.preventDefault()
-
     
     if (nickname) {
       const isPlayer_ = true
 
-      await updatePlayers(nickname)
+      const isDuplicateNickname_ = await updatePlayers(nickname) as boolean
 
-      // After successful update, store the data in localStorage
-      const key = 'nickname'
-      const value = nickname
-      localStorage.setItem(key, value)
-      
-      const player = players[nickname]
-
-      if (player) {
-        const key = 'player'
-        const value = JSON.stringify(player)
+      if (isDuplicateNickname_ === false) {
+        // After successful update, store the data in localStorage
+        const key = 'nickname'
+        const value = nickname
         localStorage.setItem(key, value)
+        
+        const player = players[nickname]
+        
+        if (player) {
+          const key = 'player'
+          const value = JSON.stringify(player)
+          localStorage.setItem(key, value)
+        }
+ 
+        setIsPlayer(isPlayer_)
       }
-
-      setIsPlayer(isPlayer_)
     }
   }
 
@@ -211,6 +212,9 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
       // Check if stored nickname is in the players list
       const storedNickname = localStorage.getItem('nickname')
       const storedPlayer = localStorage.getItem('player')
+
+      console.log(`storedNickname: `, storedNickname)
+      console.log(`storedPlayer: `, storedPlayer)
 
       if (storedNickname && storedPlayer && players[storedNickname]) {
         const player = JSON.parse(storedPlayer) as Player
@@ -301,7 +305,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
 
 
   // Add or update player in the game
-  async function updatePlayers(_nickname: string): Promise<void> {
+  async function updatePlayers(_nickname: string) {
     const hasJoined = true
     const ipAddress = ''
     const joinedAtTimestamp = 0
@@ -328,26 +332,37 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
       })
 
       const json = await response.json()
-
+      
+      if (response.status === 500) {
+        setIsUpdatingPlayers(false)
+        throw new Error(json.error)
+      }
+      
+      if (response.status === 405) {
+        setIsUpdatingPlayers(false)
+        throw new Error(json.error)
+      }
+      
       if (response.status === 200) {
-        const updatedPlayers = json.updatedPlayers as SocialRatingGamePlayers
-        setPlayers(updatedPlayers)
-        setIsUpdatingPlayers(false)
-      } else if (
-        response.status === 400 && 
-        json.message === `Nickname already taken. Please choose a different nickname.`
-      ) {
         const message = json.message
-        
-        setDuplicateNicknameErrorMessage(message)
-        setIsDuplicateNickname(true)
-        setIsUpdatingPlayers(false)
-      } else if (response.status === 500) {
-        setIsUpdatingPlayers(false)
-        throw new Error(json.error)
-      } else if (response.status === 405) {
-        setIsUpdatingPlayers(false)
-        throw new Error(json.error)
+        const targetMessage = 'Nickname is taken! Please choose a different nickname.'
+
+        if (message === targetMessage) {
+          const message = json.message
+
+          setIsPlayer(false)
+          setDuplicateNicknameErrorMessage(message)
+          setIsDuplicateNickname(true)
+          setIsUpdatingPlayers(false)
+
+          // `isDuplicateNickname === true` so we return `true` to display the 
+          // error message indicating that the nickname is a duplicate.
+          return true
+        } else {
+          const updatedPlayers = json.updatedPlayers as SocialRatingGamePlayers
+          setPlayers(updatedPlayers)
+          setIsUpdatingPlayers(false)
+        }
       } else {
         setIsUpdatingPlayers(false)
 
@@ -358,12 +373,13 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
         throw new Error(`${error}: ${json.error}`)
       }
     } catch (error: any) {
+      console.log(error)
       setIsUpdatingPlayers(false)
 
       /**
        * @todo Handle error UI here
        */
-      throw new Error(`Error updating player`, error.message)
+      throw new Error(`Error updating player: `, error.message)
     }
   }
 
@@ -396,30 +412,32 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
       if (response.status === 500) throw new Error(json.error)
       if (response.status === 405) throw new Error(json.error)
 
-      const socialRatingGame = json.socialRatingGame as SOCIAL_RATING_GAME__DYNAMODB
+      if (response.status === 200) {
+        const socialRatingGame = json.socialRatingGame as SOCIAL_RATING_GAME__DYNAMODB
 
-      const gameId_ = socialRatingGame.gameId
-      const players_ = socialRatingGame.players
-      const hostEmail_ = socialRatingGame.hostEmail
-      const sessionId_ = socialRatingGame.sessionId
-      const sessionPin_ = socialRatingGame.sessionPin
-      const sessionQrCode_ = socialRatingGame.sessionQrCode
+        const gameId_ = socialRatingGame.gameId
+        const players_ = socialRatingGame.players
+        const hostEmail_ = socialRatingGame.hostEmail
+        const sessionId_ = socialRatingGame.sessionId
+        const sessionPin_ = socialRatingGame.sessionPin
+        const sessionQrCode_ = socialRatingGame.sessionQrCode
 
-      // const pagePath = `${origin}${pathname}/session`
-      // const gameSessionUrl_ = `${pagePath}/${sessionId_}`
-      // setGameSessionUrl(gameSessionUrl_)
+        // const pagePath = `${origin}${pathname}/session`
+        // const gameSessionUrl_ = `${pagePath}/${sessionId_}`
+        // setGameSessionUrl(gameSessionUrl_)
 
-      // const isActive_ = socialRatingGame.isActive
-      // setHasActiveGame(isActive_)
+        // const isActive_ = socialRatingGame.isActive
+        // setHasActiveGame(isActive_)
 
-      setGameId(gameId_)
-      setPlayers(players_)
-      setHostEmail(hostEmail_)
-      setSessionId(sessionId_)
-      setSessionPin(sessionPin_)
-      setSessionQrCode(sessionQrCode_)
+        setGameId(gameId_)
+        setPlayers(players_)
+        setHostEmail(hostEmail_)
+        setSessionId(sessionId_)
+        setSessionPin(sessionPin_)
+        setSessionQrCode(sessionQrCode_)
 
-      setIsFetchingGame(false)
+        setIsFetchingGame(false)
+      }
     } catch (error: any) {
       setIsFetchingGame(false)
       throw new Error(error.message)
@@ -456,14 +474,16 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
 
   // ~~~~~ Check if the user is a player ~~~~~
   useLayoutEffect(() => {
-    if (players && userIP) {
-      const requests = [
-        getIsPlayer(),
-      ]
-
-      Promise.all(requests).then(() => { })
+    if (!isDuplicateNickname) {
+      if (players && userIP) {
+        const requests = [
+          // getIsPlayer(),
+        ]
+  
+        Promise.all(requests).then(() => { })
+      }
     }
-  }, [ players, userIP ])
+  }, [ players, userIP, isDuplicateNickname ])
 
 
   // ~~~~~ Get the rest of game session details from `sessionId` ~~~~~
@@ -616,12 +636,31 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
                           placeholder={ 'Enter a Nickname' }
                           className={ styles['input-field'] }
                           onChange={ (e: any) => onNicknameChange(e) }
+                          style={{
+                            borderColor: isDuplicateNickname
+                              ? 'rgb(243, 0, 0)'
+                              : '',
+                          }}
                         />
-                        
+
                         { isDuplicateNickname && (
                           <>
                             <div className={ styles['error-message'] }>
-                              { duplicateNicknameErrorMessage }
+                              <div>
+                                { `${ duplicateNicknameErrorMessage.slice(
+                                        0,
+                                        duplicateNicknameErrorMessage.indexOf('!') + 1
+                                      )
+                                  }`
+                                }
+                              </div>
+                              <div>
+                                {
+                                  duplicateNicknameErrorMessage.slice(
+                                    duplicateNicknameErrorMessage.indexOf('!') + 1
+                                  )
+                                }
+                              </div>
                             </div>
                           </>
                         ) }

@@ -65,14 +65,14 @@ export async function POST(
           )
           
           // Handle the case where duplicates are found
-          const message = `Nickname already taken. Please choose a different nickname.`
+          const message = `Nickname is taken! Please choose a different nickname.`
 
           return NextResponse.json(
             { 
               message,
             },
             {
-              status: 400,
+              status: 200,
               headers: {
                 'Content-Type': 'application/json'
               }
