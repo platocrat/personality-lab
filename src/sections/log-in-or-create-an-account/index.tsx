@@ -4,6 +4,7 @@
 import {
   useState,
   useContext,
+  useLayoutEffect,
 } from 'react'
 import { useRouter } from 'next/navigation'
 // Locals
@@ -31,6 +32,7 @@ const LogInOrCreateAnAccount = () => {
   const {
     email,
     // username,
+    isAuthenticated,
     setEmail,
     // setUsername,
     setIsGlobalAdmin,
@@ -305,6 +307,17 @@ const LogInOrCreateAnAccount = () => {
     isWaitingForResponse: setIsWaitingForResponse,
   }
   const handler = { handleLogIn, handleSignUp, handleEmailWithPasswordExists }
+
+
+
+  useLayoutEffect(() => {
+    if (!isAuthenticated) {
+      setEmail('')
+      setPassword({ hash: '', salt: '' })
+    }
+  }, [ isAuthenticated ])
+
+
 
 
 
