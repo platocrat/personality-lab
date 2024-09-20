@@ -98,31 +98,11 @@ const InitiateGame: FC<InitiateGameProps> = ({
 
     // Update the URL dynamically with the sessionId
     const longUrl = `${origin}/social-rating/session/${sessionId}`
+    const sessionQrCode = await generateSessionQrCode(longUrl) ?? ''
 
-    // 1. Call the API to shorten the URL for the QR code
-    try {
-      const response = await fetch('/api/url/shorten', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          originalUrl: `${longUrl}?from=qr`,
-        }),
-      })
-
-      const { shortenedUrl } = await response.json()
-
-      if (shortenedUrl) {
-        // Update the shortened URL in state
-        const sessionQrCode = await generateSessionQrCode(shortenedUrl) ?? ''
-        setSessionQrCode(sessionQrCode)
-      }
-    } catch (error: any) {
-      throw new Error('Error shortening the URL:', error)
-    }
+    setSessionQrCode(sessionQrCode)
     
-    // 2. Call the API to shorten the URL for everything else
+    // Call the API to shorten the URL for everything else
     try {
       const response = await fetch('/api/url/shorten', {
         method: 'PUT',
