@@ -13,6 +13,7 @@ const INIT_GAME_SESSION_CONTEXT: GameSessionContextType = {
   sessionPin: '',
   sessionQrCode: '',
   isGameSession: false,
+  gameSessionUrlSlug: '',
   setIsHost: () => { },
   setGameId: () => { },
   setPlayers: () => { },
@@ -21,6 +22,7 @@ const INIT_GAME_SESSION_CONTEXT: GameSessionContextType = {
   setSessionPin: () => { },
   setSessionQrCode: () => { },
   setIsGameSession: () => { },
+  setGameSessionUrlSlug: () => { },
 }
 
 
