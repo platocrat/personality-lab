@@ -134,10 +134,11 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
   const onSessionPinPaste = (e: any): void => {
     const pastedValue = e.clipboardData.getData('Text')
     const numericValue = pastedValue.replace(/\D/g, '') // Allow only numbers
+    const numericValueSliced = numericValue.slice(0, 6) // Ensure max length of 6
 
     e.preventDefault() // Prevent the default paste behavior
     setIsInvalidSessionPin(false)
-    setSessionPinInput(numericValue) // Ensure max length of 6
+    setSessionPinInput(numericValueSliced)
   }
 
 
@@ -212,9 +213,6 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
       // Check if stored nickname is in the players list
       const storedNickname = localStorage.getItem('nickname')
       const storedPlayer = localStorage.getItem('player')
-
-      console.log(`storedNickname: `, storedNickname)
-      console.log(`storedPlayer: `, storedPlayer)
 
       if (storedNickname && storedPlayer && players[storedNickname]) {
         const player = JSON.parse(storedPlayer) as Player
@@ -305,7 +303,11 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
 
 
   // Add or update player in the game
-  async function updatePlayers(_nickname: string) {
+  async function updatePlayers(_nickname: string): Promise<boolean> {
+    setIsUpdatingPlayers(true)
+
+    let isDuplicateNickname_ = false
+
     const hasJoined = true
     const ipAddress = ''
     const joinedAtTimestamp = 0
@@ -355,13 +357,15 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
           setIsDuplicateNickname(true)
           setIsUpdatingPlayers(false)
 
-          // `isDuplicateNickname === true` so we return `true` to display the 
-          // error message indicating that the nickname is a duplicate.
-          return true
+          isDuplicateNickname_ = true
+          return isDuplicateNickname_
         } else {
           const updatedPlayers = json.updatedPlayers as SocialRatingGamePlayers
           setPlayers(updatedPlayers)
           setIsUpdatingPlayers(false)
+
+          isDuplicateNickname_ = false
+          return isDuplicateNickname_
         }
       } else {
         setIsUpdatingPlayers(false)
@@ -459,6 +463,20 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
     const targetIndex = '/social-rating/session/'.length
     const sessionId_ = pathname.slice(targetIndex)
     setSessionId(sessionId_)
+  }, [ ])
+
+
+  // ~~~~~ Check if the URL contains the 'from=qr' query parameter ~~~~~
+  useLayoutEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search)
+    const isFromQR = searchParams.get('from') === 'qr'
+
+    if (isFromQR) {
+      // Mark that the user joined via QR code
+      console.log('User joined via QR code')
+      // Show the nickname input prompt
+      setNeedsSessionPin(false)
+    }
   }, [ ])
 
 
@@ -621,10 +639,10 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
                   ) : (
                     <>
                       { /* Render nickname input */ }
-                      <form 
+                      <form
                         className={ styles['input-section'] }
                         onSubmit={
-                          (e: any): Promise<void> => handleNicknameSubmit(e) 
+                          (e: any): Promise<void> => handleNicknameSubmit(e)
                         }
                       >
                         <h4 className={ styles['input-label'] }>
@@ -636,21 +654,21 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
                           placeholder={ 'Enter a Nickname' }
                           className={ styles['input-field'] }
                           onChange={ (e: any) => onNicknameChange(e) }
-                          style={{
+                          style={ {
                             borderColor: isDuplicateNickname
                               ? 'rgb(243, 0, 0)'
                               : '',
-                          }}
+                          } }
                         />
 
                         { isDuplicateNickname && (
                           <>
                             <div className={ styles['error-message'] }>
                               <div>
-                                { `${ duplicateNicknameErrorMessage.slice(
-                                        0,
-                                        duplicateNicknameErrorMessage.indexOf('!') + 1
-                                      )
+                                { `${duplicateNicknameErrorMessage.slice(
+                                  0,
+                                  duplicateNicknameErrorMessage.indexOf('!') + 1
+                                )
                                   }`
                                 }
                               </div>
@@ -665,12 +683,26 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
                           </>
                         ) }
 
-                        <button
-                          type={ 'submit' }
-                          className={ styles['input-button'] }
-                        >
-                          { `Join` }
-                        </button>
+                        { isUpdatingPlayers ? (
+                          <>
+                            <div
+                              style={ {
+                                ...definitelyCenteredStyle,
+                                position: 'relative',
+                                top: '5px',
+                              } }
+                            >
+                              <Spinner height='30' width='30' />
+                            </div>
+                          </>
+                        ) : (
+                          <button
+                            type={ 'submit' }
+                            className={ styles['input-button'] }
+                          >
+                            { `Join` }
+                          </button>
+                        )}
                       </form>
                     </>
                   ) }
@@ -686,7 +718,6 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
             style={ {
               ...definitelyCenteredStyle,
               position: 'relative',
-              // top: '80px',
             } }
           >
             <Spinner height='40' width='40' />

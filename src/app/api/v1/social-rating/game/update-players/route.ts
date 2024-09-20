@@ -93,8 +93,6 @@ export async function POST(
             ? { ...storedPlayers, [ nickname ]: newPlayer } 
             : { [nickname]: newPlayer }
 
-          console.log(`updatedPlayers: `, updatedPlayers)
-
           const Key = {
             sessionId,
             createdAtTimestamp: storedCreatedAtTimestamp

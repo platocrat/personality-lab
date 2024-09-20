@@ -92,7 +92,8 @@ const InitiateGame: FC<InitiateGameProps> = ({
   // Generate a QR code for the session
   async function generateSessionQrCode(_url: string) {
     try {
-      const qrCodeUrl = await QRCode.toDataURL(_url)
+      const queryParameter = `?from=qr`
+      const qrCodeUrl = await QRCode.toDataURL(`${_url}${queryParameter}`)
       return qrCodeUrl
     } catch (error: any) {
       console.error(error)
@@ -109,7 +110,7 @@ const InitiateGame: FC<InitiateGameProps> = ({
     setGameSessionUrl(url_)
 
     const sessionPin = generateSessionPin()
-    const sessionQrCode = await generateSessionQrCode(sessionId) ?? ''
+    const sessionQrCode = await generateSessionQrCode(url_) ?? ''
 
     setSessionId(sessionId)
     setSessionPin(sessionPin)

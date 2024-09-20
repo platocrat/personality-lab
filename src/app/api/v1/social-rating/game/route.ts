@@ -46,7 +46,7 @@ export async function PUT(
     const playerNickname: string = Object.keys(players)[0]
     
     const hasJoined = players[playerNickname].hasJoined
-    const ipAddress = requestHeaders.get('x-forwarded-for') ?? ''
+    const ipAddress = requestHeaders.get('x-forwarded-for') as string
     const joinedAtTimestamp = Date.now()
 
     const player: Player = {
@@ -55,9 +55,14 @@ export async function PUT(
       joinedAtTimestamp
     }
 
+    const players_: SocialRatingGamePlayers = {
+      [ playerNickname ]: player
+    }
+
     const TableName = DYNAMODB_TABLE_NAMES.socialRatingGames
     const Item: SOCIAL_RATING_GAME__DYNAMODB = {
       ...socialRatingGame,
+      players: players_,
       createdAtTimestamp: Date.now(),
     }
     
