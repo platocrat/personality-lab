@@ -17,8 +17,6 @@ import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
 import { SessionContext } from '@/contexts/SessionContext'
 import { GameSessionContext } from '@/contexts/GameSessionContext'
 import { GameSessionContextType, SessionContextType } from '@/contexts/types'
-// Hooks
-import useOrigin from '@/hooks/useOrigin'
 // Utils
 import { 
   Player,
@@ -64,8 +62,6 @@ const InitiateGame: FC<InitiateGameProps> = ({
     setSessionQrCode,
     setGameSessionUrlSlug,
   } = useContext<GameSessionContextType>(GameSessionContext)
-  // Hooks
-  const origin = useOrigin()
   // States
   const [ isLoading, setIsLoading ] = useState<boolean>(false)
   const [ isCreatingGame, setIsCreatingGame ] = useState<boolean>(false)
@@ -101,7 +97,7 @@ const InitiateGame: FC<InitiateGameProps> = ({
     const sessionId = generateSessionId()
 
     // Update the URL dynamically with the sessionId
-    const longUrl = `${origin}/${gameSessionUrlSlug}/${sessionId}`
+    const longUrl = `${origin}/social-rating/session/${sessionId}`
 
     // 1. Call the API to shorten the URL for the QR code
     try {

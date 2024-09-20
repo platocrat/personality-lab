@@ -24,8 +24,6 @@ import FictionalCharacters from './fictional-characters'
 import { SessionContext } from '@/contexts/SessionContext'
 import { GameSessionContext } from '@/contexts/GameSessionContext'
 import { GameSessionContextType, SessionContextType } from '@/contexts/types'
-// Hooks
-import useOrigin from '@/hooks/useOrigin'
 // Utils
 import { handleEnterGameSession, SOCIAL_RATING_GAME__DYNAMODB } from '@/utils'
 // CSS
@@ -97,7 +95,6 @@ const SocialRating: FC<SocialRatingProps> = ({
     setGameSessionUrlSlug,
   } = useContext<GameSessionContextType>(GameSessionContext)
   // Hooks
-  const origin = useOrigin()
   const pathname = usePathname()
   // States
   const [ 
@@ -178,7 +175,6 @@ const SocialRating: FC<SocialRatingProps> = ({
       const sessionPin_ = socialRatingGame.sessionPin
       const sessionQrCode_ = socialRatingGame.sessionQrCode
       const gameSessionUrlSlug_ = socialRatingGame.gameSessionUrlSlug
-      
 
       setGameId(gameId_)
       setHostEmail(hostEmail_)

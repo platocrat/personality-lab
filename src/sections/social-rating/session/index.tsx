@@ -73,6 +73,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
     setSessionId,
     setSessionPin,
     setSessionQrCode,
+    setGameSessionUrlSlug,
   } = useContext<GameSessionContextType>(GameSessionContext)
   // Hooks
   const pathname = usePathname()
@@ -425,6 +426,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
         const sessionId_ = socialRatingGame.sessionId
         const sessionPin_ = socialRatingGame.sessionPin
         const sessionQrCode_ = socialRatingGame.sessionQrCode
+        const gameSessionUrlSlug_ = socialRatingGame.gameSessionUrlSlug
 
         // const pagePath = `${origin}${pathname}/session`
         // const gameSessionUrl_ = `${pagePath}/${sessionId_}`
@@ -439,6 +441,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
         setSessionId(sessionId_)
         setSessionPin(sessionPin_)
         setSessionQrCode(sessionQrCode_)
+        setGameSessionUrlSlug(gameSessionUrlSlug_)
 
         setIsFetchingGame(false)
       }

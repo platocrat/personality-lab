@@ -14,7 +14,6 @@ import {
 import { GameSessionContextType } from '@/contexts/types'
 import { GameSessionContext } from '@/contexts//GameSessionContext'
 // Hooks
-import useOrigin from '@/hooks/useOrigin'
 import useGameTitle from '@/hooks/useGameTitle'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -42,16 +41,21 @@ const InvitationDetails: FC<InvitationDetailsProps> = ({
     gameSessionUrlSlug,
   } = useContext<GameSessionContextType>(GameSessionContext)
   // Hooks
-  const origin = useOrigin()
   const pathname = usePathname()
   const gameTitle = useGameTitle(gameId, sessionId)
+  // States
+  const [ gameSessionUrl, setGameSessionUrl ] = useState<string>('')
 
 
-  const gameSessionUrl = useMemo((): string => {
-    return `${origin}/${gameSessionUrlSlug}`
+  useLayoutEffect(() => {
+    if (window !== undefined) {
+      const origin = window.location.origin
+      setGameSessionUrl(`${origin}/${gameSessionUrlSlug}`)
+    }
   }, [ gameSessionUrlSlug ])
 
   
+
 
   return (
     <>
