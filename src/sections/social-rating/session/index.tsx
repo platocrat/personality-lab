@@ -495,7 +495,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
     if (!isDuplicateNickname) {
       if (players && userIP) {
         const requests = [
-          // getIsPlayer(),
+          getIsPlayer(),
         ]
   
         Promise.all(requests).then(() => { })
@@ -633,7 +633,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
                             : styles['input-button']
                         }
                       >
-                        { `Enter Session` }
+                        { `Enter PIN` }
                       </button>
                     </form>
                   ) : (

@@ -40,6 +40,7 @@ const InvitationDetails: FC<InvitationDetailsProps> = ({
     sessionQrCode,
   } = useContext<GameSessionContextType>(GameSessionContext)
   // Hooks
+  const pathname = usePathname()
   const gameTitle = useGameTitle(gameId, sessionId)
 
   
@@ -63,13 +64,19 @@ const InvitationDetails: FC<InvitationDetailsProps> = ({
 
               <div className={ styles.section }>
                 <div>
-                  <div className={ styles.label }>{ `Session ID:` }</div>
-                  <div className={ styles.value }>{ sessionId }</div>
-                </div>
-                <div>
-                  <div className={ styles.label }>{ `Session PIN:` }</div>
+                  <div>
+                    <div className={ styles.label }>{ `Session URL:` }</div>
+                    <div className={ styles.value }>
+                      { `${window.location.origin}/social-rating/session/${sessionId}` }
+                    </div>
+                  </div>
+                  <div className={ styles.label }>
+                    { `Session PIN:` }
+                  </div>
                   <div 
-                    className={ `${styles.value} ${styles['wide-letter-spacing']}` }
+                    className={ 
+                      `${styles.value} ${styles['wide-letter-spacing']} ${styles['xx-large-font']}`
+                    }
                   >
                     { `${ sessionPin.slice(0, 3) } ${sessionPin.slice(3, 6) }` }
                   </div>
