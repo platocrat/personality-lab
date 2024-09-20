@@ -1,17 +1,16 @@
 // Externals
-import { NextRequest, NextResponse } from 'next/server'
-import { 
+import {
   PutCommand,
   QueryCommand,
   PutCommandInput,
   QueryCommandInput,
 } from '@aws-sdk/lib-dynamodb'
+import { NextRequest, NextResponse } from 'next/server'
 // Locals
-import { 
+import {
   Player,
-  getEntryId, 
-  ddbDocClient, 
-  DYNAMODB_TABLE_NAMES, 
+  ddbDocClient,
+  DYNAMODB_TABLE_NAMES,
   SocialRatingGamePlayers,
   SOCIAL_RATING_GAME__DYNAMODB,
 } from '@/utils'

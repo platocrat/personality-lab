@@ -13,10 +13,15 @@ import Questionnaire from '@/components/Questionnaire'
 import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
 // Contexts
 import { SessionContext } from '@/contexts/SessionContext'
+import { GameSessionContext } from '@/contexts/GameSessionContext'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 import { UserDemographicsContext } from '@/contexts/UserDemographicsContext'
 // Context Type
-import { BessiSkillScoresContextType, SessionContextType } from '@/contexts/types'
+import { 
+  SessionContextType,
+  GameSessionContextType, 
+  BessiSkillScoresContextType, 
+} from '@/contexts/types'
 // Utilities
 import {
   getFacet,
@@ -32,6 +37,8 @@ import {
   BessiUserResults__DynamoDB,
   WELLNESS_RATINGS_DESCRIPTIONS,
   BessiUserDemographics__DynamoDB,
+  BESSI_20_ACTIVITY_BANK,
+  BessiActivityType,
 } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
@@ -48,12 +55,17 @@ const ASSESSMENT_ID = 'bessi'
 
 
 
-const BessiAssessment: FC<BessiProps> = ({ }) => {
+const BessiAssessment: FC<BessiProps> = ({
+
+}) => {
   // // Auth0
   // const { user, error, isLoading } = useUser()
 
   // Contexts
   const { email } = useContext<SessionContextType>(SessionContext)
+  const { 
+    isGameInSession
+  } = useContext<GameSessionContextType>(GameSessionContext)
 
   // Hooks
   const router = useRouter()
@@ -84,6 +96,8 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
     userScores,
     setUserScores
   ] = useState<{ [key: string]: UserScoresType } | null>(null)
+  // Strings
+  const [ questions, setQuestions ] = useState<string[]>([''])
   // Booleans
   const [ 
     isEndOfQuestionnaire, 
@@ -94,9 +108,21 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
   const [ currentQuestionIndex, setCurrentQuestionIndex ] = useState<number>(0)
 
 
-  const questions = BESSI_192_ACTIVITY_BANK.map(
-    bessiActivity => bessiActivity.activity
-  )
+  useLayoutEffect(() => {
+    let questions_ = BESSI_192_ACTIVITY_BANK.map(
+      bessiActivity => bessiActivity.activity
+    )
+
+    if (isGameInSession) {
+      questions_ = BESSI_20_ACTIVITY_BANK.map(
+        bessiActivity => bessiActivity.activity
+      )
+
+      setQuestions(questions_)
+    } else {
+      setQuestions(questions_)
+    }
+  }, [ isGameInSession ])
 
 
   //------------------------- Regular function handlers ----------------------
@@ -375,7 +401,7 @@ const BessiAssessment: FC<BessiProps> = ({ }) => {
 
             { isEndOfQuestionnaire && (
               <>
-                <BessiDemographicQuestionnaire />
+                { !isGameInSession && <BessiDemographicQuestionnaire /> }
                 <FormButton
                   buttonText={ BUTTON_TEXT }
                   state={ {

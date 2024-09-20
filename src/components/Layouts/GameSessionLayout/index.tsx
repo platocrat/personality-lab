@@ -1,13 +1,11 @@
 // Externals
 import { usePathname } from 'next/navigation'
-import { createContext, useState, ReactNode, useLayoutEffect, FC } from 'react'
+import { FC, ReactNode, useLayoutEffect, useState } from 'react'
 // Locals
 // Contexts
 import { GameSessionContext } from '@/contexts/GameSessionContext'
-// Context Types
-import { GameSessionContextType } from '@/contexts/types'
 // Utils
-import { SocialRatingGamePlayers } from '@/utils'
+import { GamePhases, SocialRatingGamePlayers } from '@/utils'
 
 
 
@@ -33,7 +31,9 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
   const [ hostEmail, setHostEmail ] = useState<string>('')
   const [ sessionPin, setSessionPin ] = useState<string>('')
   const [ sessionQrCode, setSessionQrCode ] = useState<string>('')
+  const [ phase, setPhase ] = useState<GamePhases>(GamePhases.Lobby)
   const [ isGameSession, setIsGameSession ] = useState<boolean>(false)
+  const [ isGameInSession, setIsGameInSession ] = useState<boolean>(false)
   const [ gameSessionUrlSlug, setGameSessionUrlSlug ] = useState<string>('')
   
 
@@ -61,6 +61,7 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
   return (
     <GameSessionContext.Provider 
       value={ { 
+        phase,
         gameId,
         isHost,
         players,
@@ -69,8 +70,10 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
         sessionPin, 
         sessionQrCode,
         isGameSession,
+        isGameInSession,
         gameSessionUrlSlug,
         // Setters
+        setPhase,
         setIsHost,
         setGameId,
         setPlayers,
@@ -79,6 +82,7 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
         setSessionPin, 
         setSessionQrCode,
         setIsGameSession,
+        setIsGameInSession,
         setGameSessionUrlSlug,
       } }
     >

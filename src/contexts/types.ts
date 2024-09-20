@@ -1,19 +1,13 @@
 // Externals
 import { Dispatch, SetStateAction } from 'react'
 // Locals
-import { 
-  USState,
-  YesOrNo,
-  SocialClass,
+import {
+  GamePhases,
   StudyAsAdmin,
-  RaceOrEthnicity,
   STUDY__DYNAMODB,
-  BessiSkillScoresType, 
-  CurrentMaritalStatus,
+  BessiSkillScoresType,
   PARTICIPANT__DYNAMODB,
   STUDY_SIMPLE__DYNAMODB,
-  HighestFormalEducation,
-  CurrentEmploymentStatus,
   SocialRatingGamePlayers,
 } from '@/utils'
 
@@ -53,20 +47,25 @@ export type EditStudyModalContextType = {
 export type GameSessionContextType = {
   gameId: string // Set when the game host selects a game
   isHost: boolean
+  phase: GamePhases
   hostEmail: string
   sessionId: string
   sessionPin: string
   sessionQrCode: string
-  gameSessionUrlSlug: string
   isGameSession: boolean
+  isGameInSession: boolean
+  gameSessionUrlSlug: string
   players: SocialRatingGamePlayers
+  // Setters
   setGameId: Dispatch<SetStateAction<string>> // Set when the game host selects a game
   setIsHost: Dispatch<SetStateAction<boolean>>
   setHostEmail: Dispatch<SetStateAction<string>>
   setSessionId: Dispatch<SetStateAction<string>>
+  setPhase: Dispatch<SetStateAction<GamePhases>>
   setSessionPin: Dispatch<SetStateAction<string>>
   setSessionQrCode: Dispatch<SetStateAction<string>>
   setIsGameSession: Dispatch<SetStateAction<boolean>>
+  setIsGameInSession: Dispatch<SetStateAction<boolean>>
   setGameSessionUrlSlug: Dispatch<SetStateAction<string>>
   setPlayers: Dispatch<SetStateAction<SocialRatingGamePlayers>>
 }

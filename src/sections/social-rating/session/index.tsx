@@ -1,23 +1,22 @@
 'use client'
 
 // Externals
+import { usePathname } from 'next/navigation'
 import {
   FC,
   useState,
-  Fragment,
-  ReactNode,
   useEffect,
   useContext,
   useLayoutEffect,
 } from 'react'
-import { usePathname } from 'next/navigation'
 // Locals
 import Spinner from '@/components/Suspense/Spinner'
+// Sections
 import Title from '@/sections/social-rating/session/title'
-import Results from '@/sections/social-rating/session/results'
-import SelfReport from '@/sections/social-rating/session/self-report'
-import ObserverReport from '@/sections/social-rating/session/observer-report'
-import InvitationDetails from '@/sections/social-rating/session/invitation-details'
+import InGame from '@/sections/social-rating/session/in-game'
+import SessionLobby from '@/sections/social-rating/session/lobby'
+import NicknameForm from '@/sections/social-rating/session/forms/nickname'
+import SessionPinForm from '@/sections/social-rating/session/forms/session-pin'
 // Contexts
 import { SessionContext } from '@/contexts/SessionContext'
 import { GameSessionContext } from '@/contexts/GameSessionContext'
@@ -26,13 +25,13 @@ import { GameSessionContextType, SessionContextType } from '@/contexts/types'
 // Utils
 import {
   Player,
+  GamePhases,
   SocialRatingGamePlayers,
   INVALID_CHARS_EXCEPT_NUMBERS,
   SOCIAL_RATING_GAME__DYNAMODB,
 } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
-import styles from '@/sections/social-rating/session/GameSession.module.css'
 
 
 
@@ -40,13 +39,6 @@ type SocialRatingSessionProps = {
 
 }
 
-
-enum GamePhases {
-  Lobby = 'lobby',
-  SelfReport = 'self-report',
-  ObserverReport = 'observer-report',
-  Results = 'results',
-}
 
 
 
@@ -58,6 +50,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
     email,
   } = useContext<SessionContextType>(SessionContext)
   const {
+    phase,
     gameId,
     isHost,
     players,
@@ -66,6 +59,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
     sessionPin,
     sessionQrCode,
     // Setters
+    setPhase,
     setGameId,
     setIsHost,
     setPlayers,
@@ -73,13 +67,12 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
     setSessionId,
     setSessionPin,
     setSessionQrCode,
+    setIsGameInSession,
     setGameSessionUrlSlug,
   } = useContext<GameSessionContextType>(GameSessionContext)
   // Hooks
   const pathname = usePathname()
   // States
-  // State to manage game phases
-  const [phase, setPhase] = useState<GamePhases>(GamePhases.Lobby)
   // Player states
   const [nickname, setNickname] = useState<string>('')
   const [isPlayer, setIsPlayer] = useState<boolean>(false)
@@ -157,21 +150,13 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
   }
 
 
+  const onStartGame = () => {
+    setIsGameInSession(true)
+    setPhase(GamePhases.ConsentForm) // Move to ConsentForm phase
+  }
+
+
   // ~~~~ Functions to handle each phase ~~~~
-  const handleSelfReportCompletion = () => {
-    // Collect self-report data
-    // Move to observer-report phase
-    setPhase(GamePhases.SelfReport)
-  }
-
-
-  const handleObserverReportCompletion = () => {
-    // Collect observer-report data
-    // Move to results phase
-    setPhase(GamePhases.Results)
-  }
-
-
   const computeResults = () => {
     // Compute profile correlations
     // Determine the winner
@@ -502,6 +487,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
 
   // ~~~~~ Get the rest of game session details from `sessionId` ~~~~~
   useLayoutEffect(() => {
+    localStorage.clear()
     if (sessionId) {
       const requests = [
         getGame(),
@@ -534,34 +520,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
                     {/* ------------------ Game lobby -------------------- */ }
                     { phase === GamePhases.Lobby ? (
                       <>
-                        <div className={ styles['lobby-container'] }>
-                          <InvitationDetails
-                            isLobby={ phase === GamePhases.Lobby } 
-                          />
-
-                          <div className={ styles['player-nickname-grid'] }>
-                            { players && Object.keys(players).length > 0 ? (
-                              <>
-                                { Object.keys(players).map((
-                                    _nickname: string, 
-                                    i: number
-                                  ) => (
-                                    <Fragment key={ i }>
-                                      <h2 className={ styles['player-nickname'] }>
-                                        { _nickname }
-                                      </h2>
-                                    </Fragment>
-                                  )) }
-                              </>
-                            ) : (
-                              <>
-                                <h2>
-                                  { `Waiting for other players...` }
-                                </h2>
-                              </>
-                            ) }
-                          </div>
-                        </div>
+                        <SessionLobby onClick={ onStartGame } />
                       </>
                     ) : (
                       <>
@@ -569,21 +528,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
 
                         {/* ------------------- In-game content ------------------- */ }
 
-                        <div>
-                          { phase === GamePhases.SelfReport && (
-                            <SelfReport
-                              onCompletion={ handleSelfReportCompletion }
-                            />
-                          ) }
-
-                          { phase === GamePhases.ObserverReport && (
-                            <ObserverReport
-                              onCompletion={ handleObserverReportCompletion }
-                            />
-                          ) }
-
-                          { phase === GamePhases.Results && <Results /> }
-                        </div>
+                        <InGame />
                       </>
                     ) }
                   </div>
@@ -592,114 +537,30 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
                 <>
                   {/* Render session PIN input */}
                   { needsSessionPin ? (
-                    <form 
-                      className={ styles['input-section'] }
-                      onSubmit={
-                        (e: any): Promise<void> => handleSessionPinSubmit(e)
-                      }
-                    >
-                      <h4 className={ styles['input-label'] }>
-                        { `Enter Session PIN` }
-                      </h4>
-                      <input
-                        type={ 'text' }
-                        maxLength={ 6 }
-                        inputMode={ 'numeric' }
-                        value={ sessionPinInput }
-                        placeholder={ 'Enter 6-digit PIN' }
-                        className={ styles['input-field'] }
-                        onPaste={ (e: any): void => onSessionPinPaste(e) }
-                        onChange={ (e: any): void => onSessionPinChange(e) }
-                        onKeyDown={ (e: any): any => onSessionPinKeyDown(e) }
-                        style={ {
-                          borderColor: isInvalidSessionPin
-                            ? 'rgb(243, 0, 0)'
-                            : '',
-                          boxShadow: isInvalidSessionPin
-                            ? '0 2px 6px 3px rgb(243, 0, 0, 0.15)'
-                            : ''
-                        } }
-                      />
-                      <button
-                        type={ 'submit' }
-                        disabled={ isInvalidSessionPin }
-                        className={
-                          isInvalidSessionPin
-                            ? styles['input-button-disabled']
-                            : styles['input-button']
-                        }
-                      >
-                        { `Enter PIN` }
-                      </button>
-                    </form>
+                    <SessionPinForm 
+                      onSubmit={ handleSessionPinSubmit }
+                      state={{
+                        sessionPinInput,
+                        isInvalidSessionPin,
+                      }}
+                      inputHandlers={{
+                        onSessionPinPaste,
+                        onSessionPinChange,
+                        onSessionPinKeyDown,
+                      }}
+                    />
                   ) : (
                     <>
-                      { /* Render nickname input */ }
-                      <form
-                        className={ styles['input-section'] }
-                        onSubmit={
-                          (e: any): Promise<void> => handleNicknameSubmit(e)
-                        }
-                      >
-                        <h4 className={ styles['input-label'] }>
-                          { `Enter Nickname` }
-                        </h4>
-                        <input
-                          type='text'
-                          value={ nickname }
-                          placeholder={ 'Enter a Nickname' }
-                          className={ styles['input-field'] }
-                          onChange={ (e: any) => onNicknameChange(e) }
-                          style={ {
-                            borderColor: isDuplicateNickname
-                              ? 'rgb(243, 0, 0)'
-                              : '',
-                          } }
-                        />
-
-                        { isDuplicateNickname && (
-                          <>
-                            <div className={ styles['error-message'] }>
-                              <div>
-                                { `${duplicateNicknameErrorMessage.slice(
-                                  0,
-                                  duplicateNicknameErrorMessage.indexOf('!') + 1
-                                )
-                                  }`
-                                }
-                              </div>
-                              <div>
-                                {
-                                  duplicateNicknameErrorMessage.slice(
-                                    duplicateNicknameErrorMessage.indexOf('!') + 1
-                                  )
-                                }
-                              </div>
-                            </div>
-                          </>
-                        ) }
-
-                        { isUpdatingPlayers ? (
-                          <>
-                            <div
-                              style={ {
-                                ...definitelyCenteredStyle,
-                                position: 'relative',
-                                top: '5px',
-                              } }
-                            >
-                              <Spinner height='30' width='30' />
-                            </div>
-                          </>
-                        ) : (
-                          <button
-                            type={ 'submit' }
-                            className={ styles['input-button'] }
-                          >
-                            { `Join` }
-                          </button>
-                        )}
-                      </form>
+                      <NicknameForm 
+                        onChange={ onNicknameChange }
+                        onSubmit={ handleNicknameSubmit }
+                        state={{
+                          nickname,
+                          isUpdatingPlayers,
+                          isDuplicateNickname,
+                          duplicateNicknameErrorMessage,
+                        }}
+                      />
                     </>
                   ) }
                 </>

@@ -1,7 +1,9 @@
 // Externals
 import { createContext } from 'react'
 // Locals
-import { GameSessionContextType } from './types'
+import { GamePhases } from '@/utils'
+import { GameSessionContextType } from '@/contexts/types'
+
 
 
 const INIT_GAME_SESSION_CONTEXT: GameSessionContextType = {
@@ -14,6 +16,8 @@ const INIT_GAME_SESSION_CONTEXT: GameSessionContextType = {
   sessionQrCode: '',
   isGameSession: false,
   gameSessionUrlSlug: '',
+  phase: GamePhases.Lobby,
+  setPhase: () => { },
   setIsHost: () => { },
   setGameId: () => { },
   setPlayers: () => { },

@@ -1,25 +1,23 @@
 'use client'
 
 // Externals
-import { 
-  FC, 
-  Fragment, 
+import {
+  FC,
   useState,
-  useContext, 
-  useCallback, 
+  Fragment,
+  useContext,
+  useCallback,
   useLayoutEffect,
-  useMemo, 
 } from 'react'
 import { usePathname } from 'next/navigation'
 // Locals
 // Components
 import Card from '@/components/Card'
-import InitiateGame from '@/sections/social-rating/session/initiate-game'
 import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
-import InvitationDetails from '@/sections/social-rating/session/invitation-details'
 // Sections
-import Bessi from './bessi'
-import FictionalCharacters from './fictional-characters'
+import Bessi from '@/sections/social-rating/bessi'
+import InitiateGame from '@/sections/social-rating/session/initiate-game'
+import InvitationDetails from '@/sections/social-rating/session/invitation-details'
 // Contexts
 import { SessionContext } from '@/contexts/SessionContext'
 import { GameSessionContext } from '@/contexts/GameSessionContext'

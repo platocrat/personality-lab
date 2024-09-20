@@ -1,11 +1,10 @@
 // Externals
-import { 
-  FC, 
-  Dispatch, 
+import {
+  FC,
+  Dispatch,
   Fragment,
-  useState,
-  SetStateAction, 
-  useLayoutEffect,
+  SetStateAction,
+  useLayoutEffect
 } from 'react'
 // Locals
 import styles from '@/app/page.module.css'
@@ -34,10 +33,10 @@ const Questionnaire: FC<QuestionnaireProps> = ({
   questions,
   currentQuestionIndex,
   setIsEndOfQuestionnaire,
-}) => {  
+}) => {
   useLayoutEffect(() => {
     setIsEndOfQuestionnaire(currentQuestionIndex === questions.length - 1)
-  }, [currentQuestionIndex])
+  }, [questions, currentQuestionIndex])
 
 
   

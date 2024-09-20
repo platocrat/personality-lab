@@ -28,7 +28,6 @@ export function getDomain(
   bessiVersion?: number,
 ) {
   const DOMAIN_MAPPINGS = {
-    // 45: {},
     20: {
       1: SkillDomain.SelfManagement, 6: SkillDomain.SelfManagement, 11: SkillDomain.SelfManagement, 16: SkillDomain.SelfManagement,
       2: SkillDomain.SocialEngagement, 7: SkillDomain.SocialEngagement, 12: SkillDomain.SocialEngagement, 17: SkillDomain.SocialEngagement,
@@ -36,6 +35,13 @@ export function getDomain(
       4: SkillDomain.EmotionalResilience, 9: SkillDomain.EmotionalResilience, 14: SkillDomain.EmotionalResilience, 19: SkillDomain.EmotionalResilience,
       5: SkillDomain.Innovation, 10: SkillDomain.EmotionalResilience, 15: SkillDomain.EmotionalResilience, 20: SkillDomain.EmotionalResilience,
     },
+    45: {
+      1: SkillDomain.SelfManagement, 6: SkillDomain.SelfManagement, 11: SkillDomain.SelfManagement, 16: SkillDomain.SelfManagement, 21: SkillDomain.SelfManagement, 26: SkillDomain.SelfManagement, 31: SkillDomain.SelfManagement, 36: SkillDomain.SelfManagement, 41: SkillDomain.SelfManagement,
+      2: SkillDomain.SocialEngagement, 7: SkillDomain.SocialEngagement, 12: SkillDomain.SocialEngagement, 17: SkillDomain.SocialEngagement, 22: SkillDomain.SocialEngagement, 27: SkillDomain.SocialEngagement, 32: SkillDomain.SocialEngagement, 37: SkillDomain.SocialEngagement, 42: SkillDomain.SocialEngagement,
+      3: SkillDomain.Cooperation, 8: SkillDomain.Cooperation, 13: SkillDomain.Cooperation, 18: SkillDomain.Cooperation, 23: SkillDomain.Cooperation, 28: SkillDomain.Cooperation, 33: SkillDomain.Cooperation, 38: SkillDomain.Cooperation, 43: SkillDomain.Cooperation,
+      4: SkillDomain.EmotionalResilience, 9: SkillDomain.EmotionalResilience, 14: SkillDomain.EmotionalResilience, 19: SkillDomain.EmotionalResilience, 24: SkillDomain.EmotionalResilience, 29: SkillDomain.EmotionalResilience, 34: SkillDomain.EmotionalResilience, 39: SkillDomain.EmotionalResilience, 44: SkillDomain.EmotionalResilience,
+      5: SkillDomain.Innovation, 10: SkillDomain.Innovation, 15: SkillDomain.Innovation, 20: SkillDomain.Innovation, 25: SkillDomain.Innovation, 30: SkillDomain.Innovation, 35: SkillDomain.Innovation, 40: SkillDomain.Innovation, 45: SkillDomain.Innovation,
+    }
   }
 
   return DOMAIN_MAPPINGS[bessiVersion ?? 20][activityId]

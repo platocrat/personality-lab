@@ -1,22 +1,20 @@
 // Externals
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { 
-  FC, 
-  useMemo, 
+import {
+  FC,
   useState,
-  ReactNode, 
-  useContext, 
-  useLayoutEffect, 
+  ReactNode,
+  useContext,
+  useLayoutEffect,
 } from 'react'
 // Locals
 // Contexts
-import { GameSessionContextType } from '@/contexts/types'
 import { GameSessionContext } from '@/contexts//GameSessionContext'
+import { GameSessionContextType } from '@/contexts/types'
 // Hooks
 import useGameTitle from '@/hooks/useGameTitle'
 // CSS
-import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/sections/social-rating/session/GameSession.module.css'
 
 

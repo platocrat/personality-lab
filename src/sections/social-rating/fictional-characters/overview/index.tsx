@@ -4,7 +4,6 @@ import { FC } from 'react'
 // Components
 import LearnMore from '@/components/SocialRating/LearnMore'
 import ExternalLink from '@/components/Anchors/ExternalLink'
-import Instructions from '@/components/SocialRating/Instructions'
 // Sections
 import GameMechanics from './game-mechanics'
 import NoticeOnInvalidOutput from './notice-on-invalid-output'

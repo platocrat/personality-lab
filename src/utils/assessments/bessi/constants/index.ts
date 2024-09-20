@@ -1,5 +1,6 @@
 // Utility functions
 import {
+  getDomain,
   getFacet,
   getSkillDomainAndWeight
 } from '../utils'
@@ -769,10 +770,22 @@ export const BESSI_192_ACTIVITY_BANK: BessiActivityType[] = BESSI_ACTIVITIES['se
 
 
 
-export const BESSI_45_ACTIVITY_BANK: BessiActivityType[] = BESSI_ACTIVITIES['self-report'][45].map(
+
+export const BESSI_45_ACTIVITY_BANK = BESSI_ACTIVITIES['self-report'][45].map(
   (activity, index) => ({
   id: index + 1,
   activity,
-  facet: getFacet(index + 1),
-  ...getSkillDomainAndWeight(getFacet(index + 1))
+  // Add 1 because domain mappings start at 1 not 0
+  domain: getDomain(index + 1, 45)
+}))
+
+
+
+
+export const BESSI_20_ACTIVITY_BANK = BESSI_ACTIVITIES['self-report'][20].map(
+  (activity, index) => ({
+  id: index + 1,
+  activity,
+  // Add 1 because domain mappings start at 1 not 0
+  domain: getDomain(index + 1, 20)
 }))
