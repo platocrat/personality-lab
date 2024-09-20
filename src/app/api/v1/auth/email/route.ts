@@ -41,7 +41,12 @@ export async function GET(
         ) {
           return NextResponse.json(
             { message: 'Email with password exists' },
-            { status: 200 },
+            { 
+              status: 200,
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            },
           )
         } else { 
           /**
@@ -72,19 +77,34 @@ export async function GET(
       if (isExpiredTokenException) {
         return NextResponse.json(
           { error: 'ExpiredTokenException: AWS access keys have expired.' },
-          { status: 500 },
+          { 
+            status: 500,
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          },
         )
       } else {
         return NextResponse.json(
           { error: error },
-          { status: 500 },
+          { 
+            status: 500,
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          },
         )
       }
     }
   } else {
     return NextResponse.json(
       { error: 'Method Not Allowed' },
-      { status: 405 },
+      { 
+        status: 405,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      },
     )
   }
 }

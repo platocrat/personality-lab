@@ -184,25 +184,39 @@ export async function GET(
           )
         }
       } catch (error: any) {
-        const errorMessage = `Session ID '${
-          sessionId
-        }' does not exist in '${TableName}' table`
+        // Error sending POST request to DynamoDB table
+        const isExpiredTokenException = error.name === 'ExpiredTokenException'
 
-        console.error(`${errorMessage}: `, error)
+        if (isExpiredTokenException) {
+          return NextResponse.json(
+            { error: 'ExpiredTokenException: AWS access keys have expired.' },
+            { 
+              status: 500,
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            },
+          )
+        } else {
+          const errorMessage = `Session ID '${sessionId
+            }' does not exist in '${TableName}' table`
 
-        // Something went wrong
-        return NextResponse.json(
-          {
-            message: 'sessionId does not exist',
-            error: errorMessage,
-          },
-          {
-            status: 404,
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          },
-        )
+          console.error(`${errorMessage}: `, error)
+
+          // Something went wrong
+          return NextResponse.json(
+            {
+              message: 'sessionId does not exist',
+              error: errorMessage,
+            },
+            {
+              status: 404,
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            },
+          )
+        }
       }
     // GET game using `hostEmail` as the Global Secondary Index, being used as 
     // the Partition/Primary Key.
