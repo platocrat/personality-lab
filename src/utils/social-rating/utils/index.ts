@@ -8,10 +8,15 @@ import {
   calculateBessiScores,
   SkillDomainFactorType, 
   generateBessiActivityBank,
+  BessiSkillScoresType,
 } from '@/utils/assessments'
 import { findNthOccurrence } from '@/utils/misc'
 import { CharacterType, GeneratedCharacterType } from '../types'
 
+
+
+const REPORT_TYPE = 'self-report'
+const BESSI_VERSION = 96
 
 
 
@@ -25,13 +30,12 @@ function update(
   const name = genCharacter.name
   const description = genCharacter.description
 
-  const responses: UserScoresType[] = generateBessiActivityBank(
-    'self-report',
-    96
-  ).map((
+  const activityBank = generateBessiActivityBank(REPORT_TYPE, BESSI_VERSION)
+
+  const scores: UserScoresType[] = activityBank.map((
     activity,
     i: number
-  ) => {
+  ): UserScoresType => {
     const response = genCharacter.responses[i]
 
     return {
@@ -42,7 +46,15 @@ function update(
     }
   })
 
-  const { facetScores, domainScores } = calculateBessiScores[45](responses)
+  type BessiScores = {
+    facetScores: FacetFactorType,
+    domainScores: SkillDomainFactorType
+  }
+
+  const { 
+    facetScores, 
+    domainScores 
+  } = calculateBessiScores(scores, 96) as BessiScores
 
   const character: CharacterType = {
     group,
