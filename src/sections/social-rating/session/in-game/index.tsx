@@ -34,6 +34,7 @@ const InGame: FC<InGameProps> = ({
 }) => {
   // Contexts
   const {
+    // State values
     phase,
     players,
     setPhase,
@@ -41,9 +42,13 @@ const InGame: FC<InGameProps> = ({
     setPlayers,
     isGameInSession,
     isUpdatingPlayers,
+    // State setters
     setIsUpdatingPlayers,
+    // State change function handlers
+    haveAllPlayersCompletedConsentForm,
+    haveAllPlayersCompletedSelfReport,
+    haveAllPlayersCompletedObserverReport,
   } = useContext<GameSessionContextType>(GameSessionContext)
-
 
 
   // -------------------------- `onSubmit` handlers ----------------------------
@@ -121,33 +126,6 @@ const InGame: FC<InGameProps> = ({
     const key = 'player'
     const value = JSON.stringify(updatedPlayer)
     localStorage.setItem(key, value)
-  }
-
-
-  function haveAllPlayersCompletedConsentForm(
-    players: SocialRatingGamePlayers
-  ): boolean {
-    return Object.values(players).every(
-      (player: Player): boolean => player.inGameState.hasCompletedConsentForm
-    )
-  }
-
-
-  function haveAllPlayersCompletedSelfReport(
-    players: SocialRatingGamePlayers
-  ): boolean {
-    return Object.values(players).every(
-      (player: Player): boolean => player.inGameState.hasCompletedSelfReport
-    )
-  }
-
-
-  function haveAllPlayersCompletedObserverReport(
-    players: SocialRatingGamePlayers
-  ): boolean {
-    return Object.values(players).every(
-      (player: Player): boolean => player.inGameState.hasCompletedObserverReport
-    )
   }
 
 

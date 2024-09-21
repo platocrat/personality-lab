@@ -45,6 +45,7 @@ export type EditStudyModalContextType = {
 
 
 export type GameSessionContextType = {
+  // State values
   gameId: string // Set when the game host selects a game
   isHost: boolean
   phase: GamePhases
@@ -57,7 +58,7 @@ export type GameSessionContextType = {
   isUpdatingPlayers: boolean
   gameSessionUrlSlug: string
   players: SocialRatingGamePlayers
-  // Setters
+  // State setters
   setGameId: Dispatch<SetStateAction<string>> // Set when the game host selects a game
   setIsHost: Dispatch<SetStateAction<boolean>>
   setHostEmail: Dispatch<SetStateAction<string>>
@@ -70,6 +71,10 @@ export type GameSessionContextType = {
   setIsUpdatingPlayers: Dispatch<SetStateAction<boolean>>
   setGameSessionUrlSlug: Dispatch<SetStateAction<string>>
   setPlayers: Dispatch<SetStateAction<SocialRatingGamePlayers>>
+  // State change function handlers
+  haveAllPlayersCompletedConsentForm: (players: SocialRatingGamePlayers) => boolean
+  haveAllPlayersCompletedSelfReport: (players: SocialRatingGamePlayers) => boolean
+  haveAllPlayersCompletedObserverReport: (players: SocialRatingGamePlayers) => boolean
 }
 
 

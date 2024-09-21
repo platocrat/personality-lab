@@ -190,7 +190,7 @@ const SessionLayout: FC<SessionLayoutProps> = ({
     ]
 
     Promise.all(requests).then((response: any): void => { })
-  }, [ router, pathname ])
+  }, [ pathname ])
 
 
 

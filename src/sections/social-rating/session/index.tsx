@@ -51,6 +51,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
     email,
   } = useContext<SessionContextType>(SessionContext)
   const {
+    // State values
     phase,
     gameId,
     isHost,
@@ -60,7 +61,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
     sessionPin,
     sessionQrCode,
     isUpdatingPlayers,
-    // Setters
+    // State setters
     setPhase,
     setGameId,
     setIsHost,
@@ -72,6 +73,10 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
     setIsGameInSession,
     setIsUpdatingPlayers,
     setGameSessionUrlSlug,
+    // State change function handlers
+    haveAllPlayersCompletedConsentForm,
+    haveAllPlayersCompletedSelfReport,
+    haveAllPlayersCompletedObserverReport,
   } = useContext<GameSessionContextType>(GameSessionContext)
   // Hooks
   const pathname = usePathname()
@@ -509,7 +514,9 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
      * @dev Refetch game details when `players` changes to update changes for 
      *      all players once a player updates their `inGameState`.
      */
-    players // Will read from DynamoDB every time `players` is updated.
+    haveAllPlayersCompletedConsentForm(players),
+    haveAllPlayersCompletedSelfReport(players),
+    haveAllPlayersCompletedObserverReport(players),
   ])
 
 

@@ -5,7 +5,11 @@ import { FC, ReactNode, useLayoutEffect, useState } from 'react'
 // Contexts
 import { GameSessionContext } from '@/contexts/GameSessionContext'
 // Utils
-import { GamePhases, SocialRatingGamePlayers } from '@/utils'
+import { 
+  Player,
+  GamePhases,
+  SocialRatingGamePlayers,
+} from '@/utils'
 
 
 
@@ -42,6 +46,36 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
   const [ isUpdatingPlayers, setIsUpdatingPlayers ] = useState<boolean>(false)
 
 
+
+  // --------------------------- Regular functions -----------------------------
+  function haveAllPlayersCompletedConsentForm(
+    players: SocialRatingGamePlayers
+  ): boolean {
+    return Object.values(players).every(
+      (player: Player): boolean => player.inGameState.hasCompletedConsentForm
+    )
+  }
+
+
+  function haveAllPlayersCompletedSelfReport(
+    players: SocialRatingGamePlayers
+  ): boolean {
+    return Object.values(players).every(
+      (player: Player): boolean => player.inGameState.hasCompletedSelfReport
+    )
+  }
+
+
+  function haveAllPlayersCompletedObserverReport(
+    players: SocialRatingGamePlayers
+  ): boolean {
+    return Object.values(players).every(
+      (player: Player): boolean => player.inGameState.hasCompletedObserverReport
+    )
+  }
+
+
+  // -------------------------- `useLayoutEffect`s -----------------------------
   useLayoutEffect(() => {
     let pathname_ = '',
       sessionId_ = ''
@@ -58,6 +92,7 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
       setIsGameSession(false)
     }
   }, [ pathname, sessionId ])
+
 
 
 
@@ -90,6 +125,9 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
         setIsGameInSession,
         setIsUpdatingPlayers,
         setGameSessionUrlSlug,
+        haveAllPlayersCompletedConsentForm,
+        haveAllPlayersCompletedSelfReport,
+        haveAllPlayersCompletedObserverReport,
       } }
     >
       { children }
