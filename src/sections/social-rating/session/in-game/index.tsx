@@ -41,9 +41,9 @@ const InGame: FC<InGameProps> = ({
     sessionId,
     setPlayers,
     isGameInSession,
-    isUpdatingPlayers,
+    isUpdatingGameState,
     // State setters
-    setIsUpdatingPlayers,
+    setIsUpdatingGameState,
     // State change function handlers
     haveAllPlayersCompletedConsentForm,
     haveAllPlayersCompletedSelfReport,
@@ -70,7 +70,7 @@ const InGame: FC<InGameProps> = ({
       if (storedNickname && storedPlayer) {
         const updatedPlayer = createUpdatedPlayer(storedPlayer, phase)
         // Update the player's `inGameState` in DynamoDB
-        await updatePlayers(storedNickname)
+        await updatePlayers(storedNickname, updatedPlayer)
         // Update the local cache of `player` state
         updatePlayerInLocalStorage(updatedPlayer)
       }
@@ -130,29 +130,13 @@ const InGame: FC<InGameProps> = ({
 
 
   // ---------------------------- Async functions ------------------------------
-  async function updatePlayers(_nickname: string): Promise<void> {
-    setIsUpdatingPlayers(true)
+  async function updatePlayers(_nickname: string, _updatedPlayer: Player): Promise<void> {
+    setIsUpdatingGameState(true)
 
-    const hasJoined = true
-    const ipAddress = ''
-    const inGameState: PlayerInGameState = {
-      hasCompletedConsentForm: false,
-      hasCompletedSelfReport: false,
-      hasCompletedObserverReport: false,
-    }
-    const joinedAtTimestamp = 0
-
-    const player: Player = {
-      hasJoined,
-      ipAddress,
-      inGameState,
-      joinedAtTimestamp,
-    }
-
-    const _players: SocialRatingGamePlayers = { [_nickname]: player }
+    const _players: SocialRatingGamePlayers = { [_nickname]: _updatedPlayer }
 
     try {
-      const apiEndpoint = `/api/v1/social-rating/game/update-players`
+      const apiEndpoint = `/api/v1/social-rating/game/players`
       const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: {
@@ -168,12 +152,12 @@ const InGame: FC<InGameProps> = ({
       const json = await response.json()
 
       if (response.status === 500) {
-        setIsUpdatingPlayers(false)
+        setIsUpdatingGameState(false)
         throw new Error(json.error)
       }
 
       if (response.status === 405) {
-        setIsUpdatingPlayers(false)
+        setIsUpdatingGameState(false)
         throw new Error(json.error)
       }
 
@@ -181,9 +165,9 @@ const InGame: FC<InGameProps> = ({
         const updatedPlayers = json.updatedPlayers as SocialRatingGamePlayers
 
         setPlayers(updatedPlayers)
-        setIsUpdatingPlayers(false)
+        setIsUpdatingGameState(false)
       } else {
-        setIsUpdatingPlayers(false)
+        setIsUpdatingGameState(false)
 
         const error = `Error posting new players to social rating game with session ID '${
           sessionId
@@ -193,7 +177,7 @@ const InGame: FC<InGameProps> = ({
       }
     } catch (error: any) {
       console.log(error)
-      setIsUpdatingPlayers(false)
+      setIsUpdatingGameState(false)
 
       /**
        * @todo Handle error UI here

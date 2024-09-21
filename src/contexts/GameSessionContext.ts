@@ -18,7 +18,7 @@ const INIT_GAME_SESSION_CONTEXT: GameSessionContextType = {
   gameSessionUrlSlug: '',
   isGameInSession: false,
   phase: GamePhases.Lobby,
-  isUpdatingPlayers: false,
+  isUpdatingGameState: false,
   setPhase: () => { },
   setIsHost: () => { },
   setGameId: () => { },
@@ -29,8 +29,11 @@ const INIT_GAME_SESSION_CONTEXT: GameSessionContextType = {
   setSessionQrCode: () => { },
   setIsGameSession: () => { },
   setIsGameInSession: () => { },
-  setIsUpdatingPlayers: () => { },
   setGameSessionUrlSlug: () => { },
+  setIsUpdatingGameState: () => { },
+  haveAllPlayersCompletedConsentForm: () => false,
+  haveAllPlayersCompletedSelfReport: () => false,
+  haveAllPlayersCompletedObserverReport: () => false,
 }
 
 

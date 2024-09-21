@@ -55,8 +55,8 @@ export type GameSessionContextType = {
   sessionQrCode: string
   isGameSession: boolean
   isGameInSession: boolean
-  isUpdatingPlayers: boolean
   gameSessionUrlSlug: string
+  isUpdatingGameState: boolean
   players: SocialRatingGamePlayers
   // State setters
   setGameId: Dispatch<SetStateAction<string>> // Set when the game host selects a game
@@ -68,8 +68,8 @@ export type GameSessionContextType = {
   setSessionQrCode: Dispatch<SetStateAction<string>>
   setIsGameSession: Dispatch<SetStateAction<boolean>>
   setIsGameInSession: Dispatch<SetStateAction<boolean>>
-  setIsUpdatingPlayers: Dispatch<SetStateAction<boolean>>
   setGameSessionUrlSlug: Dispatch<SetStateAction<string>>
+  setIsUpdatingGameState: Dispatch<SetStateAction<boolean>>
   setPlayers: Dispatch<SetStateAction<SocialRatingGamePlayers>>
   // State change function handlers
   haveAllPlayersCompletedConsentForm: (players: SocialRatingGamePlayers) => boolean

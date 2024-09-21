@@ -79,6 +79,14 @@ export type ACCOUNT__DYNAMODB = {
   password: HASHED_PASSWORD__DYNAMODB
   results: RESULTS__DYNAMODB[] // non-study results
   studiesAsAdmin: StudyAsAdmin[] | []
+  /**
+   * @todo Add `lastLoginTimestamp` to track user sessions
+   */
+  // lastLoginTimestamp: number
+  /**
+   * @todo Add `lastLogoutTimestamp` to track user sessions
+   */
+  // lastLogoutTimestamp: number
   participant?: PARTICIPANT__DYNAMODB // `undefined` for a non-participant account
   updatedAtTimestamp?: number // `undefined` for a non-participant account
 }
@@ -151,6 +159,7 @@ export type SOCIAL_RATING_GAME__DYNAMODB = {
   isActive: boolean
   sessionPin: string
   sessionQrCode: string
+  isGameInSession: boolean
   gameSessionUrlSlug: string
   players: SocialRatingGamePlayers
   updatedAtTimestamp: number

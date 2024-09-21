@@ -90,6 +90,7 @@ const SocialRating: FC<SocialRatingProps> = ({
     setSessionId,
     setSessionPin,
     setSessionQrCode,
+    setIsGameInSession,
     setGameSessionUrlSlug,
   } = useContext<GameSessionContextType>(GameSessionContext)
   // Hooks
@@ -175,6 +176,7 @@ const SocialRating: FC<SocialRatingProps> = ({
       const sessionId_ = socialRatingGame.sessionId
       const sessionPin_ = socialRatingGame.sessionPin
       const sessionQrCode_ = socialRatingGame.sessionQrCode
+      const isGameInSession_ = socialRatingGame.isGameInSession
       const gameSessionUrlSlug_ = socialRatingGame.gameSessionUrlSlug
 
       setGameId(gameId_)
@@ -182,6 +184,7 @@ const SocialRating: FC<SocialRatingProps> = ({
       setSessionId(sessionId_)
       setSessionPin(sessionPin_)
       setSessionQrCode(sessionQrCode_)
+      setIsGameInSession(isGameInSession_)
       setGameSessionUrlSlug(gameSessionUrlSlug_)
       
       setHasActiveGame(isActive_)

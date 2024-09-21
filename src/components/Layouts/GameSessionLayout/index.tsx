@@ -40,11 +40,13 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
   const [ sessionQrCode, setSessionQrCode ] = useState<string>('')
   const [ gameSessionUrlSlug, setGameSessionUrlSlug ] = useState<string>('')
   // Booleans
+  const [ 
+    isUpdatingGameState, 
+    setIsUpdatingGameState,
+  ] = useState<boolean>(false)
   const [ isHost, setIsHost ] = useState<boolean>(false)
   const [ isGameSession, setIsGameSession ] = useState<boolean>(false)
   const [ isGameInSession, setIsGameInSession ] = useState<boolean>(false)
-  const [ isUpdatingPlayers, setIsUpdatingPlayers ] = useState<boolean>(false)
-
 
 
   // --------------------------- Regular functions -----------------------------
@@ -110,8 +112,8 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
         sessionQrCode,
         isGameSession,
         isGameInSession,
-        isUpdatingPlayers,
         gameSessionUrlSlug,
+        isUpdatingGameState,
         // Setters
         setPhase,
         setIsHost,
@@ -123,8 +125,8 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
         setSessionQrCode,
         setIsGameSession,
         setIsGameInSession,
-        setIsUpdatingPlayers,
         setGameSessionUrlSlug,
+        setIsUpdatingGameState,
         haveAllPlayersCompletedConsentForm,
         haveAllPlayersCompletedSelfReport,
         haveAllPlayersCompletedObserverReport,

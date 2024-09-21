@@ -60,7 +60,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
     sessionId,
     sessionPin,
     sessionQrCode,
-    isUpdatingPlayers,
+    isUpdatingGameState,
     // State setters
     setPhase,
     setGameId,
@@ -71,8 +71,8 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
     setSessionPin,
     setSessionQrCode,
     setIsGameInSession,
-    setIsUpdatingPlayers,
     setGameSessionUrlSlug,
+    setIsUpdatingGameState,
     // State change function handlers
     haveAllPlayersCompletedConsentForm,
     haveAllPlayersCompletedSelfReport,
@@ -157,12 +157,6 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
   }
 
 
-  const onStartGame = () => {
-    setIsGameInSession(true)
-    setPhase(GamePhases.ConsentForm) // Move to ConsentForm phase
-  }
-
-
   // ~~~~ Functions to handle each phase ~~~~
   const computeResults = () => {
     // Compute profile correlations
@@ -171,8 +165,15 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
 
 
   // --------------------------- Async functions -------------------------------
+  const onStartGame = async (): Promise<void> => {
+    const isGameInSession = await updateIsGameInSession()
+    setIsGameInSession(isGameInSession)
+    setPhase(GamePhases.ConsentForm) // Move to ConsentForm phase
+  }
+
+
   // ~~~~~ Handle nickname submission ~~~~~
-  async function handleNicknameSubmit(e: any) {
+  async function handleNicknameSubmit(e: any): Promise<void> {
     e.preventDefault()
     
     if (nickname) {
@@ -215,8 +216,6 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
           setIsPlayer(true)
         }
       } else if (players) {
-        await getIsHost() // Check if the player is the game's host
-
         // If no data in localStorage, check if IP matches any player
         const matchingEntry = Object.entries(players).find(
           ([ nickname, player ]): boolean => player.ipAddress === userIP
@@ -239,19 +238,14 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
   // ~~~~~ Check if the player is the game's host ~~~~~
   async function getIsHost(): Promise<void> {
     let isHost_ = false,
-      isPlayer_ = false
+      hostHasJoined_ = false
+  
+    hostHasJoined_ = players ? players['host'].hasJoined : false
     
-    if (email) {
-      const hostHasJoined = players ? players['host'] : false
-
-      if (email === hostEmail && hostHasJoined) {
-        isHost_ = true
-        isPlayer_ = true
-      }
-    }
+    if (email === hostEmail) isHost_ = true
     
     setIsHost(isHost_)
-    setIsPlayer(isPlayer_)
+    setIsPlayer(hostHasJoined_)
   }
 
 
@@ -295,9 +289,64 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
   }
 
 
+  async function updateIsGameInSession(): Promise<boolean> {
+    setIsUpdatingGameState(true)
+    
+    const isGameInSession = true
+
+    try {
+      const apiEndpoint = `/api/v1/social-rating/game/is-game-in-session`
+      const response = await fetch(apiEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sessionId,
+          isGameInSession,
+        }),
+      })
+
+      const json = await response.json()
+
+      if (response.status === 500) {
+        setIsUpdatingGameState(false)
+        throw new Error(json.error)
+      }
+
+      if (response.status === 405) {
+        setIsUpdatingGameState(false)
+        throw new Error(json.error)
+      }
+
+      if (response.status === 200) {
+        const isGameInSession_ = json.isGameInSession
+        setIsUpdatingGameState(false)
+        return isGameInSession_
+      } else {
+        setIsUpdatingGameState(false)
+
+        const error = `Error updating 'isGameInSession' to social rating game with session ID '${
+          sessionId
+        }' to DynamoDB: `
+
+        throw new Error(`${error}: ${json.error}`)
+      }
+    } catch (error: any) {
+      console.log(error)
+      setIsUpdatingGameState(false)
+
+      /**
+       * @todo Handle error UI here
+       */
+      throw new Error(`Error updating 'isGameInSession': `, error.message)
+    }
+  }
+
+
   // Add or update player in the game
   async function updatePlayers(_nickname: string): Promise<boolean> {
-    setIsUpdatingPlayers(true)
+    setIsUpdatingGameState(true)
 
     let isDuplicateNickname_ = false
 
@@ -320,7 +369,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
     const _players: SocialRatingGamePlayers = { [ _nickname ]: player }
 
     try {
-      const apiEndpoint = `/api/v1/social-rating/game/update-players`
+      const apiEndpoint = `/api/v1/social-rating/game/players`
       const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: {
@@ -335,12 +384,12 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
       const json = await response.json()
       
       if (response.status === 500) {
-        setIsUpdatingPlayers(false)
+        setIsUpdatingGameState(false)
         throw new Error(json.error)
       }
       
       if (response.status === 405) {
-        setIsUpdatingPlayers(false)
+        setIsUpdatingGameState(false)
         throw new Error(json.error)
       }
       
@@ -354,20 +403,20 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
           setIsPlayer(false)
           setDuplicateNicknameErrorMessage(message)
           setIsDuplicateNickname(true)
-          setIsUpdatingPlayers(false)
+          setIsUpdatingGameState(false)
 
           isDuplicateNickname_ = true
           return isDuplicateNickname_
         } else {
           const updatedPlayers = json.updatedPlayers as SocialRatingGamePlayers
           setPlayers(updatedPlayers)
-          setIsUpdatingPlayers(false)
+          setIsUpdatingGameState(false)
 
           isDuplicateNickname_ = false
           return isDuplicateNickname_
         }
       } else {
-        setIsUpdatingPlayers(false)
+        setIsUpdatingGameState(false)
 
         const error = `Error posting new players to social rating game with session ID '${
           sessionId
@@ -377,7 +426,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
       }
     } catch (error: any) {
       console.log(error)
-      setIsUpdatingPlayers(false)
+      setIsUpdatingGameState(false)
 
       /**
        * @todo Handle error UI here
@@ -424,6 +473,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
         const sessionId_ = socialRatingGame.sessionId
         const sessionPin_ = socialRatingGame.sessionPin
         const sessionQrCode_ = socialRatingGame.sessionQrCode
+        const isGameInSession_ = socialRatingGame.isGameInSession
         const gameSessionUrlSlug_ = socialRatingGame.gameSessionUrlSlug
 
         setGameId(gameId_)
@@ -432,6 +482,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
         setSessionId(sessionId_)
         setSessionPin(sessionPin_)
         setSessionQrCode(sessionQrCode_)
+        setIsGameInSession(isGameInSession_)
         setGameSessionUrlSlug(gameSessionUrlSlug_)
 
         setIsFetchingGame(false)
@@ -496,6 +547,18 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
       }
     }
   }, [ players, userIP, isDuplicateNickname ])
+  
+  
+  // ~~~~~ Check if the user is the game's host ~~~~~
+  useLayoutEffect(() => {
+    if (email && userIP && players) {
+      const requests = [
+        getIsHost(),
+      ]
+
+      Promise.all(requests).then(() => { })
+    }
+  }, [ email, players ])
 
 
   // ~~~~~ Get the rest of game session details from `sessionId` ~~~~~
@@ -507,8 +570,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
 
       Promise.all(requests).then(() => { })
     }
-  }, [ 
-    email, 
+  }, [
     sessionId, 
     /**
      * @dev Refetch game details when `players` changes to update changes for 
@@ -578,7 +640,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
                         onSubmit={ handleNicknameSubmit }
                         state={{
                           nickname,
-                          isUpdatingPlayers,
+                          isUpdatingGameState,
                           isDuplicateNickname,
                           duplicateNicknameErrorMessage,
                         }}

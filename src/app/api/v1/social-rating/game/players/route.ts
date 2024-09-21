@@ -1,16 +1,15 @@
 // Externals
-import { NextRequest, NextResponse } from 'next/server'
 import {
   QueryCommand,
-  UpdateCommand,
   QueryCommandInput,
+  UpdateCommand,
   UpdateCommandInput,
 } from '@aws-sdk/lib-dynamodb'
+import { NextRequest, NextResponse } from 'next/server'
 import { ReturnValue } from '@aws-sdk/client-dynamodb'
 // Locals
 import {
   Player,
-  getEntryId,
   ddbDocClient,
   DYNAMODB_TABLE_NAMES,
   SocialRatingGamePlayers,
@@ -35,7 +34,6 @@ export async function POST(
     const ipAddress = requestHeaders.get('x-forwarded-for')
 
     const TableName = DYNAMODB_TABLE_NAMES.socialRatingGames
-
     const KeyConditionExpression = 'sessionId = :sessionIdValue'
     const ExpressionAttributeValues = { ':sessionIdValue': sessionId }
 
@@ -56,86 +54,8 @@ export async function POST(
         const storedCreatedAtTimestamp = socialRatingGame.createdAtTimestamp
 
         // Skip duplicate nickname check if the game is in session
-        if (isGameInSession) {
-          const nickname = Object.keys(players as SocialRatingGamePlayers)[0]
-          const hasJoined = (players as SocialRatingGamePlayers)[nickname].hasJoined
-          const inGameState = (players as SocialRatingGamePlayers)[nickname].inGameState
-          const joinedAtTimestamp = Date.now()
-
-          const newPlayer = {
-            hasJoined,
-            ipAddress,
-            inGameState,
-            joinedAtTimestamp,
-          } as Player
-
-          const updatedPlayers: SocialRatingGamePlayers = storedPlayers
-            ? { ...storedPlayers, [nickname]: newPlayer }
-            : { [nickname]: newPlayer }
-
-          const Key = {
-            sessionId,
-            createdAtTimestamp: storedCreatedAtTimestamp
-          }
-          const UpdateExpression =
-            'set players = :players, updatedAtTimestamp = :updatedAtTimestamp'
-          const ExpressionAttributeValues = {
-            ':players': updatedPlayers,
-            ':updatedAtTimestamp': Date.now(),
-          }
-          const ReturnValues: ReturnValue = 'UPDATED_NEW'
-
-          input = {
-            TableName,
-            Key,
-            UpdateExpression,
-            ExpressionAttributeValues,
-            ReturnValues,
-          }
-
-          command = new UpdateCommand(input)
-
-          const message = `List of 'players' has been updated in the '${TableName
-            }' table for social rating game with session ID '${sessionId
-            }`
-
-          try {
-            const response = await ddbDocClient.send(command)
-
-            const updatedPlayers = response.Attributes?.players as SocialRatingGamePlayers
-
-            return NextResponse.json(
-              {
-                message,
-                updatedPlayers,
-              },
-              {
-                status: 200,
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-              }
-            )
-          } catch (error: any) {
-            const errorMessage = `Failed to update 'players' of social rating game with session ID '${sessionId
-              }' in the '${TableName}' table: `
-
-            console.error(errorMessage, error)
-
-            // Something went wrong
-            return NextResponse.json(
-              { error: `${errorMessage}: ${error}` },
-              {
-                status: 500,
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-              }
-            )
-          }
-
-        // Check for duplicate nicknames
-        } else {
+        if (!isGameInSession) {
+          // Check for duplicate nicknames
           const duplicateNicknames = Object.keys(
             players as SocialRatingGamePlayers
           ).filter((nickname: string): boolean => nickname in storedPlayers)
@@ -160,6 +80,83 @@ export async function POST(
               },
             )
           }
+        }
+
+        const nickname = Object.keys(players as SocialRatingGamePlayers)[0]
+        const hasJoined = (players as SocialRatingGamePlayers)[nickname].hasJoined
+        const inGameState = (players as SocialRatingGamePlayers)[nickname].inGameState
+        const joinedAtTimestamp = Date.now()
+
+        const newPlayer = {
+          hasJoined,
+          ipAddress,
+          inGameState,
+          joinedAtTimestamp,
+        } as Player
+
+        const updatedPlayers: SocialRatingGamePlayers = storedPlayers
+          ? { ...storedPlayers, [nickname]: newPlayer }
+          : { [nickname]: newPlayer }
+
+        const Key = {
+          sessionId,
+          createdAtTimestamp: storedCreatedAtTimestamp
+        }
+        const UpdateExpression =
+          'set players = :players, updatedAtTimestamp = :updatedAtTimestamp'
+        const ExpressionAttributeValues = {
+          ':players': updatedPlayers,
+          ':updatedAtTimestamp': Date.now(),
+        }
+        const ReturnValues: ReturnValue = 'UPDATED_NEW'
+
+        input = {
+          TableName,
+          Key,
+          UpdateExpression,
+          ExpressionAttributeValues,
+          ReturnValues,
+        }
+
+        command = new UpdateCommand(input)
+
+        const message = `List of 'players' has been updated in the '${TableName
+          }' table for social rating game with session ID '${sessionId
+          }`
+
+        try {
+          const response = await ddbDocClient.send(command)
+
+          const updatedPlayers = response.Attributes?.players as SocialRatingGamePlayers
+
+          return NextResponse.json(
+            {
+              message,
+              updatedPlayers,
+            },
+            {
+              status: 200,
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            }
+          )
+        } catch (error: any) {
+          const errorMessage = `Failed to update 'players' of social rating game with session ID '${sessionId
+            }' in the '${TableName}' table: `
+
+          console.error(errorMessage, error)
+
+          // Something went wrong
+          return NextResponse.json(
+            { error: `${errorMessage}: ${error}` },
+            {
+              status: 500,
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            }
+          )
         }
       } else {
         const error = `Social rating game with session ID '${

@@ -13,7 +13,7 @@ type NicknameFormProps = {
   onChange: (e: any) => void
   state: {
     nickname: string
-    isUpdatingPlayers: boolean
+    isUpdatingGameState: boolean
     isDuplicateNickname: boolean
     duplicateNicknameErrorMessage: string
   }
@@ -74,7 +74,7 @@ const NicknameForm: FC<NicknameFormProps> = ({
           </>
         ) }
 
-        { state.isUpdatingPlayers ? (
+        { state.isUpdatingGameState ? (
           <>
             <div
               style={ {

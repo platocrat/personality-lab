@@ -163,6 +163,7 @@ const InitiateGame: FC<InitiateGameProps> = ({
 
     const isActive = true
     const hostEmail = email ?? ''
+    const isGameInSession = false
 
     const nickname = 'host'
 
@@ -199,6 +200,7 @@ const InitiateGame: FC<InitiateGameProps> = ({
       sessionId,
       sessionPin,
       sessionQrCode,
+      isGameInSession,
       gameSessionUrlSlug,
     }
 

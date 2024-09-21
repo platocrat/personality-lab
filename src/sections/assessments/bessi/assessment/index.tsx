@@ -13,13 +13,11 @@ import Questionnaire from '@/components/Questionnaire'
 import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
 // Contexts
 import { SessionContext } from '@/contexts/SessionContext'
-import { GameSessionContext } from '@/contexts/GameSessionContext'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 import { UserDemographicsContext } from '@/contexts/UserDemographicsContext'
 // Context Type
 import {
   SessionContextType,
-  GameSessionContextType,
   BessiSkillScoresContextType,
 } from '@/contexts/types'
 // Utilities
@@ -85,9 +83,6 @@ const BessiAssessmentSection: FC<BessiProps> = ({
     highestFormalEducation,
     currentEmploymentStatus,
   } = useContext(UserDemographicsContext)  
-  const { 
-    isGameInSession
-  } = useContext<GameSessionContextType>(GameSessionContext)
   const { 
     setBessiSkillScores 
   } = useContext<BessiSkillScoresContextType>(BessiSkillScoresContext)
@@ -215,11 +210,6 @@ const BessiAssessmentSection: FC<BessiProps> = ({
       // 3. Store `userResults` in DynamoDB and generate its respective ID
       await storeResultsInDynamoDB(finalScores)
     }
-  }
-
-
-  async function handleAssessmentCompletion(): Promise<void> {
-
   }
 
 
