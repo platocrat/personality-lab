@@ -574,7 +574,6 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
 
   // ~~~~~ Get the rest of game session details from `sessionId` ~~~~~
   useLayoutEffect(() => {
-    localStorage.clear()
     if (sessionId) {
       const requests = [
         getGame(),
