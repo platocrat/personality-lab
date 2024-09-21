@@ -135,7 +135,11 @@ const SkillsScoresAndDefinitionsTable: FC<{
                           top: '-3px',
                         }}
                       >
-                        { facetScores ? facetScores[facet] ?? 0 : bessiSkillScores?.facetScores[facet] ?? 0 }
+                        { 
+                          facetScores 
+                            ? facetScores[facet] ?? 0 
+                              : bessiSkillScores?.facetScores?.[facet] ?? 0 
+                        }
                       </span>
                       
                       {/* Score range label */ }
@@ -144,7 +148,7 @@ const SkillsScoresAndDefinitionsTable: FC<{
                           backgroundColor: getColorForScore(
                             facetScores
                               ? facetScores[facet] ?? 0
-                              : bessiSkillScores?.facetScores[facet] ?? 0
+                              : bessiSkillScores?.facetScores?.[facet] ?? 0
                           ),
                           borderRadius: '5px',
                           padding: '0px 7.5px',
@@ -165,7 +169,7 @@ const SkillsScoresAndDefinitionsTable: FC<{
                             getRangeLabel(
                               facetScores
                                 ? facetScores[facet] ?? 0
-                                : bessiSkillScores?.facetScores[facet] ?? 0
+                                : bessiSkillScores?.facetScores?.[facet] ?? 0
                             )
                           }
                         </p>
