@@ -207,8 +207,9 @@ const InGame: FC<InGameProps> = ({
       } else {
         setIsUpdatingPlayers(false)
 
-        const error = `Error posting new players to social rating game with session ID '${sessionId
-          }' to DynamoDB: `
+        const error = `Error posting new players to social rating game with session ID '${
+          sessionId
+        }' to DynamoDB: `
 
         throw new Error(`${error}: ${json.error}`)
       }
