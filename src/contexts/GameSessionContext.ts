@@ -16,6 +16,7 @@ const INIT_GAME_SESSION_CONTEXT: GameSessionContextType = {
   sessionQrCode: '',
   isGameSession: false,
   gameSessionUrlSlug: '',
+  isGameInSession: false,
   phase: GamePhases.Lobby,
   setPhase: () => { },
   setIsHost: () => { },
@@ -26,6 +27,7 @@ const INIT_GAME_SESSION_CONTEXT: GameSessionContextType = {
   setSessionPin: () => { },
   setSessionQrCode: () => { },
   setIsGameSession: () => { },
+  setIsGameInSession: () => { },
   setGameSessionUrlSlug: () => { },
 }
 
