@@ -5,38 +5,38 @@ import {
   FC,
   useRef,
   useState,
-  useEffect,
+  // useEffect,
   useContext,
   useLayoutEffect,
   } from 'react'
-import Image from 'next/image'
+// import Image from 'next/image'
 import html2canvas from 'html2canvas'
 // import { useUser } from '@auth0/nextjs-auth0/client'
 // Locals
 // Sections
-import TitleDropdown from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization/title-dropdown'
+// import TitleDropdown from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization/title-dropdown'
 import UserVisualization from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization/user-visualization'
 // Components
-import {
-  RIDGELINE_DEMO_DOMAIN_DATA,
-  RIDGELINE_DEMO_FACET_DATA,
-} from '@/components/DataViz/DemoRidgeline/dummy-data'
-import MultipleNormalDistributions, {
-  MultipleNormalDistributionDataType
-} from '@/components/DataViz/Distributions/Normal/Multiple'
-import Title from '@/components/DataViz/Title'
-import TreeMap from '@/components/DataViz/TreeMap'
+// import {
+//   RIDGELINE_DEMO_DOMAIN_DATA,
+//   RIDGELINE_DEMO_FACET_DATA,
+// } from '@/components/DataViz/DemoRidgeline/dummy-data'
+// import MultipleNormalDistributions, {
+//   MultipleNormalDistributionDataType
+// } from '@/components/DataViz/Distributions/Normal/Multiple'
+// import Title from '@/components/DataViz/Title'
+// import TreeMap from '@/components/DataViz/TreeMap'
 import StellarPlot from '@/components/DataViz/StellarPlot'
 import ShareResults from '@/components/DataViz/ShareResults'
-import Histogram from '@/components/DataViz/Histograms/Single'
-import RadialBarChart from '@/components/DataViz/BarChart/Radial'
-import DemoRidgelinePlot from '@/components/DataViz/DemoRidgeline'
-import BarChartPerDomain from '@/components/DataViz/BarChart/PerDomain'
-import MultipleHistograms from '@/components/DataViz/Histograms/Multiple'
+// import Histogram from '@/components/DataViz/Histograms/Single'
+// import RadialBarChart from '@/components/DataViz/BarChart/Radial'
+// import DemoRidgelinePlot from '@/components/DataViz/DemoRidgeline'
+// import BarChartPerDomain from '@/components/DataViz/BarChart/PerDomain'
+// import MultipleHistograms from '@/components/DataViz/Histograms/Multiple'
 import BessiRateUserResults from '@/components/Forms/BESSI/RateUserResults'
-import PersonalityVisualization from '@/components/DataViz/PersonalityVisualization'
+// import PersonalityVisualization from '@/components/DataViz/PersonalityVisualization'
 import ResultsVisualizationModal from '@/components/Modals/BESSI/ResultsVisualization'
-import SingleNormalDistributionChart from '@/components/DataViz/Distributions/Normal/Single'
+// import SingleNormalDistributionChart from '@/components/DataViz/Distributions/Normal/Single'
 // Dummy data
 import {
   generateDummyBessiUserScores
@@ -60,15 +60,15 @@ import {
   StellarPlotDataType,
   calculateBessiScores,
   SkillDomainFactorType,
-  getRandomValueInRange,
+  // getRandomValueInRange,
   BarChartInputDataType,
   BarChartTargetDataType,
   STUDY_SIMPLE__DYNAMODB,
-  getDummyPopulationBessiScores,
+  // getDummyPopulationBessiScores,
 } from '@/utils'
 // CSS
-import { definitelyCenteredStyle } from '@/theme/styles'
-import styles from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization/BessiResultsVisualization.module.css'
+// import { definitelyCenteredStyle } from '@/theme/styles'
+// import styles from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization/BessiResultsVisualization.module.css'
 
 
 
@@ -89,6 +89,12 @@ export type BessiUserDataVizType = {
 export type UserDataForVizType = StellarPlotDataType[] 
   | BarChartTargetDataType[] 
   | BessiUserDataVizType
+
+
+
+
+
+const BESSI_VERSION = 192
 
 
 
@@ -352,7 +358,13 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
         ? stellarInputData
         : bessiSkillScores?.domainScores
           ? stellarInputData
-          : calculateBessiScores[192](generateDummyBessiUserScores())
+          : calculateBessiScores(
+              generateDummyBessiUserScores(), 
+              BESSI_VERSION
+            ) as { 
+              facetScores: FacetFactorType, 
+              domainScores: SkillDomainFactorType 
+            }
     )
 
     // Step 3: Map over barChartDataArray to create stellarPlotData

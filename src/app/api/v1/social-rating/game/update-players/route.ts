@@ -25,9 +25,10 @@ export async function POST(
   res: NextResponse
 ) {
   if (req.method === 'POST') {
-    const { 
-      sessionId,
+    const {
       players,
+      sessionId,
+      isGameInSession,
     } = await req.json()
 
     const requestHeaders = req.headers
@@ -54,43 +55,22 @@ export async function POST(
         const storedPlayers = socialRatingGame.players || {}
         const storedCreatedAtTimestamp = socialRatingGame.createdAtTimestamp
 
-        // Check for duplicate nicknames
-        const hasDuplicateNicknames = Object.keys(
-          players as SocialRatingGamePlayers
-        ).filter((nickname: string): boolean => nickname in storedPlayers)
-
-        if (hasDuplicateNicknames.length > 0) {
-          console.error(
-            `Duplicate nicknames found: ${hasDuplicateNicknames.join(', ')}`
-          )
-          
-          // Handle the case where duplicates are found
-          const message = `Nickname is taken! Please choose a different nickname.`
-
-          return NextResponse.json(
-            { 
-              message,
-            },
-            {
-              status: 200,
-              headers: {
-                'Content-Type': 'application/json'
-              }
-            },
-          )
-        } else {
-          const nickname = Object.keys(players)[0]
-          const hasJoined = players[nickname].hasJoined
+        // Skip duplicate nickname check if the game is in session
+        if (isGameInSession) {
+          const nickname = Object.keys(players as SocialRatingGamePlayers)[0]
+          const hasJoined = (players as SocialRatingGamePlayers)[nickname].hasJoined
+          const inGameState = (players as SocialRatingGamePlayers)[nickname].inGameState
           const joinedAtTimestamp = Date.now()
 
           const newPlayer = {
             hasJoined,
             ipAddress,
+            inGameState,
             joinedAtTimestamp,
           } as Player
 
-          const updatedPlayers: SocialRatingGamePlayers = storedPlayers 
-            ? { ...storedPlayers, [ nickname ]: newPlayer } 
+          const updatedPlayers: SocialRatingGamePlayers = storedPlayers
+            ? { ...storedPlayers, [nickname]: newPlayer }
             : { [nickname]: newPlayer }
 
           const Key = {
@@ -115,16 +95,14 @@ export async function POST(
 
           command = new UpdateCommand(input)
 
-          const message = `List of 'players' has been updated in the '${
-            TableName
-          }' table for social rating game with session ID '${
-            sessionId
-          }`
+          const message = `List of 'players' has been updated in the '${TableName
+            }' table for social rating game with session ID '${sessionId
+            }`
 
           try {
             const response = await ddbDocClient.send(command)
 
-            const updatedPlayers = response.Attributes?.players
+            const updatedPlayers = response.Attributes?.players as SocialRatingGamePlayers
 
             return NextResponse.json(
               {
@@ -139,9 +117,8 @@ export async function POST(
               }
             )
           } catch (error: any) {
-            const errorMessage = `Failed to update 'players' of social rating game with session ID '${
-              sessionId
-            }' in the '${TableName}' table: `
+            const errorMessage = `Failed to update 'players' of social rating game with session ID '${sessionId
+              }' in the '${TableName}' table: `
 
             console.error(errorMessage, error)
 
@@ -154,6 +131,33 @@ export async function POST(
                   'Content-Type': 'application/json',
                 },
               }
+            )
+          }
+
+        // Check for duplicate nicknames
+        } else {
+          const duplicateNicknames = Object.keys(
+            players as SocialRatingGamePlayers
+          ).filter((nickname: string): boolean => nickname in storedPlayers)
+
+          if (duplicateNicknames.length > 0) {
+            console.error(
+              `Duplicate nicknames found: ${duplicateNicknames.join(', ')}`
+            )
+
+            // Handle the case where duplicates are found
+            const message = `Nickname is taken! Please choose a different nickname.`
+
+            return NextResponse.json(
+              {
+                message,
+              },
+              {
+                status: 200,
+                headers: {
+                  'Content-Type': 'application/json'
+                }
+              },
             )
           }
         }
@@ -184,7 +188,7 @@ export async function POST(
 
       // Something went wrong
       return NextResponse.json(
-        { error: `${errorMessage}: ${ error }` },
+        { error: `${errorMessage}: ${error}` },
         {
           status: 500,
           headers: {

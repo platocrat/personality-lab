@@ -17,35 +17,41 @@ import { GameSessionContext } from '@/contexts/GameSessionContext'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 import { UserDemographicsContext } from '@/contexts/UserDemographicsContext'
 // Context Type
-import { 
+import {
   SessionContextType,
-  GameSessionContextType, 
-  BessiSkillScoresContextType, 
+  GameSessionContextType,
+  BessiSkillScoresContextType,
 } from '@/contexts/types'
 // Utilities
 import {
+  Facet,
   getFacet,
+  getDomain,
+  SkillDomain,
   UserScoresType,
   getAccessToken,
   FacetFactorType,
   RESULTS__DYNAMODB,
+  BessiActivityType,
   calculateBessiScores,
   SkillDomainFactorType,
   STUDY_SIMPLE__DYNAMODB,
   getSkillDomainAndWeight,
-  BESSI_192_ACTIVITY_BANK,
+  generateBessiActivityBank,
   BessiUserResults__DynamoDB,
   WELLNESS_RATINGS_DESCRIPTIONS,
   BessiUserDemographics__DynamoDB,
-  BESSI_20_ACTIVITY_BANK,
-  BessiActivityType,
 } from '@/utils'
 // CSS
 import styles from '@/app/page.module.css'
 
 
 
-type BessiProps = {}
+type BessiProps = {
+  bessiVersion: number
+  reportType: 'self-report' | 'observer-report'
+  onCompletion?: () => Promise<void>
+}
 
 
 
@@ -55,26 +61,16 @@ const ASSESSMENT_ID = 'bessi'
 
 
 
-const BessiAssessment: FC<BessiProps> = ({
-
+const BessiAssessmentSection: FC<BessiProps> = ({
+  reportType,
+  onCompletion,
+  bessiVersion,
 }) => {
   // // Auth0
   // const { user, error, isLoading } = useUser()
 
-  // Contexts
-  const { email } = useContext<SessionContextType>(SessionContext)
+  // ------------------------------ Contexts -----------------------------------
   const { 
-    isGameInSession
-  } = useContext<GameSessionContextType>(GameSessionContext)
-
-  // Hooks
-  const router = useRouter()
-  // Contexts
-  const { 
-    setBessiSkillScores 
-  } = useContext<BessiSkillScoresContextType>(BessiSkillScoresContext)
-  const { 
-    // State variables
     age,
     gender,
     usState,
@@ -88,9 +84,17 @@ const BessiAssessment: FC<BessiProps> = ({
     currentMaritalStatus,
     highestFormalEducation,
     currentEmploymentStatus,
-    // Form input handlers
-   } = useContext(UserDemographicsContext)  
-
+  } = useContext(UserDemographicsContext)  
+  const { 
+    isGameInSession
+  } = useContext<GameSessionContextType>(GameSessionContext)
+  const { 
+    setBessiSkillScores 
+  } = useContext<BessiSkillScoresContextType>(BessiSkillScoresContext)
+  const { email } = useContext<SessionContextType>(SessionContext)
+  // --------------------------------- Hooks -----------------------------------
+  const router = useRouter()
+  // -------------------------------- States -----------------------------------
   // Custom
   const [
     userScores,
@@ -108,24 +112,7 @@ const BessiAssessment: FC<BessiProps> = ({
   const [ currentQuestionIndex, setCurrentQuestionIndex ] = useState<number>(0)
 
 
-  useLayoutEffect(() => {
-    let questions_ = BESSI_192_ACTIVITY_BANK.map(
-      bessiActivity => bessiActivity.activity
-    )
-
-    if (isGameInSession) {
-      questions_ = BESSI_20_ACTIVITY_BANK.map(
-        bessiActivity => bessiActivity.activity
-      )
-
-      setQuestions(questions_)
-    } else {
-      setQuestions(questions_)
-    }
-  }, [ isGameInSession ])
-
-
-  //------------------------- Regular function handlers ----------------------
+  //--------------------------- Regular functions ------------------------------
   function getCurrentStudy(): { 
     isNonStudy: boolean, 
     study: STUDY_SIMPLE__DYNAMODB | undefined 
@@ -157,14 +144,33 @@ const BessiAssessment: FC<BessiProps> = ({
   function onWellnessRatingChange(e: any, questionIndex: number) {
     const { value } = e.target
 
-    // Use `questionIndex + 1` because `BESSI_192_ACTIVITY_BANK` has no value 
-    // for 0.
+    // Use `questionIndex + 1` because the activity bank starts at 1
     const activityIndex = questionIndex + 1
 
-    const _userScore: UserScoresType = {
-      facet: getFacet(activityIndex),
-      ...getSkillDomainAndWeight(getFacet(activityIndex)),
-      response: parseInt(value)
+    let _userScore: UserScoresType = {
+      facet: Facet.Adaptability,
+      domain: [ SkillDomain.SelfManagement ],
+      weight: 0,
+      response: 0,
+    }
+
+    if (bessiVersion === 192 || bessiVersion === 96) {
+      const facet = getFacet(activityIndex)
+      const { domain, weight } = getSkillDomainAndWeight(facet)
+      
+      _userScore = {
+        facet,
+        domain,
+        weight,
+        response: parseInt(value)
+      }
+    } else if (bessiVersion === 45 || bessiVersion === 20) {
+      const domain = getDomain(activityIndex, bessiVersion)
+      
+      _userScore = {
+        domain,
+        response: parseInt(value)
+      }
     }
 
     setUserScores({
@@ -174,7 +180,7 @@ const BessiAssessment: FC<BessiProps> = ({
 
     // Move to the next question after a short delay
     if (questionIndex < questions.length - 1) {
-      const timeout = 28 // 300ms delay for the transition effect
+      const timeout = 28 // 28ms delay for the transition effect
 
       setTimeout(() => {
         setCurrentQuestionIndex(questionIndex + 1)
@@ -183,8 +189,11 @@ const BessiAssessment: FC<BessiProps> = ({
   }
 
 
+
   // --------------------------- Async functions -------------------------------
-  async function handleSubmit(e: any): Promise<void> {
+  async function handleSubmit(
+    e: any
+  ): Promise<void> {
     if (userScores) {
       e.preventDefault()
 
@@ -197,9 +206,9 @@ const BessiAssessment: FC<BessiProps> = ({
       const finalScores: {
         id?: string,
         accessToken?: string
-        facetScores: FacetFactorType
+        facetScores?: FacetFactorType
         domainScores: SkillDomainFactorType
-      } = calculateBessiScores[192](Object.values(userScores))
+      } = calculateBessiScores(Object.values(userScores), bessiVersion)
 
       // console.log('finalScores: ', finalScores)
 
@@ -209,12 +218,37 @@ const BessiAssessment: FC<BessiProps> = ({
   }
 
 
+  async function handleAssessmentCompletion(): Promise<void> {
+
+  }
+
+
+  async function redirectToResultsPage(): Promise<void> {
+    // Navigate to the results page
+    const href = `/${ASSESSMENT_ID}/assessment/results`
+    
+    /**
+     * @dev Refactor `sendEmail()` function to use SendGrid instead of
+     * Postmark. Reach out to Dr. Roberts to get the API key necessary for
+     * this.
+    */
+    // Send the users results to their account email address
+    // await sendEmail()
+    
+    // Use router to route the user the results page
+    router.push(href)
+    
+    // Reset current study
+    resetCurrentStudy()
+  }
+
+
   async function storeResultsInDynamoDB(
     finalScores: {
       id?: string,
       accessToken?: string
       studyId?: string
-      facetScores: FacetFactorType
+      facetScores?: FacetFactorType
       domainScores: SkillDomainFactorType
     },
   ) {
@@ -238,11 +272,16 @@ const BessiAssessment: FC<BessiProps> = ({
      * @dev This is the object that we store in DynamoDB using AWS's 
      * `PutItemCommand` operation.
      */
-    const bessiUserResults: BessiUserResults__DynamoDB = {
-      facetScores: finalScores.facetScores,
-      domainScores: finalScores.domainScores,
-      demographics: DEMOGRAPHICS,
-    }
+    const bessiUserResults: BessiUserResults__DynamoDB = finalScores.facetScores 
+      ? {
+          facetScores: finalScores.facetScores,
+          domainScores: finalScores.domainScores,
+          demographics: DEMOGRAPHICS,
+        }
+      : {
+          domainScores: finalScores.domainScores,
+          demographics: DEMOGRAPHICS,
+        }
     
     const { study, isNonStudy } = getCurrentStudy()
 
@@ -305,28 +344,15 @@ const BessiAssessment: FC<BessiProps> = ({
 
         // 5. Store final scores in React state
         setBessiSkillScores(finalScores)
-        // 6.  Navigate to the results page
-        const href = `/${ASSESSMENT_ID}/assessment/results`
-
-        /**
-         * @dev Refactor `sendEmail()` function to use SendGrid instead of
-         * Postmark. Reach out to Dr. Roberts to get the API key necessary for
-         * this.
-         */
-        // // 7. Send the users results to their account email address
-        // await sendEmail()
-
-        // 8. Use router to route the user the results page
-        router.push(href)
         
-        // 9. Reset current study
-        resetCurrentStudy()
+        await redirectToResultsPage()
       } else {
         setIsLoadingResults(false)
         
         const error = `Error posting ${ 
           ASSESSMENT_ID.toUpperCase() 
         } results to DynamoDB: `
+
         /**
          * @todo Handle error UI here
          */
@@ -344,6 +370,17 @@ const BessiAssessment: FC<BessiProps> = ({
   }
 
 
+  // -------------------------- `useLayoutEffect`s -----------------------------
+  useLayoutEffect(() => {
+    const activityBank = generateBessiActivityBank(reportType, bessiVersion)
+    const questions_ = activityBank.map(
+      (bessiActivity: BessiActivityType): string => bessiActivity.activity
+    )
+
+    setQuestions(questions_)
+  }, [  ])
+
+
   useLayoutEffect(() => {
     // if (!isLoading && user && user.email) {
     if (email) {
@@ -359,6 +396,7 @@ const BessiAssessment: FC<BessiProps> = ({
       console.error(`Couldn't get the user's email`)
     }
   }, [ /* isLoading */ email ])
+
 
 
 
@@ -401,7 +439,7 @@ const BessiAssessment: FC<BessiProps> = ({
 
             { isEndOfQuestionnaire && (
               <>
-                { !isGameInSession && <BessiDemographicQuestionnaire /> }
+                <BessiDemographicQuestionnaire />
                 <FormButton
                   buttonText={ BUTTON_TEXT }
                   state={ {
@@ -418,4 +456,4 @@ const BessiAssessment: FC<BessiProps> = ({
   )
 }
 
-export default BessiAssessment
+export default BessiAssessmentSection

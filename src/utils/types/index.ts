@@ -124,9 +124,17 @@ export type RATINGS__DYNAMODB = {
 }
 
 
+export type PlayerInGameState = {
+  hasCompletedConsentForm: boolean
+  hasCompletedSelfReport: boolean
+  hasCompletedObserverReport: boolean
+}
+
+
 export type Player = {
   hasJoined: boolean
   ipAddress: string
+  inGameState: PlayerInGameState
   joinedAtTimestamp: number
 }
 

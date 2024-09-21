@@ -54,6 +54,7 @@ export type GameSessionContextType = {
   sessionQrCode: string
   isGameSession: boolean
   isGameInSession: boolean
+  isUpdatingPlayers: boolean
   gameSessionUrlSlug: string
   players: SocialRatingGamePlayers
   // Setters
@@ -66,6 +67,7 @@ export type GameSessionContextType = {
   setSessionQrCode: Dispatch<SetStateAction<string>>
   setIsGameSession: Dispatch<SetStateAction<boolean>>
   setIsGameInSession: Dispatch<SetStateAction<boolean>>
+  setIsUpdatingPlayers: Dispatch<SetStateAction<boolean>>
   setGameSessionUrlSlug: Dispatch<SetStateAction<string>>
   setPlayers: Dispatch<SetStateAction<SocialRatingGamePlayers>>
 }

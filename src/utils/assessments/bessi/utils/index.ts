@@ -233,7 +233,7 @@ function calculateBessiScoresWithFacets(scores: UserScoresType[]): {
 
   // Calculate facet scores and counts
   for (const score of scores) {
-    const facet = score.facet;
+    const facet = score.facet as Facet;
     facetScores[facet] = (facetScores[facet] || 0) + score.response
     facetCounts[facet] = (facetCounts[facet] || 0) + 1
   }
@@ -242,9 +242,10 @@ function calculateBessiScoresWithFacets(scores: UserScoresType[]): {
   for (const score of scores) {
     for (const domain of score.domain) {
       domainScores[domain] = (
-        (domainScores[domain] || 0) + score.response * score.weight
+        (domainScores[domain] || 0) + score.response * (score.weight as number)
       )
-      domainWeights[domain] = (domainWeights[domain] || 0) + score.weight
+      
+      domainWeights[domain] = (domainWeights[domain] || 0) + (score.weight as number)
     }
   }
 
@@ -264,62 +265,83 @@ function calculateBessiScoresWithFacets(scores: UserScoresType[]): {
 }
 
 
-
 /**
- * @dev Uses a user's BESSI activity ratings to calculate their personality 
- *      scores for their skill domains.
- * @param scores 
- * @returns SkillDomainFactorType
+ * @dev Calculates the average scores for each facet and skill domain based on 
+ * the provided user `scores` array.
+ * If `useFacets` is true, it calculates both facet and domain scores;
+ * otherwise, it only calculates domain scores.
  */
-function calculateBessiScoresWithoutFacets(
-  scores: Omit<UserScoresType, "facet" | "weight">[]
-): SkillDomainFactorType {
+export function calculateBessiScores(
+  scores: UserScoresType[],
+  bessiVersion: number
+): { facetScores?: FacetFactorType, domainScores: SkillDomainFactorType } {
+  const useFacets = bessiVersion === 192 || bessiVersion === 96
+
   // Initialize objects to hold scores and counts
-  let domainScores: SkillDomainFactorType = {}
-  let domainCounts: { [key in SkillDomain]?: number } = {}
+  let facetScores: FacetFactorType = {},
+    facetCounts: FacetFactorType = {},
+    domainScores: SkillDomainFactorType = {},
+    domainWeights: SkillDomainFactorType = {},
+    domainCounts: { [key in SkillDomain]?: number } = {}
 
-  // Iterate over the scores array
-  scores.forEach(score => {
-    // For each domain in the current score
-    score.domain.forEach(domain => {
-      // Initialize the domain in domainScores and domainCounts if not already
-      if (!domainScores[domain]) {
-        domainScores[domain] = 0
-        domainCounts[domain] = 0
-      }
+  // Calculate facet scores and counts if facets are being used
+  if (useFacets) {
+    for (const score of scores) {
+      const facet = score.facet as Facet
 
-      // Add the response to the domain score and increment the count
-      domainScores[domain]! += score.response
-      domainCounts[domain]! += 1
-    })
-  })
-
-  // Now average the domain scores based on the counts
-  for (const domain in domainScores) {
-    const count = domainCounts[domain as SkillDomain]
-    
-    if (count) {
-      domainScores[domain as SkillDomain] = (
-        domainScores[domain as SkillDomain]! / count
-      ) * 20 // Scale to 0 - 100
+      facetScores[facet] = (facetScores[facet] || 0) + score.response
+      facetCounts[facet] = (facetCounts[facet] || 0) + 1
     }
   }
 
-  return domainScores
-}
+  // Calculate domain scores and weights/counts
+  for (const score of scores) {
+    if (useFacets) {
+      // If facets are used, domain is an array
+      for (const domain of score.domain) {
+        domainScores[domain] = (
+          (domainScores[domain] || 0) + score.response * (score.weight as number)
+        )
 
+        domainWeights[domain] = (domainWeights[domain] || 0) + (score.weight as number)
+      }
+    } else {
+      // If facets are not used, domain is a single value
+      const domain = score.domain as SkillDomain
 
+      domainScores[domain] = (domainScores[domain] || 0) + score.response
+      domainCounts[domain] = (domainCounts[domain] || 0) + 1
+    }
+  }
 
-/**
- * @dev Calculates personality scores for the BESSI
- * @todo Convert BESSI-45 to use `calculateBessiScoresWithoutFacets()`
- */
-export const calculateBessiScores = {
-  192: (scores: UserScoresType[]) => calculateBessiScoresWithFacets(scores),
-  96: (scores: UserScoresType[]) => calculateBessiScoresWithFacets(scores),
-  // TODO: Convert BESSI-45 to use `calculateBessiScoresWithoutFacets()`.
-  45: (scores: UserScoresType[]) => calculateBessiScoresWithFacets(scores),
-  20: (scores: UserScoresType[]) => calculateBessiScoresWithoutFacets(scores),
+  // Convert facet scores to percentage out of 100 if facets are used
+  if (useFacets) {
+    for (const facet in facetScores) {
+      const maxScore = 5 * facetCounts[facet]
+      facetScores[facet] = Math.round((facetScores[facet] / maxScore) * 100)
+    }
+
+    // Convert domain scores to percentage out of 100 for weighted domains
+    for (const domain in domainScores) {
+      const maxScore = 5 * domainWeights[domain]
+      domainScores[domain] = Math.round((domainScores[domain] / maxScore) * 100)
+    }
+  } else {
+    // Convert domain scores to percentage out of 100 for unweighted domains
+    for (const domain in domainScores) {
+      const count = domainCounts[domain as SkillDomain]
+
+      if (count) {
+        domainScores[domain as SkillDomain] = Math.round(
+          (domainScores[domain as SkillDomain]! / (count * 5)) * 100
+        )
+      }
+    }
+  }
+
+  return useFacets 
+    ? { facetScores, domainScores } 
+    : { domainScores }
 }
 
 

@@ -26,6 +26,7 @@ import { GameSessionContextType, SessionContextType } from '@/contexts/types'
 import {
   Player,
   GamePhases,
+  PlayerInGameState,
   SocialRatingGamePlayers,
   INVALID_CHARS_EXCEPT_NUMBERS,
   SOCIAL_RATING_GAME__DYNAMODB,
@@ -58,6 +59,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
     sessionId,
     sessionPin,
     sessionQrCode,
+    isUpdatingPlayers,
     // Setters
     setPhase,
     setGameId,
@@ -68,6 +70,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
     setSessionPin,
     setSessionQrCode,
     setIsGameInSession,
+    setIsUpdatingPlayers,
     setGameSessionUrlSlug,
   } = useContext<GameSessionContextType>(GameSessionContext)
   // Hooks
@@ -98,7 +101,6 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
     setIsFetchingIpAddress
   ] = useState<boolean>(true)
   const [isFetchingGame, setIsFetchingGame] = useState<boolean>(true)
-  const [isUpdatingPlayers, setIsUpdatingPlayers] = useState<boolean>(false)
 
 
   // ------------------------- Regular functions -------------------------------
@@ -296,11 +298,17 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
 
     const hasJoined = true
     const ipAddress = ''
+    const inGameState: PlayerInGameState = {
+      hasCompletedConsentForm: false,
+      hasCompletedSelfReport: false,
+      hasCompletedObserverReport: false,
+    }
     const joinedAtTimestamp = 0
 
-    const player = {
+    const player: Player = {
       hasJoined,
       ipAddress,
+      inGameState,
       joinedAtTimestamp,
     } 
 
@@ -487,7 +495,6 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
 
   // ~~~~~ Get the rest of game session details from `sessionId` ~~~~~
   useLayoutEffect(() => {
-    localStorage.clear()
     if (sessionId) {
       const requests = [
         getGame(),
@@ -495,7 +502,15 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
 
       Promise.all(requests).then(() => { })
     }
-  }, [ email, sessionId ])
+  }, [ 
+    email, 
+    sessionId, 
+    /**
+     * @dev Refetch game details when `players` changes to update changes for 
+     *      all players once a player updates their `inGameState`.
+     */
+    players // Will read from DynamoDB every time `players` is updated.
+  ])
 
 
 

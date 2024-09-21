@@ -20,22 +20,26 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
 }) => {
   // Hooks
   const pathname = usePathname()
-  // States
+  // -------------------------------- States -----------------------------------
+  // Customs
   const [ 
     players, 
     setPlayers 
   ] = useState<SocialRatingGamePlayers>({})
+  // Enums
+  const [ phase, setPhase ] = useState<GamePhases>(GamePhases.Lobby)
+  // Strings
   const [ gameId, setGameId ] = useState<string>('')
-  const [ isHost, setIsHost ] = useState<boolean>(false)
   const [ sessionId, setSessionId ] = useState<string>('')
   const [ hostEmail, setHostEmail ] = useState<string>('')
   const [ sessionPin, setSessionPin ] = useState<string>('')
   const [ sessionQrCode, setSessionQrCode ] = useState<string>('')
-  const [ phase, setPhase ] = useState<GamePhases>(GamePhases.Lobby)
+  const [ gameSessionUrlSlug, setGameSessionUrlSlug ] = useState<string>('')
+  // Booleans
+  const [ isHost, setIsHost ] = useState<boolean>(false)
   const [ isGameSession, setIsGameSession ] = useState<boolean>(false)
   const [ isGameInSession, setIsGameInSession ] = useState<boolean>(false)
-  const [ gameSessionUrlSlug, setGameSessionUrlSlug ] = useState<string>('')
-  
+  const [ isUpdatingPlayers, setIsUpdatingPlayers ] = useState<boolean>(false)
 
 
   useLayoutEffect(() => {
@@ -71,6 +75,7 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
         sessionQrCode,
         isGameSession,
         isGameInSession,
+        isUpdatingPlayers,
         gameSessionUrlSlug,
         // Setters
         setPhase,
@@ -83,6 +88,7 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
         setSessionQrCode,
         setIsGameSession,
         setIsGameInSession,
+        setIsUpdatingPlayers,
         setGameSessionUrlSlug,
       } }
     >

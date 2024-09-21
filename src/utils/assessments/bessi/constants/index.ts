@@ -756,36 +756,50 @@ export const BESSI_ACTIVITIES = {
 
 
 
-/**
- * @todo Refactor this to support all BESSI versions and both `self-report` and 
- *       `observer-report` forms.
- */
-export const BESSI_192_ACTIVITY_BANK: BessiActivityType[] = BESSI_ACTIVITIES['self-report'][192].map(
-  (activity, index) => ({
-  id: index + 1,
-  activity,
-  facet: getFacet(index + 1),
-  ...getSkillDomainAndWeight(getFacet(index + 1))
-}))
+export function generateBessiActivityBank(
+  reportType: 'self-report' | 'observer-report',
+  bessiVersion: number,
+): BessiActivityType[] {
+  const activities = BESSI_ACTIVITIES[reportType][bessiVersion]
 
+  const activityBank: BessiActivityType[] = activities.map((
+    activity: string, 
+    index: number
+  ): BessiActivityType => {
+    const id = index + 1
 
+    // For BESSI version 192 or 96
+    if (bessiVersion === 192 || bessiVersion === 96) {
+      const facet = getFacet(id)
+      const { domain, weight } = getSkillDomainAndWeight(facet)
 
+      return {
+        id,
+        activity,
+        facet,
+        domain,
+        weight
+      }
+    }
 
-export const BESSI_45_ACTIVITY_BANK = BESSI_ACTIVITIES['self-report'][45].map(
-  (activity, index) => ({
-  id: index + 1,
-  activity,
-  // Add 1 because domain mappings start at 1 not 0
-  domain: getDomain(index + 1, 45)
-}))
+    // For BESSI version 45 or 20
+    if (bessiVersion === 45 || bessiVersion === 20) {
+      const domain = getDomain(id, bessiVersion)
 
+      return {
+        id,
+        activity,
+        domain,
+      }
+    }
 
+    // Fallback, though it should never be reached
+    return {
+      id,
+      activity,
+      domain: [],
+    }
+  })
 
-
-export const BESSI_20_ACTIVITY_BANK = BESSI_ACTIVITIES['self-report'][20].map(
-  (activity, index) => ({
-  id: index + 1,
-  activity,
-  // Add 1 because domain mappings start at 1 not 0
-  domain: getDomain(index + 1, 20)
-}))
+  return activityBank
+}

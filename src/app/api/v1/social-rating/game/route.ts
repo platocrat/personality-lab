@@ -50,11 +50,13 @@ export async function PUT(
     
     const hasJoined = players[playerNickname].hasJoined
     const ipAddress = requestHeaders.get('x-forwarded-for') as string
+    const inGameState = players[playerNickname].inGameState
     const joinedAtTimestamp = Date.now()
 
     const player: Player = {
       hasJoined,
       ipAddress,
+      inGameState,
       joinedAtTimestamp
     }
 
@@ -139,7 +141,7 @@ export async function GET(
     const sessionId = req.nextUrl.searchParams.get('sessionId')
     // `hostEmail` is only present when `sessionId` is not.
     const hostEmail = req.nextUrl.searchParams.get('hostEmail')
-    
+
     const TableName = DYNAMODB_TABLE_NAMES.socialRatingGames
 
     if (sessionId && !hostEmail) {

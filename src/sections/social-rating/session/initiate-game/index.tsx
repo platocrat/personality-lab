@@ -10,7 +10,6 @@ import {
   SetStateAction,
 } from 'react'
 import QRCode from 'qrcode'
-import { usePathname } from 'next/navigation'
 // Locals
 import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
 // Contexts
@@ -20,6 +19,7 @@ import { GameSessionContextType, SessionContextType } from '@/contexts/types'
 // Utils
 import { 
   Player,
+  PlayerInGameState,
   handleEnterGameSession,
   SOCIAL_RATING_GAME__DYNAMODB,
 } from '@/utils'
@@ -158,20 +158,27 @@ const InitiateGame: FC<InitiateGameProps> = ({
   }
 
 
-  async function storeGameInDynamoDB() {
+  async function storeGameInDynamoDB(): Promise<void> {
     setIsCreatingGame(true)
 
     const isActive = true
     const hostEmail = email ?? ''
 
     const nickname = 'host'
+
     const hasJoined = true
     const ipAddress = ''
+    const inGameState: PlayerInGameState = {
+      hasCompletedConsentForm: false,
+      hasCompletedSelfReport: false,
+      hasCompletedObserverReport: false,
+    }
     const joinedAtTimestamp = 0
     
     const player = {
       hasJoined,
       ipAddress,
+      inGameState,
       joinedAtTimestamp,
     } as Player
     

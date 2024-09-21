@@ -26,26 +26,26 @@ export type FacetFactorType = {
  * `response` is a number between 1 and 5.
  */
 export type UserScoresType = {
-  facet: Facet
-  domain: SkillDomain[]
-  weight: number // between 0 and 1
+  domain: SkillDomain | SkillDomain[]
   response: number // between 1 and 5
+  facet?: Facet
+  weight?: number // between 0 and 1
 }
 
 export type BessiSkillScoresType = {
   id?: string
   studyId?: string
   accessToken?: string
-  facetScores: FacetFactorType,
+  facetScores?: FacetFactorType,
   domainScores: SkillDomainFactorType
 }
 
 export type BessiActivityType = {
   id: number
   activity: string
-  facet: Facet
-  domain: SkillDomain[]
-  weight: number 
+  domain: SkillDomain | SkillDomain[]
+  facet?: Facet
+  weight?: number 
 }
 
 export type BessiUserDemographics__DynamoDB = {
@@ -65,7 +65,7 @@ export type BessiUserDemographics__DynamoDB = {
 }
 
 export type BessiUserResults__DynamoDB = {
-  facetScores: FacetFactorType
+  facetScores?: FacetFactorType
   domainScores: SkillDomainFactorType
   demographics: BessiUserDemographics__DynamoDB
 }
