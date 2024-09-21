@@ -1,10 +1,12 @@
-import { GameSessionContextType } from '@/contexts/types'
 import { 
+  GamePhases,
   FacetFactorType, 
   SkillDomainFactorType, 
   BessiUserResults__DynamoDB,
-  BessiUserDemographics__DynamoDB, 
-} from '../assessments'
+  BessiUserDemographics__DynamoDB,
+} from '@/utils'
+import { GameSessionContextType } from '@/contexts/types'
+
 
 
 
@@ -156,6 +158,7 @@ export type SOCIAL_RATING_GAME__DYNAMODB = {
   createdAtTimestamp: number // Sort Key
   hostEmail: string // Global Secondary Index
   gameId: string
+  phase: GamePhases
   isActive: boolean
   sessionPin: string
   sessionQrCode: string

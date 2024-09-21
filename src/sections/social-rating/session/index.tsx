@@ -239,13 +239,16 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
   async function getIsHost(): Promise<void> {
     let isHost_ = false,
       hostHasJoined_ = false
-  
-    hostHasJoined_ = players ? players['host'].hasJoined : false
     
-    if (email === hostEmail) isHost_ = true
-    
-    setIsHost(isHost_)
-    setIsPlayer(hostHasJoined_)
+    if (email === hostEmail) {
+      isHost_ = true
+      setIsHost(isHost_)
+      
+      if (players && userIP === players['host'].ipAddress) {
+        hostHasJoined_ = players['host'].hasJoined
+        setIsPlayer(hostHasJoined_)
+      }
+    }
   }
 
 
@@ -467,6 +470,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
       if (response.status === 200) {
         const socialRatingGame = json.socialRatingGame as SOCIAL_RATING_GAME__DYNAMODB
 
+        const phase_ = socialRatingGame.phase
         const gameId_ = socialRatingGame.gameId
         const players_ = socialRatingGame.players
         const hostEmail_ = socialRatingGame.hostEmail
@@ -476,6 +480,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
         const isGameInSession_ = socialRatingGame.isGameInSession
         const gameSessionUrlSlug_ = socialRatingGame.gameSessionUrlSlug
 
+        setPhase(phase_)
         setGameId(gameId_)
         setPlayers(players_)
         setHostEmail(hostEmail_)
@@ -531,7 +536,9 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
       getUserIP(),
     ]
 
-    Promise.all(requests).then(() => { })
+    Promise.all(requests).then(() => { 
+
+    })
   }, [ ])
 
 
@@ -543,7 +550,9 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
           getIsPlayer(),
         ]
   
-        Promise.all(requests).then(() => { })
+        Promise.all(requests).then(() => {
+          
+        })
       }
     }
   }, [ players, userIP, isDuplicateNickname ])
@@ -556,19 +565,24 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
         getIsHost(),
       ]
 
-      Promise.all(requests).then(() => { })
+      Promise.all(requests).then(() => {
+
+      })
     }
   }, [ email, players ])
 
 
   // ~~~~~ Get the rest of game session details from `sessionId` ~~~~~
   useLayoutEffect(() => {
+    localStorage.clear()
     if (sessionId) {
       const requests = [
         getGame(),
       ]
 
-      Promise.all(requests).then(() => { })
+      Promise.all(requests).then(() => { 
+
+      })
     }
   }, [
     sessionId, 

@@ -19,6 +19,7 @@ import { GameSessionContextType, SessionContextType } from '@/contexts/types'
 // Utils
 import { 
   Player,
+  GamePhases,
   PlayerInGameState,
   handleEnterGameSession,
   SOCIAL_RATING_GAME__DYNAMODB,
@@ -164,6 +165,7 @@ const InitiateGame: FC<InitiateGameProps> = ({
     const isActive = true
     const hostEmail = email ?? ''
     const isGameInSession = false
+    const phase = GamePhases.Lobby
 
     const nickname = 'host'
 
@@ -193,6 +195,7 @@ const InitiateGame: FC<InitiateGameProps> = ({
       SOCIAL_RATING_GAME__DYNAMODB, 
       'id' | 'createdAtTimestamp' | 'updatedAtTimestamp'
     > = {
+      phase,
       gameId,
       players,
       isActive,

@@ -85,6 +85,7 @@ const SocialRating: FC<SocialRatingProps> = ({
     sessionId,
     gameSessionUrlSlug,
     // Setters
+    setPhase,
     setGameId,
     setHostEmail,
     setSessionId,
@@ -170,6 +171,7 @@ const SocialRating: FC<SocialRatingProps> = ({
 
       const socialRatingGame = json.socialRatingGame as SOCIAL_RATING_GAME__DYNAMODB
 
+      const phase_ = socialRatingGame.phase
       const gameId_ = socialRatingGame.gameId
       const isActive_ = socialRatingGame.isActive
       const hostEmail_ = socialRatingGame.hostEmail
@@ -179,6 +181,7 @@ const SocialRating: FC<SocialRatingProps> = ({
       const isGameInSession_ = socialRatingGame.isGameInSession
       const gameSessionUrlSlug_ = socialRatingGame.gameSessionUrlSlug
 
+      setPhase(phase_)
       setGameId(gameId_)
       setHostEmail(hostEmail_)
       setSessionId(sessionId_)
