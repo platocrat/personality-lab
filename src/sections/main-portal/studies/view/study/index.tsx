@@ -26,6 +26,7 @@ import {
   PARTICIPANT__DYNAMODB,
   AVAILABLE_ASSESSMENTS,
   BessiUserResults__DynamoDB,
+  FacetFactorType,
 } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -168,7 +169,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
 
         return [
           participants[i].id,
-          ...Object.values(facetScores),
+          ...Object.values(facetScores as FacetFactorType),
           ...Object.values(domainScores),
           ...Object.values(demographics)
         ]
