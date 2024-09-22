@@ -58,33 +58,6 @@ const InGame: FC<InGameProps> = ({
   } = useContext<GameSessionContextType>(GameSessionContext)
 
 
-  // -------------------------- `onSubmit` handlers ----------------------------
-  /**
-   * @dev Make sure to collect `'self-report'` or `'observer-report'` data 
-   * within the
-   * ```typescript
-   * await storeInDynamoDB()
-   * ```
-   * function, which is found in the `BessiAssessmentSection` function 
-   * component.
-   */
-  const onCompletion = async (): Promise<void> => {
-    if (players) {
-      // Check if stored nickname and stored player is in local storage
-      const storedNickname = localStorage.getItem('nickname')
-      const storedPlayer = localStorage.getItem('player')
-
-      if (storedNickname && storedPlayer) {
-        const updatedPlayer = createUpdatedPlayer(storedPlayer, phase)
-        // Update the player's `inGameState` in DynamoDB
-        await updatePlayers(storedNickname, updatedPlayer)
-        // Update the local cache of `player` state
-        updatePlayerInLocalStorage(updatedPlayer)
-      }
-    }
-  }
-
-
   // --------------------------- Regular functions -----------------------------
   function createUpdatedPlayer(
     storedPlayer: string, 
@@ -140,6 +113,34 @@ const InGame: FC<InGameProps> = ({
 
 
   // ---------------------------- Async functions ------------------------------
+  // ~~~~~~ `onSubmit` handlers ~~~~~~
+  /**
+   * @dev Make sure to collect `'self-report'` or `'observer-report'` data 
+   * within the
+   * ```typescript
+   * await storeInDynamoDB()
+   * ```
+   * function, which is found in the `BessiAssessmentSection` function 
+   * component.
+   */
+  const onCompletion = async (): Promise<void> => {
+    if (players) {
+      // Check if stored nickname and stored player is in local storage
+      const storedNickname = localStorage.getItem('nickname')
+      const storedPlayer = localStorage.getItem('player')
+
+      if (storedNickname && storedPlayer) {
+        const updatedPlayer = createUpdatedPlayer(storedPlayer, phase)
+        // Update the player's `inGameState` in DynamoDB
+        await updatePlayers(storedNickname, updatedPlayer)
+        // Update the local cache of `player` state
+        updatePlayerInLocalStorage(updatedPlayer)
+      }
+    }
+  }
+
+
+  // ~~~~~~ API calls ~~~~~~
   async function updatePlayers(
     _nickname: string, 
     _updatedPlayer: Player,

@@ -75,8 +75,8 @@ const Consent: FC<ConsentProps> = ({
           { hasCompletedConsentForm ? (
             <>
               <div className={ styles['player-nickname-grid'] }>
-                <h2>
-                  { `Waiting for other players...` }
+                <h2 style={{ textAlign: 'center' }}>
+                  { `Waiting for other players to agree to the consent form...` }
                 </h2>
               </div>
             </>
