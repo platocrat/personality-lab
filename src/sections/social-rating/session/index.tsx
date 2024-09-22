@@ -74,9 +74,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
     setGameSessionUrlSlug,
     setIsUpdatingGameState,
     // State change function handlers
-    haveAllPlayersCompletedConsentForm,
-    haveAllPlayersCompletedSelfReport,
-    haveAllPlayersCompletedObserverReport,
+    haveAllPlayersCompleted,
   } = useContext<GameSessionContextType>(GameSessionContext)
   // Hooks
   const pathname = usePathname()
@@ -166,7 +164,11 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
 
   // --------------------------- Async functions -------------------------------
   const onStartGame = async (): Promise<void> => {
-    const isGameInSession = await updateIsGameInSession()
+    const { 
+      phase,
+      isGameInSession, 
+    } = await updateIsGameInSession(GamePhases.ConsentForm)
+
     setIsGameInSession(isGameInSession)
     setPhase(GamePhases.ConsentForm) // Move to ConsentForm phase
   }
@@ -292,7 +294,9 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
   }
 
 
-  async function updateIsGameInSession(): Promise<boolean> {
+  async function updateIsGameInSession(
+    _phase: GamePhases
+  ): Promise<{ phase: GamePhases, isGameInSession: boolean }> {
     setIsUpdatingGameState(true)
     
     const isGameInSession = true
@@ -305,6 +309,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          phase: _phase,
           sessionId,
           isGameInSession,
         }),
@@ -323,9 +328,12 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
       }
 
       if (response.status === 200) {
+        const phase_ = json.phase
         const isGameInSession_ = json.isGameInSession
+        
         setIsUpdatingGameState(false)
-        return isGameInSession_
+
+        return { phase: phase_, isGameInSession: isGameInSession_ }
       } else {
         setIsUpdatingGameState(false)
 
@@ -589,9 +597,9 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
      * @dev Refetch game details when `players` changes to update changes for 
      *      all players once a player updates their `inGameState`.
      */
-    haveAllPlayersCompletedConsentForm(players),
-    haveAllPlayersCompletedSelfReport(players),
-    haveAllPlayersCompletedObserverReport(players),
+    haveAllPlayersCompleted(players, 'hasCompletedConsentForm'),
+    haveAllPlayersCompleted(players, 'hasCompletedSelfReport'),
+    haveAllPlayersCompleted(players, 'hasCompletedObserverReport'),
   ])
 
 

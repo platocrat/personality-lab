@@ -50,29 +50,12 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
 
 
   // --------------------------- Regular functions -----------------------------
-  function haveAllPlayersCompletedConsentForm(
-    players: SocialRatingGamePlayers
+  function haveAllPlayersCompleted(
+    players: SocialRatingGamePlayers,
+    check: 'hasCompletedConsentForm' | 'hasCompletedSelfReport' | 'hasCompletedObserverReport',
   ): boolean {
     return Object.values(players).every(
-      (player: Player): boolean => player.inGameState.hasCompletedConsentForm
-    )
-  }
-
-
-  function haveAllPlayersCompletedSelfReport(
-    players: SocialRatingGamePlayers
-  ): boolean {
-    return Object.values(players).every(
-      (player: Player): boolean => player.inGameState.hasCompletedSelfReport
-    )
-  }
-
-
-  function haveAllPlayersCompletedObserverReport(
-    players: SocialRatingGamePlayers
-  ): boolean {
-    return Object.values(players).every(
-      (player: Player): boolean => player.inGameState.hasCompletedObserverReport
+      (player: Player): boolean => player.inGameState[check]
     )
   }
 
@@ -127,9 +110,7 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
         setIsGameInSession,
         setGameSessionUrlSlug,
         setIsUpdatingGameState,
-        haveAllPlayersCompletedConsentForm,
-        haveAllPlayersCompletedSelfReport,
-        haveAllPlayersCompletedObserverReport,
+        haveAllPlayersCompleted,
       } }
     >
       { children }

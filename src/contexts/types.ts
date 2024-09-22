@@ -72,9 +72,10 @@ export type GameSessionContextType = {
   setIsUpdatingGameState: Dispatch<SetStateAction<boolean>>
   setPlayers: Dispatch<SetStateAction<SocialRatingGamePlayers>>
   // State change function handlers
-  haveAllPlayersCompletedConsentForm: (players: SocialRatingGamePlayers) => boolean
-  haveAllPlayersCompletedSelfReport: (players: SocialRatingGamePlayers) => boolean
-  haveAllPlayersCompletedObserverReport: (players: SocialRatingGamePlayers) => boolean
+  haveAllPlayersCompleted: (
+    players: SocialRatingGamePlayers, 
+    check: 'hasCompletedConsentForm' | 'hasCompletedSelfReport' | 'hasCompletedObserverReport'
+  ) => boolean
 }
 
 

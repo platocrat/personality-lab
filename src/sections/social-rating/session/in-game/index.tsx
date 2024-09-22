@@ -22,6 +22,15 @@ type InGameProps = {
 }
 
 
+type PhaseChecks = {
+  phase: GamePhases
+  check: 'hasCompletedConsentForm' |
+  'hasCompletedSelfReport' |
+  'hasCompletedObserverReport'
+}
+
+
+
 
 // Page-global constants
 const BESSI_VERSION = 20
@@ -45,9 +54,7 @@ const InGame: FC<InGameProps> = ({
     // State setters
     setIsUpdatingGameState,
     // State change function handlers
-    haveAllPlayersCompletedConsentForm,
-    haveAllPlayersCompletedSelfReport,
-    haveAllPlayersCompletedObserverReport,
+    haveAllPlayersCompleted,
   } = useContext<GameSessionContextType>(GameSessionContext)
 
 
@@ -79,7 +86,10 @@ const InGame: FC<InGameProps> = ({
 
 
   // --------------------------- Regular functions -----------------------------
-  function createUpdatedPlayer(storedPlayer: string, phase: GamePhases): Player {
+  function createUpdatedPlayer(
+    storedPlayer: string, 
+    phase: GamePhases
+  ): Player {
     const player = JSON.parse(storedPlayer) as Player
     const previousInGameState = { ...player.inGameState }
 
@@ -130,7 +140,10 @@ const InGame: FC<InGameProps> = ({
 
 
   // ---------------------------- Async functions ------------------------------
-  async function updatePlayers(_nickname: string, _updatedPlayer: Player): Promise<void> {
+  async function updatePlayers(
+    _nickname: string, 
+    _updatedPlayer: Player,
+  ): Promise<void> {
     setIsUpdatingGameState(true)
 
     const _players: SocialRatingGamePlayers = { [_nickname]: _updatedPlayer }
@@ -187,22 +200,80 @@ const InGame: FC<InGameProps> = ({
   }
 
 
+  async function updateGamePhase(_phase: GamePhases): Promise<GamePhases> {
+    setIsUpdatingGameState(true)
+
+    try {
+      const apiEndpoint = `/api/v1/social-rating/game/game-phase`
+      const response = await fetch(apiEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sessionId,
+          phase: _phase,
+        }),
+      })
+
+      const json = await response.json()
+
+      if (response.status === 500) {
+        setIsUpdatingGameState(false)
+        throw new Error(json.error)
+      }
+
+      if (response.status === 405) {
+        setIsUpdatingGameState(false)
+        throw new Error(json.error)
+      }
+
+      if (response.status === 200) {
+        const phase_ = json.phase as GamePhases
+        setIsUpdatingGameState(false)
+        return phase_
+      } else {
+        setIsUpdatingGameState(false)
+
+        const error = `Error posting new players to social rating game with session ID '${sessionId
+          }' to DynamoDB: `
+
+        throw new Error(`${error}: ${json.error}`)
+      }
+    } catch (error: any) {
+      console.log(error)
+      setIsUpdatingGameState(false)
+
+      /**
+       * @todo Handle error UI here
+       */
+      throw new Error(`Error updating player: `, error.message)
+    }
+  }
+
+
   // --------------------------- `useLayoutEffect`s ----------------------------
   useLayoutEffect(() => {
     if (players) {
-      if (haveAllPlayersCompletedConsentForm(players)) {
-        setPhase(GamePhases.SelfReport)
-      }
+      const phaseChecks: PhaseChecks[] = [
+        { check: 'hasCompletedConsentForm', phase: GamePhases.SelfReport },
+        { check: 'hasCompletedSelfReport', phase: GamePhases.ObserverReport },
+        { check: 'hasCompletedObserverReport', phase: GamePhases.Results }
+      ]
 
-      if (haveAllPlayersCompletedSelfReport(players)) {
-        setPhase(GamePhases.ObserverReport)
-      }
+      const nextPhase: GamePhases | undefined = phaseChecks.find(
+        ({ check }): boolean => haveAllPlayersCompleted(players, check)
+      )?.phase
 
-      if (haveAllPlayersCompletedObserverReport(players)) {
-        setPhase(GamePhases.Results)
+      if (nextPhase) {
+        updateGamePhase(nextPhase).then(
+          (_phase: GamePhases): void => setPhase(_phase)
+        )
       }
     }
   }, [ players ])
+
+
 
 
 

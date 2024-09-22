@@ -19,8 +19,7 @@ import {
 
 
 /**
- * POST: Updates two game states: `isGameInSession` and the game's `phase`, 
- *       from `lobby` to `consent-form`
+ * POST: Updates the game's `phase`
  * @param req
  * @param res
  * @returns
@@ -33,7 +32,6 @@ export async function POST(
     const {
       phase,
       sessionId,
-      isGameInSession,
     } = await req.json()
 
     const TableName = DYNAMODB_TABLE_NAMES.socialRatingGames
@@ -60,10 +58,9 @@ export async function POST(
           createdAtTimestamp: storedCreatedAtTimestamp
         }
         const UpdateExpression =
-          'set phase = :phase, isGameInSession = :isGameInSession, updatedAtTimestamp = :updatedAtTimestamp'
+          'set phase = :phase, updatedAtTimestamp = :updatedAtTimestamp'
         const ExpressionAttributeValues = {
           ':phase': phase,
-          ':isGameInSession': isGameInSession,
           ':updatedAtTimestamp': Date.now(),
         }
         const ReturnValues: ReturnValue = 'UPDATED_NEW'
@@ -78,7 +75,7 @@ export async function POST(
 
         command = new UpdateCommand(input)
 
-        const message = `'isGameInSession' and 'phase' has been updated in the '${
+        const message = `'phase' has been updated in the '${
           TableName
         }' table for social rating game with session ID '${
           sessionId
@@ -88,13 +85,11 @@ export async function POST(
           const response = await ddbDocClient.send(command)
 
           const phase_ = response.Attributes?.phase as GamePhases
-          const isGameInSession_ = response.Attributes?.isGameInSession as boolean
 
           return NextResponse.json(
             {
               message,
               phase: phase_,
-              isGameInSession: isGameInSession_,
             },
             {
               status: 200,
@@ -104,7 +99,7 @@ export async function POST(
             }
           )
         } catch (error: any) {
-          const errorMessage = `Failed to update 'isGameInSession' and 'phase' of social rating game with session ID '${
+          const errorMessage = `Failed to update 'phase' of social rating game with session ID '${
             sessionId
           }' in the '${TableName}' table: `
 

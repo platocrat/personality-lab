@@ -31,9 +31,7 @@ const INIT_GAME_SESSION_CONTEXT: GameSessionContextType = {
   setIsGameInSession: () => { },
   setGameSessionUrlSlug: () => { },
   setIsUpdatingGameState: () => { },
-  haveAllPlayersCompletedConsentForm: () => false,
-  haveAllPlayersCompletedSelfReport: () => false,
-  haveAllPlayersCompletedObserverReport: () => false,
+  haveAllPlayersCompleted: () => false,
 }
 
 
