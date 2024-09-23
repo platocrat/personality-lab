@@ -13,11 +13,13 @@ import Questionnaire from '@/components/Questionnaire'
 import NetworkRequestSuspense from '@/components/Suspense/NetworkRequest'
 // Contexts
 import { SessionContext } from '@/contexts/SessionContext'
+import { GameSessionContext } from '@/contexts/GameSessionContext'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 import { UserDemographicsContext } from '@/contexts/UserDemographicsContext'
 // Context Type
 import {
   SessionContextType,
+  GameSessionContextType,
   BessiSkillScoresContextType,
 } from '@/contexts/types'
 // Utilities
@@ -83,6 +85,9 @@ const BessiAssessmentSection: FC<BessiProps> = ({
     highestFormalEducation,
     currentEmploymentStatus,
   } = useContext(UserDemographicsContext)  
+  const { 
+    isGameInSession 
+  } = useContext<GameSessionContextType>(GameSessionContext)
   const { 
     setBessiSkillScores 
   } = useContext<BessiSkillScoresContextType>(BessiSkillScoresContext)
@@ -186,7 +191,21 @@ const BessiAssessmentSection: FC<BessiProps> = ({
 
 
   // --------------------------- Async functions -------------------------------
-  async function handleSubmit(
+  /**
+   * @dev Handles whether to redirect to the next game phase or to the results
+   *      page. 
+   */
+  async function afterResultsSubmissions(): Promise<void> {
+    if (isGameInSession && onCompletion) {
+      await onCompletion() // Continues
+    } else {
+      await redirectToResultsPage()
+    }
+  }
+
+
+  // ~~~~~~ Submits BESSI results to appropriate DynamoDB table ~~~~~~
+  async function onSubmit(
     e: any
   ): Promise<void> {
     if (userScoresMapping) {
@@ -207,7 +226,10 @@ const BessiAssessmentSection: FC<BessiProps> = ({
       }
 
       // 2. Calculate domain and facet scores
-      const finalScores: FinalScores = calculateBessiScores(userScores, bessiVersion)
+      const finalScores: FinalScores = calculateBessiScores(
+        userScores, 
+        bessiVersion
+      )
 
       // console.log('finalScores: ', finalScores)
 
@@ -217,6 +239,10 @@ const BessiAssessmentSection: FC<BessiProps> = ({
   }
 
 
+  /**
+   * @dev Redirects the user to the results page to view their assessment 
+   *      results and a data an appropriate visualization.
+   */
   async function redirectToResultsPage(): Promise<void> {
     // Navigate to the results page
     const href = `/${ASSESSMENT_ID}/assessment/results`
@@ -237,6 +263,10 @@ const BessiAssessmentSection: FC<BessiProps> = ({
   }
 
 
+  /**
+   * @dev Submits BESSI results to the appropriate DynamoDB tables
+   * @param finalScores
+   */
   async function storeResultsInDynamoDB(
     finalScores: {
       id?: string,
@@ -339,7 +369,9 @@ const BessiAssessmentSection: FC<BessiProps> = ({
         // 5. Store final scores in React state
         setBessiSkillScores(finalScores)
         
-        await redirectToResultsPage()
+        // 6. Handle what happens after assessment results are stored in 
+        //    DynamoDB.
+        await afterResultsSubmissions()
       } else {
         setIsLoadingResults(false)
         
@@ -400,7 +432,7 @@ const BessiAssessmentSection: FC<BessiProps> = ({
       <div className={ styles.assessmentWrapper }>
         <form
           className={ styles.grayColor }
-          onSubmit={ (e: any): Promise<void> => handleSubmit(e) }
+          onSubmit={ (e: any): Promise<void> => onSubmit(e) }
         >
           <h2 
             className={ styles.assessmentTitle }
