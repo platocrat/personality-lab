@@ -58,7 +58,7 @@ const Subtitle = ({ text }) => {
 }
 
 
-const ParticipantTitle = ({
+const ParticipantWelcomeNotification = ({
   titleText,
   subtitleText
 }) => {
@@ -163,7 +163,7 @@ const MainPortal: FC<MainPortalProps> = ({ }) => {
                   top: '72px',
                 } }
               >
-                <ParticipantTitle
+                <ParticipantWelcomeNotification
                   titleText={ TITLE_TEXT }
                   subtitleText={ SUBTITLE_TEXT }
                 />

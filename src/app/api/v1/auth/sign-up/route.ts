@@ -95,6 +95,8 @@ export async function POST(
             studiesAsAdmin = account.studiesAsAdmin ?? []
           }
 
+          if (account.participant) isParticipant = true
+
           /**
            * @dev 1.1.4 Determine if the new user is an admin.
            */
