@@ -170,8 +170,9 @@ export async function POST(
 
           command = new UpdateCommand(input)
 
-          const successMessage = `Account entry for ${participant.email
-            } has been updated in the ${TableName} table`
+          const successMessage = `Account entry for ${
+            participant.email
+          } has been updated in the ${TableName} table`
 
           // 1.2.1.5  Attempt to perform the `UpdateCommand` on DynamoDB to 
           //          update the `participant` attribute of the account entry 
@@ -355,11 +356,10 @@ export async function POST(
         createdAtTimestamp: Date.now() // Current timestamp
       }
       const UpdateExpression = 
-        'set participant = :participant, studies = :studies, studiesAsAdmin = :studiesAsAdmin'
+        'set participant = :participant, studiesAsAdmin = :studiesAsAdmin'
       
       ExpressionAttributeValues = {
         ':participant': participant_,
-        ':studies': participant_.studies,
         ':studiesAsAdmin': studiesAsAdmin, 
       }
 
