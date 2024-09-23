@@ -318,22 +318,26 @@ const BessiAssessmentSection: FC<BessiProps> = ({
     if (isNonStudy) {
       userResults = {
         email: email ?? '',
+        assessmentId: ASSESSMENT_ID,
+        results: bessiUserResults,
         timestamp: 0,
-        results: bessiUserResults
       }
     } else {
+      const studyId = study?.id
+
       userResults = {
         email: email ?? '',
-        study,
+        assessmentId: ASSESSMENT_ID,
+        studyId,
+        results: bessiUserResults,
         timestamp: 0,
-        results: bessiUserResults
       }
     }
 
 
     try {
       const response = await fetch('/api/v1/assessment/results', {
-        method: 'POST',
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },

@@ -128,7 +128,7 @@ export async function fetchUserResultsIdAndUserResults(
       const userResultsId = item.id
 
       // 7. Use `userResultsId` to fetch `userResults`
-      return fetchUserResults(userResultsId, req, email, studyId)
+      return fetchUserResults(userResultsId, req)
     }
   } catch (error: any) {
     const errorMessage = `Failed fetching 'id' using 'accessToken'`
@@ -150,244 +150,52 @@ export async function fetchUserResultsIdAndUserResults(
 
 
 /**
- * @dev Returns `userResults` if they are either in the `studies` table or the 
- *      `accounts` table for a  given study ID and results ID.
  * @param userResultsId
  * @returns 
  */
 export async function fetchUserResults(
-  userResultsId: string,
+  id: string,
   req: NextRequest,
-  email?: string,
-  studyId?: string,
 ) {
-  // If `studyId` is not undefined, fetch user's `results` from the `studies` 
-  // table.
-  if (studyId) {
-    // 8. Build `QueryCommand` to fetch the user's `results` from the `studies` 
-    //    table.
-    const TableName = DYNAMODB_TABLE_NAMES.studies
-    const IndexName = 'id-index'
-    const KeyConditionExpression = 'id = :idValue'
-    const ExpressionAttributeValues = { ':idValue': studyId }
+  const TableName: string = DYNAMODB_TABLE_NAMES.results
+  const Key = { id }
 
-    const input: QueryCommandInput = {
-      TableName,
-      IndexName,
-      KeyConditionExpression,
-      ExpressionAttributeValues,
-    }
+  const input: GetCommandInput = { TableName, Key }
+  const command = new GetCommand(input)
 
-    const command = new QueryCommand(input)
+  const message = `Results with id '${id}' have fetched from the '${
+    TableName
+  }' table`
 
 
-    try {
-      const response = await ddbDocClient.send(command)
+  try {
+    const response = await ddbDocClient.send(command)
 
+    const userResults = response.Item as RESULTS__DYNAMODB
 
-      if (response.Items && response.Items.length > 0) {
-        if ((response.Items[0] as STUDY__DYNAMODB)) {
-          const study = response.Items[0] as STUDY__DYNAMODB
-          const results = study.results as RESULTS__DYNAMODB[] | undefined
-
-          const userResults = results?.find(result => result.id === userResultsId)
-
-
-          if (userResults) {
-            return NextResponse.json(
-              {
-                message: `Found results for results ID '${
-                  userResults
-                }' and study ID '${studyId}'`,
-                userResults,
-              },
-              {
-                status: 200,
-                headers: {
-                  'Content-Type': 'application/json'
-                }
-              },
-            )
-          } else {
-            return NextResponse.json(
-              { message: `User results with ID '${userResultsId}' was not found` },
-              {
-                status: 200,
-                headers: {
-                  'Content-Type': 'application/json'
-                }
-              },
-            )
-          }
-        } else {
-          /**
-           * @dev This if/else statement is necessary so that the type signature 
-           * of this function is:
-           * 
-           * Promise<NextResponse<{ message: string }> | NextResponse<{ error: any }>>
-           * 
-           * and not:
-           * 
-           * Promise<NextResponse<{ message: string }> | NextResponse<{ error: any }> | undefined> 
-           */
-          return NextResponse.json(
-            { message: `Study with ID '${studyId}' was not found` },
-            {
-              status: 200,
-              headers: {
-                'Content-Type': 'application/json'
-              }
-            },
-          )
-        }
-      } else {
-        return NextResponse.json(
-          { message: `Study with ID '${studyId}' was not found` },
-          {
-            status: 200,
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          },
-        )
-      }
-    } catch (error: any) {
-      const errorMessage = `Failed getting study entry with ID '${
-        studyId
-      }' from the '${
-        TableName
-      }' table`
-
-      console.error(`${errorMessage}: `, error)
-
-      // Something went wrong
-      return NextResponse.json(
-        { error: `${errorMessage}: ${error}` },
-        {
-          status: 500,
-          headers: {
-            'Content-Type': 'application/json'
-          }
+    return NextResponse.json(
+      {
+        message,
+        userResults,
+      },
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
         },
-      )
-    }
-    // If `studyId` is `undefined`, fetch user's results from the `accounts` 
-    // table.
-  } else {
-    // const res = new NextResponse()
-
-    // // Auth0
-    // const session = await getSession(req, res)
-    // const user = session?.user
-
-    // if (!user) {
-    //   const message = `Unauthorized: Auth0 found no 'user' for their session.`
-    //   return NextResponse.json(
-    //     { message },
-    //     {
-    //       status: 401,
-    //     }
-    //   )
-    // }
-
-    // const email = user.email as string
-
-    // if (!email) {
-    //   return NextResponse.json(
-    //     { error: `Unauthorized: Auth0 found no email for this user's session!` },
-    //     {
-    //       status: 401,
-    //       headers: {
-    //         'Content-Type': 'application/json',
-    //       },
-    //     }
-    //   )
-    // }
-
-    const TableName = DYNAMODB_TABLE_NAMES.accounts
-    const KeyConditionExpression: string = 'email = :emailValue'
-    const ExpressionAttributeValues = { ':emailValue': email }
-
-    const input: QueryCommandInput = {
-      TableName,
-      KeyConditionExpression,
-      ExpressionAttributeValues,
-    }
-    const command: QueryCommand = new QueryCommand(input)
-
-    const message = `Found results for account with email '${
-      email
-    }' in the ${TableName} table`
-
-
-    try {
-      const response = await ddbDocClient.send(command)
-
-      if (
-        response.Items &&
-        (response.Items[0] as ACCOUNT__DYNAMODB).email
-      ) {
-        const account = (response.Items[0] as ACCOUNT__DYNAMODB)
-        const results = account.results as RESULTS__DYNAMODB[] | undefined
-        const userResults = results?.find(result => result.id === userResultsId)
-
-        if (userResults) {
-          return NextResponse.json(
-            {
-              message,
-              userResults,
-            },
-            {
-              status: 200,
-              headers: {
-                'Content-Type': 'application/json'
-              }
-            },
-          )
-        } else {
-          return NextResponse.json(
-            { message: `User results for '${email}' with ID '${userResultsId}' was not found` },
-            {
-              status: 200,
-              headers: {
-                'Content-Type': 'application/json'
-              }
-            },
-          )
-        }
-      } else {
-        const message = `No account found for '${email}' in '${TableName}' table`
-
-        return NextResponse.json(
-          { message: message },
-          {
-            status: 404,
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          },
-        )
       }
-    } catch (error: any) {
-      console.log(
-        `Error getting account entry for email '${
-          email
-        }' from the '${
-          TableName
-        }' table: `,
-        error
-      )
+    )
+  } catch (error: any) {
+    console.error(`Error: `, error)
 
-      // Something went wrong
-      return NextResponse.json(
-        { error: error },
-        {
-          status: 500,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      )
-    }
+    return NextResponse.json(
+      { error: error.message },
+      {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    )
   }
 }

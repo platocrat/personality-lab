@@ -1,7 +1,10 @@
 // Externals
 import {
+  GetCommand,
+  PutCommand,
+  GetCommandInput,
+  PutCommandInput,
   QueryCommand,
-  UpdateCommand,
   QueryCommandInput,
 } from '@aws-sdk/lib-dynamodb'
 import { NextRequest, NextResponse } from 'next/server'
@@ -9,310 +12,77 @@ import { NextRequest, NextResponse } from 'next/server'
 import {
   getEntryId,
   ddbDocClient,
-  STUDY__DYNAMODB,
-  ACCOUNT__DYNAMODB,
   RESULTS__DYNAMODB,
   DYNAMODB_TABLE_NAMES,
-  STUDY_SIMPLE__DYNAMODB,
-  BessiUserResults__DynamoDB,
 } from '@/utils'
 
 
 
 /**
- * @dev POST: Update `results` attribute on the `studies` or `accounts` table
+ * @dev PUT: new results to the `results` DynamoDB table
  * @param req 
  * @param res 
  * @returns 
  */
-export async function POST(
+export async function PUT(
   req: NextRequest,
   res: NextResponse
 ): Promise<NextResponse<{
   message: string
   userResultsId: string 
 }> | NextResponse<{ error: any }>> {
-  if (req.method === 'POST') {
-    const { email, userResults } = await req.json()
+  if (req.method === 'PUT') {
+    const { userResults } = await req.json()
 
-    if (!email) {
+    const userResultsId = await getEntryId(userResults)
+
+    const TableName = DYNAMODB_TABLE_NAMES.results
+    const studyId = userResults.studyId
+
+    const Item: RESULTS__DYNAMODB = {
+      ...userResults,
+      id: userResultsId,
+      timestamp: Date.now(),
+    }
+
+    const input: PutCommandInput = { TableName, Item }
+    const command = new PutCommand(input)
+    
+    const message = `User results have been added to '${ TableName }' table`
+
+    try {
+      const response = await ddbDocClient.send(command)
+
       return NextResponse.json(
-        { error: 'Unauthorized: Email query parameter is required!' },
         {
-          status: 401,
+          message,
+          userResultsId,
+        },
+        {
+          status: 200,
           headers: {
             'Content-Type': 'application/json',
           },
         }
       )
-    }
+    } catch (error: any) {
+      console.error(
+        `Could not update user results for study ID '${
+          studyId
+        }' of the '${TableName}' table: `,
+        error
+      )
 
-    const userResultsId = await getEntryId(userResults)
-
-    const study = userResults.study as STUDY_SIMPLE__DYNAMODB | undefined
-
-    // If `study` exists, update the `results` of the study entry in the 
-    // `studies` table
-    if (study) {
-      const results: RESULTS__DYNAMODB = {
-        id: userResultsId,
-        email: userResults.email as string,
-        study,
-        results: userResults.results as BessiUserResults__DynamoDB,
-        timestamp: Date.now(),
-      }
-
-      const ownerEmail = study.ownerEmail
-      const createdAtTimestamp = study.createdAtTimestamp
-
-
-      const TableName = DYNAMODB_TABLE_NAMES.studies
-      const KeyConditionExpression = 'ownerEmail = :ownerEmailValue'
-      const ExpressionAttributeValues = { ':ownerEmailValue': ownerEmail }
-      const input: QueryCommandInput = {
-        TableName,
-        KeyConditionExpression,
-        ExpressionAttributeValues,
-      }
-      const command: QueryCommand = new QueryCommand(input)
-
-
-      try {
-        const response = await ddbDocClient.send(command)
-
-        if ((response.Items as STUDY__DYNAMODB[])[0].ownerEmail) {
-          const study = (response.Items as STUDY__DYNAMODB[])[0]
-          const storedResults = study.results as RESULTS__DYNAMODB[]
-
-          const updatedResults = storedResults
-            ? [...storedResults, results]
-            : [results]
-
-          const Key = {
-            ownerEmail,
-            createdAtTimestamp
-          }
-          const UpdateExpression =
-            'set results = :results, updatedAtTimestamp = :updatedAtTimestamp'
-          const ExpressionAttributeValues = {
-            ':results': updatedResults,
-            ':updatedAtTimestamp': Date.now()
-          }
-
-          const input = {
-            TableName,
-            Key,
-            UpdateExpression,
-            ExpressionAttributeValues,
-          }
-
-          const command = new UpdateCommand(input)
-
-          const successMessage = `User results have been added to ${
-            TableName
-          } table`
-
-
-          try {
-            const response = await ddbDocClient.send(command)
-
-
-            return NextResponse.json(
-              {
-                message: successMessage,
-                userResultsId,
-              },
-              {
-                status: 200,
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-              }
-            )
-          } catch (error: any) {
-            console.error(
-              `Could not update user results for study ID '${
-                study.id
-              }' of the '${TableName}' table: `,
-              error
-            )
-
-            // Something went wrong
-            return NextResponse.json(
-              { error: error },
-              {
-                status: 500,
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-              }
-            )
-          }
-        } else {
-          const error = `Owner email '${
-            ownerEmail
-          }' not found in '${TableName}' table`
-
-          return NextResponse.json(
-            { error },
-            {
-              status: 404,
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            }
-          )
+      // Something went wrong
+      return NextResponse.json(
+        { error: error },
+        {
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json',
+          },
         }
-      } catch (error: any) {
-        console.error(
-          `Could not Query study ID '${study.id
-          }' using owner email '${ownerEmail}': `,
-          error
-        )
-
-        // Something went wrong
-        return NextResponse.json(
-          { error: error },
-          {
-            status: 500,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        )
-      }
-    // If `study` is undefined, update `results` attribute of the account
-    // entry in the `accounts` table
-    } else {
-      const accountEmail = userResults.email as string
-
-      const results: RESULTS__DYNAMODB = {
-        id: userResultsId,
-        email: accountEmail,
-        results: userResults.results as BessiUserResults__DynamoDB,
-        timestamp: Date.now(),
-      }
-
-      const TableName = DYNAMODB_TABLE_NAMES.accounts
-      const KeyConditionExpression = 'email = :email'
-      const ExpressionAttributeValues = { ':email': accountEmail }
-
-      const input: QueryCommandInput = {
-        TableName,
-        KeyConditionExpression,
-        ExpressionAttributeValues,
-      }
-      const command: QueryCommand = new QueryCommand(input)
-
-
-      try {
-        const response = await ddbDocClient.send(command)
-
-        if ((response.Items as ACCOUNT__DYNAMODB[])[0].email) {
-          const account = (response.Items as ACCOUNT__DYNAMODB[])[0]
-          const email = account.email
-          
-          const createdAtTimestamp = account.createdAtTimestamp
-          const storedResults = account.results as RESULTS__DYNAMODB[]
-
-          const updatedResults = storedResults
-            ? [ ...storedResults, results ]
-            : [ results ]
-
-          const Key = {
-            email,
-            createdAtTimestamp
-          }
-          const UpdateExpression =
-            'set results = :results, updatedAtTimestamp = :updatedAtTimestamp'
-          const ExpressionAttributeValues = {
-            ':results': updatedResults,
-            ':updatedAtTimestamp': Date.now()
-          }
-
-          const input = {
-            TableName,
-            Key,
-            UpdateExpression,
-            ExpressionAttributeValues,
-          }
-
-          const command = new UpdateCommand(input)
-
-          const message = `User results have been added to ${
-            TableName
-          } table`
-
-
-          try {
-            const response = await ddbDocClient.send(command)
-
-
-            return NextResponse.json(
-              {
-                message,
-                userResultsId,
-              },
-              {
-                status: 200,
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-              }
-            )
-          } catch (error: any) {
-            console.log(
-              `Could not update user results for '${
-                email
-              }' in the '${TableName}' table: `,
-              error
-            )
-
-            // Something went wrong
-            return NextResponse.json(
-              { error: error },
-              {
-                status: 500,
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-              }
-            )
-          }
-        } else {
-          const error = `No account for '${
-            accountEmail
-          }' was found in '${
-            TableName
-          }' table`
-
-          return NextResponse.json(
-            { error },
-            {
-              status: 404,
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            }
-          )
-        }
-      } catch (error: any) {
-        console.error(
-          `Could not Query account for '${accountEmail}': `,
-          error
-        )
-
-        // Something went wrong
-        return NextResponse.json(
-          { error: error },
-          {
-            status: 500,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        )
-      }
+      )
     }
   } else {
     return NextResponse.json(
@@ -330,7 +100,7 @@ export async function POST(
 
 
 /**
- * @dev GET `userResults`
+ * @dev GET
  * @param req 
  * @param res 
  * @returns 
@@ -340,80 +110,32 @@ export async function GET(
   res: NextResponse,
 ): Promise<NextResponse<{ message: string }> | NextResponse<{ error: any }>> {
   if (req.method === 'GET') {
-    const email = req.nextUrl.searchParams.get('email')
-
-    if (!email) {
-      return NextResponse.json(
-        { error: 'Unauthorized: Email query parameter is required!' },
-        {
-          status: 401,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      )
-    }
-
+    const id = req.nextUrl.searchParams.get('id')
     const studyId = req.nextUrl.searchParams.get('studyId')
+    
+    const TableName: string = DYNAMODB_TABLE_NAMES.results
+
+    // 1. If querying database for an individual results entry by its `id`...
+    if (id && !studyId) {
+      const Key = { id }
+
+      const input: GetCommandInput = { TableName, Key }
+      const command = new GetCommand(input)
+
+      const message = `Results with id '${id}' have fetched from the '${
+        TableName
+      }' table`
 
 
-    if (!email) {
-      return NextResponse.json(
-        { error: 'Email query parameter is required!' },
-        {
-          status: 400,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      )
-    }
+      try {
+        const response = await ddbDocClient.send(command)
 
-    const TableName: string = DYNAMODB_TABLE_NAMES.studies
-    const IndexName = 'email-timestamp-index'
-    const KeyConditionExpression = 'email = :emailValue'
-    const ExpressionAttributeValues = { ':emailValue': email }
-
-    const input: QueryCommandInput = {
-      TableName,
-      IndexName,
-      KeyConditionExpression,
-      ExpressionAttributeValues,
-    }
-
-    const command: QueryCommand = new QueryCommand(input)
-
-    const successMessage = `All user results have fetched from the ${
-      TableName
-    } table`
-
-
-    try {
-      const response = await ddbDocClient.send(command)
-
-
-      if ((response.Items as RESULTS__DYNAMODB[])?.length === 0) {
-        const message = `No accounts were found with ${
-          email
-        } as their email in the ${ TableName } table`
-
-        return NextResponse.json(
-          { message: message },
-          {
-            status: 404,
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          },
-        )
-      } else {      
-        const allUserResults = response.Items as RESULTS__DYNAMODB[]
-
+        const userResults = response.Item as RESULTS__DYNAMODB
 
         return NextResponse.json(
           {
-            message: successMessage,
-            allUserResults,
+            message,
+            userResults,
           },
           {
             status: 200,
@@ -422,12 +144,75 @@ export async function GET(
             },
           }
         )
+      } catch (error: any) {
+        console.error(`Error: `, error)
+
+        return NextResponse.json(
+          { error: error.message },
+          {
+            status: 500,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        )
       }
-    } catch (error: any) {
-      console.error(`Error: `, error)
+    // 2. If querying database for all results entries by their `studyId`...
+    } else if (studyId && !id) {
+      const KeyConditionExpression: string = 'studyId = :studyIdValue'
+      const ExpressionAttributeValues = { ':studyIdValue': studyId }
+
+      const input: QueryCommandInput = {
+        TableName,
+        KeyConditionExpression,
+        ExpressionAttributeValues,
+      }
+      const command: QueryCommand = new QueryCommand(input)
+
+      const message = `Results with id '${id}' have fetched from the '${
+        TableName
+      }' table`
+
+
+      try {
+        const response = await ddbDocClient.send(command)
+
+        const resultsPerStudyId = (response.Items as any) as RESULTS__DYNAMODB[]
+
+        return NextResponse.json(
+          {
+            message,
+            resultsPerStudyId,
+          },
+          {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+      } catch (error: any) {
+        console.error(`Error: `, error)
+
+        return NextResponse.json(
+          { error: error.message },
+          {
+            status: 500,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+      }
+    // If neither `studyId` nor `id` are provided in the GET request
+    } else {
+      const error = `Error: 'id' and 'studyId' are required as search parameters`
+      console.error(error)
 
       return NextResponse.json(
-        { error: error.message },
+        { 
+          error,
+        },
         {
           status: 500,
           headers: {

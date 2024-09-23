@@ -84,7 +84,7 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
       !accessToken &&
       (!email || !studyId) // Either `email` or `studyId` will be present
     )
-  }, [isAccessTokenExpired, id, accessToken, email, studyId ])
+  }, [ isAccessTokenExpired, id, accessToken, email, studyId ])
 
 
   // --------------------------- Async functions -------------------------------
@@ -172,7 +172,6 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
 
     setId(id_)
     setAccessToken(accessToken_)
-    setEmail(email_)
     setStudyId(studyId_)
 
     return { id_, accessToken_, email_, studyId_ }
