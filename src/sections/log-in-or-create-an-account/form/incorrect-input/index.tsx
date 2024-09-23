@@ -1,5 +1,5 @@
 // Externals
-import { FC } from 'react'
+import { FC, useMemo } from 'react'
 // Locals
 import InputError from '@/components/Errors/InputError'
 
@@ -22,19 +22,19 @@ const IncorrectInput: FC<IncorrectInputProps> = ({ i, state }) => {
   // const isUsernameTaken = state.isUsernameTaken && i === 1
   const isPasswordIncorrect = !state.isSignUp 
     && state.isPasswordIncorrect 
-    && i === 2
+    && i === 1
 
 
-  const errorText = (): string => {
+  const errorText = useMemo((): string => {
     let _ = ''
-    
+
     if (isEmailIncorrect) _ = `Incorrect email`
     // if (isUsernameCorrect) _ = `Incorrect username`
     // if (isUsernameTaken) _ = `Username is taken`
     if (isPasswordIncorrect) _ = `Incorrect password`
 
     return _
-  }
+  }, [ isEmailIncorrect, isPasswordIncorrect ])
 
 
 
