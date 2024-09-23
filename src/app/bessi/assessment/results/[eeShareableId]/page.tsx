@@ -165,12 +165,11 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
 
     id_ = parts[0]
     accessToken_ = parts[1]
-  
-    parts[2].includes(`@`) 
-      ? email_ = parts[2] 
-      : studyId_ = parts[2]
+    email_ = parts[2]
+    studyId_ = parts[3] ?? ''
 
     setId(id_)
+    setEmail(email_)
     setAccessToken(accessToken_)
     setStudyId(studyId_)
 
@@ -245,7 +244,7 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
             ) : (
               <main className={ `${styles.main} ` }>
                 <div style={ { maxWidth: '800px' } }>
-                  <BessiResultsExplanation />
+                  <BessiResultsExplanation email={ email } />
                   <BessiResultsVisualization 
                     rateUserResults={ rateUserResults } 
                   />

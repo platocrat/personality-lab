@@ -117,11 +117,6 @@ const SessionLayout: FC<SessionLayoutProps> = ({
       if (response.status === 400) throw new Error(json.error)
       if (response.status === 500) throw new Error(json.error)
 
-      console.log(
-        `[${new Date().toLocaleString()} --filepath="src/app/layout.tsx" --function="getUserStudies()"]: json: `,
-        json
-      )
-
       const account = json.account as ACCOUNT__DYNAMODB
       const participant = account.participant as PARTICIPANT__DYNAMODB | undefined
       const studies = participant?.studies as STUDY_SIMPLE__DYNAMODB[] | undefined

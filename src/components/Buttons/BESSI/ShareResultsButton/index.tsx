@@ -57,7 +57,7 @@ const BessiShareResultsButton = ({ }) => {
       
       // Encrypted and encoded concatenated string of `id` and `accessToken`
       if (studyId) {
-        const shareableId = `${id}--${accessToken}--${studyId}`
+        const shareableId = `${id}--${accessToken}--${email}--${studyId}`
         const eeShareableId = await encryptCompressEncode(shareableId)
         fullUrl = `${baseUrl}/results/${eeShareableId}`
       } else {

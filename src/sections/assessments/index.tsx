@@ -1,11 +1,15 @@
 // Externals
 import {
   Fragment,
-  ReactNode
+  ReactNode,
+  useContext
 } from 'react'
 // Locals
 // Sections
 import AssessmentCards from './assessment-cards'
+// Contexts
+import { SessionContextType } from '@/contexts/types'
+import { SessionContext } from '@/contexts/SessionContext'
 // Hooks
 import useWindowWidth from '@/hooks/useWindowWidth'
 // CSS
@@ -29,6 +33,8 @@ const title = `Assessments`
 
 
 const PersonalityAssessments = ({ }) => {
+  // Contexts
+  const { isParticipant } = useContext<SessionContextType>(SessionContext)
   // Hooks
   const windowWidth = useWindowWidth()
 
@@ -46,7 +52,7 @@ const PersonalityAssessments = ({ }) => {
     <Fragment key={ `personality-assessments` }>
       <div 
         className={ styles.main }
-        style={{ top: '0' }}
+        style={{ top: isParticipant ? '24px' : '0' }}
       > 
         <div 
           style={{ 
