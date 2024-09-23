@@ -92,8 +92,8 @@ const BessiAssessmentSection: FC<BessiProps> = ({
   // -------------------------------- States -----------------------------------
   // Custom
   const [
-    userScores,
-    setUserScores
+    userScoresMapping,
+    setUserScoresMapping
   ] = useState<{ [key: string]: UserScoresType } | null>(null)
   // Strings
   const [ questions, setQuestions ] = useState<string[]>([''])
@@ -168,8 +168,8 @@ const BessiAssessmentSection: FC<BessiProps> = ({
       }
     }
 
-    setUserScores({
-      ...userScores,
+    setUserScoresMapping({
+      ...userScoresMapping,
       [ `${ activityIndex }` ]: _userScore
     })
 
@@ -189,7 +189,7 @@ const BessiAssessmentSection: FC<BessiProps> = ({
   async function handleSubmit(
     e: any
   ): Promise<void> {
-    if (userScores) {
+    if (userScoresMapping) {
       e.preventDefault()
 
       // 1. Trigger suspense
@@ -197,13 +197,17 @@ const BessiAssessmentSection: FC<BessiProps> = ({
       
       // console.log(`userScores: `, userScores)
 
-      // 2. Calculate domain and facet scores
-      const finalScores: {
+      const userScores = Object.values(userScoresMapping)
+      
+      type FinalScores = {
         id?: string,
         accessToken?: string
         facetScores?: FacetFactorType
         domainScores: SkillDomainFactorType
-      } = calculateBessiScores(Object.values(userScores), bessiVersion)
+      }
+
+      // 2. Calculate domain and facet scores
+      const finalScores: FinalScores = calculateBessiScores(userScores, bessiVersion)
 
       // console.log('finalScores: ', finalScores)
 
@@ -368,7 +372,7 @@ const BessiAssessmentSection: FC<BessiProps> = ({
     )
 
     setQuestions(questions_)
-  }, [  ])
+  }, [ reportType, bessiVersion ])
 
 
   useLayoutEffect(() => {

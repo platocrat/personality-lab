@@ -1,5 +1,5 @@
 // Externals
-import { FC, useContext, useLayoutEffect } from 'react'
+import { FC, useContext, useLayoutEffect, useMemo } from 'react'
 // Locals
 import Consent from '@/sections/social-rating/session/consent'
 import Results from '@/sections/social-rating/session/results'
@@ -56,6 +56,22 @@ const InGame: FC<InGameProps> = ({
     // State change function handlers
     haveAllPlayersCompleted,
   } = useContext<GameSessionContextType>(GameSessionContext)
+
+
+  // --------------------------- Memoized constants ----------------------------
+  const reportType = useMemo((): 'self-report' | 'observer-report' => {
+    let reportType: 'self-report' | 'observer-report' = 'self-report'
+
+    if (phase === GamePhases.SelfReport) {
+      reportType = 'self-report'
+    } else if (phase === GamePhases.ObserverReport) {
+      reportType = 'observer-report'
+    } else {
+      reportType = 'self-report'
+    }
+
+    return reportType
+  }, [ phase ])
 
 
   // --------------------------- Regular functions -----------------------------
@@ -287,19 +303,14 @@ const InGame: FC<InGameProps> = ({
           <Consent onCompletion={ onCompletion }/>
         ) }
 
-        { phase === GamePhases.SelfReport && (
+        { (
+          phase === GamePhases.SelfReport || 
+          phase === GamePhases.ObserverReport
+        ) && (
           <BessiAssessmentSection
-            reportType={ 'self-report' }
+            reportType={ reportType }
             bessiVersion={ BESSI_VERSION }
             onCompletion={ onCompletion }
-          />
-        ) }
-
-        { phase === GamePhases.ObserverReport && (
-          <BessiAssessmentSection
-            reportType={ 'observer-report' }
-            onCompletion={ onCompletion }
-            bessiVersion={ BESSI_VERSION }
           />
         ) }
 
