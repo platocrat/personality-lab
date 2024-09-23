@@ -1,6 +1,12 @@
 // Externals
 import { sign } from 'jsonwebtoken'
 import { NextResponse } from 'next/server'
+import {
+  UpdateCommand,
+  QueryCommand,
+  QueryCommandInput,
+  UpdateCommandInput,
+} from '@aws-sdk/lib-dynamodb'
 // Locals
 import {
   SSCrypto,
@@ -10,15 +16,13 @@ import {
   StudyAsAdmin,
   ACCOUNT_ADMINS,
   fetchAwsParameter,
+  ACCOUNT__DYNAMODB,
   AWS_PARAMETER_NAMES,
   DYNAMODB_TABLE_NAMES,
   PARTICIPANT__DYNAMODB,
   EncryptedCookieFieldType,
   HASHED_PASSWORD__DYNAMODB,
-  ACCOUNT__DYNAMODB,
 } from '@/utils'
-import { QueryCommandInput, QueryCommand } from '@aws-sdk/client-dynamodb'
-import { UpdateCommandInput, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 
 
 

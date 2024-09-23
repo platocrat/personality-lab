@@ -30,7 +30,8 @@ const Header: FC<HeaderProps> = ({}) => {
   const {
     isGameSession
   } = useContext<GameSessionContextType>(GameSessionContext)
-  const { 
+  const {
+    email,
     isAuthenticated,
     isFetchingSession,
     setIsAuthenticated,
@@ -58,9 +59,14 @@ const Header: FC<HeaderProps> = ({}) => {
 
   // ----------------------------- Async functions -----------------------------
   // ~~~~~ Handle logout logic ~~~~~
-  async function handleLogout() {
+  async function handleLogout(): Promise<void> {
     try {
-      const response = await fetch('/api/v1/auth/logout', { method: 'DELETE' })
+      const response = await fetch('/api/v1/auth/logout', { 
+        method: 'POST',
+        body: JSON.stringify({
+          email,
+        })
+      })
 
       if (response.status === 200) {
         // Remove authentication from user
