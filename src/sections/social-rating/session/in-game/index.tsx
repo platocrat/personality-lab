@@ -12,6 +12,7 @@ import {
   Player,
   GamePhases,
   PlayerInGameState, 
+  ProfileCorrelations,
   SocialRatingGamePlayers,
 } from '@/utils'
 
@@ -156,6 +157,17 @@ const InGame: FC<InGameProps> = ({
   }
 
 
+  async function calculateProfileCorrelations() {
+    if (haveAllPlayersCompleted(players, 'hasCompletedObserverReport')) {
+      const results = await getResults()
+
+
+    } else {
+
+    }
+  }
+
+
   // ~~~~~~ API calls ~~~~~~
   async function updatePlayers(
     _nickname: string, 
@@ -267,6 +279,15 @@ const InGame: FC<InGameProps> = ({
        */
       throw new Error(`Error updating player: `, error.message)
     }
+  }
+
+
+  /**
+   * @dev Get survey results to calculate profile correlations
+   * @returns 
+   */
+  async function getResults() {
+    
   }
 
 

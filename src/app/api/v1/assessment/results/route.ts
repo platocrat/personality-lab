@@ -131,7 +131,8 @@ export async function POST(
             )
           } catch (error: any) {
             console.error(
-              `Could not update user results for study ID '${study.id
+              `Could not update user results for study ID '${
+                study.id
               }' of the '${TableName}' table: `,
               error
             )
