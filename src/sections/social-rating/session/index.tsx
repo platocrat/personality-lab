@@ -27,6 +27,7 @@ import {
   Player,
   GamePhases,
   PlayerInGameState,
+  ProfileCorrelations,
   SocialRatingGamePlayers,
   INVALID_CHARS_EXCEPT_NUMBERS,
   SOCIAL_RATING_GAME__DYNAMODB,
@@ -363,12 +364,15 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
 
     const hasJoined = true
     const ipAddress = ''
+    const joinedAtTimestamp = 0
+    const profileCorrelations: ProfileCorrelations = { }
+
     const inGameState: PlayerInGameState = {
       hasCompletedConsentForm: false,
       hasCompletedSelfReport: false,
       hasCompletedObserverReport: false,
+      profileCorrelations
     }
-    const joinedAtTimestamp = 0
 
     const player: Player = {
       hasJoined,

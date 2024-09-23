@@ -21,6 +21,7 @@ import {
   Player,
   GamePhases,
   PlayerInGameState,
+  ProfileCorrelations,
   handleEnterGameSession,
   SOCIAL_RATING_GAME__DYNAMODB,
 } from '@/utils'
@@ -171,12 +172,15 @@ const InitiateGame: FC<InitiateGameProps> = ({
 
     const hasJoined = true
     const ipAddress = ''
+    const joinedAtTimestamp = 0
+    const profileCorrelations: ProfileCorrelations = { }
+
     const inGameState: PlayerInGameState = {
       hasCompletedConsentForm: false,
       hasCompletedSelfReport: false,
       hasCompletedObserverReport: false,
+      profileCorrelations,
     }
-    const joinedAtTimestamp = 0
     
     const player = {
       hasJoined,

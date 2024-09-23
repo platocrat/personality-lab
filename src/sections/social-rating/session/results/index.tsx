@@ -6,6 +6,12 @@ type ResultsProps = {
 }
 
 
+
+
+/**
+ * @dev Displays the rankings of the players of the game.
+ * @returns 
+ */
 const Results: FC<ResultsProps> = ({
 
 }) => {

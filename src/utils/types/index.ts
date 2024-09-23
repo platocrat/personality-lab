@@ -134,10 +134,26 @@ export type RATINGS__DYNAMODB = {
 }
 
 
+/**
+ * @dev Profile correlations are done between each player's self-rating and each
+ *      of their observer-ratings, round robin style for each player. For 
+ *      example, assuming 3 players in a game, player 1 has their profile 
+ *      correlations calculated using their self-rating and each of their 2
+ *      observer-ratings. This results in a total of 2 profile correlations for 
+ *      each player in a game of 3 players. The average of the 2 profile 
+ *      correlations is taken and then used to rank each player against each 
+ *      other.
+ */
+export type ProfileCorrelations = {
+  [ nickname: string ]: number
+} | { }
+
+
 export type PlayerInGameState = {
   hasCompletedConsentForm: boolean
   hasCompletedSelfReport: boolean
   hasCompletedObserverReport: boolean
+  profileCorrelations: ProfileCorrelations
 }
 
 
