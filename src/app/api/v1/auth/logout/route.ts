@@ -24,8 +24,6 @@ export async function POST(
   if (req.method === 'POST') {
     const { email } = await req.json()
 
-    cookies().delete(COOKIE_NAME)
-
     /**
      * @dev Perform `Query` operation to find email's account entry in
      *      the `accounts` table. Then, perform an `Update` operation
@@ -65,9 +63,19 @@ export async function POST(
         const UpdateExpression = 'set lastLogoutTimestamp = :lastLogoutTimestamp'
 
         ExpressionAttributeValues = { ':lastLogoutTimestamp': lastLogoutTimestamp }
+        input = {
+          TableName,
+          Key,
+          UpdateExpression,
+          ExpressionAttributeValues
+        }
+        command = new UpdateCommand(input)
 
         try {
           const response = await ddbDocClient.send(command)
+
+          // Delete cookies from the signed in user.
+          cookies().delete(COOKIE_NAME)
 
           /**
            * @dev Return response

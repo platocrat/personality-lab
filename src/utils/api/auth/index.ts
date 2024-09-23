@@ -292,6 +292,13 @@ export async function verifiedEmailAndPasswordSwitch(
               const UpdateExpression = 'set lastLoginTimestamp = :lastLoginTimestamp'
 
               ExpressionAttributeValues = { ':lastLoginTimestamp': lastLoginTimestamp }
+              input = {
+                TableName,
+                Key,
+                UpdateExpression,
+                ExpressionAttributeValues
+              }
+              command = new UpdateCommand(input)
 
               try {
                 const response = await ddbDocClient.send(command)
