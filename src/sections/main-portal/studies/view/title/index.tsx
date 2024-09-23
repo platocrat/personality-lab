@@ -34,7 +34,7 @@ const ViewStudiesTitle = () => {
     if (isGlobalAdmin) {
       _ = 'an admin'
     } else {
-      if (studiesAsAdmin) {
+      if (studiesAsAdmin && studiesAsAdmin.length > 0) {
         // Since this page is only viewable if the user is an admin for a study,
         // the user is shown their list of studies which they are an admin of.
         // Since we only need to check the first item in the array of studies, we
@@ -46,6 +46,8 @@ const ViewStudiesTitle = () => {
             _ = 'a participant'
           }
         }
+      } else {
+        _ = 'a participant'
       }
     }
 
