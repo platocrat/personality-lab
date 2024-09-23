@@ -159,11 +159,13 @@ export async function GET(
       }
     // 2. If querying database for all results entries by their `studyId`...
     } else if (studyId && !id) {
+      const IndexName = 'studyId-index'
       const KeyConditionExpression: string = 'studyId = :studyIdValue'
       const ExpressionAttributeValues = { ':studyIdValue': studyId }
 
       const input: QueryCommandInput = {
         TableName,
+        IndexName,
         KeyConditionExpression,
         ExpressionAttributeValues,
       }
