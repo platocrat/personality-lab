@@ -182,7 +182,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
     if (nickname) {
       const isPlayer_ = true
 
-      const isDuplicateNickname_ = await updatePlayers(nickname) as boolean
+      const isDuplicateNickname_ = await createPlayer(nickname) as boolean
 
       if (isDuplicateNickname_ === false) {
         // After successful update, store the data in localStorage
@@ -356,8 +356,8 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
   }
 
 
-  // Add or update player in the game
-  async function updatePlayers(_nickname: string): Promise<boolean> {
+  // Add a new player to the game
+  async function createPlayer(_nickname: string): Promise<boolean> {
     setIsUpdatingGameState(true)
 
     let isDuplicateNickname_ = false
