@@ -83,8 +83,8 @@ export async function POST(
           }
 
           const _updatedPlayers: SocialRatingGamePlayers = storedPlayers
-            ? { ...storedPlayers, players }
-            : { players }
+            ? { ...storedPlayers, ...players }
+            : { ...players }
 
           console.log(`_updatedPlayers: `, _updatedPlayers)
 
