@@ -317,7 +317,9 @@ const BessiAssessmentSection: FC<BessiProps> = ({
      */
     if (isNonStudy) {
       userResults = {
-        email: email ?? '',
+        email: email ?? isGameInSession 
+          ? 'gamer' 
+          : '',
         assessmentId: ASSESSMENT_ID,
         results: bessiUserResults,
         timestamp: 0,
