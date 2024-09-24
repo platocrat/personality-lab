@@ -42,6 +42,10 @@ const SelfReportOrObserverReport: FC<SelfReportOrObserverReportProps> = ({
     hasCompletedSelfReport,
     setHasCompletedSelfReport
   ] = useState<boolean>(false)
+  const [
+    hasCompletedObserverReport,
+    setHasCompletedObserverReport
+  ] = useState<boolean>(false)
 
 
   const reportType = useMemo((): 'self-report' | 'observer-report' => {
@@ -61,14 +65,19 @@ const SelfReportOrObserverReport: FC<SelfReportOrObserverReportProps> = ({
 
   useLayoutEffect(() => {
     if (isGameInSession) {
-      let hasCompletedSelfReport_ = false
+      let hasCompletedSelfReport_ = false,
+        hasCompletedObserverReport_ = false
 
       const storedPlayer = localStorage.getItem('player')
 
       if (storedPlayer) {
         const player = JSON.parse(storedPlayer) as Player
+
         hasCompletedSelfReport_ = player.inGameState.hasCompletedSelfReport
+        hasCompletedObserverReport_ = player.inGameState.hasCompletedObserverReport
+
         setHasCompletedSelfReport(hasCompletedSelfReport_)
+        setHasCompletedObserverReport(hasCompletedSelfReport_)
       }
     }
   }, [players])
@@ -92,21 +101,25 @@ const SelfReportOrObserverReport: FC<SelfReportOrObserverReportProps> = ({
         </>
       ) : (
         <>
-          { hasCompletedSelfReport ? (
+          { (
+            phase === GamePhases.SelfReport || 
+            phase === GamePhases.ObserverReport
+          ) && (
             <>
-              <div className={ styles['player-nickname-grid'] }>
-                <h2 style={ { textAlign: 'center' } }>
-                  { `Waiting for other players to complete self-report...` }
-                </h2>
-              </div>
-            </>
-          ) : (
-            <>
-              <BessiAssessmentSection
-                reportType={ reportType }
-                bessiVersion={ BESSI_VERSION }
-                onCompletion={ onCompletion }
-              />
+              { (phase === GamePhases.SelfReport && hasCompletedSelfReport) ||
+                (phase === GamePhases.ObserverReport && hasCompletedObserverReport) ? (
+                <div className={ styles['player-nickname-grid'] }>
+                  <h2 style={ { textAlign: 'center' } }>
+                    { `Waiting for other players to complete ${reportType}...` }
+                  </h2>
+                </div>
+              ) : (
+                <BessiAssessmentSection
+                  reportType={ reportType }
+                  bessiVersion={ BESSI_VERSION }
+                  onCompletion={ onCompletion }
+                />
+              ) }
             </>
           ) }
         </>
