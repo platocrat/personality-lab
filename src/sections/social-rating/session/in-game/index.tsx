@@ -200,8 +200,6 @@ const InGame: FC<InGameProps> = ({
 
     let updatedInGameState: PlayerInGameState
 
-    console.log('phase: ', phase)
-
     // Update the appropriate inGameState based on the current game phase
     switch (phase) {
       case GamePhases.ConsentForm:
@@ -266,16 +264,11 @@ const InGame: FC<InGameProps> = ({
       if (storedNickname && storedPlayer) {
         const updatedPlayer = createUpdatedPlayer(storedPlayer, phase)
 
-        console.log(`storedNickname: `, storedNickname)
-        console.log(`updatedPlayer: `, updatedPlayer)
-
         // Add updated player to pre-existing mapping of players
-        const updatedPlayers = {
+        const updatedPlayers: SocialRatingGamePlayers = {
           ...players,
           [ storedNickname ]: updatedPlayer
         }
-
-        console.log(`updatedPlayers: `,  updatedPlayers)
         
         // Send data to update the player state via WebSocket
         updatePlayer({
