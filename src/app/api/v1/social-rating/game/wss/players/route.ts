@@ -82,27 +82,9 @@ export async function POST(
             }
           }
 
-          const nickname = Object.keys(players as SocialRatingGamePlayers)[0]
-          const player = (players as SocialRatingGamePlayers)[nickname]
-
-          const hasJoined = player.hasJoined
-          const ipAddress = player.ipAddress
-          const inGameState = player.inGameState
-          const joinedAtTimestamp = Date.now()
-
-          const updatedPlayer = {
-            hasJoined,
-            ipAddress,
-            inGameState,
-            joinedAtTimestamp,
-          } as Player
-          
-          console.log(`updated player's nickname: `, nickname)
-          console.log(`updatedPlayer: `, updatedPlayer)
-
           const _updatedPlayers: SocialRatingGamePlayers = storedPlayers
-            ? { ...storedPlayers, [nickname]: updatedPlayer }
-            : { [nickname]: updatedPlayer }
+            ? { ...storedPlayers, players }
+            : { players }
 
           console.log(`_updatedPlayers: `, _updatedPlayers)
 
@@ -136,7 +118,6 @@ export async function POST(
             const response = await ddbDocClient.send(command)
 
             const updatedPlayers_ = response.Attributes?.players as SocialRatingGamePlayers
-            console.log(`updatedPlayers_: ` , updatedPlayers_)
 
             return NextResponse.json(
               {
