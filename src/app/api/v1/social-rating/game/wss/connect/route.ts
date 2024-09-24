@@ -9,6 +9,8 @@ export async function POST(
   res: NextResponse
 ) {
   if (req.method === 'POST') {
+    console.log(`req.headers: `, req.headers)
+    
     const connectionId = req.headers.get('X-Amzn-Connection-Id')
     const ipAddress = req.headers.get('x-forwarded-for')
 
