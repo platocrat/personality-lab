@@ -264,6 +264,7 @@ const InGame: FC<InGameProps> = ({
       if (storedNickname && storedPlayer) {
         const updatedPlayer = createUpdatedPlayer(storedPlayer, phase)
 
+        console.log(`storedNickname: `, storedNickname)
         console.log(`updatedPlayer: `, updatedPlayer)
 
         // Add updated player to pre-existing mapping of players

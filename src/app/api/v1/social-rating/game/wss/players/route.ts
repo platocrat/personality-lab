@@ -96,6 +96,9 @@ export async function POST(
             inGameState,
             joinedAtTimestamp,
           } as Player
+          
+          console.log(`updated player's nickname: `, nickname)
+          console.log(`updatedPlayer: `, updatedPlayer)
 
           const updatedPlayers: SocialRatingGamePlayers = storedPlayers
             ? { ...storedPlayers, [nickname]: updatedPlayer }
