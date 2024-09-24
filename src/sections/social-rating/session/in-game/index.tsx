@@ -262,11 +262,15 @@ const InGame: FC<InGameProps> = ({
       if (storedNickname && storedPlayer) {
         const updatedPlayer = createUpdatedPlayer(storedPlayer, phase)
 
+        console.log(`updatedPlayer: `, updatedPlayer)
+
         // Add updated player to pre-existing mapping of players
         const updatedPlayers = {
           ...players,
           [ storedNickname ]: updatedPlayer
         }
+
+        console.log(`updatedPlayers: `,  updatedPlayers)
         
         // Send data to update the player state via WebSocket
         updatePlayer({
