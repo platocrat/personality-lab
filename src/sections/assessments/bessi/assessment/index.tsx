@@ -336,6 +336,8 @@ const BessiAssessmentSection: FC<BessiProps> = ({
       }
     }
 
+    console.log(`userResults: `, userResults)
+
     try {
       const response = await fetch('/api/v1/assessment/results', {
         method: 'PUT',
