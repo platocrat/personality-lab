@@ -9,6 +9,7 @@ import {
 // Locals
 import Consent from '@/sections/social-rating/session/consent'
 import Results from '@/sections/social-rating/session/results'
+import SelfReportOrObserverReport from '@/sections/social-rating/session/self-report-or-observer-report'
 // Contexts
 import { GameSessionContext } from '@/contexts/GameSessionContext'
 import { GameSessionContextType } from '@/contexts/types'
@@ -39,7 +40,6 @@ type PhaseChecks = {
 
 
 // Page-global constants
-const BESSI_VERSION = 20
 const RECONNECT_INTERVAL = 3_000 // Try to reconnect every 3 seconds
 const MAX_RECONNECT_ATTEMPTS = 5 // Set a maximum number of attempts
 /**
@@ -86,21 +86,6 @@ const InGame: FC<InGameProps> = ({
   const [ socket, setSocket ] = useState<WebSocket | null>(null)
   const [ isReconnecting, setIsReconnecting ] = useState<boolean>(false)
   const [ reconnectAttempts, setReconnectAttempts ] = useState<number>(0)
-
-  // --------------------------- Memoized constants ----------------------------
-  const reportType = useMemo((): 'self-report' | 'observer-report' => {
-    let reportType: 'self-report' | 'observer-report' = 'self-report'
-
-    if (phase === GamePhases.SelfReport) {
-      reportType = 'self-report'
-    } else if (phase === GamePhases.ObserverReport) {
-      reportType = 'observer-report'
-    } else {
-      reportType = 'self-report'
-    }
-
-    return reportType
-  }, [ phase ])
 
 
   // --------------------------- Regular functions -----------------------------
@@ -257,6 +242,8 @@ const InGame: FC<InGameProps> = ({
    */
   const onCompletion = async (): Promise<void> => {
     if (players) {
+      setIsUpdatingGameState(true)
+
       // Check if stored nickname and stored player is in local storage
       const storedNickname = localStorage.getItem('nickname')
       const storedPlayer = localStorage.getItem('player')
@@ -279,6 +266,8 @@ const InGame: FC<InGameProps> = ({
 
         // Update the local cache of `player` state
         updatePlayerInLocalStorage(updatedPlayer)
+
+        setIsUpdatingGameState(false)
       }
     }
   }
@@ -405,11 +394,7 @@ const InGame: FC<InGameProps> = ({
           phase === GamePhases.SelfReport || 
           phase === GamePhases.ObserverReport
         ) && (
-          <BessiAssessmentSection
-            reportType={ reportType }
-            bessiVersion={ BESSI_VERSION }
-            onCompletion={ onCompletion }
-          />
+          <SelfReportOrObserverReport onCompletion={ onCompletion } />
         ) }
 
         { phase === GamePhases.Results && <Results /> }
