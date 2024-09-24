@@ -317,9 +317,7 @@ const BessiAssessmentSection: FC<BessiProps> = ({
      */
     if (isNonStudy) {
       userResults = {
-        email: email ?? isGameInSession 
-          ? 'gamer' 
-          : '',
+        email: email ?? '',
         assessmentId: ASSESSMENT_ID,
         results: bessiUserResults,
         timestamp: 0,
@@ -328,19 +326,15 @@ const BessiAssessmentSection: FC<BessiProps> = ({
       const studyId = study?.id
 
       userResults = {
-        email: email ?? '',
+        email: email ?? isGameInSession
+          ? 'gamer'
+          : '',
         assessmentId: ASSESSMENT_ID,
         studyId,
         results: bessiUserResults,
         timestamp: 0,
       }
     }
-
-    console.log(`study?.id: `, study?.id)
-    console.log(`isNonStudy: `, isNonStudy)
-    console.log(`isGameInSession: `, isGameInSession)
-    console.log(`userResults: `, userResults)
-
 
     try {
       const response = await fetch('/api/v1/assessment/results', {
