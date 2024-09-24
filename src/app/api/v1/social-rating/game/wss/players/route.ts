@@ -32,6 +32,8 @@ export async function POST(
       isGameInSession,
     } = await req.json()
 
+    console.log('action: ', action)
+
     if (action === 'updatePlayers') {
       const requestHeaders = req.headers
       const ipAddress = requestHeaders.get('x-forwarded-for')

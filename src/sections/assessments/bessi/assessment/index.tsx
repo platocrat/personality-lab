@@ -449,41 +449,71 @@ const BessiAssessmentSection: FC<BessiProps> = ({
               { TITLE }
           </h2>
 
-          <NetworkRequestSuspense
-            isLoading={ isLoadingResults }
-            spinnerOptions={{
-              showSpinner: true,
-              isAssessmentResults: true,
-              containerStyle: {
-                flexDirection: 'column',
-                top: '4px'
-              }
-            }}
-          >
-            <BessiAssessmentInstructions />
+          { isGameInSession ? (
+            <>
+              <BessiAssessmentInstructions />
 
-            <Questionnaire
-              questions={ questions }
-              controls={ { valueType: 'number' } }
-              onChange={ onWellnessRatingChange }
-              choices={ WELLNESS_RATINGS_DESCRIPTIONS }
-              currentQuestionIndex={ currentQuestionIndex }
-              setIsEndOfQuestionnaire={ setIsEndOfQuestionnaire }
-            />
+              <Questionnaire
+                questions={ questions }
+                controls={ { valueType: 'number' } }
+                onChange={ onWellnessRatingChange }
+                choices={ WELLNESS_RATINGS_DESCRIPTIONS }
+                currentQuestionIndex={ currentQuestionIndex }
+                setIsEndOfQuestionnaire={ setIsEndOfQuestionnaire }
+              />
 
-            { isEndOfQuestionnaire && (
-              <>
-                <BessiDemographicQuestionnaire />
-                <FormButton
-                  buttonText={ BUTTON_TEXT }
-                  state={ {
-                    isSubmitting: isLoadingResults,
-                    hasSubmitted: isLoadingResults,
-                  } }
+              { isEndOfQuestionnaire && (
+                <>
+                  <BessiDemographicQuestionnaire />
+                  <FormButton
+                    buttonText={ BUTTON_TEXT }
+                    state={ {
+                      isSubmitting: isLoadingResults,
+                      hasSubmitted: isLoadingResults,
+                    } }
+                  />
+                </>
+              ) }
+            </>
+          ) : (
+            <>
+              <NetworkRequestSuspense
+                isLoading={ isLoadingResults }
+                spinnerOptions={ {
+                  showSpinner: true,
+                  isAssessmentResults: true,
+                  containerStyle: {
+                    flexDirection: 'column',
+                    top: '4px'
+                  }
+                } }
+              >
+                <BessiAssessmentInstructions />
+
+                <Questionnaire
+                  questions={ questions }
+                  controls={ { valueType: 'number' } }
+                  onChange={ onWellnessRatingChange }
+                  choices={ WELLNESS_RATINGS_DESCRIPTIONS }
+                  currentQuestionIndex={ currentQuestionIndex }
+                  setIsEndOfQuestionnaire={ setIsEndOfQuestionnaire }
                 />
-              </>
-            ) }
-          </NetworkRequestSuspense>
+
+                { isEndOfQuestionnaire && (
+                  <>
+                    <BessiDemographicQuestionnaire />
+                    <FormButton
+                      buttonText={ BUTTON_TEXT }
+                      state={ {
+                        isSubmitting: isLoadingResults,
+                        hasSubmitted: isLoadingResults,
+                      } }
+                    />
+                  </>
+                ) }
+              </NetworkRequestSuspense>
+            </>
+          )}
         </form>
       </div>
     </Fragment>

@@ -87,7 +87,6 @@ const InGame: FC<InGameProps> = ({
   const [ isReconnecting, setIsReconnecting ] = useState<boolean>(false)
   const [ reconnectAttempts, setReconnectAttempts ] = useState<number>(0)
 
-
   // --------------------------- Memoized constants ----------------------------
   const reportType = useMemo((): 'self-report' | 'observer-report' => {
     let reportType: 'self-report' | 'observer-report' = 'self-report'
@@ -143,7 +142,6 @@ const InGame: FC<InGameProps> = ({
       ws.close()
     }
   }
-
 
   // Function to handle reconnection attempts
   function attemptReconnection() {
@@ -358,6 +356,7 @@ const InGame: FC<InGameProps> = ({
   
   // --------------------------- `useLayoutEffect`s ----------------------------
   useLayoutEffect(() => {
+    console.log(`storedPlayer: `, localStorage.getItem('player'))
     initializeWebSocket()
 
     return () => {
