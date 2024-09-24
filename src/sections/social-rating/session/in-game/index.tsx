@@ -115,7 +115,9 @@ const InGame: FC<InGameProps> = ({
     }
 
     ws.onmessage = (event) => {
+      console.log(`WebSocket event: `, event)
       const data = JSON.parse(event.data)
+      console.log(`WebSocket data: `, data)
 
       if (data.updatedPlayers) {
         setPlayers(data.updatedPlayers)
@@ -189,7 +191,7 @@ const InGame: FC<InGameProps> = ({
 
   function createUpdatedPlayer(
     storedPlayer: string, 
-    phase: GamePhases
+    phase: GamePhases,
   ): Player {
     const player = JSON.parse(storedPlayer) as Player
     const previousInGameState = { ...player.inGameState }
@@ -334,7 +336,7 @@ const InGame: FC<InGameProps> = ({
         throw new Error(`${error}: ${json.error}`)
       }
     } catch (error: any) {
-      console.log(error)
+      console.error(error)
       setIsUpdatingGameState(false)
 
       /**
@@ -356,7 +358,6 @@ const InGame: FC<InGameProps> = ({
   
   // --------------------------- `useLayoutEffect`s ----------------------------
   useLayoutEffect(() => {
-    console.log(`storedPlayer: `, localStorage.getItem('player'))
     initializeWebSocket()
 
     return () => {

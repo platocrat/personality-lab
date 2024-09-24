@@ -90,16 +90,20 @@ export async function POST(
           const inGameState = (players as SocialRatingGamePlayers)[nickname].inGameState
           const joinedAtTimestamp = Date.now()
 
-          const newPlayer = {
+          const updatedPlayer = {
             hasJoined,
             ipAddress,
             inGameState,
             joinedAtTimestamp,
           } as Player
 
+          console.log(`updatedPlayer: `, updatedPlayer)
+
           const updatedPlayers: SocialRatingGamePlayers = storedPlayers
-            ? { ...storedPlayers, [nickname]: newPlayer }
-            : { [nickname]: newPlayer }
+            ? { ...storedPlayers, [nickname]: updatedPlayer }
+            : { [nickname]: updatedPlayer }
+
+          console.log(`updatedPlayers: `, updatedPlayers)
 
           const Key = {
             sessionId,
@@ -145,8 +149,9 @@ export async function POST(
               }
             )
           } catch (error: any) {
-            const errorMessage = `Failed to update 'players' of social rating game with session ID '${sessionId
-              }' in the '${TableName}' table: `
+            const errorMessage = `Failed to update 'players' of social rating game with session ID '${
+              sessionId
+            }' in the '${TableName}' table: `
 
             console.error(errorMessage, error)
 
