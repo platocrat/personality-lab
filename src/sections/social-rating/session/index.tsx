@@ -114,8 +114,8 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
     // Regular expression to allow only alphanumeric characters, underscores, 
     // and hyphens
     const sanitizedValue = value.replace(/[^a-zA-Z0-9-_]/g, '')
-    // Optionally limit the length of the nickname (e.g., max 12 characters)
-    const maxLength = 12
+    // Optionally limit the length of the nickname (e.g., max 16 characters)
+    const maxLength = 16
     const secureNickname = sanitizedValue.slice(0, maxLength)
 
     setNickname(secureNickname)
