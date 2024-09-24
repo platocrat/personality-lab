@@ -30,9 +30,6 @@ export async function POST(
       isGameInSession,
     } = await req.json()
 
-    const requestHeaders = req.headers
-    const ipAddress = requestHeaders.get('x-forwarded-for')
-
     const TableName = DYNAMODB_TABLE_NAMES.socialRatingGames
     const KeyConditionExpression = 'sessionId = :sessionIdValue'
     const ExpressionAttributeValues = { ':sessionIdValue': sessionId }
@@ -83,20 +80,23 @@ export async function POST(
         }
 
         const nickname = Object.keys(players as SocialRatingGamePlayers)[0]
-        const hasJoined = (players as SocialRatingGamePlayers)[nickname].hasJoined
-        const inGameState = (players as SocialRatingGamePlayers)[nickname].inGameState
+        const player = (players as SocialRatingGamePlayers)[nickname]
+
+        const hasJoined = player.hasJoined
+        const ipAddress = player.ipAddress
+        const inGameState = player.inGameState
         const joinedAtTimestamp = Date.now()
 
-        const newPlayer = {
+        const updatedPlayer = {
           hasJoined,
           ipAddress,
           inGameState,
           joinedAtTimestamp,
         } as Player
 
-        const updatedPlayers: SocialRatingGamePlayers = storedPlayers
-          ? { ...storedPlayers, [nickname]: newPlayer }
-          : { [nickname]: newPlayer }
+        const _updatedPlayers: SocialRatingGamePlayers = storedPlayers
+          ? { ...storedPlayers, [nickname]: updatedPlayer }
+          : { [nickname]: updatedPlayer }
 
         const Key = {
           sessionId,
@@ -105,7 +105,7 @@ export async function POST(
         const UpdateExpression =
           'set players = :players, updatedAtTimestamp = :updatedAtTimestamp'
         const ExpressionAttributeValues = {
-          ':players': updatedPlayers,
+          ':players': _updatedPlayers,
           ':updatedAtTimestamp': Date.now(),
         }
         const ReturnValues: ReturnValue = 'UPDATED_NEW'
@@ -127,12 +127,12 @@ export async function POST(
         try {
           const response = await ddbDocClient.send(command)
 
-          const updatedPlayers = response.Attributes?.players as SocialRatingGamePlayers
+          const updatedPlayers_ = response.Attributes?.players as SocialRatingGamePlayers
 
           return NextResponse.json(
             {
               message,
-              updatedPlayers,
+              updatedPlayers: updatedPlayers_,
             },
             {
               status: 200,

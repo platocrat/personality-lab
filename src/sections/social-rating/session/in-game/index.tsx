@@ -178,13 +178,15 @@ const InGame: FC<InGameProps> = ({
     }
   ) {
     if (socket) {
-      // Send data to WebSocket
-      socket.send(JSON.stringify({
+      const data = {
         action: 'updatePlayer',
         players: playerData.players,
         sessionId: playerData.sessionId,
         isGameInSession: playerData.isGameInSession,
-      }))
+      }
+      const dataAsString = JSON.stringify(data)
+      // Send data to WebSocket
+      socket.send(dataAsString)
     }
   }
 

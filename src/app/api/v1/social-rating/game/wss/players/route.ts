@@ -100,11 +100,11 @@ export async function POST(
           console.log(`updated player's nickname: `, nickname)
           console.log(`updatedPlayer: `, updatedPlayer)
 
-          const updatedPlayers: SocialRatingGamePlayers = storedPlayers
+          const _updatedPlayers: SocialRatingGamePlayers = storedPlayers
             ? { ...storedPlayers, [nickname]: updatedPlayer }
             : { [nickname]: updatedPlayer }
 
-          console.log(`updatedPlayers: `, updatedPlayers)
+          console.log(`_updatedPlayers: `, _updatedPlayers)
 
           const Key = {
             sessionId,
@@ -113,7 +113,7 @@ export async function POST(
           const UpdateExpression =
             'set players = :players, updatedAtTimestamp = :updatedAtTimestamp'
           const ExpressionAttributeValues = {
-            ':players': updatedPlayers,
+            ':players': _updatedPlayers,
             ':updatedAtTimestamp': Date.now(),
           }
           const ReturnValues: ReturnValue = 'UPDATED_NEW'
@@ -135,12 +135,13 @@ export async function POST(
           try {
             const response = await ddbDocClient.send(command)
 
-            const updatedPlayers = response.Attributes?.players as SocialRatingGamePlayers
+            const updatedPlayers_ = response.Attributes?.players as SocialRatingGamePlayers
+            console.log(`updatedPlayers_: ` , updatedPlayers_)
 
             return NextResponse.json(
               {
                 message,
-                updatedPlayers,
+                updatedPlayers: updatedPlayers_,
               },
               {
                 status: 200,
