@@ -13,23 +13,41 @@ export async function POST(
       // Parse the WebSocket message
       const { action, data } = await req.json()
 
-      // Handle the default action
-      console.log(`$default route received: action - ${action}, data - ${JSON.stringify(data)}`)
+      if (!action || action === 'unknownAction') {
+        const error = `Unknown action: ${action}`
 
-      const message = 'No specific route matched. Default handler processed this request.'
+        return NextResponse.json(
+          { 
+            error,
+          },
+          {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+      } else {
+        // Handle the default action
+        console.log(
+          `$default route received: action - ${action}, data - ${JSON.stringify(data)}`
+        )
 
-      // You can process the message here, log it, or respond with an error
-      return NextResponse.json(
-        { 
-          message,
-        },
-        { 
-          status: 200, 
-          headers: { 
-            'Content-Type': 'application/json',
-          } ,
-        }
-      )
+        const message = 'No specific route matched. Default handler processed this request.'
+
+        // You can process the message here, log it, or respond with an error
+        return NextResponse.json(
+          {
+            message,
+          },
+          {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+      }
     } catch (error: any) {
       // Something went wrong
       const errorMessage = 'Failed to process $default route'
