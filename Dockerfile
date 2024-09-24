@@ -8,7 +8,7 @@ WORKDIR /personality-lab-app
 COPY package*.json ./
 
 # Install dependencies, this step will be cached unless package*.json changes
-RUN npm ci --only=production
+RUN npm ci
 
 # Copy the rest of the application code
 COPY . .
