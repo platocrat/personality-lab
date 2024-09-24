@@ -1,5 +1,11 @@
 // Externals
-import { FC, useContext, useLayoutEffect, useMemo } from 'react'
+import {
+  FC,
+  useMemo,
+  useState,
+  useContext,
+  useLayoutEffect,
+} from 'react'
 // Locals
 import Consent from '@/sections/social-rating/session/consent'
 import Results from '@/sections/social-rating/session/results'
@@ -8,12 +14,11 @@ import { GameSessionContext } from '@/contexts/GameSessionContext'
 import { GameSessionContextType } from '@/contexts/types'
 // Utils
 import BessiAssessmentSection from '@/sections/assessments/bessi/assessment'
-import { 
-  Player,
+import {
   GamePhases,
-  PlayerInGameState, 
-  ProfileCorrelations,
-  SocialRatingGamePlayers,
+  Player,
+  PlayerInGameState,
+  SocialRatingGamePlayers
 } from '@/utils'
 
 
@@ -35,8 +40,28 @@ type PhaseChecks = {
 
 // Page-global constants
 const BESSI_VERSION = 20
-
-
+const RECONNECT_INTERVAL = 3_000 // Try to reconnect every 3 seconds
+const MAX_RECONNECT_ATTEMPTS = 5 // Set a maximum number of attempts
+/**
+ * @dev Mapping of AWS WebSocket API URLs.
+ * Note: 
+ * - The `'mock-routes'` AWS WebSocket URL uses Mock Integration Types for all
+ * routes except for the custom route(s):
+ * 1. `$connect` - Mock route
+ * 2. `$disconnect` - Mock route
+ * 3. `$default` - Mock route
+ * 4. `updatePlayer` - HTTP route
+ * - The `'http-only'` AWS WebSocket URL uses HTTP Integration Types only for
+ * each route:
+ * 1. `$connect` - HTTP route
+ * 2. `$disconnect` - HTTP route
+ * 3. `$default` - HTTP route
+ * 4. `updatePlayer` - HTTP route
+ */
+const WEB_SOCKET_URLS = {
+  'mock-routes': 'wss://p43nv4mq12.execute-api.us-east-1.amazonaws.com/production/',
+  'http-only': 'wss://vpfscho95i.execute-api.us-east-1.amazonaws.com/production/'
+}
 
 
 const InGame: FC<InGameProps> = ({
@@ -57,6 +82,10 @@ const InGame: FC<InGameProps> = ({
     // State change function handlers
     haveAllPlayersCompleted,
   } = useContext<GameSessionContextType>(GameSessionContext)
+  // States
+  const [ socket, setSocket ] = useState<WebSocket | null>(null)
+  const [ isReconnecting, setIsReconnecting ] = useState<boolean>(false)
+  const [ reconnectAttempts, setReconnectAttempts ] = useState<number>(0)
 
 
   // --------------------------- Memoized constants ----------------------------
@@ -76,6 +105,91 @@ const InGame: FC<InGameProps> = ({
 
 
   // --------------------------- Regular functions -----------------------------
+  // Function to initialize WebSocket
+  const initializeWebSocket = () => {
+    const ws = new WebSocket(WEB_SOCKET_URLS['http-only'])
+
+    ws.onopen = () => {
+      console.log('Connected to AWS WebSocket!')
+      setSocket(ws)
+      setReconnectAttempts(0) // Reset the reconnection attempts once connected
+    }
+
+    if (ws.OPEN) {
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data)
+
+        if (data.updatedPlayers) {
+          setPlayers(data.updatedPlayers)
+        }
+
+        if (data.newPhase) {
+          setPhase(data.newPhase)
+        }
+      }
+    }
+
+    if (ws.OPEN && !ws.CLOSED && !ws.CLOSING && !ws.CONNECTING) {
+      ws.onclose = () => {
+        console.log('AWS WebSocket connection closed!')
+
+        // Only attempt to reconnect if we haven't reached the max attempts
+        if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+          attemptReconnection()
+        }
+      }
+    }
+
+    ws.onerror = (error) => {
+      console.error('AWS WebSocket error: ', error)
+      ws.close()
+    }
+  }
+
+  // Function to handle reconnection attempts
+  const attemptReconnection = () => {
+    if (!isReconnecting) {
+      setIsReconnecting(true)
+
+      // Reattempt connection every RECONNECT_INTERVAL milliseconds
+      const reconnectionInterval = setInterval(() => {
+        setReconnectAttempts((prev) => {
+          if (prev >= MAX_RECONNECT_ATTEMPTS) {
+            clearInterval(reconnectionInterval) // Stop trying after max attempts
+            setIsReconnecting(false)
+            console.error('Max reconnection attempts reached')
+            return prev
+          }
+
+          console.log(`Reconnection attempt #${prev + 1}`)
+          initializeWebSocket() // Attempt to reconnect
+
+          return prev + 1
+        })
+      }, RECONNECT_INTERVAL)
+    }
+  }
+
+
+  function updatePlayer(
+    playerData: { 
+      players: SocialRatingGamePlayers, 
+      sessionId: string, 
+      isGameInSession: boolean 
+    }
+  ) {
+    if (socket) {
+      // Send data to WebSocket
+      socket.send(JSON.stringify({
+        action: 'updatePlayer',
+        players: playerData.players,
+        sessionId: playerData.sessionId,
+        isGameInSession: playerData.isGameInSession,
+      }))
+    }
+  }
+
+
   function createUpdatedPlayer(
     storedPlayer: string, 
     phase: GamePhases
@@ -148,8 +262,20 @@ const InGame: FC<InGameProps> = ({
 
       if (storedNickname && storedPlayer) {
         const updatedPlayer = createUpdatedPlayer(storedPlayer, phase)
-        // Update the player's `inGameState` in DynamoDB
-        await updatePlayers(storedNickname, updatedPlayer)
+
+        // Add updated player to pre-existing mapping of players
+        const updatedPlayers = {
+          ...players,
+          [ storedNickname ]: updatedPlayer
+        }
+        
+        // Send data to update the player state via WebSocket
+        updatePlayer({
+          players: updatedPlayers,
+          sessionId,
+          isGameInSession
+        })
+
         // Update the local cache of `player` state
         updatePlayerInLocalStorage(updatedPlayer)
       }
@@ -169,64 +295,64 @@ const InGame: FC<InGameProps> = ({
 
 
   // ~~~~~~ API calls ~~~~~~
-  async function updatePlayers(
-    _nickname: string, 
-    _updatedPlayer: Player,
-  ): Promise<void> {
-    setIsUpdatingGameState(true)
+  // async function updatePlayers(
+  //   _nickname: string, 
+  //   _updatedPlayer: Player,
+  // ): Promise<void> {
+  //   setIsUpdatingGameState(true)
 
-    const _players: SocialRatingGamePlayers = { [_nickname]: _updatedPlayer }
+  //   const _players: SocialRatingGamePlayers = { [_nickname]: _updatedPlayer }
 
-    try {
-      const apiEndpoint = `/api/v1/social-rating/game/players`
-      const response = await fetch(apiEndpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          sessionId,
-          players: _players,
-          isGameInSession,
-        }),
-      })
+  //   try {
+  //     const apiEndpoint = `/api/v1/social-rating/game/players`
+  //     const response = await fetch(apiEndpoint, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({
+  //         sessionId,
+  //         players: _players,
+  //         isGameInSession,
+  //       }),
+  //     })
 
-      const json = await response.json()
+  //     const json = await response.json()
 
-      if (response.status === 500) {
-        setIsUpdatingGameState(false)
-        throw new Error(json.error)
-      }
+  //     if (response.status === 500) {
+  //       setIsUpdatingGameState(false)
+  //       throw new Error(json.error)
+  //     }
 
-      if (response.status === 405) {
-        setIsUpdatingGameState(false)
-        throw new Error(json.error)
-      }
+  //     if (response.status === 405) {
+  //       setIsUpdatingGameState(false)
+  //       throw new Error(json.error)
+  //     }
 
-      if (response.status === 200) {
-        const updatedPlayers = json.updatedPlayers as SocialRatingGamePlayers
+  //     if (response.status === 200) {
+  //       const updatedPlayers = json.updatedPlayers as SocialRatingGamePlayers
 
-        setPlayers(updatedPlayers)
-        setIsUpdatingGameState(false)
-      } else {
-        setIsUpdatingGameState(false)
+  //       setPlayers(updatedPlayers)
+  //       setIsUpdatingGameState(false)
+  //     } else {
+  //       setIsUpdatingGameState(false)
 
-        const error = `Error posting new players to social rating game with session ID '${
-          sessionId
-        }' to DynamoDB: `
+  //       const error = `Error posting new players to social rating game with session ID '${
+  //         sessionId
+  //       }' to DynamoDB: `
 
-        throw new Error(`${error}: ${json.error}`)
-      }
-    } catch (error: any) {
-      console.log(error)
-      setIsUpdatingGameState(false)
+  //       throw new Error(`${error}: ${json.error}`)
+  //     }
+  //   } catch (error: any) {
+  //     console.log(error)
+  //     setIsUpdatingGameState(false)
 
-      /**
-       * @todo Handle error UI here
-       */
-      throw new Error(`Error updating player: `, error.message)
-    }
-  }
+  //     /**
+  //      * @todo Handle error UI here
+  //      */
+  //     throw new Error(`Error updating player: `, error.message)
+  //   }
+  // }
 
 
   async function updateGamePhase(_phase: GamePhases): Promise<GamePhases> {
@@ -290,8 +416,19 @@ const InGame: FC<InGameProps> = ({
     
   }
 
-
+  
   // --------------------------- `useLayoutEffect`s ----------------------------
+  useLayoutEffect(() => {
+    initializeWebSocket()
+
+    return () => {
+      if (socket) {
+        socket.close()
+      }
+    }
+  }, [ ])
+
+
   useLayoutEffect(() => {
     if (players) {
       const phaseChecks: PhaseChecks[] = [
