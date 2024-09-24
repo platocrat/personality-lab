@@ -9,12 +9,15 @@ export async function POST(
   res: NextResponse
 ) {
   if (req.method === 'POST') {
-    console.log(`req.headers: `, req.headers)
-    
-    const connectionId = req.headers.get('X-Amzn-Connection-Id')
+    const apiGatewayApiId = req.headers.get('x-amzn-apigateway-api-id')
+    const traceId = req.headers.get('x-amzn-trace-id')
     const ipAddress = req.headers.get('x-forwarded-for')
 
-    console.log(`Client connected: Connection ID - ${connectionId}, IP - ${ipAddress}`)
+    console.log(
+      `Client connected from API Gateway API ID '${ 
+        apiGatewayApiId 
+      }': Trace ID - ${traceId}, IP - ${ipAddress}`
+    )
     // Handle connection logic here (e.g., logging, storing connection details)
 
     const message = `Connected to WebSocket.`
@@ -23,7 +26,8 @@ export async function POST(
       {
         message,
         ipAddress,
-        connectionId,
+        traceId,
+        apiGatewayApiId,
       },
       {
         status: 200,

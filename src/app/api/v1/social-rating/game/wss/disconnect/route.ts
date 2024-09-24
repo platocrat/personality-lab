@@ -9,9 +9,14 @@ export async function POST(
   res: NextResponse
 ) {
   if (req.method === 'POST') {
-    const connectionId = req.headers.get('X-Amzn-Connection-Id')
+    const apiGatewayApiId = req.headers.get('x-amzn-apigateway-api-id')
+    const traceId = req.headers.get('x-amzn-trace-id')
 
-    console.log(`Client disconnected: Connection ID - ${connectionId}`)
+    console.log(
+      `Client disconnected from API Gateway API ID '${
+        apiGatewayApiId 
+      }': AWS Trace ID - ${traceId}`
+    )
     // Handle disconnection logic here (e.g., removing connection from database)
 
     const message = `Disconnected from WebSocket.`
@@ -19,7 +24,8 @@ export async function POST(
     return NextResponse.json(
       {
         message,
-        connectionId,
+        apiGatewayApiId,
+        traceId,
       },
       {
         status: 200,
