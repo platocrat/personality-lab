@@ -198,6 +198,8 @@ const InGame: FC<InGameProps> = ({
 
     let updatedInGameState: PlayerInGameState
 
+    console.log('phase: ', phase)
+
     // Update the appropriate inGameState based on the current game phase
     switch (phase) {
       case GamePhases.ConsentForm:
