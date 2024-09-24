@@ -325,13 +325,11 @@ const BessiAssessmentSection: FC<BessiProps> = ({
     } else {
       const studyId = study?.id
 
-      console.log(`isGameInSession: `, isGameInSession)
-      const storedPlayer = localStorage.getItem('player')
-      console.log(`storedPlayer: `, storedPlayer)
-
       userResults = {
-        email: email ?? isGameInSession
-          ? 'gamer'
+        email: email === undefined || email === '' 
+          ? isGameInSession
+            ? 'gamer'
+            : ''
           : '',
         assessmentId: ASSESSMENT_ID,
         studyId,
@@ -339,8 +337,6 @@ const BessiAssessmentSection: FC<BessiProps> = ({
         timestamp: 0,
       }
     }
-
-    console.log(`userResults: `, userResults)
 
     try {
       const response = await fetch('/api/v1/assessment/results', {
