@@ -61,8 +61,9 @@ export const PUT = withApiAuthRequired(async function updateResults(
       )
     } catch (error: any) {
       console.error(
-        `Could not update user results for study ID '${studyId
-        }' of the '${TableName}' table: `,
+        `Could perform PUT operation to add new user results to the '${
+          TableName
+        }' table: `,
         error
       )
 
