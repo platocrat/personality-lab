@@ -1,4 +1,4 @@
-/* /api/v1/social-rating/game/ws/default/route.ts */
+/* /api/v1/social-rating/game/wss/default/route.ts */
 // Externals
 import { NextRequest, NextResponse } from 'next/server'
 

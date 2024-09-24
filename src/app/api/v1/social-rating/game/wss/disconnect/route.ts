@@ -1,4 +1,4 @@
-/* /api/v1/social-rating/game/ws/connect/route.ts */
+/* /api/v1/social-rating/game/wss/disconnect/route.ts */
 // Externals
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -10,12 +10,11 @@ export async function POST(
 ) {
   if (req.method === 'POST') {
     const connectionId = req.headers.get('X-Amzn-Connection-Id')
-    const ipAddress = req.headers.get('x-forwarded-for')
 
-    console.log(`Client connected: Connection ID - ${connectionId}, IP - ${ipAddress}`)
-    // Handle connection logic here (e.g., logging, storing connection details)
+    console.log(`Client disconnected: Connection ID - ${connectionId}`)
+    // Handle disconnection logic here (e.g., removing connection from database)
 
-    const message = `Connected to WebSocket.`
+    const message = `Disconnected from WebSocket.`
 
     return NextResponse.json(
       {
