@@ -316,6 +316,9 @@ const BessiAssessmentSection: FC<BessiProps> = ({
      * `PutItemCommand` operation.
      */
     if (isNonStudy) {
+      console.log(`isNonStudy: `, isNonStudy)
+      console.log(`isGameInSession: `, isGameInSession)
+
       userResults = {
         email: email ?? isGameInSession 
           ? 'gamer' 
