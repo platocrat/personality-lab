@@ -354,26 +354,28 @@ const BessiAssessmentSection: FC<BessiProps> = ({
       if (response.status === 200 ) {
         const userResultsId = json.userResultsId
 
-        // 4. Use ID of `userResults` to generate access token
-        const accessToken = await getAccessToken(
-          ASSESSMENT_ID,
-          userResultsId,
-          email,
-          study?.id
-        )
+        if (!isGameInSession) {
+          // 4. Use ID of `userResults` to generate access token
+          const accessToken = await getAccessToken(
+            ASSESSMENT_ID,
+            userResultsId,
+            email,
+            study?.id
+          )
 
-        // 5. Create new object with final scores and access token to cache 
-        //    on the client so that we can use the access token to share the 
-        //    user's results to others.
-        finalScores = {
-          ...finalScores,
-          id: userResultsId,
-          accessToken: accessToken,
-          studyId: study?.id,
+          // 5. Create new object with final scores and access token to cache 
+          //    on the client so that we can use the access token to share the 
+          //    user's results to others.
+          finalScores = {
+            ...finalScores,
+            id: userResultsId,
+            accessToken: accessToken,
+            studyId: study?.id,
+          }
+
+          // 5. Store final scores in React state
+          setBessiSkillScores(finalScores)
         }
-
-        // 5. Store final scores in React state
-        setBessiSkillScores(finalScores)
         
         // 6. Handle what happens after assessment results are stored in 
         //    DynamoDB.
