@@ -20,6 +20,8 @@ export async function POST(
     return NextResponse.json(
       {
         message,
+        ipAddress,
+        connectionId,
       },
       {
         status: 200,

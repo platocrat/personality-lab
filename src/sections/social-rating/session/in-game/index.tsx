@@ -106,7 +106,7 @@ const InGame: FC<InGameProps> = ({
 
   // --------------------------- Regular functions -----------------------------
   // Function to initialize WebSocket
-  const initializeWebSocket = () => {
+  function initializeWebSocket() {
     const ws = new WebSocket(WEB_SOCKET_URLS['http-only'])
 
     ws.onopen = () => {
@@ -115,17 +115,15 @@ const InGame: FC<InGameProps> = ({
       setReconnectAttempts(0) // Reset the reconnection attempts once connected
     }
 
-    if (ws.OPEN) {
-      ws.onmessage = (event) => {
-        const data = JSON.parse(event.data)
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data)
 
-        if (data.updatedPlayers) {
-          setPlayers(data.updatedPlayers)
-        }
+      if (data.updatedPlayers) {
+        setPlayers(data.updatedPlayers)
+      }
 
-        if (data.newPhase) {
-          setPhase(data.newPhase)
-        }
+      if (data.newPhase) {
+        setPhase(data.newPhase)
       }
     }
 
@@ -146,8 +144,9 @@ const InGame: FC<InGameProps> = ({
     }
   }
 
+
   // Function to handle reconnection attempts
-  const attemptReconnection = () => {
+  function attemptReconnection() {
     if (!isReconnecting) {
       setIsReconnecting(true)
 
@@ -295,66 +294,6 @@ const InGame: FC<InGameProps> = ({
 
 
   // ~~~~~~ API calls ~~~~~~
-  // async function updatePlayers(
-  //   _nickname: string, 
-  //   _updatedPlayer: Player,
-  // ): Promise<void> {
-  //   setIsUpdatingGameState(true)
-
-  //   const _players: SocialRatingGamePlayers = { [_nickname]: _updatedPlayer }
-
-  //   try {
-  //     const apiEndpoint = `/api/v1/social-rating/game/players`
-  //     const response = await fetch(apiEndpoint, {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify({
-  //         sessionId,
-  //         players: _players,
-  //         isGameInSession,
-  //       }),
-  //     })
-
-  //     const json = await response.json()
-
-  //     if (response.status === 500) {
-  //       setIsUpdatingGameState(false)
-  //       throw new Error(json.error)
-  //     }
-
-  //     if (response.status === 405) {
-  //       setIsUpdatingGameState(false)
-  //       throw new Error(json.error)
-  //     }
-
-  //     if (response.status === 200) {
-  //       const updatedPlayers = json.updatedPlayers as SocialRatingGamePlayers
-
-  //       setPlayers(updatedPlayers)
-  //       setIsUpdatingGameState(false)
-  //     } else {
-  //       setIsUpdatingGameState(false)
-
-  //       const error = `Error posting new players to social rating game with session ID '${
-  //         sessionId
-  //       }' to DynamoDB: `
-
-  //       throw new Error(`${error}: ${json.error}`)
-  //     }
-  //   } catch (error: any) {
-  //     console.log(error)
-  //     setIsUpdatingGameState(false)
-
-  //     /**
-  //      * @todo Handle error UI here
-  //      */
-  //     throw new Error(`Error updating player: `, error.message)
-  //   }
-  // }
-
-
   async function updateGamePhase(_phase: GamePhases): Promise<GamePhases> {
     setIsUpdatingGameState(true)
 
@@ -422,9 +361,7 @@ const InGame: FC<InGameProps> = ({
     initializeWebSocket()
 
     return () => {
-      if (socket) {
-        socket.close()
-      }
+      if (socket) socket.close()
     }
   }, [ ])
 
