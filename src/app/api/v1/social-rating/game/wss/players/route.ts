@@ -33,9 +33,6 @@ export async function POST(
     } = await req.json()
 
     if (action === 'updatePlayer') {
-      const requestHeaders = req.headers
-      const ipAddress = requestHeaders.get('x-forwarded-for')
-
       const TableName = DYNAMODB_TABLE_NAMES.socialRatingGames
       const KeyConditionExpression = 'sessionId = :sessionIdValue'
       const ExpressionAttributeValues = { ':sessionIdValue': sessionId }
@@ -86,8 +83,11 @@ export async function POST(
           }
 
           const nickname = Object.keys(players as SocialRatingGamePlayers)[0]
-          const hasJoined = (players as SocialRatingGamePlayers)[nickname].hasJoined
-          const inGameState = (players as SocialRatingGamePlayers)[nickname].inGameState
+          const player = (players as SocialRatingGamePlayers)[nickname]
+
+          const hasJoined = player.hasJoined
+          const ipAddress = player.ipAddress
+          const inGameState = player.inGameState
           const joinedAtTimestamp = Date.now()
 
           const updatedPlayer = {
@@ -96,8 +96,6 @@ export async function POST(
             inGameState,
             joinedAtTimestamp,
           } as Player
-
-          console.log(`updatedPlayer: `, updatedPlayer)
 
           const updatedPlayers: SocialRatingGamePlayers = storedPlayers
             ? { ...storedPlayers, [nickname]: updatedPlayer }
