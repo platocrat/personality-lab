@@ -34,6 +34,8 @@ export async function PUT(
   if (req.method === 'PUT') {
     const { userResults } = await req.json()
 
+    console.log(`userResults: `, userResults)
+
     const userResultsId = await getEntryId(userResults)
 
     const TableName = DYNAMODB_TABLE_NAMES.results
