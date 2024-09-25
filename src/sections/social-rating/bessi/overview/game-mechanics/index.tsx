@@ -27,30 +27,24 @@ const GameMechanics: FC<GameMechanicsProps> = ({
       >
         <div>
           <strong>
-            { `How does this game work?` }
+            { `Here’s how the game works.` }
           </strong>
         </div>
-        <div className={ styles['text'] }>
+        <div className={ styles['text-end'] }>
           <div className={ styles['list-item'] }>
-            { `1. Each player completes their own BESSI-20, a shortened 20-question version of the original 192-question BESSI.` }
+            { `1. First, you’ll rate your SEB skills.` }
           </div>
           <div className={ styles['list-item'] }>
-            { `2. After completing the BESSI-20, each player rates all the other players on the BESSI-20.` }
+            { `2. Then, you’ll invite your friends if you’re the first to play (or they will have invited you).` }
           </div>
           <div className={ styles['list-item'] }>
-            { 
-              `3. Profile correlations are done between each player's self-rating and each rating done by every other player (round robin style).`
-            }
+            { `3. Then, you’ll rate each of your friends who are playing.` }
           </div>
           <div className={ styles['list-item'] }>
-            { 
-              `4. The average of all profile correlations is taken for each player.`
-            }
+            { `4. We’ll match your ratings of your friend with the rating they made of themselves.` }
           </div>
           <div className={ styles['list-item'] }>
-            { 
-              `5. A rank is given for each player's average profile correlation and whoever has the highest rank wins!`
-            }
+            { `5. Whoever matches their friends' ratings better on average, wins.` }
           </div>
         </div>
       </div>

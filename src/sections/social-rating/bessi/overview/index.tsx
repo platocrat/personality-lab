@@ -51,13 +51,26 @@ const Overview: FC<OverviewProps> = ({
           </div> */}
         <div className={ styles.text }>
           { 
-            `This game uses the Behavioral, Emotional, and Social Skills Inventory (BESSI) to determine one's personality scores.` 
+            `In this version of the game, you’ll be rating your friends social, emotional, and behavioral skills (SEB skills).`
+            }
+        </div>
+        <div className={ styles.text }>
+          { 
+            `That means we want to know how good your friends are at leadership, teamwork, stress management, innovation, and self-discipline.`
+            }
+        </div>
+        <div className={ styles.text }>
+          { 
+            `We don’t want to know what they typically do (that’s the next version of the game). We want to know what they can do in each of these domains when they try really hard to do their very best.`
+            }
+        </div>
+        <div className={ styles.text }>
+          { 
+            `When you are all done rating yourselves and each other, we’ll show you your scores and your ranking so you know which one of you is the Best Judge of Character.`
           }
         </div>
-        <div className={ styles['text'] }>
-          { 
-            `Here you can play a friendly game with others to rate each other to find out who has the closest personality to AI-generated pop-culture characters that are chosen by your game's host.` 
-          }
+        <div className={ styles.text }>
+          { `Let’s get started.` }
         </div>
 
         <LearnMore 

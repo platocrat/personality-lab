@@ -237,20 +237,27 @@ const SocialRating: FC<SocialRatingProps> = ({
         >
           {/* Title */ }
           <div style={ { marginBottom: '12px' } }>
-            <h1>
-              { `Social Rating Games` }
+            <h1 style={{ textAlign: 'center' }}>
+              { `Who’s the Best Judge of Character?` }
             </h1>
           </div>
           {/* Description */ }
           <div className={ styles['heading-description'] }>
             { !isFetchingActiveGamesAsHost && 
-              !hasActiveGame && 
+              hasActiveGame && 
               !isHosting && (
-              <p>
-                {
-                  `Select a game from one of the options listed below to navigate to that game's page`
-                }
-              </p>
+              <>
+                <p style={{ marginBottom: '12px' }}>
+                  {
+                    `Welcome to the Best Judge of Character Game where you compete with your friends to see who the best judge of character is.`
+                  }                  
+                </p>
+                <p>
+                  {
+                    `Select a game from one of the options listed below to host it.`
+                  }
+                </p>
+              </>
             ) }
           </div>
         </div>
@@ -267,7 +274,7 @@ const SocialRating: FC<SocialRatingProps> = ({
           }}
         >
           {/* List of ACTIVE game sessions */}
-          { hasActiveGame && (
+          { !hasActiveGame && (
             <div>
               {/* Allow only one ACTIVE game session per `hostEmail` */}
               <div className={ styles['container-of-divs'] }>
@@ -289,7 +296,7 @@ const SocialRating: FC<SocialRatingProps> = ({
             </div>
           ) }
 
-          { !hasActiveGame && (
+          { hasActiveGame && (
             <>
               {/* List of cards that present each game */ }
               <div className={ styles['container-of-divs'] }>
