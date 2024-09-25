@@ -43,9 +43,9 @@ const Overview: FC<OverviewProps> = ({
           textAlign: 'left',
         } }
       >
-        <h2>
+        {/* <h2>
           { title }
-        </h2>
+        </h2> */}
         {/* <div className={ styles.text }>
             { `Welcome to the social rating game!` }
           </div> */}
@@ -66,7 +66,7 @@ const Overview: FC<OverviewProps> = ({
         </div>
         <div className={ styles.text }>
           { 
-            `When you are all done rating yourselves and each other, we’ll show you your scores and your ranking so you know which one of you is the Best Judge of Character.`
+            `When you are all done rating yourself and your friends, we will show you how well your scores matched your friends’ ratings and we’ll show you who was the Best Judge of Character.`
           }
         </div>
         <div className={ styles.text }>
@@ -89,7 +89,7 @@ const Overview: FC<OverviewProps> = ({
             </div>
           </div>
         </div>
-        <div className={ styles['text-end'] }>
+        <div className={ styles['text'] }>
           { `Let’s get started.` }
         </div>
 

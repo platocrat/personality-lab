@@ -101,33 +101,33 @@ const SocialRating: FC<SocialRatingProps> = ({
     isFetchingActiveGamesAsHost,
     setIsFetchingActiveGamesAsHost
   ] = useState<boolean>(true)
-  const [ 
-    selectedGame, 
-    setSelectedGame
-  ] = useState<number | undefined>(undefined)
+  // const [ 
+  //   selectedGame, 
+  //   setSelectedGame
+  // ] = useState<number | undefined>(undefined)
   const [ isHosting, setIsHosting ] = useState<boolean>(false)
   const [ gameSessionUrl, setGameSessionUrl ] = useState<string>('')
   const [ hasActiveGame, setHasActiveGame ] = useState<boolean>(false)
 
 
   // ------------------------- Regular functions -------------------------------
-  const selectedGameCss = useCallback((i: number) => {
-    if (selectedGame === i) {
-      return {
-        boxShadow: '0px 0px 7px inset green',
-        borderRadius: '1rem',
-        transition: '0.15s ease-in-out'
-      }
-    } else {
-      return null
-    }
-  }, [ selectedGame ])
+  // const selectedGameCss = useCallback((i: number) => {
+  //   if (selectedGame === i) {
+  //     return {
+  //       boxShadow: '0px 0px 7px inset green',
+  //       borderRadius: '1rem',
+  //       transition: '0.15s ease-in-out'
+  //     }
+  //   } else {
+  //     return null
+  //   }
+  // }, [ selectedGame ])
 
   
-  function handleSelectGame(e: any, _gameId: string, i: number): void {
-    setSelectedGame(i)
-    setGameId ? setGameId(_gameId) : null
-  }
+  // function handleSelectGame(e: any, _gameId: string, i: number): void {
+  //   setSelectedGame(i)
+  //   setGameId ? setGameId(_gameId) : null
+  // }
 
 
   // --------------------------- Async functions -------------------------------
@@ -244,19 +244,21 @@ const SocialRating: FC<SocialRatingProps> = ({
           {/* Description */ }
           <div className={ styles['heading-description'] }>
             { !isFetchingActiveGamesAsHost && 
-              !hasActiveGame && 
+              hasActiveGame && 
               !isHosting && (
               <>
-                <p style={{ marginBottom: '12px' }}>
+                <p 
+                  // style={{ marginBottom: '12px' }}
+                >
                   {
                     `Welcome to the Best Judge of Character Game where you compete with your friends to see who the best judge of character is.`
                   }                  
                 </p>
-                <p>
+                {/* <p>
                   {
                     `Select a game from one of the options listed below to host it.`
                   }
-                </p>
+                </p> */}
               </>
             ) }
           </div>
@@ -274,7 +276,7 @@ const SocialRating: FC<SocialRatingProps> = ({
           }}
         >
           {/* List of ACTIVE game sessions */}
-          { hasActiveGame && (
+          { !hasActiveGame && (
             <div>
               {/* Allow only one ACTIVE game session per `hostEmail` */}
               <div className={ styles['container-of-divs'] }>
@@ -296,11 +298,12 @@ const SocialRating: FC<SocialRatingProps> = ({
             </div>
           ) }
 
-          { !hasActiveGame && (
+          { hasActiveGame && (
             <>
               {/* List of cards that present each game */ }
               <div className={ styles['container-of-divs'] }>
-                { gameCards.map((gc, i: number) => (
+                <Bessi />
+                {/* { gameCards.map((gc, i: number) => (
                   <Fragment key={ i }>
                     <div
                       className={ styles['srg-card'] }
@@ -313,7 +316,7 @@ const SocialRating: FC<SocialRatingProps> = ({
                       />
                     </div>
                   </Fragment>
-                )) }
+                )) } */}
               </div>
               {/* Button for the host to initiate the game */}
               <div style={{ padding: '24px' }}>

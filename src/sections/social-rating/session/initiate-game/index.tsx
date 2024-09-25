@@ -143,7 +143,11 @@ const InitiateGame: FC<InitiateGameProps> = ({
   async function handleOnGameInitiation(e: any): Promise<void> {
     if (window !== undefined) {
       e.preventDefault()
-
+      
+      /**
+       * @todo Delete this line once we add more social rating games
+       */
+      setGameId('bessi')
       setIsLoading(true)
 
       const successMessage = await storeGameInDynamoDB()
