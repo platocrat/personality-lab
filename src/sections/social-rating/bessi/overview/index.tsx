@@ -70,10 +70,30 @@ const Overview: FC<OverviewProps> = ({
           }
         </div>
         <div className={ styles.text }>
+          { `Here’s how the game works.` }
+          <div className={ styles.text }>
+            <div className={ styles['list-item'] }>
+              { `1. First, you’ll rate your SEB skills.` }
+            </div>
+            <div className={ styles['list-item'] }>
+              { `2. Then, you’ll invite your friends if you’re the first to play (or they will have invited you).` }
+            </div>
+            <div className={ styles['list-item'] }>
+              { `3. Then, you’ll rate each of your friends who are playing.` }
+            </div>
+            <div className={ styles['list-item'] }>
+              { `4. We’ll match your ratings of your friend with the rating they made of themselves.` }
+            </div>
+            <div className={ styles['list-item'] }>
+              { `5. Whoever matches their friends' ratings better on average, wins.` }
+            </div>
+          </div>
+        </div>
+        <div className={ styles['text-end'] }>
           { `Let’s get started.` }
         </div>
 
-        <LearnMore 
+        {/* <LearnMore 
           content={ (
             <>
               <div className={ styles['section-line-divider'] } />
@@ -100,7 +120,7 @@ const Overview: FC<OverviewProps> = ({
               <GameMechanics />
             </>
           ) }
-        />
+        /> */}
       </div>
     </>
   )

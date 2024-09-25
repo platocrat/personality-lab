@@ -244,7 +244,7 @@ const SocialRating: FC<SocialRatingProps> = ({
           {/* Description */ }
           <div className={ styles['heading-description'] }>
             { !isFetchingActiveGamesAsHost && 
-              hasActiveGame && 
+              !hasActiveGame && 
               !isHosting && (
               <>
                 <p style={{ marginBottom: '12px' }}>
@@ -274,7 +274,7 @@ const SocialRating: FC<SocialRatingProps> = ({
           }}
         >
           {/* List of ACTIVE game sessions */}
-          { !hasActiveGame && (
+          { hasActiveGame && (
             <div>
               {/* Allow only one ACTIVE game session per `hostEmail` */}
               <div className={ styles['container-of-divs'] }>
@@ -296,7 +296,7 @@ const SocialRating: FC<SocialRatingProps> = ({
             </div>
           ) }
 
-          { hasActiveGame && (
+          { !hasActiveGame && (
             <>
               {/* List of cards that present each game */ }
               <div className={ styles['container-of-divs'] }>
