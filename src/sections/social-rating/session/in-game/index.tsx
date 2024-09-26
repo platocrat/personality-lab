@@ -113,14 +113,12 @@ const InGame: FC<InGameProps> = ({
       }
     }
 
-    if (ws.OPEN && !ws.CLOSED && !ws.CLOSING && !ws.CONNECTING) {
-      ws.onclose = () => {
-        console.log('AWS WebSocket connection closed!')
+    ws.onclose = () => {
+      console.log('AWS WebSocket connection closed!')
 
-        // Only attempt to reconnect if we haven't reached the max attempts
-        if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
-          attemptReconnection()
-        }
+      // Only attempt to reconnect if we haven't reached the max attempts
+      if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+        attemptReconnection()
       }
     }
 
@@ -358,7 +356,7 @@ const InGame: FC<InGameProps> = ({
     return () => {
       if (socket) socket.close()
     }
-  }, [ socket?.CLOSED ])
+  }, [ ])
 
 
   useLayoutEffect(() => {
