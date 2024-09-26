@@ -107,10 +107,6 @@ const InGame: FC<InGameProps> = ({
       if (data.updatedPlayers) {
         setPlayers(data.updatedPlayers)
       }
-
-      if (data.newPhase) {
-        setPhase(data.newPhase)
-      }
     }
 
     ws.onclose = () => {
@@ -349,7 +345,7 @@ const InGame: FC<InGameProps> = ({
   useLayoutEffect(() => {
     // const storedPlayer = localStorage.getItem('player')
     // console.log(`storedPlayer: `, storedPlayer)
-    // localStorage.clear()
+    localStorage.clear()
 
     initializeWebSocket()
 
