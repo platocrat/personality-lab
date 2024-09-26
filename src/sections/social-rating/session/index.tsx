@@ -696,7 +696,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
                 </>
               ) : (
                 <>
-                  { !isGameInSession && (
+                  { !isGameInSession ? (
                     <>
                       {/* Render session PIN input */ }
                       { needsSessionPin ? (
@@ -727,7 +727,13 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
                         </>
                       ) }
                     </>  
-                  ) }
+                  ) : (
+                    <>
+                      <h2>
+                        { `The game is currently in-session...` }
+                      </h2>
+                    </>
+                  )}
                 </>
               ) }
             </div>
