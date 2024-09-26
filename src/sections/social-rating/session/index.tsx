@@ -451,6 +451,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
   }
 
 
+  // Fetch the game state from DynamoDB 
   async function getGame(): Promise<void> {
     try {
       const apiEndpoint = `/api/v1/social-rating/game?sessionId=${sessionId}`
@@ -511,6 +512,47 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
   }
 
 
+  /**
+   * @dev Validates the secure token for the game session so that a user can use
+   *      the QR code to authenticate the game session's PIN.
+   * @returns secureToken
+   */
+  async function validateToken(token: string): Promise<boolean> {
+    try {
+      const apiEndpoint = `/api/v1/social-rating/secure-token`
+      const response = await fetch(apiEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sessionPin,
+          sessionId,
+          token,
+        }),
+      })
+
+      const json = await response.json()
+
+      if (response.status === 200) {
+        const isValidToken: boolean = json.isValidToken
+        return isValidToken
+      } else {
+        /**
+         * @todo Handle error UI here
+         */
+        throw new Error(json.error)
+      }
+    } catch (error: any) {
+      /**
+       * @todo Handle error UI here
+       */
+      throw new Error(`Error getting secure token: `, error)
+
+    }
+  }
+
+
   // ---------------------------- `useEffect`s ---------------------------------
   useEffect(() => {
     if (phase === GamePhases.Results) {
@@ -532,14 +574,23 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
   useLayoutEffect(() => {
     const searchParams = new URLSearchParams(window.location.search)
     const isFromQR = searchParams.get('from') === 'qr'
+    const token = searchParams.get('token')
 
-    if (isFromQR) {
-      // Mark that the user joined via QR code
-      console.log('User joined via QR code')
-      // Show the nickname input prompt
-      setNeedsSessionPin(false)
+    if (isFromQR && token) {
+      validateToken(token).then((isValidToken: boolean): void => {
+        // Validate the token
+        if (isValidToken) {
+          // Mark that the user joined via QR code
+          console.log('User joined via valid QR code')
+          // Skip PIN input and show nickname input if token is valid
+          setNeedsSessionPin(false)
+        } else {
+          console.log('Invalid QR code token, user must enter PIN')
+          setNeedsSessionPin(true) // Require PIN input if token is invalid
+        }
+      })
     }
-  }, [ ])
+  }, [ sessionPin, sessionId ])
 
 
   // ~~~~~ Get the user's IP ~~~~~~

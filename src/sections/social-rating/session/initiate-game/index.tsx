@@ -84,15 +84,22 @@ const InitiateGame: FC<InitiateGameProps> = ({
 
   // ------------------------------- Async functions ---------------------------
   // Generate a QR code for the session
-  async function generateSessionQrCode(_url: string) {
+  async function generateSessionQrCode(_url: string): Promise<string> {
     try {
       const queryParameter = `?from=qr`
-      const qrCodeUrl = await QRCode.toDataURL(`${_url}${queryParameter}`)
+
+      const secureToken = await getSecureToken()
+      const qrCodeUrl = await QRCode.toDataURL(
+        `${_url}${queryParameter}&token=${secureToken}`
+      )
+
       return qrCodeUrl
     } catch (error: any) {
       console.error(error)
+      throw new Error(error)
     }
   }
+
 
   // Handle host commitment
   async function onHostCommitment(): Promise<void> {
@@ -164,6 +171,40 @@ const InitiateGame: FC<InitiateGameProps> = ({
   }
 
 
+  /**
+   * @dev Gets a secure token for the game session to be used to validate the
+   *      QR code when a user uses it to navigate to the game session's page.
+   * @returns secureToken
+   */
+  async function getSecureToken(): Promise<string> {
+    try {
+      const apiEndpoint = `/api/v1/social-rating/secure-token?sessionPin=${
+        sessionPin
+      }&sessionId=${ sessionId }`
+      const response = await fetch(apiEndpoint, { method: 'GET' })
+
+      const json = await response.json()
+
+      if (response.status === 200) {
+        const secureToken: string = json.secureToken
+        return secureToken
+      } else {
+        /**
+         * @todo Handle error UI here
+         */
+        throw new Error(json.error)
+      }
+    } catch (error: any) {
+      /**
+       * @todo Handle error UI here
+       */
+      throw new Error(`Error getting secure token: `, error)
+
+    }
+  }
+
+
+  // Creates a new game and stores the initial game state in DynamoDB
   async function storeGameInDynamoDB(): Promise<void> {
     setIsCreatingGame(true)
 
@@ -253,7 +294,6 @@ const InitiateGame: FC<InitiateGameProps> = ({
        * @todo Handle error UI here
        */
       throw new Error(`Error! `, error)
-
     }
   }
   
