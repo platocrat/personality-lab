@@ -8,6 +8,7 @@ import {
   useEffect,
   useContext,
   SetStateAction,
+  useLayoutEffect,
 } from 'react'
 import QRCode from 'qrcode'
 // Locals
@@ -84,11 +85,15 @@ const InitiateGame: FC<InitiateGameProps> = ({
 
   // ------------------------------- Async functions ---------------------------
   // Generate a QR code for the session
-  async function generateSessionQrCode(_url: string): Promise<string> {
+  async function generateSessionQrCode(
+    _url: string,
+    _sessionId: string,
+    _sessionPin: string,
+  ): Promise<string> {
     try {
       const queryParameter = `?from=qr`
 
-      const secureToken = await getSecureToken()
+      const secureToken = await getSecureToken(_sessionId, _sessionPin)
       const qrCodeUrl = await QRCode.toDataURL(
         `${_url}${queryParameter}&token=${secureToken}`
       )
@@ -105,11 +110,17 @@ const InitiateGame: FC<InitiateGameProps> = ({
   async function onHostCommitment(): Promise<void> {
     if (window !== undefined) {
       const origin = window.location.origin
+      
       const sessionId = generateSessionId()
+      const sessionPin = generateSessionPin()
 
       // Update the URL dynamically with the sessionId
       const longUrl = `${origin}/social-rating/session/${sessionId}`
-      const sessionQrCode = await generateSessionQrCode(longUrl) ?? ''
+      const sessionQrCode = await generateSessionQrCode(
+        longUrl,
+        sessionId,
+        sessionPin,
+      ) ?? ''
 
       setSessionQrCode(sessionQrCode)
       
@@ -139,8 +150,6 @@ const InitiateGame: FC<InitiateGameProps> = ({
         throw new Error('Error shortening the URL: ', error)
       }
 
-      const sessionPin = generateSessionPin()
-
       setSessionId(sessionId)
       setSessionPin(sessionPin)
     }
@@ -150,11 +159,7 @@ const InitiateGame: FC<InitiateGameProps> = ({
   async function handleOnGameInitiation(e: any): Promise<void> {
     if (window !== undefined) {
       e.preventDefault()
-      
-      /**
-       * @todo Delete this line once we add more social rating games
-       */
-      setGameId('bessi')
+
       setIsLoading(true)
 
       const successMessage = await storeGameInDynamoDB()
@@ -176,11 +181,14 @@ const InitiateGame: FC<InitiateGameProps> = ({
    *      QR code when a user uses it to navigate to the game session's page.
    * @returns secureToken
    */
-  async function getSecureToken(): Promise<string> {
+  async function getSecureToken(
+    _sessionId: string,
+    _sessionPin: string,
+  ): Promise<string> {
     try {
       const apiEndpoint = `/api/v1/social-rating/secure-token?sessionPin=${
-        sessionPin
-      }&sessionId=${ sessionId }`
+        _sessionPin
+      }&sessionId=${ _sessionId }`
       const response = await fetch(apiEndpoint, { method: 'GET' })
 
       const json = await response.json()
@@ -308,6 +316,31 @@ const InitiateGame: FC<InitiateGameProps> = ({
       Promise.all(requests).then(() => {})
     }
   }, [ gameId ])
+
+
+  /**
+   * @todo Delete uncomment the code block below once we add more social rating 
+   *       games.
+   */
+  // useEffect(() => {
+  //   if (gameId) {
+  //     const requests = [
+  //       onHostCommitment(),
+  //     ]
+
+  //     Promise.all(requests).then(() => {})
+  //   }
+  // }, [ gameId ])
+
+
+  /**
+   * @todo Delete the code block of `useLayoutEffect`s below once we add more 
+   *       social rating games.
+   */
+  // ------------------------ `useLayoutEffect`s -------------------------------
+  useLayoutEffect(() => {
+    setGameId('bessi')
+  }, [ ])
 
 
   
