@@ -16,9 +16,11 @@ env:
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - '**'
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - '**'
 
 jobs:
   build:
@@ -37,20 +39,40 @@ jobs:
 
           echo -e "AUTH0_SECRET=$AUTH0_SECRET\nAUTH0_BASE_URL=$AUTH0_BASE_URL\nAUTH0_ISSUER_BASE_URL=$AUTH0_ISSUER_BASE_URL\nAUTH0_CLIENT_ID=$AUTH0_CLIENT_ID\nAUTH0_CLIENT_SECRET=$AUTH0_CLIENT_SECRET" > .env.local
         '
+
+      # Caching Docker layers to speed up the build
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-docker-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-docker-
+
+      
       # Phase 1: Build and Push Docker Image to Docker Hub Repository
-      - name: 1. Login to Docker
-        run: docker login -u $DOCKER_USERNAME -p $DOCKER_HUB_ACCESS_TOKEN
-      - name: 2. Build the Docker image
-        run: docker build -t personality-lab-app .
-      - name: 3. Tag newly built image
-        run: docker tag personality-lab-app $DOCKER_HUB_REPOSITORY
-      - name: 4. Push Docker image to private repository
-        run: docker push $DOCKER_HUB_REPOSITORY
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_REPOSITORY }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
+
       # Phase 2: Pull Docker image on EC2 instance and start NextJS app
       - name: 5. Create SSH key
         run: echo "$SSH_KEY" > ssh_key && chmod 600 ssh_key
       - name: 6. SSH into EC2 instance, prune Docker system data, and pull Docker image
-        # sudo docker system prune -a -f && # No longer compatible with older Docker version
         run: ssh -o StrictHostKeyChecking=no -i ssh_key $EC2_USERNAME@$EC2_HOSTNAME '
           sudo docker system prune -a -f &&
           sudo docker pull platocrat/personality-lab-app
