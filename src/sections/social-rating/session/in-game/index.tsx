@@ -345,7 +345,7 @@ const InGame: FC<InGameProps> = ({
   useLayoutEffect(() => {
     // const storedPlayer = localStorage.getItem('player')
     // console.log(`storedPlayer: `, storedPlayer)
-    localStorage.clear()
+    // localStorage.clear()
 
     initializeWebSocket()
 
