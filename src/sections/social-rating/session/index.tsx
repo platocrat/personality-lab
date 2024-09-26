@@ -61,6 +61,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
     sessionId,
     sessionPin,
     sessionQrCode,
+    isGameInSession,
     isUpdatingGameState,
     // State setters
     setPhase,
@@ -81,9 +82,9 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
   const pathname = usePathname()
   // States
   // Player states
-  const [nickname, setNickname] = useState<string>('')
-  const [isPlayer, setIsPlayer] = useState<boolean>(false)
-  const [userIP, setUserIP] = useState<string | null>(null)
+  const [ nickname, setNickname ] = useState<string>('')
+  const [ isPlayer, setIsPlayer ] = useState<boolean>(false)
+  const [ userIP, setUserIP ] = useState<string | null>(null)
   // Input states
   const [
     isInvalidSessionPin,
@@ -97,14 +98,14 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
     duplicateNicknameErrorMessage,
     setDuplicateNicknameErrorMessage
   ] = useState<string>('')
-  const [sessionPinInput, setSessionPinInput] = useState<string>('')
-  const [needsSessionPin, setNeedsSessionPin] = useState<boolean>(true)
+  const [ sessionPinInput, setSessionPinInput ] = useState<string>('')
+  const [ needsSessionPin, setNeedsSessionPin ] = useState<boolean>(true)
   // Suspense states
   const [
     isFetchingIpAddress, 
     setIsFetchingIpAddress
   ] = useState<boolean>(true)
-  const [isFetchingGame, setIsFetchingGame] = useState<boolean>(true)
+  const [ isFetchingGame, setIsFetchingGame ] = useState<boolean>(true)
 
 
   // ------------------------- Regular functions -------------------------------
@@ -673,6 +674,7 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
           >
             <Title />
             <div>
+
               { isPlayer ? (
                 <>
                   { /* User is a player */ }
@@ -695,33 +697,37 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
                 </>
               ) : (
                 <>
-                  {/* Render session PIN input */}
-                  { needsSessionPin ? (
-                    <SessionPinForm 
-                      onSubmit={ handleSessionPinSubmit }
-                      state={{
-                        sessionPinInput,
-                        isInvalidSessionPin,
-                      }}
-                      inputHandlers={{
-                        onSessionPinPaste,
-                        onSessionPinChange,
-                        onSessionPinKeyDown,
-                      }}
-                    />
-                  ) : (
+                  { !isGameInSession && (
                     <>
-                      <NicknameForm 
-                        onChange={ onNicknameChange }
-                        onSubmit={ handleNicknameSubmit }
-                        state={{
-                          nickname,
-                          isUpdatingGameState,
-                          isDuplicateNickname,
-                          duplicateNicknameErrorMessage,
-                        }}
-                      />
-                    </>
+                      {/* Render session PIN input */ }
+                      { needsSessionPin ? (
+                        <SessionPinForm
+                          onSubmit={ handleSessionPinSubmit }
+                          state={ {
+                            sessionPinInput,
+                            isInvalidSessionPin,
+                          } }
+                          inputHandlers={ {
+                            onSessionPinPaste,
+                            onSessionPinChange,
+                            onSessionPinKeyDown,
+                          } }
+                        />
+                      ) : (
+                        <>
+                          <NicknameForm
+                            onChange={ onNicknameChange }
+                            onSubmit={ handleNicknameSubmit }
+                            state={ {
+                              nickname,
+                              isUpdatingGameState,
+                              isDuplicateNickname,
+                              duplicateNicknameErrorMessage,
+                            } }
+                          />
+                        </>
+                      ) }
+                    </>  
                   ) }
                 </>
               ) }
