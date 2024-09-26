@@ -15,9 +15,9 @@ env:
   AUTH0_ISSUER_BASE_URL: ${{ secrets.AUTH0_ISSUER_BASE_URL }}
 
 on:
-  push:
-    branches:
-      - '**'
+  # push:
+  #   branches:
+  #     - '**'
   pull_request:
     branches:
       - '**'
