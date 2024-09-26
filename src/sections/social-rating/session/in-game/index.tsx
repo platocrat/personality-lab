@@ -242,13 +242,13 @@ const InGame: FC<InGameProps> = ({
    */
   const onCompletion = async (): Promise<void> => {
     if (players) {
-      setIsUpdatingGameState(true)
-
       // Check if stored nickname and stored player is in local storage
       const storedNickname = localStorage.getItem('nickname')
       const storedPlayer = localStorage.getItem('player')
 
       if (storedNickname && storedPlayer) {
+        setIsUpdatingGameState(true)
+
         const updatedPlayer = createUpdatedPlayer(storedPlayer, phase)
 
         // Add updated player to pre-existing mapping of players
@@ -351,7 +351,7 @@ const InGame: FC<InGameProps> = ({
   useLayoutEffect(() => {
     // const storedPlayer = localStorage.getItem('player')
     // console.log(`storedPlayer: `, storedPlayer)
-    // localStorage.clear()
+    localStorage.clear()
 
     initializeWebSocket()
 
