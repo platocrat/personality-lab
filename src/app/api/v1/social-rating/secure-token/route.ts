@@ -4,10 +4,10 @@ import { NextRequest, NextResponse } from 'next/server'
 // Locals
 import { 
   SSCrypto, 
+  validateToken,
   fetchAwsParameter,
   AWS_PARAMETER_NAMES, 
   generateSecureToken,
-  validateToken,
 } from '@/utils'
 
 
