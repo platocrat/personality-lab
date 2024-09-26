@@ -674,7 +674,6 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
           >
             <Title />
             <div>
-
               { isPlayer ? (
                 <>
                   { /* User is a player */ }
