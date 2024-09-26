@@ -596,14 +596,16 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
 
   // ~~~~~ Get the user's IP ~~~~~~
   useLayoutEffect(() => {
-    const requests = [ 
-      getUserIP(),
-    ]
-
-    Promise.all(requests).then(() => { 
-
-    })
-  }, [ ])
+    if (sessionId) {
+      const requests = [ 
+        getUserIP(),
+      ]
+      
+      Promise.all(requests).then(() => { 
+        
+      })
+    }
+  }, [ sessionId ])
 
 
   // ~~~~~ Check if the user is a player ~~~~~
