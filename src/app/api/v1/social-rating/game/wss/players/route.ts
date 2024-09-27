@@ -123,7 +123,7 @@ export async function POST(
 
             // Get the next game phase from `_updatedPlayers`
             const nextPhase: GamePhases | undefined = PHASE_CHECKS.find(
-              ({ check }): boolean => haveAllPlayersCompleted(_updatedPlayers, check)
+              ({ check }): boolean => haveAllPlayersCompleted(updatedPlayers_, check)
             )?.phase
 
             console.log(`nextPhase: `, nextPhase)
