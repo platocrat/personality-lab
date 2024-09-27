@@ -1,4 +1,17 @@
+// Externals
 import { CSSProperties } from 'react'
+// Locals
+import { PhaseChecks } from '@/utils'
+
+
+enum GamePhases {
+  Lobby = 'lobby',
+  ConsentForm = 'consent-form',
+  SelfReport = 'self-report',
+  ObserverReport = 'observer-report',
+  Results = 'results',
+}
+
 
 
 export const generateButtonStyle: CSSProperties = {
@@ -13,3 +26,10 @@ export const generateButtonStyle: CSSProperties = {
   marginLeft: '12px',
   padding: '0px',
 }
+
+
+export const PHASE_CHECKS: PhaseChecks[] = [
+  { check: 'hasCompletedConsentForm', phase: GamePhases.SelfReport },
+  { check: 'hasCompletedSelfReport', phase: GamePhases.ObserverReport },
+  { check: 'hasCompletedObserverReport', phase: GamePhases.Results }
+]

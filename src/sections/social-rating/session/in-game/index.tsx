@@ -16,10 +16,11 @@ import { GameSessionContextType } from '@/contexts/types'
 // Utils
 import BessiAssessmentSection from '@/sections/assessments/bessi/assessment'
 import {
-  GamePhases,
   Player,
+  GamePhases,
   PlayerInGameState,
-  SocialRatingGamePlayers
+  SocialRatingGamePlayers,
+  haveAllPlayersCompleted,
 } from '@/utils'
 
 
@@ -79,8 +80,6 @@ const InGame: FC<InGameProps> = ({
     isUpdatingGameState,
     // State setters
     setIsUpdatingGameState,
-    // State change function handlers
-    haveAllPlayersCompleted,
   } = useContext<GameSessionContextType>(GameSessionContext)
   // States
   const [ socket, setSocket ] = useState<WebSocket | null>(null)
@@ -107,6 +106,10 @@ const InGame: FC<InGameProps> = ({
       if (data.updatedPlayers) {
         setPlayers(data.updatedPlayers)
       }
+
+      if (data.newPhase) {
+        setPhase(data.newPhase)
+      }
     }
 
     ws.onclose = () => {
@@ -123,6 +126,7 @@ const InGame: FC<InGameProps> = ({
       ws.close()
     }
   }
+
 
   // Function to handle reconnection attempts
   function attemptReconnection() {
@@ -149,6 +153,7 @@ const InGame: FC<InGameProps> = ({
   }
 
 
+  // Sends a message with the `updatePlayer` action through the AWS WebSocket
   function updatePlayer(
     playerData: { 
       players: SocialRatingGamePlayers, 
@@ -279,59 +284,6 @@ const InGame: FC<InGameProps> = ({
 
 
   // ~~~~~~ API calls ~~~~~~
-  async function updateGamePhase(_phase: GamePhases): Promise<GamePhases> {
-    setIsUpdatingGameState(true)
-
-    try {
-      const apiEndpoint = `/api/v1/social-rating/game/game-phase`
-      const response = await fetch(apiEndpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          sessionId,
-          phase: _phase,
-        }),
-      })
-
-      const json = await response.json()
-
-      if (response.status === 500) {
-        setIsUpdatingGameState(false)
-        throw new Error(json.error)
-      }
-
-      if (response.status === 405) {
-        setIsUpdatingGameState(false)
-        throw new Error(json.error)
-      }
-
-      if (response.status === 200) {
-        const phase_ = json.phase as GamePhases
-        setIsUpdatingGameState(false)
-        return phase_
-      } else {
-        setIsUpdatingGameState(false)
-
-        const error = `Error posting new players to social rating game with session ID '${
-          sessionId
-        }' to DynamoDB: `
-
-        throw new Error(`${error}: ${json.error}`)
-      }
-    } catch (error: any) {
-      console.error(error)
-      setIsUpdatingGameState(false)
-
-      /**
-       * @todo Handle error UI here
-       */
-      throw new Error(`Error updating player: `, error.message)
-    }
-  }
-
-
   /**
    * @dev Get survey results to calculate profile correlations
    * @returns 
@@ -353,29 +305,6 @@ const InGame: FC<InGameProps> = ({
       if (socket) socket.close()
     }
   }, [ ])
-
-
-  useLayoutEffect(() => {
-    if (players) {
-      const phaseChecks: PhaseChecks[] = [
-        { check: 'hasCompletedConsentForm', phase: GamePhases.SelfReport },
-        { check: 'hasCompletedSelfReport', phase: GamePhases.ObserverReport },
-        { check: 'hasCompletedObserverReport', phase: GamePhases.Results }
-      ]
-
-      const nextPhase: GamePhases | undefined = phaseChecks.find(
-        ({ check }): boolean => haveAllPlayersCompleted(players, check)
-      )?.phase
-
-      if (nextPhase) {
-        updateGamePhase(nextPhase).then(
-          (_phase: GamePhases): void => setPhase(_phase)
-        )
-      }
-    }
-  }, [ players ])
-
-
 
 
 

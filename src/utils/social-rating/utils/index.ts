@@ -3,16 +3,19 @@ import crypto from 'crypto'
 import { Dispatch, SetStateAction } from 'react'
 // Locals
 import { 
+  Player,
+  CharacterType,
   UserScoresType, 
   FacetFactorType,
   BESSI_ACTIVITIES,
+  findNthOccurrence,
   BessiSkillScoresType,
   calculateBessiScores,
   SkillDomainFactorType, 
+  GeneratedCharacterType,
+  SocialRatingGamePlayers,
   generateBessiActivityBank,
-} from '@/utils/assessments'
-import { findNthOccurrence } from '@/utils/misc'
-import { CharacterType, GeneratedCharacterType } from '@/utils/social-rating/types'
+} from '@/utils'
 
 
 
@@ -302,4 +305,16 @@ export function validateToken(
 ): boolean {
   const expectedToken = generateSecureToken(sessionPin, sessionId, secretKey)
   return token === expectedToken
+}
+
+
+
+
+export function haveAllPlayersCompleted(
+  players: SocialRatingGamePlayers,
+  check: 'hasCompletedConsentForm' | 'hasCompletedSelfReport' | 'hasCompletedObserverReport',
+): boolean {
+  return Object.values(players).every(
+    (player: Player): boolean => player.inGameState[check]
+  )
 }
