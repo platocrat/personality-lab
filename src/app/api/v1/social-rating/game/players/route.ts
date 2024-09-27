@@ -136,6 +136,8 @@ export async function POST(
             ({ check }): boolean => haveAllPlayersCompleted(_updatedPlayers, check)
           )?.phase
 
+          console.log(`nextPhase: `, nextPhase)
+
           // If phase changes, update the game's phase in DynamoDB
           if (nextPhase) {
             const phase = nextPhase
@@ -187,8 +189,9 @@ export async function POST(
                 }
               )
             } catch (error: any) {
-              const errorMessage = `Failed to update 'phase' of social rating game with session ID '${sessionId
-                }' in the '${TableName}' table: `
+              const errorMessage = `Failed to update 'phase' of social rating game with session ID '${
+                sessionId
+              }' in the '${TableName}' table: `
 
               console.error(errorMessage, error)
 
