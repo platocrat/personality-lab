@@ -88,7 +88,7 @@ export async function POST(
             ? { ...storedPlayers, ...players }
             : { ...players }
 
-          console.log(`_updatedPlayers: `, _updatedPlayers)
+          // console.log(`_updatedPlayers: `, _updatedPlayers)
 
           const Key = {
             sessionId,
@@ -126,7 +126,7 @@ export async function POST(
               ({ check }): boolean => haveAllPlayersCompleted(updatedPlayers_, check)
             )?.phase
 
-            console.log(`nextPhase: `, nextPhase)
+            // console.log(`nextPhase: `, nextPhase)
 
             // If phase changes, update the game's phase in DynamoDB
             if (nextPhase) {

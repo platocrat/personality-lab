@@ -30,15 +30,6 @@ type InGameProps = {
 }
 
 
-type PhaseChecks = {
-  phase: GamePhases
-  check: 'hasCompletedConsentForm' |
-  'hasCompletedSelfReport' |
-  'hasCompletedObserverReport'
-}
-
-
-
 
 // Page-global constants
 const RECONNECT_INTERVAL = 3_000 // Try to reconnect every 3 seconds
@@ -92,7 +83,9 @@ const InGame: FC<InGameProps> = ({
   function initializeWebSocket() {
     const ws = new WebSocket(WEB_SOCKET_URLS['http-only'])
 
-    ws.onopen = () => {
+    ws.onopen = (event) => {
+      console.log(`event: `, event)
+
       console.log('Connected to AWS WebSocket!')
       setSocket(ws)
       setReconnectAttempts(0) // Reset the reconnection attempts once connected
