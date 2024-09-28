@@ -1,4 +1,4 @@
-/* /api/v1/social-rating/game/wss/connect/route.ts */
+/* /api/v1/social-rating/game/wss/aws/disconnect/route.ts */
 // Externals
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -11,23 +11,21 @@ export async function POST(
   if (req.method === 'POST') {
     const apiGatewayApiId = req.headers.get('x-amzn-apigateway-api-id')
     const traceId = req.headers.get('x-amzn-trace-id')
-    const ipAddress = req.headers.get('x-forwarded-for')
 
     console.log(
-      `Client connected from API Gateway API ID '${ 
+      `Client disconnected from API Gateway API ID '${
         apiGatewayApiId 
-      }': Trace ID - ${traceId}, IP - ${ipAddress}`
+      }': AWS Trace ID - ${traceId}`
     )
-    // Handle connection logic here (e.g., logging, storing connection details)
+    // Handle disconnection logic here (e.g., removing connection from database)
 
-    const message = `Connected to WebSocket.`
+    const message = `Disconnected from WebSocket.`
 
     return NextResponse.json(
       {
         message,
-        ipAddress,
-        traceId,
         apiGatewayApiId,
+        traceId,
       },
       {
         status: 200,

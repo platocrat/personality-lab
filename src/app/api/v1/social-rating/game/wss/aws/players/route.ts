@@ -1,4 +1,4 @@
-/* /api/v1/social-rating/game/wss/players/route.ts */
+/* /api/v1/social-rating/game/wss/aws/players/route.ts */
 // Externals
 import {
   QueryCommand,
