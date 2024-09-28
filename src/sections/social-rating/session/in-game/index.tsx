@@ -85,7 +85,6 @@ const InGame: FC<InGameProps> = ({
 
     ws.onopen = (event) => {
       console.log(`event: `, event)
-
       console.log('Connected to AWS WebSocket!')
       setSocket(ws)
       setReconnectAttempts(0) // Reset the reconnection attempts once connected
