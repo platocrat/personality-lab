@@ -23,9 +23,6 @@ export async function POST(
     )
     // Handle connection logic here (e.g., logging, storing connection details)
 
-    const resJson = await res.json()
-    console.log(`resJson: `, resJson)
-
     const message = `Connected to WebSocket.`
 
     return NextResponse.json(
