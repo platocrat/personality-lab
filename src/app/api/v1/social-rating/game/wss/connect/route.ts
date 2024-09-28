@@ -11,7 +11,7 @@ export async function POST(
   if (req.method === 'POST') {
     console.log(`req.headers: `, req.headers)
 
-    console.log(`req.json(): `, req.json())
+    console.log(`await req.json(): `, await req.json())
 
     const apiGatewayApiId = req.headers.get('x-amzn-apigateway-api-id')
     const traceId = req.headers.get('x-amzn-trace-id')
@@ -26,7 +26,7 @@ export async function POST(
 
     const message = `Connected to WebSocket.`
 
-    console.log(`res.json(): `, res.json())
+    console.log(`await res.json(): `, await res.json())
 
     return NextResponse.json(
       {
