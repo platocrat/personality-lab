@@ -37,21 +37,15 @@ const MAX_RECONNECT_ATTEMPTS = 5 // Set a maximum number of attempts
 /**
  * @dev Mapping of AWS WebSocket API URLs.
  * Note: 
- * - The `'mock-routes'` AWS WebSocket URL uses Mock Integration Types for all
- * routes except for the custom route(s):
- * 1. `$connect` - Mock route
- * 2. `$disconnect` - Mock route
- * 3. `$default` - Mock route
- * 4. `updatePlayer` - HTTP route
- * - The `'http-only'` AWS WebSocket URL uses HTTP Integration Types only for
- * each route:
+ * - The `'http-only'` AWS WebSocket URL uses HTTP Integration Types for each 
+ *   route:
  * 1. `$connect` - HTTP route
  * 2. `$disconnect` - HTTP route
  * 3. `$default` - HTTP route
  * 4. `updatePlayer` - HTTP route
  */
 const WEB_SOCKET_URLS = {
-  local: 'ws://localhost:8080/',
+  local: 'wss://localhost:3000/api/v1/social-rating/game/wss/local',
   'http-only': 'wss://vpfscho95i.execute-api.us-east-1.amazonaws.com/production/'
 }
 
