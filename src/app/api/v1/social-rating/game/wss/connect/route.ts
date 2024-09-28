@@ -9,9 +9,8 @@ export async function POST(
   res: NextResponse
 ) {
   if (req.method === 'POST') {
-    console.log(`req.body: `, req.body)
-
-    console.log(`await req.json(): `, await req.json())
+    const reqJson = await req.json()
+    console.log(`reqJson: `, reqJson)
 
     const apiGatewayApiId = req.headers.get('x-amzn-apigateway-api-id')
     const traceId = req.headers.get('x-amzn-trace-id')
@@ -23,6 +22,9 @@ export async function POST(
       }': Trace ID - ${traceId}, IP - ${ipAddress}`
     )
     // Handle connection logic here (e.g., logging, storing connection details)
+
+    const resJson = await res.json()
+    console.log(`resJson: `, resJson)
 
     const message = `Connected to WebSocket.`
 
