@@ -9,8 +9,7 @@ export async function POST(
   res: NextResponse
 ) {
   if (req.method === 'POST') {
-    const reqJson = await req.json()
-    console.log(`reqJson: `, reqJson)
+    console.log(`req: `, req)
 
     const apiGatewayApiId = req.headers.get('x-amzn-apigateway-api-id')
     const traceId = req.headers.get('x-amzn-trace-id')
