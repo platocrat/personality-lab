@@ -9,8 +9,6 @@ export async function POST(
   res: NextResponse
 ) {
   if (req.method === 'POST') {
-    console.log(`req: `, req)
-
     const apiGatewayApiId = req.headers.get('x-amzn-apigateway-api-id')
     const traceId = req.headers.get('x-amzn-trace-id')
     const ipAddress = req.headers.get('x-forwarded-for')
