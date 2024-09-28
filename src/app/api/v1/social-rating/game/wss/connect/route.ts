@@ -9,7 +9,7 @@ export async function POST(
   res: NextResponse
 ) {
   if (req.method === 'POST') {
-    console.log(`req.headers: `, req.headers)
+    console.log(`req.body: `, req.body)
 
     console.log(`await req.json(): `, await req.json())
 
@@ -25,8 +25,6 @@ export async function POST(
     // Handle connection logic here (e.g., logging, storing connection details)
 
     const message = `Connected to WebSocket.`
-
-    console.log(`await res.json(): `, await res.json())
 
     return NextResponse.json(
       {
