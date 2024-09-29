@@ -568,6 +568,22 @@ You can configure _multiple domains_ in a single Caddyfile for different use cas
    }
    ```
 
+#### 4.2.2 Upgrade `caddy`
+
+To upgrade `caddy`, simply stop all running Caddy servers run the following command:
+
+```zsh
+caddy upgrade
+```
+
+This will replace the current Caddy binary with the latest version from Caddy's download page with the same modules installed, including all third-party plugins that are registered on the Caddy website.
+
+Upgrades do not interrupt running servers; currently, the command only replaces the binary on disk. [This might change in the future](https://caddyserver.com/docs/command-line#caddy-upgrade).
+
+The upgrade process is fault tolerant; the current binary is backed up first (copied beside the current one) and automatically restored if anything goes wrong. If you wish to keep the backup after the upgrade process is complete, you may use the --keep-backup option.
+
+This command may require elevated privileges if your user does not have permission to write to the executable file.
+
 ### 4.3. On EC2 instance, install Docker, login, and start the Docker daemon
 
 #### 4.3.1. Install `docker`
