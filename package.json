@@ -1,7 +1,8 @@
 {
   "name": "personality-lab",
   "version": "1.0.0",
-  "private": false,
+  "private": true,
+  "license": "UNLICENSED",
   "author": {
     "email": "platocrat@acm.org",
     "name": "Jack Winfield",
@@ -16,11 +17,6 @@
     "clean": "rm -rf .next .turbo node_modules package-lock.json && npm i"
   },
   "dependencies": {
-    "next": "^14.2.13",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
-  },
-  "devDependencies": {
     "@auth0/nextjs-auth0": "^3.5.0",
     "@aws-sdk/client-dynamodb": "^3.658.1",
     "@aws-sdk/client-ssm": "^3.658.1",
@@ -38,7 +34,6 @@
     "@types/qrcode": "^1.5.5",
     "@types/react": "^18.3.10",
     "@types/react-dom": "^18.3.0",
-    "@types/ws": "^8.5.12",
     "d3": "^7.9.0",
     "eslint": "^8.56.0",
     "eslint-config-next": "^14.2.13",
@@ -47,10 +42,13 @@
     "jsonwebtoken": "^9.0.2",
     "libsodium-wrappers": "^0.7.15",
     "libsodium-wrappers-sumo": "^0.7.15",
+    "next": "^14.2.13",
     "qrcode": "^1.5.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "sharp": "^0.33.5",
     "turbo": "^2.1.2",
     "typescript": "^5.6.2",
-    "ws": "^8.18.0"
+    "wcat": "^0.1.1"
   }
 }

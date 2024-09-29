@@ -21,6 +21,7 @@ import {
   PlayerInGameState,
   SocialRatingGamePlayers,
   haveAllPlayersCompleted,
+  UpdatePlayer__WebSocket,
 } from '@/utils'
 
 
@@ -45,7 +46,7 @@ const MAX_RECONNECT_ATTEMPTS = 5 // Set a maximum number of attempts
  * 4. `updatePlayer` - HTTP route
  */
 const WEB_SOCKET_URLS = {
-  local: 'wss://localhost:3000/api/v1/social-rating/game/wss/local',
+  local: 'ws://localhost:3001/',
   'http-only': 'wss://vpfscho95i.execute-api.us-east-1.amazonaws.com/production/'
 }
 
@@ -75,17 +76,28 @@ const InGame: FC<InGameProps> = ({
   // --------------------------- Regular functions -----------------------------
   // Function to initialize WebSocket
   function initializeWebSocket() {
-    const ws = new WebSocket(WEB_SOCKET_URLS['http-only'])
+    const ws = new WebSocket(WEB_SOCKET_URLS.local)
+
+    console.log(`ws.url: `, ws.url)
+    console.log(`WEB_SOCKET_URLS.local: `, WEB_SOCKET_URLS.local)
+
+    const isWsUrlLocal = ws.url === WEB_SOCKET_URLS.local
 
     ws.onopen = (event) => {
-      console.log('Connected to AWS WebSocket!')
+      const onConnectMessage = `Connected to ${ 
+        isWsUrlLocal 
+          ? 'local WebSocket!' 
+          : 'AWS WebSocket' 
+      }`
+      
+      console.log(onConnectMessage)
       setSocket(ws)
       setReconnectAttempts(0) // Reset the reconnection attempts once connected
     }
 
     ws.onmessage = (event) => {
       console.log(`WebSocket event: `, event)
-      const data = JSON.parse(event.data)
+      const data = JSON.parse(event.data.toString())
       console.log(`WebSocket data: `, data)
 
       if (data.updatedPlayers) {
@@ -98,7 +110,13 @@ const InGame: FC<InGameProps> = ({
     }
 
     ws.onclose = () => {
-      console.log('AWS WebSocket connection closed!')
+      const onCloseMessage = `${ 
+        isWsUrlLocal 
+          ? 'Local' 
+          : 'AWS' 
+      } WebSocket connection closed!`
+      
+      console.log(onCloseMessage)
 
       // Only attempt to reconnect if we haven't reached the max attempts
       if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
@@ -107,7 +125,8 @@ const InGame: FC<InGameProps> = ({
     }
 
     ws.onerror = (error) => {
-      console.error('AWS WebSocket error: ', error)
+      const onErrorMessage = `${ isWsUrlLocal ? 'Local' : 'AWS' } WebSocket error: `
+      console.error(onErrorMessage, error)
       ws.close()
     }
   }
@@ -139,19 +158,13 @@ const InGame: FC<InGameProps> = ({
 
 
   // Sends a message with the `updatePlayer` action through the AWS WebSocket
-  function updatePlayer(
-    playerData: { 
-      players: SocialRatingGamePlayers, 
-      sessionId: string, 
-      isGameInSession: boolean 
-    }
-  ) {
+  function updatePlayer(requestData: UpdatePlayer__WebSocket) {
     if (socket) {
       const data = {
         action: 'updatePlayer',
-        players: playerData.players,
-        sessionId: playerData.sessionId,
-        isGameInSession: playerData.isGameInSession,
+        players: requestData.players,
+        sessionId: requestData.sessionId,
+        isGameInSession: requestData.isGameInSession,
       }
       const dataAsString = JSON.stringify(data)
       // Send data to WebSocket
