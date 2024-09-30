@@ -64,11 +64,9 @@
   - [9.1 Enter a Docker container's shell](#91-enter-a-docker-containers-shell)
   - [9.2 Prune all data from Docker](#92-prune-all-data-from-docker)
 - [10. Configure IAM role for GitHub Actions scripts](#10-configure-iam-role-for-github-actions-scripts)
-  - [10.1 Getting an `SSH_KEY`](#101-getting-an-ssh_key)
-    - [10.2 Getting an `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`](#102-getting-an-aws_access_key_id-and-aws_secret_access_key)
-      - [10.2.1 Creating a new GitHub Actions user](#1021-creating-a-new-github-actions-user)
-      - [10.2.2 Creating new access keys](#1022-creating-new-access-keys)
-
+  - [10.1 Getting an `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`](#101-getting-an-aws_access_key_id-and-aws_secret_access_key)
+    - [10.1.1 Creating a new GitHub Actions user](#1011-creating-a-new-github-actions-user)
+    - [10.1.2 Creating new access keys](#1012-creating-new-access-keys)
 
 ## 0. General Information
 
@@ -1518,33 +1516,18 @@ Each GitHub Actions script:
 2. Pushes the Docker image to the ECR.
 3. Pulls the Docker image from the ECR onto the EC2 instance.
 4. Uses the following environment variables that need to be individually added to the each repository's list of GitHub Secrets:
-    - `SSH_KEY`: the full contents of the `.pem` file for the specific repository.
+    - `SSH_KEY`: the full contents of the `.pem` file. This `.pem` file must be the same private key that was generated when you created the EC2 instance.
     - `EC2_USERNAME`: The name of the IAM role of the EC2 instance (e.g. `ec2-user`).
     - `EC2_HOSTNAME`: The hostname of the EC2 instance. It is usually the Elastic IP address (e.g. `54.493.101.393`)
     - `AWS_REGION`: The region where the ECR repository is located in (e.g., `us-east-1`).
     - `ECR_REPOSITORY_NAME`: The name of the ECR repository.
     - `AWS_ACCOUNT_ID`: The full Account ID for the AWS account (e.g. `0001-0002-0003`).
-    - `AWS_ACCESS_KEY_ID`: Part of the AWS authentication credentials. It is created under the IAM role. See [10.1 Getting an SSH_KEY](#101-getting-an-ssh_key).
-    - `AWS_SECRET_ACCESS_KEY`: Part of the AWS authentication credentials. It is created under the IAM role. See [10.2 Getting an AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY](#102-getting-an-aws_access_key_id-and-aws_secret_access_key).
+    - `AWS_ACCESS_KEY_ID`: Part of the AWS authentication credentials. It is created under the IAM role. See [10.1. Getting an AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY](#101-getting-an-aws_access_key_id-and-aws_secret_access_key).
+    - `AWS_SECRET_ACCESS_KEY`: Part of the AWS authentication credentials. It is created under the IAM role. See [10.1. Getting an AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY](#101-getting-an-aws_access_key_id-and-aws_secret_access_key).
 
-### 10.1 Getting an `SSH_KEY`
+### 10.1 Getting an `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
 
-1. Go to the EC2 service in the AWS console.
-2. Under the "Network & Security" dropdown menu on the left, click on "Key Pairs".
-3. Click the orange "Create key pair" button start the process to create a new key pair.
-4. Enter a new name for the SSH key that will be used for your GitHub repository.
-5. Select "ED25519" as the key pair type.
-6. Keep the private key file format as `.pem`.
-7. Click the orange "Create key pair" button to create a new key pair.
-
-The last step will generate and download the `.pem` private key file to your machine.
-
-Save the generated `.pem` file at the top-most level of the directory of the local GitHub repository.
-You will use this to `ssh` into the remote EC2 instance later through the GitHub Actions CI/CD scripts.
-
-### 10.2 Getting an `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
-
-#### 10.2.1 Creating a new GitHub Actions user
+#### 10.1.1 Creating a new GitHub Actions user
 
 First, you need an IAM user that is used specifically for GitHub Actions stuff. If you already have a GitHub Actions user, move to the next step, [10.2.2 Creating new access keys](#1022-creating-new-access-keys)
 
@@ -1561,7 +1544,7 @@ If you don't have one yet, create a new IAM user using the steps outline below:
 8. Click Next.
 9. On the `Review and create` step, click the orange "Create user" button to create the new IAM user.
 
-#### 10.2.2 Creating new access keys
+#### 10.1.2 Creating new access keys
 
 Next, you will create an access key that will be used for your GitHub repository's GitHub Actions script.
 
