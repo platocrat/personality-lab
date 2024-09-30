@@ -100,9 +100,9 @@ jobs:
       - name: 9. Create SSH key
         run: echo "$SSH_KEY" > ssh_key && chmod 600 ssh_key
       
-      # Phase 10: SSH into EC2 instance, prune Docker system data, and pull Docker image from ECR
-      - name: 10. SSH into EC2 instance, prune Docker system data, and pull Docker image
+      # Phase 10: SSH into EC2 instance and pull Docker image from ECR
+      - name: 10. SSH into EC2 instance and pull Docker image
         run: ssh -o StrictHostKeyChecking=no -i ssh_key $EC2_USERNAME@$EC2_HOSTNAME '
-          sudo docker system prune -a -f &&
+          # sudo docker system prune -a -f &&
           sudo docker pull ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY_NAME }}:latest &&
           '
