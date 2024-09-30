@@ -545,50 +545,50 @@ You can configure _multiple domains_ in a single Caddyfile for different use cas
 
 1. To serve the same website over multiple domains, your Caddyfile would need to be configured like so:
 
-   ```apacheconf
-   https://example.com, http://example.com, https://example2.com  {
-           encode gzip
-           header {
-                   Strict-Transport-Security "max-age=31536000;"
-                   Access-Control-Allow-Origin "*"
-           }
-           reverse_proxy localhost:3000
-   }
-   ```
+    ```apacheconf
+    https://example.com, http://example.com, https://example2.com  {
+        encode gzip
+        header {
+            Strict-Transport-Security "max-age=31536000;"
+            Access-Control-Allow-Origin "*"
+        }
+        reverse_proxy localhost:3000
+    }
+    ```
 
 2. If you want to serve different websites at different domains, it would look something like this:
 
-   ```apacheconf
+  ```apacheconf
    example.com {
-       root /www/example.com
-   }
+      root /www/example.com
+  }
    
-   sub.example.com {
-       root /www/sub.example.com
-       gzip
-       log ../access.log
-   }
-   ```
+  sub.example.com {
+      root /www/sub.example.com
+      gzip
+      log ../access.log
+  }
+  ```
 
 #### 4.2.2 Adding the WebSocket server to the Caddyfile
 
 Assuming you are working under a _single domain_ in a single Caddyfile, you can configure your Caddyfile to proxy your WebSocket server through Caddy with a simple configuration as shown below:
 
-   ```apacheconf
-   https://example.com  {
-           encode gzip
-           header {
-                   Strict-Transport-Security "max-age=31536000;"
-                   Access-Control-Allow-Origin "*"
-           }
+  ```apacheconf
+  https://example.com  {
+      encode gzip
+      # App
+      @app header {
+          Strict-Transport-Security "max-age=31536000;"
+          Access-Control-Allow-Origin "*"
+      }
+      reverse_proxy @app localhost:3000
 
-           # Main application
-           reverse_proxy localhost:3000
-
-           # WebSocket
-           reverse_proxy localhost:3001
-   }
-   ```
+      # WebSocket
+      @ws `header({'Connection': '*Upgrade*', 'Upgrade': 'websocket'})`
+      reverse_proxy @ws localhost:3001
+  }
+  ```
 
 This way, Caddy terminates all TLS for you.
 
