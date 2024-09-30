@@ -38,9 +38,10 @@
     - [4.2.3 Upgrade `caddy`](#423-upgrade-caddy)
   - [4.3. On EC2 instance, install Docker, login, and start the Docker daemon](#43-on-ec2-instance-install-docker-login-and-start-the-docker-daemon)
     - [4.3.1. Install `docker`](#431-install-docker)
-    - [4.3.2. Login to Docker](#432-login-to-docker)
-    - [4.3.3. Start the Docker daemon](#433-start-the-docker-daemon)
-    - [4.3.4. Prune all data from Docker](#434-prune-all-data-from-docker)
+    - [4.3.2. Run `docker` commands without `sudo`](#432-run-docker-commands-without-sudo)
+    - [4.3.3. Login to Docker](#433-login-to-docker)
+    - [4.3.4. Start the Docker daemon](#434-start-the-docker-daemon)
+    - [4.3.5. Prune all data from Docker](#435-prune-all-data-from-docker)
   - [4.4. Push new commits to GitHub to see the GitHub Action automate the deployment process](#44-push-new-commits-to-github-to-see-the-github-action-automate-the-deployment-process)
   - [4.5. Manually start the Next.js app by running the image](#45-manually-start-the-nextjs-app-by-running-the-image)
     - [4.5.1. Make sure the Docker daemon is running](#451-make-sure-the-docker-daemon-is-running)
@@ -629,25 +630,82 @@ This command may require elevated privileges if your user does not have permissi
 sudo yum install docker -y
 ```
 
-#### 4.3.2. Login to Docker
+#### 4.3.2. Run `docker` commands without `sudo`
+
+This step is _**required**_ to pull Docker images from the AWS's Elastic Container Registry (ECR) from within the EC2 instance.
+
+Why is it required? Because the ECR will use IAM role permissions to allow image pulling.
+
+You need to add your current user to the `docker` group.
+This will give your user the necessary permissions to interact with the Docker daemon.
+
+To run `docker` commands without `sudo`, do the following:
+
+  1. First, before starting this step, check if the `docker` group exists on your EC2 instance by using the following command:
+
+      ```zsh
+      getent group docker
+      ```
+
+      If the `docker` group exists, this command will output information about the group, such as:
+
+        ```zsh
+        docker:x:1234:
+        ```
+
+      If the `docker` group does not exist, the command will not produce any output.
+
+  2. Create the `docker` group if it doesn't exist:
+
+      ```zsh
+      sudo groupadd docker
+      ```
+
+  3. Add the IAM user to the `docker` group:
+        For example, since our IAM user is `ec2-user`:
+
+        ```zsh
+        sudo usermod -aG docker ec2-user
+        ```
+
+  4. Log out and log back in:
+        After adding your user to the `docker` group, you need to log out of your session and log back in for the group changes to take effect.
+        Alternatively, you can run the following command to apply the new group permissions without logging out:
+
+        ```zsh
+        newgrp docker
+        ```
+
+  5. Verify the setup:
+      Now you should be able to run Docker commands without `sudo`:
+
+      ```zsh
+      docker ps
+      ```
+
+      If you see the list of running containers or an empty list without any permission errors, you have successfully configured Docker to run without `sudo`.
+
+Now you should be able to run `docker pull <ECR_IMAGE_URL` within the EC2 instance without the `no basic auth credentials` error.
+
+#### 4.3.3. Login to Docker
 
 After you have installed Docker, login with your username.
 
 <!-- Username where platocrat kept his Docker image is `platocrat` -->
 
 ```zsh
-sudo docker login -u <USERNAME>
+docker login -u <USERNAME>
 ```
 
 When prompted for a password, enter your personal access token that you get from Docker Hub
 
-#### 4.3.3. Start the Docker daemon
+#### 4.3.4. Start the Docker daemon
 
 ```zsh
 sudo systemctl restart docker
 ```
 
-#### 4.3.4. Prune all data from Docker
+#### 4.3.5. Prune all data from Docker
 
 Make sure to routinely prune all data from Docker running on the AWS EC2 instance.
 Before doing so, ALWAYS make sure that you are still able to pull new copies of your desired images from AWS ECR.
@@ -655,7 +713,7 @@ Before doing so, ALWAYS make sure that you are still able to pull new copies of 
 To prune all Docker data, run the following command:
 
 ```zsh
-sudo docker system prune -a
+docker system prune -a
 ```
 
 ### 4.4. Push new commits to GitHub to see the GitHub Action automate the deployment process
@@ -675,7 +733,7 @@ Make sure to specify the correct port number that is exposed in the [`Dockerfile
 Also, make sure to specify the `<IMAGE_ID>` and *not* the image name of the image that was pulled from the Docker repository.
 
 ```zsh
-sudo docker run -d -it -p 3000:3000 <IMAGE_ID>
+docker run -d -it -p 3000:3000 <IMAGE_ID>
 ```
 
 Make sure to include the `-d` flag to run the container in "detached" mode, so that we can run other commands while the container is running.
@@ -769,7 +827,7 @@ Prerequisites for the `screen` example below:
 2. Run the Docker container:
 
     ```sh
-    sudo docker run -it -p 3000:3000 <IMAGE_ID>
+    docker run -it -p 3000:3000 <IMAGE_ID>
     ```
 
     You can leave this container running since we can detach from this screen without interrupting the container.
@@ -888,7 +946,7 @@ Prerequisites for the `screen` example below:
             Then, start the Next.js Docker container:
 
             ```sh
-            sudo docker run -it -p 3000:3000 <IMAGE_ID>
+            docker run -it -p 3000:3000 <IMAGE_ID>
             ```
 
             Then, detach from the `nextjs` screen session, to work in a separate screen to start other processes or run other commands, or proceed to step 3.
@@ -1396,13 +1454,13 @@ To do that, you will want to access you access the Docker container's shell by r
   1. Start the Docker container in detached mode (assumes your app is running on port 3000):
 
       ```zsh
-      sudo docker run -d -it -p 3000:3000 <IMAGE_ID>
+      docker run -d -it -p 3000:3000 <IMAGE_ID>
       ```
 
   2. Get the newly running container's ID:
 
       ```zsh
-      sudo docker ps
+      docker ps
       ```
 
       Copy the ID value to use in the next step.
@@ -1410,14 +1468,14 @@ To do that, you will want to access you access the Docker container's shell by r
   3. Step inside of the container's shell:
 
       ```zsh
-      sudo docker exec -it <CONTAINER_ID> /bin/sh
+      docker exec -it <CONTAINER_ID> /bin/sh
       ```
 
       Then make your changes within the container.
       Make sure to restart any services or apps within the container.
 
       ```zsh
-      sudo docker container stop <CONTAINER_ID>
+      docker container stop <CONTAINER_ID>
       ```
 
       Then restart the container normally without the detached-mode, `-d`, flag.
