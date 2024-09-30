@@ -34,6 +34,8 @@
     - [4.1.2. Install `caddy` from source](#412-install-caddy-from-source)
   - [4.2. Working with Caddy server](#42-working-with-caddy-server)
     - [4.2.1 Working with multiple domains in a single Caddyfile](#421-working-with-multiple-domains-in-a-single-caddyfile)
+    - [4.2.2 Adding the WebSocket server to the Caddyfile]()
+    - [4.2.3 Upgrade `caddy`](#423-upgrade-caddy)
   - [4.3. On EC2 instance, install Docker, login, and start the Docker daemon](#43-on-ec2-instance-install-docker-login-and-start-the-docker-daemon)
     - [4.3.1. Install `docker`](#431-install-docker)
     - [4.3.2. Login to Docker](#432-login-to-docker)
@@ -67,7 +69,7 @@ To build a modular personality assessment platform.
 
 ### 0.1.1 Reference Models
 
-The personality platform has or is being modeled after the following websites or platforms:
+The personality assessment platform has or is being modeled after the following websites or platforms:
 
 #### 0.1.1.1 [yourPersonality.net](https://dream-owl.com/attachment/)
 
@@ -568,7 +570,29 @@ You can configure _multiple domains_ in a single Caddyfile for different use cas
    }
    ```
 
-#### 4.2.2 Upgrade `caddy`
+#### 4.2.2 Adding the WebSocket server to the Caddyfile
+
+Assuming you are working under a _single domain_ in a single Caddyfile, you can configure your Caddyfile to proxy your WebSocket server through Caddy with a simple configuration as shown below:
+
+   ```apacheconf
+   https://example.com  {
+           encode gzip
+           header {
+                   Strict-Transport-Security "max-age=31536000;"
+                   Access-Control-Allow-Origin "*"
+           }
+
+           # Main application
+           reverse_proxy localhost:3000
+
+           # WebSocket
+           reverse_proxy localhost:3001
+   }
+   ```
+
+This way, Caddy terminates all TLS for you.
+
+#### 4.2.3 Upgrade `caddy`
 
 To upgrade `caddy`, simply stop all running Caddy servers run the following command:
 
