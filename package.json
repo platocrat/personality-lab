@@ -22,7 +22,7 @@
     "@aws-sdk/client-ssm": "^3.658.1",
     "@aws-sdk/lib-dynamodb": "^3.658.1",
     "@aws-sdk/util-dynamodb": "^3.658.1",
-    "@castleio/castle-js": "^2.5.0",
+    "@castleio/castle-js": "^2.5.1",
     "@castleio/sdk": "^2.2.2",
     "@hcaptcha/react-hcaptcha": "^1.11.0",
     "@sendgrid/mail": "^8.1.3",
