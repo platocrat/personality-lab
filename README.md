@@ -578,11 +578,11 @@ Assuming you are working under a _single domain_ in a single Caddyfile, you can 
   https://example.com  {
       encode gzip
       # App
-      @app header {
+      header {
           Strict-Transport-Security "max-age=31536000;"
           Access-Control-Allow-Origin "*"
       }
-      reverse_proxy @app localhost:3000
+      reverse_proxy localhost:3000
 
       # WebSocket
       @ws `header({'Connection': '*Upgrade*', 'Upgrade': 'websocket'})`
