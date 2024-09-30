@@ -76,7 +76,12 @@ const InGame: FC<InGameProps> = ({
   // --------------------------- Regular functions -----------------------------
   // Function to initialize WebSocket
   function initializeWebSocket() {
-    const ws = new WebSocket(WEB_SOCKET_URLS['http-only'])
+    // const baseUrl = WEB_SOCKET_URLS['http-only']
+    // const queryParams = `?sessionId=${ sessionId }`
+    // const wsUrl = `${baseUrl}${queryParams}`
+    
+    const wsUrl = WEB_SOCKET_URLS.local
+    const ws = new WebSocket(wsUrl)
 
     console.log(`ws.url: `, ws.url)
 
