@@ -649,6 +649,11 @@ sudo systemctl restart docker
 
 #### 4.3.4. Prune all data from Docker
 
+Make sure to routinely prune all data from Docker running on the AWS EC2 instance.
+Before doing so, ALWAYS make sure that you are still able to pull new copies of your desired images from AWS ECR.
+
+To prune all Docker data, run the following command:
+
 ```zsh
 sudo docker system prune -a
 ```
