@@ -34,7 +34,7 @@
     - [4.1.2. Install `caddy` from source](#412-install-caddy-from-source)
   - [4.2. Working with Caddy server](#42-working-with-caddy-server)
     - [4.2.1 Working with multiple domains in a single Caddyfile](#421-working-with-multiple-domains-in-a-single-caddyfile)
-    - [4.2.2 Adding the WebSocket server to the Caddyfile]()
+    - [4.2.2 Adding the WebSocket server to the Caddyfile](#422-adding-the-websocket-server-to-the-caddyfile)
     - [4.2.3 Upgrade `caddy`](#423-upgrade-caddy)
   - [4.3. On EC2 instance, install Docker, login, and start the Docker daemon](#43-on-ec2-instance-install-docker-login-and-start-the-docker-daemon)
     - [4.3.1. Install `docker`](#431-install-docker)
@@ -61,6 +61,14 @@
   - [8.2 Application URIs](#82-application-uris)
   - [8.3 Debugging `Callback URL Mismatch.` error](#83-debugging-callback-url-mismatch-error)
 - [9. Working with Docker containers](#9-working-with-docker-containers)
+  - [9.1 Enter a Docker container's shell](#91-enter-a-docker-containers-shell)
+  - [9.2 Prune all data from Docker](#92-prune-all-data-from-docker)
+- [10. Configure IAM role for GitHub Actions scripts](#10-configure-iam-role-for-github-actions-scripts)
+  - [10.1 Getting an `SSH_KEY`](#101-getting-an-ssh_key)
+    - [10.2 Getting an `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`](#102-getting-an-aws_access_key_id-and-aws_secret_access_key)
+      - [10.2.1 Creating a new GitHub Actions user](#1021-creating-a-new-github-actions-user)
+      - [10.2.2 Creating new access keys](#1022-creating-new-access-keys)
+
 
 ## 0. General Information
 
@@ -362,6 +370,9 @@ Select `t2.micro` because it is uses the lowest vCPU (1vCPU) and GiB Memory (1 G
 
 1. Specify a key-pair which is used later for remotely SSH'ing in to the EC2 instance from your machine.
 2. Make sure to select `Create a new key pair` whenever you launch a new instance; otherwise, you risk getting confused when you use the same key for more than one EC2 instance, and you have to manage the keys in the appropriate SSH configuration files (e.g. `.ssh`, `authorized_hosts`, `known_hosts` etc.).
+
+Save the generated `.pem` file at the top-most level of the directory of the local GitHub repository.
+You will use this to `ssh` into the remote EC2 instance later, both locally within your own machine and remotely through GitHub Actions CI/CD scripts.
 
 ### 2.4. Network Settings
 
@@ -1485,3 +1496,85 @@ To do that, you will want to access you access the Docker container's shell by r
 When working inside of an AWS EC2 instance and running your containers within it, instead of waiting for time-consuming CI/CD builds to complete, you may just want to debug your code within the container itself by stepping inside of it and making the necessary changes.
 
 Stepping inside of a Docker container's shell and making quick changes to debug your container may help to speed up your workflow.
+
+### 9.2 Prune all data from Docker
+
+Make sure to routinely prune all data from Docker running on the AWS EC2 instance.
+Before doing so, ALWAYS make sure that you are still able to pull new copies of your desired images from AWS ECR.
+
+To prune all Docker data, run the following command:
+
+```zsh
+docker system prune -a
+```
+
+## 10. Configure IAM role for GitHub Actions scripts
+
+The GitHub Actions scripts for both the [`personality-lab-app`](https://github.com/platocrat/personality-lab-app) and [`u-websocket`](https://github.com/platocrat/u-websocket) repositories make use of automated deployments on a commit, either via a pull request or to any branch.
+
+Each GitHub Actions script:
+
+1. Builds the Docker image for that repository.
+2. Pushes the Docker image to the ECR.
+3. Pulls the Docker image from the ECR onto the EC2 instance.
+4. Uses the following environment variables that need to be individually added to the each repository's list of GitHub Secrets:
+    - `SSH_KEY`: the full contents of the `.pem` file for the specific repository.
+    - `EC2_USERNAME`: The name of the IAM role of the EC2 instance (e.g. `ec2-user`).
+    - `EC2_HOSTNAME`: The hostname of the EC2 instance. It is usually the Elastic IP address (e.g. `54.493.101.393`)
+    - `AWS_REGION`: The region where the ECR repository is located in (e.g., `us-east-1`).
+    - `ECR_REPOSITORY_NAME`: The name of the ECR repository.
+    - `AWS_ACCOUNT_ID`: The full Account ID for the AWS account (e.g. `0001-0002-0003`).
+    - `AWS_ACCESS_KEY_ID`: Part of the AWS authentication credentials. It is created under the IAM role. See [10.1 Getting an SSH_KEY](#101-getting-an-ssh_key).
+    - `AWS_SECRET_ACCESS_KEY`: Part of the AWS authentication credentials. It is created under the IAM role. See [10.2 Getting an AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY](#102-getting-an-aws_access_key_id-and-aws_secret_access_key).
+
+### 10.1 Getting an `SSH_KEY`
+
+1. Go to the EC2 service in the AWS console.
+2. Under the "Network & Security" dropdown menu on the left, click on "Key Pairs".
+3. Click the orange "Create key pair" button start the process to create a new key pair.
+4. Enter a new name for the SSH key that will be used for your GitHub repository.
+5. Select "ED25519" as the key pair type.
+6. Keep the private key file format as `.pem`.
+7. Click the orange "Create key pair" button to create a new key pair.
+
+The last step will generate and download the `.pem` private key file to your machine.
+
+Save the generated `.pem` file at the top-most level of the directory of the local GitHub repository.
+You will use this to `ssh` into the remote EC2 instance later through the GitHub Actions CI/CD scripts.
+
+### 10.2 Getting an `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
+
+#### 10.2.1 Creating a new GitHub Actions user
+
+First, you need an IAM user that is used specifically for GitHub Actions stuff. If you already have a GitHub Actions user, move to the next step, [10.2.2 Creating new access keys](#1022-creating-new-access-keys)
+
+If you don't have one yet, create a new IAM user using the steps outline below:
+
+1. Go to the IAM service in the AWS console.
+2. Under the "Access management" dropdown menu on the left, click on "Users".
+3. Click the orange "Create user" button to start the process of creating a new IAM user.
+4. Enter a name for the new IAM user, e.g. `ec2-user-github-actions`.
+5. Leave "access to the AWS Management Console" unchecked.
+6. Click Next.
+7. On the "Set permissions" step, select "Attach policies directly".
+    6.1. Add the `AmazonEC2ContainerRegistryPowerUser` managed policy.
+8. Click Next.
+9. On the `Review and create` step, click the orange "Create user" button to create the new IAM user.
+
+#### 10.2.2 Creating new access keys
+
+Next, you will create an access key that will be used for your GitHub repository's GitHub Actions script.
+
+1. Go to the IAM service in the AWS console.
+2. Under the "Access management" dropdown menu on the left, click on "Users".
+3. Click on the IAM user that you are using specifically for GitHub Actions.
+4. Click on the "Security credentials" tab.
+5. Scroll down to the "Access keys" section and click the white "Create access key" button.
+6. On "Access key best practices & alternatives" step, the select the "Application running outside AWS" option and click the Next.
+7. Enter a useful description tag value for this secret key. For example, using the name of the repository, e.g. `personality-lab-app` is a great choice.
+8. Click the orange "Create access key" button.
+
+After completing the last step, make sure to copy each of the Secret value and the Access ID values.
+You will use copy and paste each of these values in the Secrets page for your repository's GitHub Actions Secrets, using the Secret value as the `AWS_SECRET_ACCESS_KEY` and the Access ID value as the `AWS_ACCESS_KEY_ID`.
+
+Steps for how to add Secrets to a GitHub repository can be found on GitHub's official documentation for [Creating secrets for a repository](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository).
