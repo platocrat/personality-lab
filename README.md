@@ -397,19 +397,32 @@ Once you have the pre-requisites, you can create a new IAM role by following the
 
 ### 3.3. Add permissions
 
-For the `personality-lab` Next.js project, we use 3 AWS services:
+For the `personality-lab` Next.js project, we use 4 AWS services:
 
 1. DynamoDB
 2. EC2
 3. Systems Manager (for Parameter Store)
+4. Elastic Container Registry (ECR)
+5. API Gateway, specifically the AWS WebSocket API
 
 For simplicity and to save time configuring granular custom permissions policies, we selected broad-general permissions for each of these services:
 
 1. `AmazonDynamoDBFullAccess`
 2. `AmazonEC2FullAccess`
 3. `AmazonSSMFullAccess`
+4. `AmazonEC2ContainerRegistryFullAccess`
+    - This managed policy is used to provide the necessary permissions to authenticate with Amazon ECR, which is used to pull images from ECR when SSH'ing into the EC2 instance.
+5. `AmazonAPIGatewayAdministrator`
+    - This managed policy, and the `AmazonAPIGatewayInvokeFullAccess` policy listed below, is used to ensure that we can use the AWS WebSocket API service through our web application without any unexpected permissions issues.
+6. `AmazonAPIGatewayInvokeFullAccess`
+7. `AmazonAPIGatewayPushToCloudWatchLogs`
+    - This managed policy is used to enable "Custom access logging" for an API's Stage, which requires creating an AWS CloudWatch log group, which uses the "Log format" shown below (a "Log format" is always on a single line, as shown below):
 
-Add each of the three permissions policies listed above.
+        ```json
+        { "requestId":"$context.requestId", "ip":"$context.identity.sourceIp", "dataProcessed": "$context.dataProcessed", "caller":"$context.identity.caller", "user":"$context.identity.user", "requestTime":"$context.requestTime", "httpMethod":"$context.httpMethod", "resourcePath":"$context.resourcePath", "status":"$context.status", "protocol":"$context.protocol", "responseLength":"$context.responseLength", "validationErrorString":"$context.error.validationErrorString", "integrationErrorMessage":"$context.integrationErrorMessage", "errorMessage":"$context.errorMessage", "errorResponseType":"$context.error.responseType", "errorMessageString":"$context.error.messageString" }
+      ```
+
+Add each of the 7 permissions policies listed above.
 Then, click the orange `Next` button on the bottom right.
 
 ### 3.4. Name, review, and create the IAM role
