@@ -37,6 +37,8 @@ export async function POST(
     } = await req.json()
 
     if (action === 'updatePlayer') {
+      console.log(`action: `, action)
+
       const TableName = DYNAMODB_TABLE_NAMES.socialRatingGames
       const KeyConditionExpression = 'sessionId = :sessionIdValue'
       const ExpressionAttributeValues = { ':sessionIdValue': sessionId }
@@ -123,7 +125,7 @@ export async function POST(
 
             const updatedPlayers_ = response.Attributes?.players as SocialRatingGamePlayers
 
-            console.log(`updatedPlayers_: `, updatedPlayers_)
+            // console.log(`updatedPlayers_: `, updatedPlayers_)
 
             // Get the next game phase from `_updatedPlayers`
             const nextPhase: GamePhases | undefined = PHASE_CHECKS.find(
