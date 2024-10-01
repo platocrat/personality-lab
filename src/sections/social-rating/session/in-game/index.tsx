@@ -83,11 +83,11 @@ const InGame: FC<InGameProps> = ({
     
     // const awsLambdaWsUrl = `${awsLambdaWsBaseUrl}${queryParams}`
     // const localWsUrl = WEB_SOCKET_URLS.local
-    const localAwsEC2WsUrl = WEB_SOCKET_URLS['local-ec2']
-    // const httpOnlyWsUrl = WEB_SOCKET_URLS['http-only']
+    // const localAwsEC2WsUrl = WEB_SOCKET_URLS['local-ec2']
+    const httpOnlyWsUrl = WEB_SOCKET_URLS['http-only']
     // const httpOnly2WsUrl = WEB_SOCKET_URLS['http-only-2']
     
-    const ws = new WebSocket(localAwsEC2WsUrl)
+    const ws = new WebSocket(httpOnlyWsUrl)
 
     console.log(`ws.url: `, ws.url)
 
