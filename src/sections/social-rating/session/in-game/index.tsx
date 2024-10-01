@@ -47,7 +47,7 @@ const MAX_RECONNECT_ATTEMPTS = 5 // Set a maximum number of attempts
  */
 const WEB_SOCKET_URLS = {
   local: 'wss://localhost:3001/',
-  'http-only': 'wss://vpfscho95i.execute-api.us-east-1.amazonaws.com/production/'
+  'http-only': 'wss://vpfscho95i.execute-api.us-east-1.amazonaws.com/production'
 }
 
 
