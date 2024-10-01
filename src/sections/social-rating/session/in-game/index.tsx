@@ -47,7 +47,7 @@ const MAX_RECONNECT_ATTEMPTS = 5 // Set a maximum number of attempts
  */
 const WEB_SOCKET_URLS = {
   'local': 'ws://localhost:3001/',
-  'local-ec2': 'ws://canpersonalitychange.com:3001/',
+  'local-ec2': 'wss://canpersonalitychange.com:3001/',
   'http-only': 'wss://wewbqdsubc.execute-api.us-east-1.amazonaws.com/production/',
   'lambda-functions': 'wss://vpfscho95i.execute-api.us-east-1.amazonaws.com/production/'
 }
