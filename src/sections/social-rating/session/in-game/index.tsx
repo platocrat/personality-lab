@@ -48,7 +48,8 @@ const MAX_RECONNECT_ATTEMPTS = 5 // Set a maximum number of attempts
 const WEB_SOCKET_URLS = {
   local: 'wss://localhost:3001/',
   'http-only': 'wss://wewbqdsubc.execute-api.us-east-1.amazonaws.com/production/',
-  'lambda-functions': 'wss://vpfscho95i.execute-api.us-east-1.amazonaws.com/production'
+  'http-only2': 'wss://vpfscho95i.execute-api.us-east-1.amazonaws.com/production',
+  // 'lambda-functions': 'wss://vpfscho95i.execute-api.us-east-1.amazonaws.com/production'
 }
 
 
@@ -82,7 +83,7 @@ const InGame: FC<InGameProps> = ({
     
     // const awsLambdaWsUrl = `${awsLambdaWsBaseUrl}${queryParams}`
     // const localWsUrl = WEB_SOCKET_URLS.local
-    const httpOnlyWsUrl = WEB_SOCKET_URLS['http-only']
+    const httpOnlyWsUrl = WEB_SOCKET_URLS['http-only2']
     
     const ws = new WebSocket(httpOnlyWsUrl)
 
