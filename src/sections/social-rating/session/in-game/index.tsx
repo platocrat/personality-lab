@@ -47,7 +47,8 @@ const MAX_RECONNECT_ATTEMPTS = 5 // Set a maximum number of attempts
  */
 const WEB_SOCKET_URLS = {
   local: 'wss://localhost:3001/',
-  'http-only': 'wss://vpfscho95i.execute-api.us-east-1.amazonaws.com/production'
+  'http-only': 'wss://wewbqdsubc.execute-api.us-east-1.amazonaws.com/production/',
+  'lambda-functions': 'wss://vpfscho95i.execute-api.us-east-1.amazonaws.com/production'
 }
 
 
@@ -76,13 +77,14 @@ const InGame: FC<InGameProps> = ({
   // --------------------------- Regular functions -----------------------------
   // Function to initialize WebSocket
   function initializeWebSocket() {
-    const awsBaseWsUrl = WEB_SOCKET_URLS['http-only']
+    // const awsLambdaWsBaseUrl = WEB_SOCKET_URLS['lambda-functions']
+    // const queryParams = `?sessionId=${ sessionId }`
+    
+    // const awsLambdaWsUrl = `${awsLambdaWsBaseUrl}${queryParams}`
     // const localWsUrl = WEB_SOCKET_URLS.local
-
-    const queryParams = `?sessionId=${ sessionId }`
-    const wsUrl = `${awsBaseWsUrl}${queryParams}`
-
-    const ws = new WebSocket(wsUrl)
+    const httpOnlyWsUrl = WEB_SOCKET_URLS['http-only']
+    
+    const ws = new WebSocket(httpOnlyWsUrl)
 
     console.log(`ws.url: `, ws.url)
 
