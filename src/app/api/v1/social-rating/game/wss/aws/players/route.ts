@@ -121,12 +121,14 @@ export async function POST(
 
             const updatedPlayers_ = response.Attributes?.players as SocialRatingGamePlayers
 
+            console.log(`updatedPlayers_: `, updatedPlayers_)
+
             // Get the next game phase from `_updatedPlayers`
             const nextPhase: GamePhases | undefined = PHASE_CHECKS.find(
               ({ check }): boolean => haveAllPlayersCompleted(updatedPlayers_, check)
             )?.phase
 
-            // console.log(`nextPhase: `, nextPhase)
+            console.log(`nextPhase: `, nextPhase)
 
             // If phase changes, update the game's phase in DynamoDB
             if (nextPhase) {
