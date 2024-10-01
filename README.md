@@ -64,6 +64,7 @@
 - [9. Working with Docker containers](#9-working-with-docker-containers)
   - [9.1 Enter a Docker container's shell](#91-enter-a-docker-containers-shell)
   - [9.2 Prune all data from Docker](#92-prune-all-data-from-docker)
+  - [9.3 Connect multiple Docker containers over the same network](#93-connect-multiple-docker-containers-over-the-same-network)
 - [10. Configure IAM role for GitHub Actions scripts](#10-configure-iam-role-for-github-actions-scripts)
   - [10.1 Getting an `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`](#101-getting-an-aws_access_key_id-and-aws_secret_access_key)
     - [10.1.1 Creating a new GitHub Actions user](#1011-creating-a-new-github-actions-user)
@@ -1668,6 +1669,65 @@ To prune all Docker data, run the following command:
 ```zsh
 docker system prune -a
 ```
+
+### 9.3 Connect multiple Docker containers over the same network
+
+1. Create a Custom Docker Network Create a custom Docker network so that the containers can communicate by their container names.
+
+    ```zsh
+    docker network create personality-lab-network
+    ```
+
+2. Start Next.js container
+
+    ```zsh
+    docker run -d --network personality-lab-network --name nextjs -p 3000:3000 <IMAGE_ID>
+    ```
+
+3. Start WebSocket container
+
+    ```zsh
+    docker run -d --network personality-lab-network --name u-websocket -p 3001:3001 <IMAGE_ID>
+    ```
+
+4. Verify Connectivity
+    Ensure both containers are running and connected to the same network:
+
+    ```zsh
+    docker network inspect personality-lab-network
+    ```
+
+    You should see both the `websocket` and `nextjs` containers listed under the same network.
+
+5. Test the WebSocket Connection
+
+    Navigate to your Next.js application (`http://localhost:3000`) and check if the WebSocket connection is established successfully with the `wss://websocket:3001` endpoint.
+
+#### Debugging Tips
+
+1. Check WebSocket Server Logs.
+
+    Make sure the WebSocket server is listening on all interfaces (`0.0.0.0`), not just `localhost`.
+
+    This ensures it can accept connections from outside its container.
+
+    ```zsh
+    docker logs u-websocket
+    ```
+
+2. Check Environment Variables.
+
+    Verify that the WebSocket URL is correctly set in your Next.js app.
+
+3. Test Network Connectivity.
+    Enter the `nextjs` container and try to `curl` the WebSocket server to ensure connectivity:
+
+    ```zsh
+    docker exec -it nextjs /bin/sh
+    curl websocket:3001
+    ```
+
+    This should show a response if the connection is successful.
 
 ## 10. Configure IAM role for GitHub Actions scripts
 
