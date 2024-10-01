@@ -36,6 +36,7 @@
     - [4.2.1 Working with multiple domains in a single Caddyfile](#421-working-with-multiple-domains-in-a-single-caddyfile)
     - [4.2.2 Adding the WebSocket server to the Caddyfile](#422-adding-the-websocket-server-to-the-caddyfile)
     - [4.2.3 Upgrade `caddy`](#423-upgrade-caddy)
+    - [4.2.4 Locate Caddy's TLS certificate and private key](#424-locate-caddys-tls-certificate-and-private-key)
   - [4.3. On EC2 instance, install Docker, login, and start the Docker daemon](#43-on-ec2-instance-install-docker-login-and-start-the-docker-daemon)
     - [4.3.1. Install `docker`](#431-install-docker)
     - [4.3.2. Run `docker` commands without `sudo`](#432-run-docker-commands-without-sudo)
@@ -484,6 +485,10 @@ ssh -i key-pair-name.pem EC2_USERNAME@EC2_HOSTNAME
 
 #### 4.1.2. Install `caddy` from source
 
+Please follow the instructions from [Caddy's official documentation](https://caddyserver.com/docs/running#linux-service).
+
+The instructions below are mostly taken from there:
+
 1. Use `curl` to download the latest version of Caddy from GitHub:
 
     ```zsh
@@ -496,16 +501,16 @@ ssh -i key-pair-name.pem EC2_USERNAME@EC2_HOSTNAME
     tar -zxvf caddy.tar.gz
     ```
 
-3. Move the binary to a directory in your PATH at `/usr/local/bin`:
+3. Move the `caddy` binary into your PATH at `/usr/bin`:
 
     ```zsh
-    sudo mv caddy /usr/local/bin/
+    sudo mv caddy /usr/bin/
     ```
 
 4. Make the binary executable:
 
     ```zsh
-    chmod +x /usr/local/bin/caddy
+    chmod +x /usr/bin/caddy
     ```
 
 5. Verify the installation:
@@ -519,6 +524,49 @@ ssh -i key-pair-name.pem EC2_USERNAME@EC2_HOSTNAME
     ```zsh
     mkdir ./caddy && mv {LICENSE,README.md,caddy.tar.gz} ./caddy-download/
     ```
+
+7. Create a group named `caddy`
+
+    ```zsh
+    sudo groupadd --system caddy
+    ```
+
+8. Create a user named caddy with a writeable home directory:
+
+    ```zsh
+    sudo useradd --system \
+        --gid caddy \
+        --create-home \
+        --home-dir /var/lib/caddy \
+        --shell /usr/sbin/nologin \
+        --comment "Caddy web server" \
+        caddy
+    ```
+
+    If using a config file, be sure it is readable by the caddy user you just created.
+
+9. Next, [choose a systemd unit file](https://caddyserver.com/docs/running#unit-files) based on your use case.
+
+    > NOTE: This involves copying the file contents from [`caddy.service`](https://github.com/caddyserver/dist/blob/master/init/caddy.service).
+
+    **Double-check the `ExecStart` and `ExecReload` directives**. Make sure the binary's location and command line arguments are correct for your installation! For example: if using a config file, change your `--config` path if it is different from the defaults.
+
+    The usual place to save the service file is: `/etc/systemd/system/caddy.service`
+
+    After saving your service file, you can start the service for the first time with the usual systemctl dance:
+
+    ```zsh
+    sudo systemctl daemon-reload
+    sudo systemctl enable --now caddy
+    ```
+
+    Verify that it is running:
+
+    ```zsh
+    systemctl status caddy
+    ```
+
+    Now you're ready to [use the service](https://caddyserver.com/docs/running#using-the-service)!
 
 ### 4.2. Working with [Caddy](http://caddyserver.com) server
 
@@ -542,7 +590,8 @@ Let's create a `Caddyfile`.
     sudo vim /etc/caddy/Caddyfile
     ```
 
-Paste in the following to ensure that it works to reverse proxy requests made to our Next.js application, which will run on port `3000` from our Docker container:
+    Paste in the following to ensure that it works to reverse proxy requests made to our Next.js application, which will run on port `3000` from our Docker container:
+
     ```apacheconf
     example.com {
             encode gzip
@@ -554,13 +603,50 @@ Paste in the following to ensure that it works to reverse proxy requests made to
     }
     ```
 
-3. Manually start Caddy
+3. Using the Caddy Service
 
-    After saving changes to your Caddyfile, manually start the Caddy server by running:
+    Please follow [Caddy's official documentation for this section on how to use the Caddy service](https://caddyserver.com/docs/running#using-the-service). This section closely follows that section, as of the time of writing.
 
-    ```zsh
-    sudo caddy run --config /etc/caddy/Caddyfile
-    ```
+    1. If using a Caddyfile, you can edit your configuration with nano, vi, or your preferred editor:
+
+        ```zsh
+        sudo nano /etc/caddy/Caddyfile
+        ```
+
+        You can place your static site files in either `/var/www/html` or `/srv`. Make sure the `caddy` user has permission to read the files.
+
+    2. To verify that the service is running:
+
+        ```zsh
+        systemctl status caddy
+        ```
+
+        The status command will also show the location of the currently running service file.
+
+    3. When running with our official service file, Caddy's output will be redirected to `journalctl`. To read your full logs and to avoid lines being truncated:
+
+        ```zsh
+        journalctl -u caddy --no-pager | less +G
+        ```
+
+    4. If using a config file, you can gracefully reload Caddy after making any changes:
+
+        ```zsh
+        sudo systemctl reload caddy
+        ```
+
+    5. You can stop the service with:
+
+        ```zsh
+        sudo systemctl stop caddy
+        ```
+
+    6. Do not stop the service to change Caddy's configuration. Stopping the server will incur downtime. Use the reload command instead.
+
+    7. The Caddy process will run as the `caddy` user, which has its `$HOME` set to `/var/lib/caddy`. This means that:
+
+        - The default [data storage location](https://caddyserver.com/docs/conventions#data-directory) (for certificates and other state information) will be in `/var/lib/caddy/.local/share/caddy`.
+        - The default [config storage location](https://caddyserver.com/docs/conventions#configuration-directory) (for the auto-saved JSON config, primarily useful for the `caddy-api` service) will be in `/var/lib/caddy/.config/caddy`.
 
 #### 4.2.1 Working with multiple domains in a single Caddyfile
 
@@ -581,17 +667,17 @@ You can configure _multiple domains_ in a single Caddyfile for different use cas
 
 2. If you want to serve different websites at different domains, it would look something like this:
 
-  ```apacheconf
-   example.com {
-      root /www/example.com
-  }
-   
-  sub.example.com {
-      root /www/sub.example.com
-      gzip
-      log ../access.log
-  }
-  ```
+    ```apacheconf
+    example.com {
+        root /www/example.com
+    }
+    
+    sub.example.com {
+        root /www/sub.example.com
+        gzip
+        log ../access.log
+    }
+    ```
 
 #### 4.2.2 Adding the WebSocket server to the Caddyfile
 
@@ -630,6 +716,59 @@ Upgrades do not interrupt running servers; currently, the command only replaces 
 The upgrade process is fault tolerant; the current binary is backed up first (copied beside the current one) and automatically restored if anything goes wrong. If you wish to keep the backup after the upgrade process is complete, you may use the --keep-backup option.
 
 This command may require elevated privileges if your user does not have permission to write to the executable file.
+
+#### 4.2.4 Locate Caddy's TLS certificate and private key
+
+1. To locate Caddy's TLS certificate and private key, start by inspecting the Caddy service logs using the following command:
+
+    ```zsh
+    journalctl -u caddy --no-pager | less +G
+    ```
+
+    This lets you read the Caddy's full service logs and avoids lines being truncated.
+
+2. Next, in the logs, search for the use of `*/caddy/.config/*`.
+3. Navigate to this location within the EC2 instance.
+
+    You can do this in several different ways, but since I found this path to be `/var/lib/caddy/.config/caddy`, I had permissions issues with letting me navigate to it.
+
+    So, I first navigated to `/var/lib/` using:
+
+    ```zsh
+    cd /var/lib
+    ```
+
+    From there, I then used `vim` with `sudo` privileges to enter the `caddy` directory:
+
+    ```zsh
+    sudo vim caddy
+    ```
+
+    Running `sudo vim caddy` opened up a `Netrw Directory Listing`, as shown in the image below:
+
+    ![Netrw Directory Listing from sudo vim caddy](./images/Screenshot%202024-10-01%20at%209.01.35 AM.png)
+
+    From here, I navigated to `.local/share/caddy/certificates/acme-v02.api.letsencrypt.org-directory/<DOMAIN_NAME>` to finally find the `.crt` and `.key` files that I needed.
+
+4. You can confirm that you found the correct TLS certificate and key files by double-checking the Caddy service logs.
+
+    Again, run the command to review the Caddy service logs:
+
+    ```zsh
+    journalctl -u caddy --no-pager | less +G
+    ```
+
+    From the logs, locate the following log:
+
+    ```zsh
+    "logger": "tls.obtain", "msg": "certificate obtained successfully"
+    ```
+
+    and at the end of this line, you should see the `issuer` to match the `acme` filepath:
+
+    ```zsh
+    "issuer":"acme-v02.api.letsencrypt.org-directory"
+    ```
 
 ### 4.3. On EC2 instance, install Docker, login, and start the Docker daemon
 
@@ -747,13 +886,21 @@ docker run -d -it -p 3000:3000 <IMAGE_ID>
 
 Make sure to include the `-d` flag to run the container in "detached" mode, so that we can run other commands while the container is running.
 
-#### 4.5.3. Start the Caddy server
+#### 4.5.3. Start or reload the Caddy server
 
 Finally, we can serve the dockerized version of our the Next.js app by starting the Caddy server.
-Run the command below to start the Caddy server.
+Run the command below to start or reload the Caddy server.
+
+Start `caddy`:
 
 ```zsh
-sudo caddy run --config /etc/caddy/Caddyfile
+sudo systemctl start caddy
+```
+
+or reload `caddy`:
+
+```zsh
+sudo systemctl reload caddy
 ```
 
 Then, navigate to your domain to see the hosted site.
@@ -857,10 +1004,18 @@ Prerequisites for the `screen` example below:
     screen -ls
     ```
 
-6. Start the Caddy server:
+6. Start or reload the Caddy server:
+
+    Start `caddy`:
 
     ```sh
-    sudo caddy run --config /etc/caddy/Caddyfile
+    sudo systemctl start caddy
+    ```
+
+    or reload `caddy`:
+
+    ```sh
+    sudo systemctl reload caddy
     ```
 
     You can leave the Caddy server running since we can detach from this screen without interrupting the Caddy server.
@@ -938,10 +1093,18 @@ Prerequisites for the `screen` example below:
             screen -r caddy
             ```
 
-            Then, start the Caddy server:
+            Then, start or reload the Caddy server:
+
+            Start `caddy`:
 
             ```sh
-            sudo caddy run --config /etc/caddy/Caddyfile
+            sudo systemctl start caddy
+            ```
+
+            or reload `caddy`:
+
+            ```sh
+            sudo systemctl reload caddy
             ```
 
             Then, detach from the `caddy` screen session, leaving the Caddy server running, by pressing `CTL + A` and then `D`.
