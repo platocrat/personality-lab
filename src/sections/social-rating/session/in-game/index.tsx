@@ -76,13 +76,13 @@ const InGame: FC<InGameProps> = ({
   // --------------------------- Regular functions -----------------------------
   // Function to initialize WebSocket
   function initializeWebSocket() {
-    const awsWsUrl = WEB_SOCKET_URLS['http-only']
+    const awsBaseWsUrl = WEB_SOCKET_URLS['http-only']
     // const localWsUrl = WEB_SOCKET_URLS.local
 
-    // const queryParams = `?sessionId=${ sessionId }`
-    // const wsUrl = `${baseUrl}${queryParams}`
+    const queryParams = `?sessionId=${ sessionId }`
+    const wsUrl = `${awsBaseWsUrl}${queryParams}`
 
-    const ws = new WebSocket(awsWsUrl)
+    const ws = new WebSocket(wsUrl)
 
     console.log(`ws.url: `, ws.url)
 
@@ -142,7 +142,7 @@ const InGame: FC<InGameProps> = ({
     if (!isReconnecting) {
       setIsReconnecting(true)
 
-      // Reattempt connection every RECONNECT_INTERVAL milliseconds
+      // Re-attempt connection every RECONNECT_INTERVAL milliseconds
       const reconnectionInterval = setInterval(() => {
         setReconnectAttempts((prev) => {
           if (prev >= MAX_RECONNECT_ATTEMPTS) {
