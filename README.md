@@ -69,6 +69,21 @@
   - [10.1 Getting an `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`](#101-getting-an-aws_access_key_id-and-aws_secret_access_key)
     - [10.1.1 Creating a new GitHub Actions user](#1011-creating-a-new-github-actions-user)
     - [10.1.2 Creating new access keys](#1012-creating-new-access-keys)
+- [11. Deploying Next.js app to AWS EC2 instance and viewing it with NGINX](#11-deploying-nextjs-app-to-aws-ec2-instance-and-viewing-it-with-nginx)
+  - [11.1. Setup with `nginx`](#111-setup-with-nginx)
+    - [11.1.1. SSH in to EC2 instance](#1111-ssh-in-to-ec2-instance)
+    - [11.1.2. Install mainline `nginx` package](#1112-install-mainline-nginx-package)
+    - [11.1.3. Start/Restart `nginx` service](#1113-startrestart-nginx-service)
+  - [11.2. On EC2 instance, configure NGINX](#112-on-ec2-instance-configure-nginx)
+    - [11.2.1. Create NGINX configuration file](#1121-create-nginx-configuration-file)
+    - [11.2.2. Fill out the configuration file like so](#1122-fill-out-the-configuration-file-like-so)
+    - [11.2.3. Restart `nginx` service](#1123-restart-nginx-service)
+  - [11.3. Get free NGINX SSL certificate with Certbot](#113-get-free-nginx-ssl-certificate-with-certbot)
+  - [11.4. Set up http3 and QUIC for NGINX server](#114-set-up-http3-and-quic-for-nginx-server)
+    - [11.4.1. Example NGINX configuration file for http3](#1141-example-nginx-configuration-file-for-http3)
+    - [11.4.2. Add security group rule for QUIC and http3](#1142-add-security-group-rule-for-quic-and-http3)
+  - [11.5. Install `cronie` to enable `crontab`](#115-install-cronie-to-enable-crontab)
+  - [11.6 Automatically Renew Let’s Encrypt Certificates](#116-automatically-renew-lets-encrypt-certificates)
 
 ## 0. General Information
 
@@ -1784,3 +1799,299 @@ After completing the last step, make sure to copy each of the Secret value and t
 You will use copy and paste each of these values in the Secrets page for your repository's GitHub Actions Secrets, using the Secret value as the `AWS_SECRET_ACCESS_KEY` and the Access ID value as the `AWS_ACCESS_KEY_ID`.
 
 Steps for how to add Secrets to a GitHub repository can be found on GitHub's official documentation for [Creating secrets for a repository](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository).
+
+## 11. Deploying Next.js app to AWS EC2 instance and viewing it with NGINX
+
+### 11.1. Setup with `nginx`
+
+[Tutorial video](https://www.youtube.com/watch?v=IwWQG6lEdQQ)
+
+#### 11.1.1 SSH in to EC2 instance
+
+<!-- 
+
+EC2_USERNAME = ec2-user 
+EC2_HOSTNAME = 54.198.211.160
+
+-->
+
+```zsh
+ssh -i key-pair-name.pem EC2_USERNAME@EC2_HOSTNAME
+```
+
+#### 11.1.2. Install mainline `nginx` package
+
+Follow the instructions to install mainline NGINX packages for Amazon Linux 2023 [here](https://nginx.org/en/linux_packages.html#Amazon-Linux).
+
+The commands to run are copied below for convenience but may be out-of-date, so always refer to the official documentation on the link shared above.
+
+----------------
+
+1. Install the prerequisites:
+
+    ```zsh
+    sudo yum install yum-utils
+    ```
+
+2. To set up the yum repository for Amazon Linux 2023, create the file named `/etc/yum.repos.d/nginx.repo` with the following contents:
+
+    ```zsh
+    [nginx-stable]
+    name=nginx stable repo
+    baseurl=<http://nginx.org/packages/amzn/2023/$basearch/>
+    gpgcheck=1
+    enabled=1
+    gpgkey=<https://nginx.org/keys/nginx_signing.key>
+    module_hotfixes=true
+    priority=9
+
+    [nginx-mainline]
+    name=nginx mainline repo
+    baseurl=<http://nginx.org/packages/mainline/amzn/2023/$basearch/>
+    gpgcheck=1
+    enabled=0
+    gpgkey=<https://nginx.org/keys/nginx_signing.key>
+    module_hotfixes=true
+    priority=9
+    ```
+
+3. By default, the repository for stable nginx packages is used. If you would like to use mainline nginx packages, run the following command:
+
+    ```zsh
+    sudo yum-config-manager --enable nginx-mainline
+    ```
+
+4. To install nginx, run the following command:
+
+    ```zsh
+    sudo yum install nginx
+    ```
+
+    In stdout, you should see the `Repository` used is now `nginx-mainline`.
+
+5. When prompted to accept the GPG key, verify that the fingerprint matches `573B FD6B 3D8F BC64 1079 A6AB ABF5 BD82 7BD9 BF62`, and if so, accept it.
+
+----------------
+
+#### 11.1.3. Start/Restart `nginx` service
+
+```zsh
+sudo service nginx restart
+```
+
+### 11.2. On EC2 instance, configure NGINX
+
+#### 11.2.1. Create NGINX configuration file
+
+<!-- 
+
+NGINX configuration file = /etc/nginx/conf.d/personality-lab-app.conf
+
+-->
+
+```zsh
+sudo vim "/etc/nginx/conf.d/<APP_NAME>.conf"
+```
+
+#### 11.2.2. Fill out the configuration file like so
+
+<!-- 
+
+EC2_HOSTNAME = 54.198.211.160
+
+-->
+
+```apacheconf
+server {
+    listen 80;
+    server_name EC2_HOSTNAME; 
+  
+    location / {
+        proxy_pass http://127.0.0.1:3000/;
+    }
+}
+```
+
+#### 11.2.3. Restart `nginx` service
+
+```zsh
+sudo service nginx restart
+```
+
+### 11.3. Get free NGINX SSL certificate with Certbot
+
+Follow [this article](https://www.f5.com/company/blog/nginx/using-free-ssltls-certificates-from-lets-encrypt-with-nginx) as a tutorial.
+
+1. Make sure to replace anywhere you see `apt-get` with `yum`.
+2. Replace where you see `example.com` with your custom domain.
+3. Use your valid email address.
+
+### 11.4. Set up http3 and QUIC for NGINX server
+
+#### 11.4.1. Example NGINX configuration file for http3
+
+As per the [F5's guide on getting an NGINX SSL/TLS certificate with Certbot](https://www.f5.com/company/blog/nginx/using-free-ssltls-certificates-from-lets-encrypt-with-nginx), before generating an SSL certificate with Certbot, below is an example of what your NGINX configuration file should look like.
+Notice that to enable access to Next.js app from `server_name`, we add the `location` block to specify that we want to use localhost as a proxy.
+
+```apacheconf
+server {    
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    root /var/www/html;
+    server_name example.com www.example.com;
+
+    location / {
+        proxy_pass http://localhost:3000;
+    }
+}
+```
+
+Below is an example of a configuration file for NGINX **after** generating an SSL certificate using Certbot.
+
+```apacheconf
+server {
+    root /var/www/html;
+    server_name example.com www.example.com;
+
+    listen [::]:443 ssl; # managed by Certbot
+    listen 443 ssl; # managed by Certbot
+
+    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+    
+    location / {
+        proxy_pass http://localhost:3000;
+    }
+}
+
+server {
+    if ($host = www.example.com) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+    if ($host = example.com) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name example.com www.example.com;
+    return 404; # managed by Certbot
+}
+```
+
+Here are changes to enable QUIC and HTTP/3 for the NGINX server:
+
+```zsh
+server {
+    root /var/www/html;
+    server_name example.com www.example.com;
+
+    listen [::]:443 quic reuseport default_server; # QUIC and HTTP/3 only
+    listen 443 quic reuseport default_server; # QUIC and HTTP/3 only
+
+    listen [::]:443 ssl; # managed by Certbot
+    listen 443 ssl; # managed by Certbot
+
+    gzip on;             # QUIC and HTTP/3 only 
+    http2 on;            # HTTP/2 only  
+    http3 on;            # QUIC and HTTP/3 only
+    http3_hq on;         # QUIC and HTTP/3 only
+    quic_retry on;       # QUIC and HTTP/3 only
+    ssl_early_data on;   # QUIC and HTTP/3 only
+
+    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+    location / {
+        proxy_pass http://localhost:3000;
+
+        add_header Alt-svc 'h3=":$server_port"; ma=3600'; # QUIC and HTTP/3 only
+        add_header x-quic 'h3'; # QUIC and HTTP/3 only
+        add_header Cache-Control 'no-cache,no-store'; # QUIC and HTTP/3 only
+        add_header X-protocol $server_protocol always; # QUIC and HTTP/3 only
+        proxy_set_header Early-Data $ssl_early_data; # QUIC and HTTP/3 only
+    }
+}
+
+server {
+    if ($host = www.example.com) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    if ($host = example.com) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name example.com www.example.com;
+    return 404; # managed by Certbot
+}
+```
+
+#### 11.4.2 Add security group rule for QUIC and http3
+
+To ensure that our NGINX server can receive UDP packets, we need to add another security group rule to our EC2 instance's Security Group.
+
+1. Under the EC2 service, go to the `Security Groups` settings.
+2. Click on the security group that your EC2 instance is using.
+3. Click the `Add Rule` button at the bottom to add a new rule.
+4. For `Type`, select `Custom UDP`
+5. For `Port Range`, enter `443`, which is the port that our NGINX server will be listening on for HTTP/3 requests.
+6. For `Source`, enter `0.0.0.0/0` to allow for requests from the range of all IP addresses.
+7. Click `Save` to save the changes.
+
+### 11.5. Install `cronie` to enable `crontab`
+
+If `crontab` is not found on your Amazon Linux 2023 EC2 instance, it means that the `cronie` package, which provides the `crontab` command, is not installed by default. You can install it with the following steps:
+
+1. **Install `cronie`**: Use the package manager to install `cronie`:
+
+   ```bash
+   sudo yum install cronie -y
+   ```
+
+2. **Start and Enable the `crond` Service**: After installing `cronie`, start the `crond` service and enable it to start on boot:
+
+   ```bash
+   sudo systemctl start crond
+   sudo systemctl enable crond
+   ```
+
+3. **Open the Crontab Editor**: Now you can use the `crontab` command as expected:
+
+   ```bash
+   crontab -e
+   ```
+
+4. **Verify Crontab Installation**: To verify the installation and that the crontab service is running, use:
+
+   ```bash
+   systemctl status crond
+   ```
+
+   This should show that the `crond` service is active and running.
+
+### 11.6 Automatically Renew Let’s Encrypt Certificates
+
+Let’s Encrypt certificates expire after 90 days. We encourage you to renew your certificates automatically. Here we add a [cron](https://en.wikipedia.org/wiki/Cron) job to an existing crontab file to do this.
+
+1. Open the crontab file.
+
+    ```zsh
+    crontab -e
+    ```
+
+2. Add the `certbot` command to run daily. In this example, we run the command every day at noon. The command checks to see if the certificate on the server will expire within the next 30 days, and renews it if so. The `--quiet` directive tells `certbot` not to generate output.
+
+    ```zsh
+    0 12 ** * /usr/bin/certbot renew --quiet
+    ```
+
+3. Save and close the file. All installed certificates will be automatically renewed and reloaded.
