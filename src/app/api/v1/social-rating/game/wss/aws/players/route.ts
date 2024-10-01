@@ -2,8 +2,8 @@
 // Externals
 import {
   QueryCommand,
-  QueryCommandInput,
   UpdateCommand,
+  QueryCommandInput,
   UpdateCommandInput,
 } from '@aws-sdk/lib-dynamodb'
 import { ReturnValue } from '@aws-sdk/client-dynamodb'
@@ -26,6 +26,8 @@ export async function POST(
   req: NextRequest,
   res: NextResponse
 ) {
+  console.log(`req: `, req)
+
   if (req.method === 'POST') {
     const {
       action,
@@ -125,7 +127,10 @@ export async function POST(
 
             // Get the next game phase from `_updatedPlayers`
             const nextPhase: GamePhases | undefined = PHASE_CHECKS.find(
-              ({ check }): boolean => haveAllPlayersCompleted(updatedPlayers_, check)
+              ({ check }): boolean => haveAllPlayersCompleted(
+                updatedPlayers_, 
+                check
+              )
             )?.phase
 
             console.log(`nextPhase: `, nextPhase)
@@ -156,9 +161,11 @@ export async function POST(
 
               command = new UpdateCommand(input)
 
-              const message = `'phase' has been updated in the '${TableName
-                }' table for social rating game with session ID '${sessionId
-                }`
+              const message = `'phase' has been updated in the '${
+                TableName
+              }' table for social rating game with session ID '${
+                sessionId
+              }`
 
               try {
                 const response = await ddbDocClient.send(command)
@@ -179,8 +186,9 @@ export async function POST(
                   }
                 )
               } catch (error: any) {
-                const errorMessage = `Failed to update 'phase' of social rating game with session ID '${sessionId
-                  }' in the '${TableName}' table: `
+                const errorMessage = `Failed to update 'phase' of social rating game with session ID '${
+                  sessionId
+                }' in the '${TableName}' table: `
 
                 console.error(errorMessage, error)
 
