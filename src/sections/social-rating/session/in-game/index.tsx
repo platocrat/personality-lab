@@ -46,7 +46,8 @@ const MAX_RECONNECT_ATTEMPTS = 5 // Set a maximum number of attempts
  * 4. `updatePlayer` - HTTP route
  */
 const WEB_SOCKET_URLS = {
-  local: 'wss://localhost:3001/',
+  'local': 'ws://localhost:3001/',
+  'local-ec2': 'wss://canpersonalitychange.com:3001/',
   'http-only': 'wss://wewbqdsubc.execute-api.us-east-1.amazonaws.com/production/',
   'lambda-functions': 'wss://vpfscho95i.execute-api.us-east-1.amazonaws.com/production/'
 }
@@ -81,11 +82,12 @@ const InGame: FC<InGameProps> = ({
     // const queryParams = `?sessionId=${ sessionId }`
     
     // const awsLambdaWsUrl = `${awsLambdaWsBaseUrl}${queryParams}`
-    const localWsUrl = WEB_SOCKET_URLS.local
-    // const httpOnlyWsUrl = WEB_SOCKET_URLS['http-only-2']
+    // const localWsUrl = WEB_SOCKET_URLS.local
+    const localAwsEC2WsUrl = WEB_SOCKET_URLS['local-ec2']
     // const httpOnlyWsUrl = WEB_SOCKET_URLS['http-only']
+    // const httpOnly2WsUrl = WEB_SOCKET_URLS['http-only-2']
     
-    const ws = new WebSocket(localWsUrl)
+    const ws = new WebSocket(localAwsEC2WsUrl)
 
     console.log(`ws.url: `, ws.url)
 
