@@ -1,4 +1,4 @@
-/* /api/v1/social-rating/game/wss/connect/route.ts */
+/* /api/v1/social-rating/game/wss/aws/connect/route.ts */
 // Externals
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -9,7 +9,6 @@ export async function POST(
   res: NextResponse
 ) {
   if (req.method === 'POST') {
-    console.log(`req.headers: `, req.headers)
     const apiGatewayApiId = req.headers.get('x-amzn-apigateway-api-id')
     const traceId = req.headers.get('x-amzn-trace-id')
     const ipAddress = req.headers.get('x-forwarded-for')

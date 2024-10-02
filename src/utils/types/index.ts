@@ -149,8 +149,17 @@ export type Player = {
   joinedAtTimestamp: number
 }
 
+
 export type SocialRatingGamePlayers = {
   [nickname: string]: Player
+}
+
+
+export type PhaseChecks = {
+  phase: GamePhases
+  check: 'hasCompletedConsentForm' |
+  'hasCompletedSelfReport' |
+  'hasCompletedObserverReport'
 }
 
 

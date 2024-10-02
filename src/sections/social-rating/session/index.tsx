@@ -29,6 +29,7 @@ import {
   PlayerInGameState,
   ProfileCorrelations,
   SocialRatingGamePlayers,
+  haveAllPlayersCompleted,
   INVALID_CHARS_EXCEPT_NUMBERS,
   SOCIAL_RATING_GAME__DYNAMODB,
 } from '@/utils'
@@ -75,8 +76,6 @@ const SocialRatingSession: FC<SocialRatingSessionProps> = ({
     setIsGameInSession,
     setGameSessionUrlSlug,
     setIsUpdatingGameState,
-    // State change function handlers
-    haveAllPlayersCompleted,
   } = useContext<GameSessionContextType>(GameSessionContext)
   // Hooks
   const pathname = usePathname()
