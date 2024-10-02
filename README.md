@@ -1,10 +1,10 @@
 # personality-lab
 
-[Next.js](https://nextjs.org) application for [Dr. Brent Roberts](https://psychology.illinois.edu/directory/profile/bwrobrts), a Professor of Psychology at the University of Illinois at Urbana-Champaign, and his research labs.
+## Contributors
 
-> "[Brent W. Roberts](https://psychology.illinois.edu/directory/profile/bwrobrts) is a Professor of Psychology and at the University of Illinois at Urbana-Champaign, he holds the Gutsgell Endowed Professorship at the University of Illinois, is designated as a Health Innovation Professor in the Carle-Illinois College of Medicine, and is a Distinguished Guest Professor at the Hector Research Institute of Education Sciences and Psychology at the University of Tübingen, Germany."
->
-> — University of Illinois at Urbana-Champaign
+### Jack Winfield
+
+<platocrat@acm.org>
 
 ## Table of Contents
 
