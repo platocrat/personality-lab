@@ -13,7 +13,7 @@ services:
   # Service for the WebSocket server using an ECR image
   u-websocket:
       # Reference ECR image
-    image: "842080455908.dkr.ecr.us-east-1.amazonaws.com/u-websocket:latest"
+    image: "842080455908.dkr.ecr.us-east-1.amazonaws.com/jackw/u-websocket:latest"
     ports:
       - "3001:3001"  # Map port 3001 on the host to port 3001 in the container
     environment:
