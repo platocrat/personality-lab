@@ -47,6 +47,7 @@ const MAX_RECONNECT_ATTEMPTS = 5 // Set a maximum number of attempts
  */
 const WEB_SOCKET_URLS = {
   'local': 'ws://localhost:3001/',
+  'local-with-ssl': 'wss://localhost:3001/',
   'local-ec2': 'wss://canpersonalitychange.com:3001/',
   'http-only': 'wss://wewbqdsubc.execute-api.us-east-1.amazonaws.com/production/',
   'lambda-functions': 'wss://vpfscho95i.execute-api.us-east-1.amazonaws.com/production/'
@@ -83,21 +84,23 @@ const InGame: FC<InGameProps> = ({
     
     // const awsLambdaWsUrl = `${awsLambdaWsBaseUrl}${queryParams}`
     // const localWsUrl = WEB_SOCKET_URLS.local
+    const localWithSslWsUrl = WEB_SOCKET_URLS['local-with-ssl']
     // const localAwsEC2WsUrl = WEB_SOCKET_URLS['local-ec2']
-    const httpOnlyWsUrl = WEB_SOCKET_URLS['http-only']
+    // const httpOnlyWsUrl = WEB_SOCKET_URLS['http-only']
     // const httpOnly2WsUrl = WEB_SOCKET_URLS['http-only-2']
     
-    const ws = new WebSocket(httpOnlyWsUrl)
+    const ws = new WebSocket(localWithSslWsUrl)
 
     console.log(`ws.url: `, ws.url)
 
-    const isWsUrlLocal = ws.url === WEB_SOCKET_URLS.local
+    const isWsUrlAws = ws.url === WEB_SOCKET_URLS['http-only'] ||
+      ws.url === WEB_SOCKET_URLS['lambda-functions']
 
     ws.onopen = (event) => {
       const onConnectMessage = `Connected to ${ 
-        isWsUrlLocal 
-          ? 'local WebSocket!' 
-          : 'AWS WebSocket' 
+        isWsUrlAws 
+          ? 'AWS WebSocket'
+          : 'local WebSocket!'
       }`
       
       console.log(onConnectMessage)
@@ -121,9 +124,9 @@ const InGame: FC<InGameProps> = ({
 
     ws.onclose = () => {
       const onCloseMessage = `${ 
-        isWsUrlLocal 
-          ? 'Local' 
-          : 'AWS' 
+        isWsUrlAws 
+          ? 'AWS' 
+          : 'Local' 
       } WebSocket connection closed!`
       
       console.log(onCloseMessage)
@@ -135,7 +138,7 @@ const InGame: FC<InGameProps> = ({
     }
 
     ws.onerror = (error) => {
-      const onErrorMessage = `${ isWsUrlLocal ? 'Local' : 'AWS' } WebSocket error: `
+      const onErrorMessage = `${ isWsUrlAws ? 'AWS' : 'Local' } WebSocket error: `
       console.error(onErrorMessage, error)
       ws.close()
     }
