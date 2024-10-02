@@ -1,9 +1,8 @@
 services:
   # Service for the Next.js application using an ECR image
   next-app:
-    build:
       # Reference ECR image
-      image: 842080455908.dkr.ecr.us-east-1.amazonaws.com/jackw/next-app:latest
+    image: "842080455908.dkr.ecr.us-east-1.amazonaws.com/jackw/next-app:latest"
     ports:
       - "3000:3000"  # Map port 3000 on the host to port 3000 in the container
     environment:
@@ -13,9 +12,8 @@ services:
 
   # Service for the WebSocket server using an ECR image
   u-websocket:
-    build:
       # Reference ECR image
-      image: 842080455908.dkr.ecr.us-east-1.amazonaws.com/u-websocket:latest
+    image: "842080455908.dkr.ecr.us-east-1.amazonaws.com/u-websocket:latest"
     ports:
       - "3001:3001"  # Map port 3001 on the host to port 3001 in the container
     environment:
