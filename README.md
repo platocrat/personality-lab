@@ -217,9 +217,8 @@ This is another site of Dr. Brent Roberts.
 
 ```zsh
 .
-├── nginx
-├── caddy
-├── nextjs
+├── u-websocket
+├── next-app
 ```
 
 ## 1. Local development
@@ -538,7 +537,7 @@ The instructions below are mostly taken from there:
 6. Move downloaded files to `/caddy-download`
 
     ```zsh
-    mkdir ./caddy && mv {LICENSE,README.md,caddy.tar.gz} ./caddy-download/
+    mkdir caddy-download && mv {LICENSE,README.md,caddy.tar.gz} ./caddy-download
     ```
 
 7. Create a group named `caddy`
@@ -563,7 +562,14 @@ The instructions below are mostly taken from there:
 
 9. Next, [choose a systemd unit file](https://caddyserver.com/docs/running#unit-files) based on your use case.
 
-    > NOTE: This involves copying the file contents from [`caddy.service`](https://github.com/caddyserver/dist/blob/master/init/caddy.service).
+    > NOTE: This involves copying the file contents from [`caddy.service`](https://github.com/caddyserver/dist/blob/master/init/caddy.service) and then pasting it into the `/etc/systemd/system/caddy.service` file. To ensure that you can write to the file, sure to use `vim`, like so:
+    >
+    > ```zsh
+    > vim /etc/systemd/system/caddy.service
+    > ```
+    >
+    > Then, paste in the file contents from `dist/int/caddy.service` and save the file.
+    >
 
     **Double-check the `ExecStart` and `ExecReload` directives**. Make sure the binary's location and command line arguments are correct for your installation! For example: if using a config file, change your `--config` path if it is different from the defaults.
 
@@ -575,6 +581,25 @@ The instructions below are mostly taken from there:
     sudo systemctl daemon-reload
     sudo systemctl enable --now caddy
     ```
+
+    > NOTE: If you have not created a Caddyfile and run the following command:
+    >
+    > ```zsh
+    > sudo systemctl
+    > ```
+    >
+    > you will get the following error:
+    >
+    > ```zsh
+    > Job for caddy.service failed because the control process exited with error code.
+    > See "systemctl status caddy.service" and "journalctl -xeu caddy.service" for details.
+    > ```
+    >
+    > You resolve this error by completed step [4.2 Working with Caddy server](#42-working-with-caddy-server) and then re-running that command again:
+    >
+    > ```zsh
+    > sudo systemctl enable --now caddy
+    > ```
 
     Verify that it is running:
 
@@ -986,14 +1011,14 @@ Prerequisites for the `screen` example below:
 2. The latest version of both `docker` and `caddy` are installed on the EC2 instance
 3. You have pulled the Next.js Docker image to run as a container
 4. You have a `Caddyfile` on the EC2 instance to start the Caddy server from
-5. You want to work with two screens: one for `nextjs` and another for `caddy`
+5. You want to work with two screens: one for `next-app` and another for `caddy`
 
 ### 7.1 Example workflow with `screen`
 
 1. Start the screen session:
 
     ```sh
-    screen -S nextjs
+    screen -S next-app
     ```
 
 2. Run the Docker container:
@@ -1004,7 +1029,7 @@ Prerequisites for the `screen` example below:
 
     You can leave this container running since we can detach from this screen without interrupting the container.
 
-3. Detach from the `nextjs` screen session:
+3. Detach from the `next-app` screen session:
 
     Press `Ctrl+A` then `D`.
 
@@ -1014,7 +1039,7 @@ Prerequisites for the `screen` example below:
     screen -S caddy
     ```
 
-5. List all screen sessions to view both the `nextjs`  and `caddy` sessions have been created:
+5. List all screen sessions to view both the `next-app`  and `caddy` sessions have been created:
 
     ```sh
     screen -ls
@@ -1060,10 +1085,10 @@ Prerequisites for the `screen` example below:
 
     Click around several pages.
 
-11. In the EC2 instance, re-attach to the `nextjs` session:
+11. In the EC2 instance, re-attach to the `next-app` session:
 
     ```sh
-    screen -r nextjs
+    screen -r next-app
     ```
 
     You should see the logs from the Next.js server that correspond to the pages you navigated to in your browser.
@@ -1087,16 +1112,16 @@ Prerequisites for the `screen` example below:
 
         Obviously, you can only run `screen -d` to detach from a screen when you have access to the CLI and are not blocked by a running process.
 
-    2. Next, stop the running Next.js Docker container by going back to the `nextjs` screen session and then pressing `CTL + C` to interrupt the container.
+    2. Next, stop the running Next.js Docker container by going back to the `next-app` screen session and then pressing `CTL + C` to interrupt the container.
 
-        1. Enter the `nextjs` screen session
+        1. Enter the `next-app` screen session
 
             ```sh
-            screen -r nextjs
+            screen -r next-app
             ```
 
         2. Interrupt the container by pressing `CTL + C`.
-        3. Exit the `nextjs` screen session by running:
+        3. Exit the `next-app` screen session by running:
 
             ```sh
             screen -d
@@ -1125,10 +1150,10 @@ Prerequisites for the `screen` example below:
 
             Then, detach from the `caddy` screen session, leaving the Caddy server running, by pressing `CTL + A` and then `D`.
 
-        2. Re-enter the `nextjs` screen session:
+        2. Re-enter the `next-app` screen session:
 
             ```sh
-            screen -r nextjs
+            screen -r next-app
             ```
 
             Then, start the Next.js Docker container:
@@ -1137,14 +1162,14 @@ Prerequisites for the `screen` example below:
             docker run -it -p 3000:3000 <IMAGE_ID>
             ```
 
-            Then, detach from the `nextjs` screen session, to work in a separate screen to start other processes or run other commands, or proceed to step 3.
+            Then, detach from the `next-app` screen session, to work in a separate screen to start other processes or run other commands, or proceed to step 3.
 
         3. From your browser, navigate to the domain where the Caddy server is serving the Next.js Docker container.
 
-            After browsing pages on the domain, go back to the EC2 instance `nextjs` screen session:
+            After browsing pages on the domain, go back to the EC2 instance `next-app` screen session:
 
             ```sh
-            screen -r nextjs
+            screen -r next-app
             ```
 
             You should see Next.js returning logs from the page(s) you viewed from your browser.
@@ -1166,11 +1191,11 @@ Prerequisites for the `screen` example below:
     ```sh
     There are screens on:
         3662307.caddy   (Detached)
-        82273.nextjs    (Detached)
+        82273.next-app    (Detached)
         82242.caddy     (Detached)
     ```
 
-    To kill the session with the ID, `82273.nextjs`, you can run either of the following commands:
+    To kill the session with the ID, `82273.next-app`, you can run either of the following commands:
 
     ```sh
     screen -X -S 82273 quit
@@ -1179,7 +1204,7 @@ Prerequisites for the `screen` example below:
     or
 
     ```sh
-    screen -X -S 82273.nextjs quit
+    screen -X -S 82273.next-app quit
     ```
 
     Either of these commands kills that session.
@@ -1696,7 +1721,7 @@ docker system prune -a
 2. Start Next.js container
 
     ```zsh
-    docker run -d --network personality-lab-network --name nextjs -p 3000:3000 <IMAGE_ID>
+    docker run -d --network personality-lab-network --name next-app -p 3000:3000 <IMAGE_ID>
     ```
 
 3. Start WebSocket container
@@ -1712,7 +1737,7 @@ docker system prune -a
     docker network inspect personality-lab-network
     ```
 
-    You should see both the `websocket` and `nextjs` containers listed under the same network.
+    You should see both the `websocket` and `next-app` containers listed under the same network.
 
 5. Test the WebSocket Connection
 
@@ -1735,10 +1760,10 @@ docker system prune -a
     Verify that the WebSocket URL is correctly set in your Next.js app.
 
 3. Test Network Connectivity.
-    Enter the `nextjs` container and try to `curl` the WebSocket server to ensure connectivity:
+    Enter the `next-app` container and try to `curl` the WebSocket server to ensure connectivity:
 
     ```zsh
-    docker exec -it nextjs /bin/sh
+    docker exec -it next-app /bin/sh
     curl websocket:3001
     ```
 
