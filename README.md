@@ -560,10 +560,10 @@ The instructions below are mostly taken from there:
 
 9. Next, [choose a systemd unit file](https://caddyserver.com/docs/running#unit-files) based on your use case.
 
-    > NOTE: This involves copying the file contents from [`caddy.service`](https://github.com/caddyserver/dist/blob/master/init/caddy.service) and then pasting it into the `/etc/systemd/system/caddy.service` file. To ensure that you can write to the file, sure to use `vim`, like so:
+    > NOTE: This involves copying the file contents from [`caddy.service`](https://github.com/caddyserver/dist/blob/master/init/caddy.service) and then pasting it into the `/etc/systemd/system/caddy.service` file. To ensure that you can write to the file, sure to use `sudo vim`, like so:
     >
     > ```zsh
-    > vim /etc/systemd/system/caddy.service
+    > sudo vim /etc/systemd/system/caddy.service
     > ```
     >
     > Then, paste in the file contents from `dist/int/caddy.service` and save the file.
@@ -724,14 +724,6 @@ Assuming you are working under a _single domain_ in a single Caddyfile, you can 
 
   ```apacheconf
   https://example.com  {
-      encode gzip
-      # App
-      header {
-          Strict-Transport-Security "max-age=31536000;"
-          Access-Control-Allow-Origin "*"
-      }
-      reverse_proxy localhost:3000
-
       # WebSocket
       @ws `header({'Connection': '*Upgrade*', 'Upgrade': 'websocket'})`
       reverse_proxy @ws localhost:3001
@@ -917,7 +909,7 @@ sudo systemctl restart docker
 
 Make sure to specify the correct port number that is exposed in the [`Dockerfile`](./Dockerfile).
 
-Also, make sure to specify the `<IMAGE_ID>` and *not* the image name of the image that was pulled from the Docker repository.
+Also, make sure to specify the `<IMAGE_ID>` and _not_ the image name of the image that was pulled from the Docker repository.
 
 ```zsh
 docker run -d -it -p 3000:3000 <IMAGE_ID>
@@ -964,11 +956,13 @@ RSA is not as secure as ED25519, so select ED25519 as the encryption method.
     chmod 400 "key-pair-name.pem"
     ```
 
-4. Connect to your instance using its Public DNS
+4. Connect to your instance using its Public Elastic IP.
 
     ```zsh
-    EC2_HOSTNAME.compute-1.amazonaws.com
+    ELASTIC_IP.compute-1.amazonaws.com
     ```
+
+    where `ELASTIC_IP.compute-1.amazonaws.com` is equal to `EC2_HOSTNAME`.
 
 Example:
 
