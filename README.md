@@ -2146,7 +2146,7 @@ For example, for the ECR with the name `jackw/next-app`, save this as a GitHub A
 8. Under the `Resource` field, enter in the full ARN of each of the private repositories that you created in [12.1 Create a Private Repository](#121-create-a-private-repository).
 9. Click the orange "Save" button.
 
----;
+--------------------
 
 ## Contributors
 
