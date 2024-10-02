@@ -19,10 +19,10 @@ type ShareResultsProps = {
   }
   onClick: {
     handleTakeScreenshot: (e: any) => void
-    handleRateVisualization: (
-      e: any, 
-      positiveOrNegative: 'positive' | 'negative'
-    ) => void
+    // handleRateVisualization: (
+    //   e: any, 
+    //   positiveOrNegative: 'positive' | 'negative'
+    // ) => void
   }
 }
 
@@ -43,10 +43,10 @@ const ShareResults: FC<ShareResultsProps> = ({
         } }
       >
         
-        <RateDataViz 
+        {/* <RateDataViz 
           isRating={ state.isRating }
           handleRateVisualization={ onClick.handleRateVisualization }
-        />
+        /> */}
 
         <div>
           { state.isCopied ? (

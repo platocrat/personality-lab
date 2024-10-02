@@ -8,6 +8,7 @@ import { imgPaths } from '@/utils'
 import appStyles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
 import modalStyle from '@/components/Modals/Modal.module.css'
+import styles from '@/components/Modals/BESSI/ResultsVisualization/ResultsVisualziation.module.css'
 
 
 
@@ -22,16 +23,16 @@ type ResultsVisualizationModalProps = {
     setIsCopied: Dispatch<SetStateAction<boolean>>
     isModalVisible: boolean
   }
-  viz: {
-    visualizations: any[]
-    currentVisualization: number
-  }
+  // viz: {
+  //   visualizations: any[]
+  //   currentVisualization: number
+  // }
 }
 
 
 
 const ResultsVisualizationModal: FC<ResultsVisualizationModalProps> = ({
-  viz,
+  // viz,
   refs,
   state,
   screenshotUrl,
@@ -40,11 +41,12 @@ const ResultsVisualizationModal: FC<ResultsVisualizationModalProps> = ({
 
 
   const handleShareScreenshot = () => {
-    const timeout = 2_000 // 2 seconds
-    const viz_ = viz.visualizations[viz.currentVisualization]
+    const timeout = 100 // 1 ms
+    // const viz_ = viz.visualizations[viz.currentVisualization]
 
     // Ask the user if they want to download the screenshot
-    const alertMessage = `Download PNG of the ${viz_.name}?`
+    // const alertMessage = `Download PNG of the ${viz_.name}?`
+    const alertMessage = `Download PNG of the Stellar Plot?`
 
     let userConfirmation
 
@@ -61,7 +63,8 @@ const ResultsVisualizationModal: FC<ResultsVisualizationModalProps> = ({
           state.setIsCopied(true)
 
           link.href = url
-          link.download = `bessi-${viz_.imgName}.png`
+          // link.download = `bessi-${viz_.imgName}.png`
+          link.download = `bessi-stellar-plot.png`
 
           document.body.appendChild(link)
 
@@ -86,7 +89,7 @@ const ResultsVisualizationModal: FC<ResultsVisualizationModalProps> = ({
       { state.isModalVisible && (
         <>
           <div style={ definitelyCenteredStyle }>
-            <div 
+            <div
               ref={ refs.modalRef }
               className={ `${ modalStyle.modal } ${ modalStyle.background }` }
             >
@@ -96,16 +99,16 @@ const ResultsVisualizationModal: FC<ResultsVisualizationModalProps> = ({
                   margin: '8px 0px 24px 0px',
                 }}
               >
-                  { title }
+                { title }
               </h3>
 
               <div ref={ refs.screenshot2Ref }>
                 <Image
-                  width={ 200 }
-                  height={ 200 }
+                  width={ 300 }
+                  height={ 300 }
                   src={ screenshotUrl }
                   alt='Screenshot of Visualization'
-                  style={ { width: '100%',  height: 'auto'  } } 
+                  className={ styles['downloadable-image'] }
                 />
 
                 {/**

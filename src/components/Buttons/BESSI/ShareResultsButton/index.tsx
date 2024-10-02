@@ -4,25 +4,24 @@
 import Image from 'next/image'
 import { useContext, useMemo, useState } from 'react'
 // Locals
-import { CSCrypto, LibsodiumUtils, imgPaths } from '@/utils'
+import { CSCrypto, imgPaths } from '@/utils'
 // Contexts
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // Types
-import { BessiSkillScoresContextType } from '@/contexts/types'
+import { BessiSkillScoresContextType, SessionContextType } from '@/contexts/types'
 // CSS
 import styles from '@/app/page.module.css'
 import { definitelyCenteredStyle } from '@/theme/styles'
-import { timeout } from 'd3'
-import { gunzip, gzip } from 'zlib'
-
+import { SessionContext } from '@/contexts/SessionContext'
 
 
 
 const BessiShareResultsButton = ({ }) => {
   // Contexts
-  const { bessiSkillScores } = useContext<BessiSkillScoresContextType>(
-    BessiSkillScoresContext
-  )
+  const { 
+    bessiSkillScores 
+  } = useContext<BessiSkillScoresContextType>(BessiSkillScoresContext)
+  const { email } = useContext<SessionContextType>(SessionContext)
   // States
   const [isCopied, setIsCopied ] = useState(false)
 
@@ -39,7 +38,6 @@ const BessiShareResultsButton = ({ }) => {
   const studyId = useMemo((): string | undefined => {
     return bessiSkillScores?.studyId
   }, [ bessiSkillScores ])
-
 
   /**
    * Handle sharing results by generating a URL with the access token.
@@ -59,11 +57,11 @@ const BessiShareResultsButton = ({ }) => {
       
       // Encrypted and encoded concatenated string of `id` and `accessToken`
       if (studyId) {
-        const shareableId = `${id}--${accessToken}--${studyId}`
+        const shareableId = `${id}--${accessToken}--${email}--${studyId}`
         const eeShareableId = await encryptCompressEncode(shareableId)
         fullUrl = `${baseUrl}/results/${eeShareableId}`
       } else {
-        const shareableId = `${id}--${accessToken}`
+        const shareableId = `${id}--${accessToken}--${email}`
         const eeShareableId = await encryptCompressEncode(shareableId)
         fullUrl = `${baseUrl}/results/${eeShareableId}`
       }

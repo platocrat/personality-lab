@@ -60,9 +60,6 @@ const ParticipantsTable: FC<ParticipantsTableProps> = ({
     state.setParticipantsUpdated(false)
 
     try {
-      /**
-       * @todo `DELETE` API route fails in GitHub Actions deployment
-       */
       const response = await fetch('/api/v1/study/participant', {
         method: 'DELETE',
         headers: {

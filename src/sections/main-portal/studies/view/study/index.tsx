@@ -26,6 +26,7 @@ import {
   PARTICIPANT__DYNAMODB,
   AVAILABLE_ASSESSMENTS,
   BessiUserResults__DynamoDB,
+  FacetFactorType,
 } from '@/utils'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
@@ -102,9 +103,9 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
   // -------------------------- Async functions --------------------------------
   /**
    * @dev Makes a `GET` request to get the `study` from the given ID to index
-   *      the `participants` property from the `study` object
+   *      the `participants` property on the `study` object.
    */
-  async function getParticipants() {
+  async function getParticipants(): Promise<void> {
     try {
       const apiEndpoint = `/api/v1/study?email=${ email }&id=${ study?.id }`
       const response = await fetch(apiEndpoint, {
@@ -117,11 +118,35 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
       if (response.status === 405) throw new Error(json.error)
 
       const study_ = json.study as STUDY__DYNAMODB
-      const results_ = study_.results as RESULTS__DYNAMODB[] ?? null
       const participants_ = study_.participants as PARTICIPANT__DYNAMODB[] ?? null
+      setParticipants(participants_)
+    } catch (error: any) {
+      throw new Error(error.message)
+    }
+  }
+  
+
+  /**
+   * @dev Makes a `GET` request to get `results` for the given study ID.
+   */
+  async function getStudyResults(): Promise<void> {
+    try {
+      const apiEndpoint = `/api/v1/assessment/results?studyId=${ study?.id }`
+      const response = await fetch(apiEndpoint, {
+        method: 'GET',
+      })
+
+      const json = await response.json()
+
+      if (response.status === 500) throw new Error(json.error)
+      if (response.status === 405) throw new Error(json.error)
+
+      const resultsWithMetadata = json.resultsPerStudyId as RESULTS__DYNAMODB[]
+      const results_ = resultsWithMetadata.map((
+        _: RESULTS__DYNAMODB) => _.results as any | BessiUserResults__DynamoDB
+      )
 
       setResults(results_)
-      setParticipants(participants_)
     } catch (error: any) {
       throw new Error(error.message)
     }
@@ -168,7 +193,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
 
         return [
           participants[i].id,
-          ...Object.values(facetScores),
+          ...Object.values(facetScores as FacetFactorType),
           ...Object.values(domainScores),
           ...Object.values(demographics)
         ]
@@ -186,7 +211,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
   }
 
 
-  async function getStudyIdAndInviteUrl() {
+  async function getStudyIdAndInviteUrl(): Promise<void> {
     let inviteUrl_
 
     if (window !== undefined) {
@@ -198,7 +223,7 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
 
 
   // ~~~~~~ Button handlers ~~~~~~
-  async function handleDownloadData(e: any) {
+  async function handleDownloadData(e: any): Promise<void> {
     if (!participants && !results) return
 
     // Show confirmation alert
@@ -260,22 +285,30 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
 
   // -------------------------- `useLayoutEffect`s -----------------------------
   useLayoutEffect(() => {
-    if (
-      study &&
-      (study?.id !== '' || study?.id !== undefined)
-    ) {
-      setIsWaitingForResponse(true)
+    if (email) {
+      if (
+        study &&
+        (study?.id !== '' || study?.id !== undefined)
+      ) {
+        setIsWaitingForResponse(true)
 
-      const requests = [
-        getStudyIdAndInviteUrl(),
-        getParticipants(),
-      ]
+        const requests = [
+          getStudyIdAndInviteUrl(),
+          getParticipants(),
+          getStudyResults(),
+        ]
 
-      Promise.all(requests).then((response: any) => {
-        setIsWaitingForResponse(false)
-      })
+        Promise.all(requests).then((response: any) => {
+          setIsWaitingForResponse(false)
+        })
+      }
     }
-  }, [ study?.id, participantCreated, participantsUpdated ])
+  }, [ 
+    email, 
+    study?.id, 
+    participantCreated, 
+    participantsUpdated 
+  ])
 
 
 
@@ -350,10 +383,8 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
                   <>
                     { participants !== null && participants.length > 0 ? (
                       <div
+                        style={ { marginTop: results ? '36px' : '' } }
                         className={ `${viewStudiesStyles['form-container']}` }
-                        style={ {
-                          marginTop: participants[0].studies[0].results ? '36px' : ''
-                        } }
                       >
                         <ParticipantsTable
                           state={ {
@@ -370,7 +401,9 @@ const ViewStudySection: FC<ViewStudySectionProps> = ({
                       </div>
                     ) : (
                       <div style={ { margin: '72px 0px' } }>
-                        <h3>{ `Invite participants to register to your study!` }</h3>
+                        <h3>
+                          { `Invite participants to register to your study!` }
+                        </h3>
                       </div>
                     ) }  
                   </>

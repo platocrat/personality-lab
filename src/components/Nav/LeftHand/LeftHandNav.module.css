@@ -36,6 +36,7 @@
 }
 
 .sidebarLink:hover {
+  cursor: pointer;
   background-color: rgba(113, 175, 255, 0.1537);
 }
 

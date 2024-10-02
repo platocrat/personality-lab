@@ -1,9 +1,9 @@
 // Externals
 import { FC } from 'react'
 // Locals
-import SocialRatingInstructions from './instructions'
+import Overview from './overview'
 // Sections
-import InitiateGame from './instructions/initiate-game'
+import InitiateGame from '@/sections/social-rating/session/initiate-game'
 // CSS
 import styles from '@/sections/social-rating/fictional-characters/FictionalCharacters.module.css'
 
@@ -22,8 +22,7 @@ const FictionalCharacters: FC<FictionalCharactersProps> = ({
   return (
     <>
       <div className={ styles['container'] }>
-        <SocialRatingInstructions />
-        <InitiateGame />
+        <Overview />
       </div>
     </>
   )

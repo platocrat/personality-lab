@@ -1,17 +1,17 @@
 'use client'
 
 // Externals
+import Image from 'next/image'
 import {
   FC,
   useRef,
   useState,
   Fragment,
   ReactNode,
-  useEffect,
   useContext,
   useLayoutEffect,
-  } from 'react'
-  import Image from 'next/image'
+} from 'react'
+import { usePathname } from 'next/navigation'
   // import { useUser } from '@auth0/nextjs-auth0/client'
 // Locals
 import ProgressBarLink from '@/components/Progress/ProgressBarLink'
@@ -22,10 +22,10 @@ import { SessionContextType } from '@/contexts/types'
 // Hooks
 import useClickOutside from '@/hooks/useClickOutside'
 // Utils
-import { ACCOUNT__DYNAMODB, imgPaths, PARTICIPANT__DYNAMODB, STUDY_SIMPLE__DYNAMODB } from '@/utils'
+import { imgPaths } from '@/utils'
 // CSS
-import { definitelyCenteredStyle } from '@/theme/styles'
 import styles from '@/components/Nav/DropdownMenu/Dropdown.module.css'
+import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 
@@ -53,7 +53,8 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
 
   // Contexts
   const { email } = useContext<SessionContextType>(SessionContext)
-
+  // Hooks
+  const pathname = usePathname()
   // Refs
   const dropdownRef = useRef<any>(null)
   const notificationRef = useRef(null)
@@ -69,6 +70,10 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
   const [ isVisible, setIsVisible ] = useState<boolean>(false)
 
   // --------------------- `OnClick` Functions Handlers ------------------------
+  const onClick = (e: any) => {
+    setIsVisible(false)
+  }
+
   const toggleDropdown = () => {
     setIsVisible(!isVisible)
   }
@@ -100,6 +105,7 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
   useClickOutside(dropdownRef, () => setIsVisible(false))
 
   // ------------------------- `useLayoutEffect`s ------------------------------
+  // Update the signed in user's Gravatar image
   useLayoutEffect(() => {
     if (email !== undefined || email !== null || email !== '') {
       const requests = [
@@ -109,6 +115,12 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
       Promise.all(requests).then(() => { })
     }
   }, [ email ])
+
+  
+  // Close dropdown menu when the page is rendered and the pathname changes
+  useLayoutEffect(() => {
+    setIsVisible(false)
+  }, [ pathname ])
 
 
 
@@ -167,35 +179,30 @@ const DropdownMenu: FC<DropdownMenuProps> = ({
 
         { isVisible && (
           <Fragment key={ `dropdown-menu` }>
-            <div className={ `${styles.dropdownContent} ${isVisible ? 'slideIn' : 'slideOut'}` }>
+            <div 
+              className={ 
+                `${styles['dropdown-content']} ${isVisible ? 'slideIn' : 'slideOut'}`
+              }
+            >
               { links.map((link: NavLink, i: number) => (
                 <Fragment
                   key={ i }
                 >
                   <ProgressBarLink
                     href={ link.href }
-                    className={ styles.dropdownLink }
+                    className={ styles['dropdown-link'] }
                   >
                     { i === 0 
                       ? (
                         <>
-                        <div 
-                          className={ styles.username }
-                          style={{ display: 'flex', gap: '14px' }}
-                        >
+                        <div className={ styles.username }>
                           <div style={ definitelyCenteredStyle }>
                             <p>
                               {/* { user?.name } */}
                               { email }
                             </p>
                           </div>
-                          <div 
-                            style={{ 
-                              ...definitelyCenteredStyle,
-                              textAlign: 'center',
-                              fontSize: 'clamp(6px, 2vw, 10px)',
-                            }}
-                          >
+                          <div className={ styles['view-profile'] }>
                             <p>
                               { `View Profile` }
                             </p>

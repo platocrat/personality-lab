@@ -10,7 +10,6 @@ import {
   PutCommandInput,
   QueryCommandInput,
   UpdateCommandInput,
-  NativeAttributeValue,
 } from '@aws-sdk/lib-dynamodb'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
@@ -19,9 +18,9 @@ import {
   ddbDocClient,
   StudyAsAdmin,
   ACCOUNT_ADMINS,
+  ACCOUNT__DYNAMODB,
   fetchAwsParameter,
   getEncryptedItems,
-  ACCOUNT__DYNAMODB,
   AWS_PARAMETER_NAMES,
   DYNAMODB_TABLE_NAMES,
   setJwtCookieAndGetCookieValue,
@@ -47,9 +46,7 @@ export async function POST(
      *          exists in the `accounts` table
      */
     let KeyConditionExpression = 'email = :emailValue',
-      ExpressionAttributeValues: Record<string, NativeAttributeValue> = {
-        ':emailValue': email
-      }
+      ExpressionAttributeValues = { ':emailValue': email }
 
     let input: QueryCommandInput | PutCommandInput
       | GetParameterCommandInput | UpdateCommandInput = {
@@ -98,6 +95,8 @@ export async function POST(
             studiesAsAdmin = account.studiesAsAdmin ?? []
           }
 
+          if (account.participant) isParticipant = true
+
           /**
            * @dev 1.1.4 Determine if the new user is an admin.
            */
@@ -110,6 +109,8 @@ export async function POST(
            *            updated at.
            */
           const updatedAtTimestamp = Date.now()
+          const lastLoginTimestamp = Date.now()
+          const lastLogoutTimestamp = 0
 
           /**
            * @dev 1.1.6 Construct `UpdateCommand` arguments
@@ -121,13 +122,15 @@ export async function POST(
           // const UpdateExpression =
           //   'set isGlobalAdmin = :isGlobalAdmin, username = :username, password = :password, updatedAtTimestamp = :updatedAtTimestamp'
           const UpdateExpression =
-            'set isGlobalAdmin = :isGlobalAdmin, studiesAsAdmin = :studiesAsAdmin, password = :password, updatedAtTimestamp = :updatedAtTimestamp'
+            'set isGlobalAdmin = :isGlobalAdmin, studiesAsAdmin = :studiesAsAdmin, password = :password, lastLoginTimestamp = :lastLoginTimestamp, lastLogoutTimestamp = :lastLogoutTimestamp, updatedAtTimestamp = :updatedAtTimestamp'
           const ExpressionAttributeValues = {
             // ':username': username,
             ':isGlobalAdmin': isGlobalAdmin,
             ':studiesAsAdmin': studiesAsAdmin,
             ':password': password, // Assuming password is already hashed
-            ':updatedAtTimestamp': updatedAtTimestamp
+            ':lastLoginTimestamp': lastLoginTimestamp,
+            ':lastLogoutTimestamp': lastLogoutTimestamp,
+            ':updatedAtTimestamp': updatedAtTimestamp,
           }
 
           input = {
@@ -345,6 +348,8 @@ export async function POST(
      */
     // Get timestamp after the email is validated.
     const createdAtTimestamp = Date.now()
+    const lastLoginTimestamp = Date.now()
+    const lastLogoutTimestamp = 0
     const updatedAtTimestamp = 0
 
     /**
@@ -368,6 +373,8 @@ export async function POST(
       password, // Contains a password that is already hashed
       studiesAsAdmin,
       isGlobalAdmin,
+      lastLoginTimestamp,
+      lastLogoutTimestamp,
       createdAtTimestamp,
       updatedAtTimestamp,
     }

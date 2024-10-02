@@ -1,15 +1,24 @@
 // Externals
 import { sign } from 'jsonwebtoken'
 import { NextResponse } from 'next/server'
+import {
+  UpdateCommand,
+  QueryCommand,
+  QueryCommandInput,
+  UpdateCommandInput,
+} from '@aws-sdk/lib-dynamodb'
 // Locals
 import {
   SSCrypto,
   MAX_AGE,
   COOKIE_NAME,
+  ddbDocClient,
   StudyAsAdmin,
   ACCOUNT_ADMINS,
   fetchAwsParameter,
+  ACCOUNT__DYNAMODB,
   AWS_PARAMETER_NAMES,
+  DYNAMODB_TABLE_NAMES,
   PARTICIPANT__DYNAMODB,
   EncryptedCookieFieldType,
   HASHED_PASSWORD__DYNAMODB,
@@ -245,22 +254,136 @@ export async function verifiedEmailAndPasswordSwitch(
           const message = 'Verified email and password'
 
           /**
-           * @dev 5. Return response
+           * @dev 5. Perform `Query` operation to find email's account entry in
+           *         the `accounts` table. Then, perform an `Update` operation
+           *         on the account entry to update its `lastLoginTimestamp`
+           *         property.
            */
-          return NextResponse.json(
-            {
-              message,
-              isGlobalAdmin,
-              isParticipant,
+          const TableName = DYNAMODB_TABLE_NAMES.accounts
+          
+          let KeyConditionExpression = 'email = :emailValue',
+            ExpressionAttributeValues: { [ key: string ]: any } = { 
+              ':emailValue': email 
             },
-            {
-              status: 200,
-              headers: {
-                'Set-Cookie': cookieValue,
-                'Content-Type': 'application/json'
+            input: QueryCommandInput | UpdateCommandInput = {
+              TableName,
+              KeyConditionExpression,
+              ExpressionAttributeValues,
+            },
+            command: QueryCommand | UpdateCommand = new QueryCommand(input)
+
+          // Peform the `Query` operation on the DynamoDB table.
+          try {
+            const response = await ddbDocClient.send(command)
+
+            const items = (response.Items as any) as ACCOUNT__DYNAMODB[]
+
+            if (items) {        
+              /**
+               * @dev 6. Perform `Update` operation on the account entry to 
+               *         update its `lastLoginTimestamp` property.
+               */
+              const account = items[0]
+              const createdAtTimestamp = account.createdAtTimestamp
+              
+              const lastLoginTimestamp = Date.now()
+
+              const Key = { email, createdAtTimestamp }
+              const UpdateExpression = 'set lastLoginTimestamp = :lastLoginTimestamp'
+
+              ExpressionAttributeValues = { ':lastLoginTimestamp': lastLoginTimestamp }
+              input = {
+                TableName,
+                Key,
+                UpdateExpression,
+                ExpressionAttributeValues
               }
-            },
-          )
+              command = new UpdateCommand(input)
+
+              try {
+                const response = await ddbDocClient.send(command)
+                
+                /**
+                 * @dev 7. Return response with variables necessary for the 
+                 *         client and with the new cookie in the `Set-Cookie` 
+                 *         response header.
+                 */
+                return NextResponse.json(
+                  {
+                    message,
+                    isGlobalAdmin,
+                    isParticipant,
+                  },
+                  {
+                    status: 200,
+                    headers: {
+                      'Set-Cookie': cookieValue,
+                      'Content-Type': 'application/json'
+                    }
+                  },
+                )
+              } catch (error: any) {
+                // Something went wrong
+                const errorMessage = `Failed 'Update' operation for '${
+                  email
+                }' on the '${TableName}' table`
+
+                console.error(errorMessage)
+
+                return NextResponse.json(
+                  { error: `${errorMessage}: ${error}` },
+                  {
+                    status: 500,
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                  },
+                )
+              }
+            // If the `email` is not found after performing the `Query` 
+            // operation, log an error message on the server and pass the error
+            // message to the client.
+            } else {
+              const error = `'${
+                email
+              }' was not found from the Query operation on the '${
+                TableName
+              }' table`
+
+              console.error(error)
+
+              return NextResponse.json(
+                { 
+                  error, 
+                },
+                {
+                  status: 500,
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                },
+              )
+            }
+          // Log the error on the server and pass the error to the client if the
+          // the `Query` operation failed.
+          } catch (error: any) {
+            // Something went wrong
+            const errorMessage = `Failed Query operation for '${ 
+              email 
+            }' on the '${TableName}' table`
+
+            console.error(errorMessage)
+
+            return NextResponse.json(
+              { error: `${errorMessage}: ${ error }` },
+              {
+                status: 500,
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              },
+            )
+          }
         } else {
           return SECRET_KEY as NextResponse<{ error: string }>
         }

@@ -72,7 +72,7 @@ export async function PUT(
     const command = new PutCommand(input)
 
     const message = `User data visualization rating has been added to ${
-      DYNAMODB_TABLE_NAMES.vizRating
+      TableName
     } table`
 
 

@@ -1,38 +1,26 @@
 // Externals
+import crypto from 'crypto'
 import { Dispatch, SetStateAction } from 'react'
 // Locals
 import { 
+  Player,
+  CharacterType,
   UserScoresType, 
   FacetFactorType,
-  BESSI_45_ACTIVITIES,
+  BESSI_ACTIVITIES,
+  findNthOccurrence,
+  BessiSkillScoresType,
   calculateBessiScores,
   SkillDomainFactorType, 
-  BESSI_45_ACTIVITY_BANK,
-} from '@/utils/assessments'
-import { findNthOccurrence } from '@/utils/misc'
+  GeneratedCharacterType,
+  SocialRatingGamePlayers,
+  generateBessiActivityBank,
+} from '@/utils'
 
 
 
-export type CharacterType = {
-  name: string
-  group: string
-  description: string
-  facetScores: FacetFactorType
-  domainScores: SkillDomainFactorType
-}
-
-
-type GeneratedCharacterType = {
-  group: string
-  name: string
-  description: string
-  responses: {
-    response: number
-    id: number
-    activity: string
-  }[]
-}[]
-
+const REPORT_TYPE = 'self-report'
+const BESSI_VERSION = 96
 
 
 
@@ -47,10 +35,12 @@ function update(
   const name = genCharacter.name
   const description = genCharacter.description
 
-  const responses: UserScoresType[] = BESSI_45_ACTIVITY_BANK.map((
+  const activityBank = generateBessiActivityBank(REPORT_TYPE, BESSI_VERSION)
+
+  const scores: UserScoresType[] = activityBank.map((
     activity,
     i: number
-  ) => {
+  ): UserScoresType => {
     const response = genCharacter.responses[i]
 
     return {
@@ -61,7 +51,15 @@ function update(
     }
   })
 
-  const { facetScores, domainScores } = calculateBessiScores(responses)
+  type BessiScores = {
+    facetScores: FacetFactorType,
+    domainScores: SkillDomainFactorType
+  }
+
+  const { 
+    facetScores, 
+    domainScores 
+  } = calculateBessiScores(scores, 96) as BessiScores
 
   const character: CharacterType = {
     group,
@@ -184,7 +182,7 @@ export async function generateCharacterProfile(
 ): Promise<void> {
   setCurrentPromptIndex(prevIndex => prevIndex + 1)
 
-  const SYSTEM_CONTENT = `You will be provided with a fictional pop-culture series name (e.g. Harry Potter, Game of Thrones, Euphoria, The Big Bang Theory, American Horror Story, etc.). Your task is to simulate responses to the following 45 activities for up to 3 characters that are from the given pop-culture series: for each activity, respond with a rating between 1 and 5 to represent how others would rate that fictional pop-culture character, with 1 representing not at all likely to do the activity and 5 representing very much likely to do the activity. You must give the rating for each of the 45 activities in your response. Additionally, you must give the description of the personality of the character. For example, if given 'Harry Potter', you should respond with 'Harry Potter from the Harry Potter series is the brave protagonist of the series. Now, here are the responses to each of the 45 activities:'. The description must be around 250 words. Remember that this must be for each character. Furthermore, return your response as an array of JSON objects where each JSON object includes the description, the list of 45-ratings, and the character's name. To be clear, the type of the response that you must return is, 'type ResponsesType = { group: string, name: string, description: string, responses: { response: number, activity: string, id: number }[] }[]'. Below is the list of activities: ${BESSI_45_ACTIVITIES.join('?')}`
+  const SYSTEM_CONTENT = `You will be provided with a fictional pop-culture series name (e.g. Harry Potter, Game of Thrones, Euphoria, The Big Bang Theory, American Horror Story, etc.). Your task is to simulate responses to the following 45 activities for up to 3 characters that are from the given pop-culture series: for each activity, respond with a rating between 1 and 5 to represent how others would rate that fictional pop-culture character, with 1 representing not at all likely to do the activity and 5 representing very much likely to do the activity. You must give the rating for each of the 45 activities in your response. Additionally, you must give the description of the personality of the character. For example, if given 'Harry Potter', you should respond with 'Harry Potter from the Harry Potter series is the brave protagonist of the series. Now, here are the responses to each of the 45 activities:'. The description must be around 250 words. Remember that this must be for each character. Furthermore, return your response as an array of JSON objects where each JSON object includes the description, the list of 45-ratings, and the character's name. To be clear, the type of the response that you must return is, 'type ResponsesType = { group: string, name: string, description: string, responses: { response: number, activity: string, id: number }[] }[]'. Below is the list of activities: ${BESSI_ACTIVITIES['self-report'][96].join('?')}`
 
   const apiEndpoint = 'https://api.openai.com/v1/chat/completions'
   const response = await fetch(
@@ -272,4 +270,51 @@ export async function generateCharacterProfile(
       throw new Error(errorWithContent)
     }
   }
+}
+
+
+
+
+export async function handleEnterGameSession(_url: string): Promise<void> {
+  window.open(_url, '_blank', 'noopener,noreferrer')
+}
+
+
+
+
+// Generate a secure token for the session using sessionPin
+export function generateSecureToken(
+  sessionPin: string,
+  sessionId: string,
+  secretKey: string // Use a secure secret key for HMAC
+): string {
+  return crypto.createHmac('sha256', secretKey)
+    .update(`${sessionPin}-${sessionId}`)
+    .digest('hex')
+}
+
+
+
+
+// Function to validate the token
+export function validateToken(
+  sessionPin: string,
+  sessionId: string,
+  token: string,
+  secretKey: string // Use a secure secret key for HMAC
+): boolean {
+  const expectedToken = generateSecureToken(sessionPin, sessionId, secretKey)
+  return token === expectedToken
+}
+
+
+
+
+export function haveAllPlayersCompleted(
+  players: SocialRatingGamePlayers,
+  check: 'hasCompletedConsentForm' | 'hasCompletedSelfReport' | 'hasCompletedObserverReport',
+): boolean {
+  return Object.values(players).every(
+    (player: Player): boolean => player.inGameState[check]
+  )
 }

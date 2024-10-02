@@ -16,9 +16,9 @@
     padding: 4px;
     margin: 0 auto;
     font-family: Arial, sans-serif;
-    background-color: #f9f9f9;
+    /* background-color: #f9f9f9; */
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
   }
 }
 
@@ -36,12 +36,20 @@
   color: #fff;
   background-color: #0070f3;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
 }
 
 .generate-button:hover {
   background-color: #005bb5;
+  transform: scale(0.985);
+  transition: 0.05s ease-in-out;
+}
+
+.generate-button:active {
+  background-color: #1c78d3;
+  transform: scale(0.965);
+  transition: 0.05s ease-in-out;
 }
 
 .character-card {

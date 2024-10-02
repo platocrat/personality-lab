@@ -16,13 +16,9 @@ import BessiWantToLearnMore from '@/sections/assessments/bessi/assessment/result
 import BessiResultsVisualization from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization'
 import BessiResultsSkillsScoresAndDefinitions from '@/sections/assessments/bessi/assessment/results/skills-scores-and-definitions'
 // Contexts
-import { SessionContext } from '@/contexts/SessionContext'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
 // Context types
-import { 
-  SessionContextType,
-  BessiSkillScoresContextType, 
-} from '@/contexts/types'
+import { BessiSkillScoresContextType } from '@/contexts/types'
 // Utils
 import {
   CSCrypto,
@@ -63,38 +59,43 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
   } = useContext<BessiSkillScoresContextType>(
     BessiSkillScoresContext
   )
-  const { email } = useContext<SessionContextType>(SessionContext)
   // State
+  const [ 
+    isAccessTokenExpired, 
+    setIsAccessTokenExpired
+  ] = useState<boolean>(false)
   const [ id, setId ] = useState<string>('')
+  const [ email, setEmail ] = useState<string>('')
   const [ studyId, setStudyId ] = useState<string>('')
   const [ accessToken, setAccessToken ] = useState<string>('')
-  const [ isDataLoading, setIsDataLoading ] = useState(false)
-  const [ isAccessTokenExpired, setIsAccessTokenExpired ] = useState(false)
+  const [ isDataLoading, setIsDataLoading ] = useState<boolean>(true)
 
-  
+
   const errorMessage =  isAccessTokenExpired 
     ? `Access token expired!`
     : `ID and access token were not found!`
   
+
   // Memoized constants
   const errorStatus = useMemo((): boolean => {
-    setIsDataLoading(false)
-    return isAccessTokenExpired || !accessToken || !id || !studyId
-  }, [ isAccessTokenExpired, accessToken, id, studyId ])
+    return (
+      isAccessTokenExpired || 
+      !id ||
+      !accessToken &&
+      (!email || !studyId) // Either `email` or `studyId` will be present
+    )
+  }, [ isAccessTokenExpired, id, accessToken, email, studyId ])
 
 
   // --------------------------- Async functions -------------------------------
   async function getUserResults() {
     try {
-      const apiEndpoint = `/api/v1/assessment/share-results?email=${
-        email
-      }eeShareableId=${ 
+      const apiEndpoint = `/api/v1/assessment/share-results?eeShareableId=${ 
         eeShareableId 
       }`
       const response = await fetch(apiEndpoint, { method: 'GET' })
 
       const json = await response.json()
-
 
       if (response.status === 200) {
         const userResults: RESULTS__DYNAMODB = json.userResults
@@ -112,29 +113,36 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
         }
 
         setBessiSkillScores(bessiSkillScores_)
+        setIsDataLoading(false)
       } else if (json.error === 'Access token expired') {
         setIsAccessTokenExpired(true)
+        setIsDataLoading(false)
       } else {
+        setIsDataLoading(false)
+
         const error = `Could not get results from the provided id: '${
           id
         }', access token: '${
           accessToken
+        }', email: '${
+          email
         }', and studyId: '${ 
           studyId 
         }': `
+        
         /**
          * @todo Handle error UI here
          */
         throw new Error(error, json.error)
       }
     } catch (error: any) {
+      setIsDataLoading(false)
       console.error(error)
 
       /**
        * @todo Handle error UI here
        */
       throw new Error(`Error! `, error)
-
     }
   }
 
@@ -144,60 +152,64 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
   }
 
   
+  async function getAuthorizationCredentials() {
+    const shareableId = await getDecryptedShareableId()
+    
+    // Split the string by the separator '--'
+    const parts = (shareableId as string).split('--')
+
+    let id_ = '',
+      accessToken_ = '',
+      email_ = '',
+      studyId_ = ''
+
+    id_ = parts[0]
+    accessToken_ = parts[1]
+    email_ = parts[2]
+    studyId_ = parts[3] ?? ''
+
+    setId(id_)
+    setEmail(email_)
+    setAccessToken(accessToken_)
+    setStudyId(studyId_)
+
+    return { id_, accessToken_, email_, studyId_ }
+  }
+
+  
   // ----------------------------- `useLayoutEffect`s --------------------------
   useLayoutEffect(() => {
-    getDecryptedShareableId().then((shareableId: string) => {
-      // Split the string by the separator '--'
-      const parts = (shareableId as string).split('--')
-
-      let id_ = '',
-        accessToken_ = '',
-        studyId_ = ''
-
-      if (parts.length === 2) {
-        id_ = parts[0]
-        accessToken_ = parts[1]
-      } 
+    getAuthorizationCredentials().then((credentials) => {
+      const { id_, accessToken_, email_, studyId_ } = credentials
       
-      if (parts.length === 3) {
-        id_ = parts[0]
-        accessToken_ = parts[1]
-        studyId_ = parts[2]
+      if (
+        !id_ || 
+        !accessToken_ && 
+        (!email_ || !studyId_) // Either `email` or `studyId` will be present
+      ) {
+        /**
+         * @todo Replace the line below by handling the error on the UI here
+         */
+        throw new Error(
+          `Error: 'id', 'accessToken', 'email', or 'studyId' is invalid , see 'id': ${
+            id_
+          }, 'accessToken': ${
+            accessToken_
+          }, ${
+            email
+          }, and 'studyId': ${
+            studyId_
+          } !`
+        )
+      } else {
+        const requests = [
+          getUserResults(),
+        ]
+
+        Promise.all(requests).then((response: any) => { })
       }
-
-      setId(id_)
-      setAccessToken(accessToken_)
-      setStudyId(studyId_)
     })
-  }, [ eeShareableId ])
-
-
-  useLayoutEffect(() => {
-    if (!id || !accessToken || !studyId) {
-      /**
-       * @todo Replace the line below by handling the error on the UI here
-       */
-      throw new Error(
-        `Error: 'id', 'accessToken', or 'studyId' is invalid , see 'id': ${
-          id
-        }, 'accessToken': ${ 
-          accessToken
-        }, and 'studyId': ${
-          studyId
-        } !`
-      )
-    } else {
-      setIsDataLoading(true)
-
-      const requests = [
-        getUserResults()
-      ]
-
-      Promise.all(requests).then((response: any) => {
-        setIsDataLoading(false)
-      })
-    }
-  }, [ id, accessToken, studyId ])
+  }, [ id, accessToken, email, studyId ])
 
 
 
@@ -232,8 +244,10 @@ const BessiUserSharedResults: FC<BessiUserSharedResultsType> = ({
             ) : (
               <main className={ `${styles.main} ` }>
                 <div style={ { maxWidth: '800px' } }>
-                  <BessiResultsExplanation />
-                  <BessiResultsVisualization rateUserResults={ rateUserResults } />
+                  <BessiResultsExplanation email={ email } />
+                  <BessiResultsVisualization 
+                    rateUserResults={ rateUserResults } 
+                  />
                   <BessiResultsSkillsScoresAndDefinitions />
                   <BessiWantToLearnMore />
                 </div>

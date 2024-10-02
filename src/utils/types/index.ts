@@ -1,9 +1,12 @@
 import { 
+  GamePhases,
   FacetFactorType, 
   SkillDomainFactorType, 
   BessiUserResults__DynamoDB,
-  BessiUserDemographics__DynamoDB, 
-} from '../assessments'
+  BessiUserDemographics__DynamoDB,
+} from '@/utils'
+import { GameSessionContextType } from '@/contexts/types'
+
 
 
 
@@ -17,7 +20,6 @@ import {
  *   ownerEmail: string
  *   assessmentId: string
  *   adminEmails?: string[]
- *   results?: RESULTS__DYNAMODB[]
  *   timestamp: number
  * }
  * ```
@@ -45,8 +47,7 @@ export type STUDY__DYNAMODB = {
   isActive: boolean
   adminEmails?: string[]
   details: STUDY_DETAILS__DYNAMODB
-  participants?: PARTICIPANT__DYNAMODB[] // `undefined` for newly created study
-  results?: RESULTS__DYNAMODB[] // `undefined` for newly created study
+  participants?: PARTICIPANT__DYNAMODB[] // undefined for newly created study
   updatedAtTimestamp: number
 }
 
@@ -67,19 +68,17 @@ export type StudyAsAdmin = {
 }
 
 
-/**
- * @dev An account can take an assessment without being a participant to a study
- */
 export type ACCOUNT__DYNAMODB = {
   email: string // Partition/Primary Key
   createdAtTimestamp: number // Sort Key
   hasVerifiedEmail: boolean // Auth0
   isGlobalAdmin: boolean
   password: HASHED_PASSWORD__DYNAMODB
-  results: RESULTS__DYNAMODB[] // non-study results
   studiesAsAdmin: StudyAsAdmin[] | []
-  participant?: PARTICIPANT__DYNAMODB // `undefined` for a non-participant account
-  updatedAtTimestamp?: number // `undefined` for a non-participant account
+  participant?: PARTICIPANT__DYNAMODB // undefined for a non-participant account
+  lastLoginTimestamp: number
+  lastLogoutTimestamp: number
+  updatedAtTimestamp?: number // undefined for a non-participant account
 }
 
 
@@ -91,17 +90,14 @@ export type PARTICIPANT__DYNAMODB = {
 }
 
 
-/**
- * @dev Results do not need to be associated with a study, i.e. any account may 
- *      take a survey or assessment and receive results that will be stored 
- *      without a `study` property.
- */
 export type RESULTS__DYNAMODB = {
-  id: string
-  email: string
-  study?: STUDY_SIMPLE__DYNAMODB // Results do not require a study-association
-  results: any | BessiUserResults__DynamoDB
-  timestamp: number
+  id: string // Partition/Primary Key
+  assessmentId: string // ID of the assessment taken
+  results: BessiUserResults__DynamoDB | any // The results data, can be any type
+  timestamp: number // Creation timestamp
+  isSocialRatingGame?: boolean // If it's part of a social rating game
+  email?: string // GSI 1: account email (can also act as an owner reference)
+  studyId?: string // GSI 2: Study ID, if linked to a study
 }
 
 
@@ -120,6 +116,72 @@ export type RATINGS__DYNAMODB = {
   study?: STUDY_SIMPLE__DYNAMODB // undefined for a non-study
   rating: number
   vizName: string
+}
+
+
+/**
+ * @dev Profile correlations are done between each player's self-rating and each
+ *      of their observer-ratings, round robin style for each player. For 
+ *      example, assuming 3 players in a game, player 1 has their profile 
+ *      correlations calculated using their self-rating and each of their 2
+ *      observer-ratings. This results in a total of 2 profile correlations for 
+ *      each player in a game of 3 players. The average of the 2 profile 
+ *      correlations is taken and then used to rank each player against each 
+ *      other.
+ */
+export type ProfileCorrelations = {
+  [ nickname: string ]: number
+} | { }
+
+
+export type PlayerInGameState = {
+  hasCompletedConsentForm: boolean
+  hasCompletedSelfReport: boolean
+  hasCompletedObserverReport: boolean
+  profileCorrelations: ProfileCorrelations
+}
+
+
+export type Player = {
+  hasJoined: boolean
+  ipAddress: string
+  inGameState: PlayerInGameState
+  joinedAtTimestamp: number
+}
+
+
+export type SocialRatingGamePlayers = {
+  [nickname: string]: Player
+}
+
+
+export type PhaseChecks = {
+  phase: GamePhases
+  check: 'hasCompletedConsentForm' |
+  'hasCompletedSelfReport' |
+  'hasCompletedObserverReport'
+}
+
+
+export type SOCIAL_RATING_GAME__DYNAMODB = {
+  sessionId: string // Partition/Primary Key
+  createdAtTimestamp: number // Sort Key
+  hostEmail: string // Global Secondary Index
+  gameId: string
+  phase: GamePhases
+  isActive: boolean
+  sessionPin: string
+  sessionQrCode: string
+  isGameInSession: boolean
+  gameSessionUrlSlug: string
+  players: SocialRatingGamePlayers
+  updatedAtTimestamp: number
+}
+
+
+export type SHORT_URL__DYNAMODB = {
+  shortId: string // Partition/Primary Key
+  originalUrl: string
 }
 
 

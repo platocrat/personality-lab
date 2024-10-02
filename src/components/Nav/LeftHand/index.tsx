@@ -106,6 +106,7 @@ const LeftHandNav: FC<LeftHandNavProps> = ({
   const {
     isGlobalAdmin,
     isParticipant,
+    // isFetchingSession
   } = useContext<SessionContextType>(SessionContext)
 
 

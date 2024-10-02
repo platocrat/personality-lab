@@ -459,7 +459,7 @@ export async function GET(
         )
       }
 
-    // 2.0 Handle the case where `adminEmail` does not exist and `id` is used 
+    // 2.0 Handle the case where `adminEmail` exists and `id` is used 
     //     as a GSI
     } else {
       const adminEmail = email as string

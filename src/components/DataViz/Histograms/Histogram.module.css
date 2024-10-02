@@ -12,20 +12,20 @@
 
   transform: scale(1);
 
-  transition: 0.1s ease-in-out;
+  transition: 0.05s ease-in-out;
 }
 
 .filter-button:hover {
   background-color: rgba(0, 80, 172, 0.1514);
   transform: scale(0.98);
-  transition: 0.1s ease-in-out;
+  transition: 0.05s ease-in-out;
   cursor: pointer;
 }
 
 .filter-button:active {
   background-color: rgba(0, 80, 172, 0.0714);
   transform: scale(0.955);
-  transition: 0.1s ease-in-out;
+  transition: 0.05s ease-in-out;
 }
 
 @keyframes beacon {

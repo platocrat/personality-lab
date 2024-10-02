@@ -23,7 +23,13 @@ import { SessionContextType } from '@/contexts/types'
 import styles from '@/app/page.module.css'
 
 
+
 type BessiAssessmentProps = {}
+
+
+// Page-global constants
+const BESSI_VERSION = 192
+const REPORT_TYPE = 'self-report'
 
 
 
@@ -78,7 +84,10 @@ const BessiAssessment: FC<BessiAssessmentProps> = ({ }) => {
         spinnerOptions={{ showSpinner: true }}
       >
         <main className={ `${styles.main} ` }>
-          <BessiAssessmentSection />
+          <BessiAssessmentSection 
+            reportType={ REPORT_TYPE }
+            bessiVersion={ BESSI_VERSION } 
+          />
         </main>
       </NetworkRequestSuspense>
     </>

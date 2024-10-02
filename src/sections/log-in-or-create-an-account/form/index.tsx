@@ -201,29 +201,31 @@ const Form: FC<FormProps> = ({
 
     let _ = e.target.value
 
-    if (state.isSignUp) {
-      // 1. Validate the inputted password
-      const isValid = isValidPassword(_)
+    if (_ !== '') {
+      if (state.isSignUp) {
+        // 1. Validate the inputted password
+        const isValid = isValidPassword(_)
 
-      if (isValid) {
-        set.isPasswordIncorrect(false)
+        if (isValid) {
+          set.isPasswordIncorrect(false)
+        } else {
+          set.isPasswordHashing(false)
+          set.isPasswordIncorrect(true)
+          return
+        }
+
+        set.isPasswordHashing(true)
+        // 2. Store encrypted password in database
+        hashPassword(_).then((password: { hash: string, salt: string }): void => {
+          set.password(password)
+          set.isPasswordHashing(false)
+        })
       } else {
+        // 3. Use the raw password to check against the hashedPassword that is 
+        // stored in the database
+        set.password(_)
         set.isPasswordHashing(false)
-        set.isPasswordIncorrect(true)
-        return
       }
-
-      set.isPasswordHashing(true)
-      // 2. Store encrypted password in database
-      hashPassword(_).then((password: { hash: string, salt: string }): void => {
-        set.password(password)
-        set.isPasswordHashing(false)
-      })
-    } else {
-      // 3. Use the raw password to check against the hashedPassword that is 
-      // stored in the database
-      set.password(_)
-      set.isPasswordHashing(false)
     }
   }
 

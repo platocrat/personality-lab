@@ -3,7 +3,6 @@ import {
   FC,
   useMemo,
   useState,
-  useContext,
   CSSProperties,
 } from 'react'
 import { useRouter } from 'next/navigation'

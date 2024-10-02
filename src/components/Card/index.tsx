@@ -3,7 +3,6 @@
 // Externals
 import { CSSProperties, FC, ReactNode, useState } from 'react'
 // Locals
-import Spinner from '@/components/Suspense/Spinner'
 import ProgressBarLink from '@/components/Progress/ProgressBarLink'
 // CSS
 import styles from '@/app/page.module.css'
@@ -12,11 +11,11 @@ import { definitelyCenteredStyle } from '@/theme/styles'
 
 
 type CardProps = {
-  title: string
   description: string | ReactNode
   buttonText?: string
+  title?: string
   href?: string
-  cssStyle?: CSSProperties
+  cssStyle?: CSSProperties | any
   options?: {
     hasForm?: boolean
     isSignUp?: boolean
@@ -50,20 +49,28 @@ const Card: FC<CardProps> = ({
         style={{ ...cssStyle }}
         className={ styles.card }
       >
-        <div style={ { padding: '8px' } }>
-          <h2 style={ { textAlign: 'center' } }>
-            { title }
-          </h2>
-        </div>
+        { title && (
+          <>
+          <div style={ { padding: '8px' } }>
+            <h2 style={ { textAlign: 'center' } }>
+              { title }
+            </h2>
+          </div>
+          </>
+        ) }
         <div>
-          <div style={ { textAlign: 'center' } }>
+          <div 
+            style={{ 
+              textAlign: cssStyle?.textAlign ?? 'center',
+            }}
+          >
             { description }
           </div>
         </div>
         <div
           style={ {
             ...definitelyCenteredStyle,
-            margin: '18px 0px 0px 0px',
+            margin: cssStyle?.formMargin ? '' : '18px 0px 0px 0px',
           } }
         >
           <div 
@@ -86,9 +93,9 @@ const Card: FC<CardProps> = ({
                 >
                   <ProgressBarLink href={ href }>
                     <button
-                      style={ { width: '70px' } }
                       className={ styles.button }
                       onClick={ (e: any) => handleOnClick(e) }
+                      style={{ width: cssStyle?.buttonWidth ?? '70px' }}
                     >
                       { buttonText }
                     </button>

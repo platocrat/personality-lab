@@ -34,11 +34,15 @@
     - [4.1.2. Install `caddy` from source](#412-install-caddy-from-source)
   - [4.2. Working with Caddy server](#42-working-with-caddy-server)
     - [4.2.1 Working with multiple domains in a single Caddyfile](#421-working-with-multiple-domains-in-a-single-caddyfile)
+    - [4.2.2 Adding the WebSocket server to the Caddyfile](#422-adding-the-websocket-server-to-the-caddyfile)
+    - [4.2.3 Upgrade `caddy`](#423-upgrade-caddy)
+    - [4.2.4 Locate Caddy's TLS certificate and private key](#424-locate-caddys-tls-certificate-and-private-key)
   - [4.3. On EC2 instance, install Docker, login, and start the Docker daemon](#43-on-ec2-instance-install-docker-login-and-start-the-docker-daemon)
     - [4.3.1. Install `docker`](#431-install-docker)
-    - [4.3.2. Login to Docker](#432-login-to-docker)
-    - [4.3.3. Start the Docker daemon](#433-start-the-docker-daemon)
-    - [4.3.4. Prune all data from Docker](#434-prune-all-data-from-docker)
+    - [4.3.2. Run `docker` commands without `sudo`](#432-run-docker-commands-without-sudo)
+    - [4.3.3. Login to Docker](#433-login-to-docker)
+    - [4.3.4. Start the Docker daemon](#434-start-the-docker-daemon)
+    - [4.3.5. Prune all data from Docker](#435-prune-all-data-from-docker)
   - [4.4. Push new commits to GitHub to see the GitHub Action automate the deployment process](#44-push-new-commits-to-github-to-see-the-github-action-automate-the-deployment-process)
   - [4.5. Manually start the Next.js app by running the image](#45-manually-start-the-nextjs-app-by-running-the-image)
     - [4.5.1. Make sure the Docker daemon is running](#451-make-sure-the-docker-daemon-is-running)
@@ -58,6 +62,28 @@
   - [8.2 Application URIs](#82-application-uris)
   - [8.3 Debugging `Callback URL Mismatch.` error](#83-debugging-callback-url-mismatch-error)
 - [9. Working with Docker containers](#9-working-with-docker-containers)
+  - [9.1 Enter a Docker container's shell](#91-enter-a-docker-containers-shell)
+  - [9.2 Prune all data from Docker](#92-prune-all-data-from-docker)
+  - [9.3 Connect multiple Docker containers over the same network](#93-connect-multiple-docker-containers-over-the-same-network)
+- [10. Configure IAM role for GitHub Actions scripts](#10-configure-iam-role-for-github-actions-scripts)
+  - [10.1 Getting an `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`](#101-getting-an-aws_access_key_id-and-aws_secret_access_key)
+    - [10.1.1 Creating a new GitHub Actions user](#1011-creating-a-new-github-actions-user)
+    - [10.1.2 Creating new access keys](#1012-creating-new-access-keys)
+- [11. Deploying Next.js app to AWS EC2 instance and viewing it with NGINX](#11-deploying-nextjs-app-to-aws-ec2-instance-and-viewing-it-with-nginx)
+  - [11.1. Setup with `nginx`](#111-setup-with-nginx)
+    - [11.1.1. SSH in to EC2 instance](#1111-ssh-in-to-ec2-instance)
+    - [11.1.2. Install mainline `nginx` package](#1112-install-mainline-nginx-package)
+    - [11.1.3. Start/Restart `nginx` service](#1113-startrestart-nginx-service)
+  - [11.2. On EC2 instance, configure NGINX](#112-on-ec2-instance-configure-nginx)
+    - [11.2.1. Create NGINX configuration file](#1121-create-nginx-configuration-file)
+    - [11.2.2. Fill out the configuration file like so](#1122-fill-out-the-configuration-file-like-so)
+    - [11.2.3. Restart `nginx` service](#1123-restart-nginx-service)
+  - [11.3. Get free NGINX SSL certificate with Certbot](#113-get-free-nginx-ssl-certificate-with-certbot)
+  - [11.4. Set up http3 and QUIC for NGINX server](#114-set-up-http3-and-quic-for-nginx-server)
+    - [11.4.1. Example NGINX configuration file for http3](#1141-example-nginx-configuration-file-for-http3)
+    - [11.4.2. Add security group rule for QUIC and http3](#1142-add-security-group-rule-for-quic-and-http3)
+  - [11.5. Install `cronie` to enable `crontab`](#115-install-cronie-to-enable-crontab)
+  - [11.6 Automatically Renew Let’s Encrypt Certificates](#116-automatically-renew-lets-encrypt-certificates)
 
 ## 0. General Information
 
@@ -67,7 +93,7 @@ To build a modular personality assessment platform.
 
 ### 0.1.1 Reference Models
 
-The personality platform has or is being modeled after the following websites or platforms:
+The personality assessment platform has or is being modeled after the following websites or platforms:
 
 #### 0.1.1.1 [yourPersonality.net](https://dream-owl.com/attachment/)
 
@@ -360,6 +386,9 @@ Select `t2.micro` because it is uses the lowest vCPU (1vCPU) and GiB Memory (1 G
 1. Specify a key-pair which is used later for remotely SSH'ing in to the EC2 instance from your machine.
 2. Make sure to select `Create a new key pair` whenever you launch a new instance; otherwise, you risk getting confused when you use the same key for more than one EC2 instance, and you have to manage the keys in the appropriate SSH configuration files (e.g. `.ssh`, `authorized_hosts`, `known_hosts` etc.).
 
+Save the generated `.pem` file at the top-most level of the directory of the local GitHub repository.
+You will use this to `ssh` into the remote EC2 instance later, both locally within your own machine and remotely through GitHub Actions CI/CD scripts.
+
 ### 2.4. Network Settings
 
 Create a new security group, or use an existing security group, that has the following three options enabled:
@@ -395,19 +424,32 @@ Once you have the pre-requisites, you can create a new IAM role by following the
 
 ### 3.3. Add permissions
 
-For the `personality-lab` Next.js project, we use 3 AWS services:
+For the `personality-lab` Next.js project, we use 4 AWS services:
 
 1. DynamoDB
 2. EC2
 3. Systems Manager (for Parameter Store)
+4. Elastic Container Registry (ECR)
+5. API Gateway, specifically the AWS WebSocket API
 
 For simplicity and to save time configuring granular custom permissions policies, we selected broad-general permissions for each of these services:
 
 1. `AmazonDynamoDBFullAccess`
 2. `AmazonEC2FullAccess`
 3. `AmazonSSMFullAccess`
+4. `AmazonEC2ContainerRegistryFullAccess`
+    - This managed policy is used to provide the necessary permissions to authenticate with Amazon ECR, which is used to pull images from ECR when SSH'ing into the EC2 instance.
+5. `AmazonAPIGatewayAdministrator`
+    - This managed policy, and the `AmazonAPIGatewayInvokeFullAccess` policy listed below, is used to ensure that we can use the AWS WebSocket API service through our web application without any unexpected permissions issues.
+6. `AmazonAPIGatewayInvokeFullAccess`
+7. `AmazonAPIGatewayPushToCloudWatchLogs`
+    - This managed policy is used to enable "Custom access logging" for an API's Stage, which requires creating an AWS CloudWatch log group, which uses the "Log format" shown below (a "Log format" is always on a single line, as shown below):
 
-Add each of the three permissions policies listed above.
+        ```json
+        { "requestId":"$context.requestId", "ip":"$context.identity.sourceIp", "dataProcessed": "$context.dataProcessed", "caller":"$context.identity.caller", "user":"$context.identity.user", "requestTime":"$context.requestTime", "httpMethod":"$context.httpMethod", "resourcePath":"$context.resourcePath", "status":"$context.status", "protocol":"$context.protocol", "responseLength":"$context.responseLength", "validationErrorString":"$context.error.validationErrorString", "integrationErrorMessage":"$context.integrationErrorMessage", "errorMessage":"$context.errorMessage", "errorResponseType":"$context.error.responseType", "errorMessageString":"$context.error.messageString" }
+      ```
+
+Add each of the 7 permissions policies listed above.
 Then, click the orange `Next` button on the bottom right.
 
 ### 3.4. Name, review, and create the IAM role
@@ -459,6 +501,10 @@ ssh -i key-pair-name.pem EC2_USERNAME@EC2_HOSTNAME
 
 #### 4.1.2. Install `caddy` from source
 
+Please follow the instructions from [Caddy's official documentation](https://caddyserver.com/docs/running#linux-service).
+
+The instructions below are mostly taken from there:
+
 1. Use `curl` to download the latest version of Caddy from GitHub:
 
     ```zsh
@@ -471,16 +517,16 @@ ssh -i key-pair-name.pem EC2_USERNAME@EC2_HOSTNAME
     tar -zxvf caddy.tar.gz
     ```
 
-3. Move the binary to a directory in your PATH at `/usr/local/bin`:
+3. Move the `caddy` binary into your PATH at `/usr/bin`:
 
     ```zsh
-    sudo mv caddy /usr/local/bin/
+    sudo mv caddy /usr/bin/
     ```
 
 4. Make the binary executable:
 
     ```zsh
-    chmod +x /usr/local/bin/caddy
+    chmod +x /usr/bin/caddy
     ```
 
 5. Verify the installation:
@@ -494,6 +540,49 @@ ssh -i key-pair-name.pem EC2_USERNAME@EC2_HOSTNAME
     ```zsh
     mkdir ./caddy && mv {LICENSE,README.md,caddy.tar.gz} ./caddy-download/
     ```
+
+7. Create a group named `caddy`
+
+    ```zsh
+    sudo groupadd --system caddy
+    ```
+
+8. Create a user named caddy with a writeable home directory:
+
+    ```zsh
+    sudo useradd --system \
+        --gid caddy \
+        --create-home \
+        --home-dir /var/lib/caddy \
+        --shell /usr/sbin/nologin \
+        --comment "Caddy web server" \
+        caddy
+    ```
+
+    If using a config file, be sure it is readable by the caddy user you just created.
+
+9. Next, [choose a systemd unit file](https://caddyserver.com/docs/running#unit-files) based on your use case.
+
+    > NOTE: This involves copying the file contents from [`caddy.service`](https://github.com/caddyserver/dist/blob/master/init/caddy.service).
+
+    **Double-check the `ExecStart` and `ExecReload` directives**. Make sure the binary's location and command line arguments are correct for your installation! For example: if using a config file, change your `--config` path if it is different from the defaults.
+
+    The usual place to save the service file is: `/etc/systemd/system/caddy.service`
+
+    After saving your service file, you can start the service for the first time with the usual systemctl dance:
+
+    ```zsh
+    sudo systemctl daemon-reload
+    sudo systemctl enable --now caddy
+    ```
+
+    Verify that it is running:
+
+    ```zsh
+    systemctl status caddy
+    ```
+
+    Now you're ready to [use the service](https://caddyserver.com/docs/running#using-the-service)!
 
 ### 4.2. Working with [Caddy](http://caddyserver.com) server
 
@@ -517,7 +606,8 @@ Let's create a `Caddyfile`.
     sudo vim /etc/caddy/Caddyfile
     ```
 
-Paste in the following to ensure that it works to reverse proxy requests made to our Next.js application, which will run on port `3000` from our Docker container:
+    Paste in the following to ensure that it works to reverse proxy requests made to our Next.js application, which will run on port `3000` from our Docker container:
+
     ```apacheconf
     example.com {
             encode gzip
@@ -529,13 +619,50 @@ Paste in the following to ensure that it works to reverse proxy requests made to
     }
     ```
 
-3. Manually start Caddy
+3. Using the Caddy Service
 
-    After saving changes to your Caddyfile, manually start the Caddy server by running:
+    Please follow [Caddy's official documentation for this section on how to use the Caddy service](https://caddyserver.com/docs/running#using-the-service). This section closely follows that section, as of the time of writing.
 
-    ```zsh
-    sudo caddy run --config /etc/caddy/Caddyfile
-    ```
+    1. If using a Caddyfile, you can edit your configuration with nano, vi, or your preferred editor:
+
+        ```zsh
+        sudo nano /etc/caddy/Caddyfile
+        ```
+
+        You can place your static site files in either `/var/www/html` or `/srv`. Make sure the `caddy` user has permission to read the files.
+
+    2. To verify that the service is running:
+
+        ```zsh
+        systemctl status caddy
+        ```
+
+        The status command will also show the location of the currently running service file.
+
+    3. When running with our official service file, Caddy's output will be redirected to `journalctl`. To read your full logs and to avoid lines being truncated:
+
+        ```zsh
+        journalctl -u caddy --no-pager | less +G
+        ```
+
+    4. If using a config file, you can gracefully reload Caddy after making any changes:
+
+        ```zsh
+        sudo systemctl reload caddy
+        ```
+
+    5. You can stop the service with:
+
+        ```zsh
+        sudo systemctl stop caddy
+        ```
+
+    6. Do not stop the service to change Caddy's configuration. Stopping the server will incur downtime. Use the reload command instead.
+
+    7. The Caddy process will run as the `caddy` user, which has its `$HOME` set to `/var/lib/caddy`. This means that:
+
+        - The default [data storage location](https://caddyserver.com/docs/conventions#data-directory) (for certificates and other state information) will be in `/var/lib/caddy/.local/share/caddy`.
+        - The default [config storage location](https://caddyserver.com/docs/conventions#configuration-directory) (for the auto-saved JSON config, primarily useful for the `caddy-api` service) will be in `/var/lib/caddy/.config/caddy`.
 
 #### 4.2.1 Working with multiple domains in a single Caddyfile
 
@@ -543,30 +670,121 @@ You can configure _multiple domains_ in a single Caddyfile for different use cas
 
 1. To serve the same website over multiple domains, your Caddyfile would need to be configured like so:
 
-   ```apacheconf
-   https://example.com, http://example.com, https://example2.com  {
-           encode gzip
-           header {
-                   Strict-Transport-Security "max-age=31536000;"
-                   Access-Control-Allow-Origin "*"
-           }
-           reverse_proxy localhost:3000
-   }
-   ```
+    ```apacheconf
+    https://example.com, http://example.com, https://example2.com  {
+        encode gzip
+        header {
+            Strict-Transport-Security "max-age=31536000;"
+            Access-Control-Allow-Origin "*"
+        }
+        reverse_proxy localhost:3000
+    }
+    ```
 
 2. If you want to serve different websites at different domains, it would look something like this:
 
-   ```apacheconf
-   example.com {
-       root /www/example.com
-   }
-   
-   sub.example.com {
-       root /www/sub.example.com
-       gzip
-       log ../access.log
-   }
-   ```
+    ```apacheconf
+    example.com {
+        root /www/example.com
+    }
+    
+    sub.example.com {
+        root /www/sub.example.com
+        gzip
+        log ../access.log
+    }
+    ```
+
+#### 4.2.2 Adding the WebSocket server to the Caddyfile
+
+Assuming you are working under a _single domain_ in a single Caddyfile, you can configure your Caddyfile to proxy your WebSocket server through Caddy with a simple configuration as shown below:
+
+  ```apacheconf
+  https://example.com  {
+      encode gzip
+      # App
+      header {
+          Strict-Transport-Security "max-age=31536000;"
+          Access-Control-Allow-Origin "*"
+      }
+      reverse_proxy localhost:3000
+
+      # WebSocket
+      @ws `header({'Connection': '*Upgrade*', 'Upgrade': 'websocket'})`
+      reverse_proxy @ws localhost:3001
+  }
+  ```
+
+This way, Caddy terminates all TLS for you.
+
+#### 4.2.3 Upgrade `caddy`
+
+To upgrade `caddy`, simply stop all running Caddy servers run the following command:
+
+```zsh
+caddy upgrade
+```
+
+This will replace the current Caddy binary with the latest version from Caddy's download page with the same modules installed, including all third-party plugins that are registered on the Caddy website.
+
+Upgrades do not interrupt running servers; currently, the command only replaces the binary on disk. [This might change in the future](https://caddyserver.com/docs/command-line#caddy-upgrade).
+
+The upgrade process is fault tolerant; the current binary is backed up first (copied beside the current one) and automatically restored if anything goes wrong. If you wish to keep the backup after the upgrade process is complete, you may use the --keep-backup option.
+
+This command may require elevated privileges if your user does not have permission to write to the executable file.
+
+#### 4.2.4 Locate Caddy's TLS certificate and private key
+
+1. To locate Caddy's TLS certificate and private key, start by inspecting the Caddy service logs using the following command:
+
+    ```zsh
+    journalctl -u caddy --no-pager | less +G
+    ```
+
+    This lets you read the Caddy's full service logs and avoids lines being truncated.
+
+2. Next, in the logs, search for the use of `*/caddy/.config/*`.
+3. Navigate to this location within the EC2 instance.
+
+    You can do this in several different ways, but since I found this path to be `/var/lib/caddy/.config/caddy`, I had permissions issues with letting me navigate to it.
+
+    So, I first navigated to `/var/lib/` using:
+
+    ```zsh
+    cd /var/lib
+    ```
+
+    From there, I then used `vim` with `sudo` privileges to enter the `caddy` directory:
+
+    ```zsh
+    sudo vim caddy
+    ```
+
+    Running `sudo vim caddy` opened up a `Netrw Directory Listing`, as shown in the image below:
+
+    ![Netrw Directory Listing from sudo vim caddy](./images/Screenshot%202024-10-01%20at%209.01.35 AM.png)
+
+    From here, I navigated to `.local/share/caddy/certificates/acme-v02.api.letsencrypt.org-directory/<DOMAIN_NAME>` to finally find the `.crt` and `.key` files that I needed.
+
+4. You can confirm that you found the correct TLS certificate and key files by double-checking the Caddy service logs.
+
+    Again, run the command to review the Caddy service logs:
+
+    ```zsh
+    journalctl -u caddy --no-pager | less +G
+    ```
+
+    From the logs, locate the following log:
+
+    ```zsh
+    "logger": "tls.obtain", "msg": "certificate obtained successfully"
+    ```
+
+    and at the end of this line, you should see the `issuer` to match the `acme` filepath:
+
+    ```zsh
+    "issuer":"acme-v02.api.letsencrypt.org-directory"
+    ```
 
 ### 4.3. On EC2 instance, install Docker, login, and start the Docker daemon
 
@@ -576,28 +794,90 @@ You can configure _multiple domains_ in a single Caddyfile for different use cas
 sudo yum install docker -y
 ```
 
-#### 4.3.2. Login to Docker
+#### 4.3.2. Run `docker` commands without `sudo`
+
+This step is _**required**_ to pull Docker images from the AWS's Elastic Container Registry (ECR) from within the EC2 instance.
+
+Why is it required? Because the ECR will use IAM role permissions to allow image pulling.
+
+You need to add your current user to the `docker` group.
+This will give your user the necessary permissions to interact with the Docker daemon.
+
+To run `docker` commands without `sudo`, do the following:
+
+  1. First, before starting this step, check if the `docker` group exists on your EC2 instance by using the following command:
+
+      ```zsh
+      getent group docker
+      ```
+
+      If the `docker` group exists, this command will output information about the group, such as:
+
+        ```zsh
+        docker:x:1234:
+        ```
+
+      If the `docker` group does not exist, the command will not produce any output.
+
+  2. Create the `docker` group if it doesn't exist:
+
+      ```zsh
+      sudo groupadd docker
+      ```
+
+  3. Add the IAM user to the `docker` group:
+        For example, since our IAM user is `ec2-user`:
+
+        ```zsh
+        sudo usermod -aG docker ec2-user
+        ```
+
+  4. Log out and log back in:
+        After adding your user to the `docker` group, you need to log out of your session and log back in for the group changes to take effect.
+        Alternatively, you can run the following command to apply the new group permissions without logging out:
+
+        ```zsh
+        newgrp docker
+        ```
+
+  5. Verify the setup:
+      Now you should be able to run Docker commands without `sudo`:
+
+      ```zsh
+      docker ps
+      ```
+
+      If you see the list of running containers or an empty list without any permission errors, you have successfully configured Docker to run without `sudo`.
+
+Now you should be able to run `docker pull <ECR_IMAGE_URL` within the EC2 instance without the `no basic auth credentials` error.
+
+#### 4.3.3. Login to Docker
 
 After you have installed Docker, login with your username.
 
 <!-- Username where platocrat kept his Docker image is `platocrat` -->
 
 ```zsh
-sudo docker login -u <USERNAME>
+docker login -u <USERNAME>
 ```
 
 When prompted for a password, enter your personal access token that you get from Docker Hub
 
-#### 4.3.3. Start the Docker daemon
+#### 4.3.4. Start the Docker daemon
 
 ```zsh
 sudo systemctl restart docker
 ```
 
-#### 4.3.4. Prune all data from Docker
+#### 4.3.5. Prune all data from Docker
+
+Make sure to routinely prune all data from Docker running on the AWS EC2 instance.
+Before doing so, ALWAYS make sure that you are still able to pull new copies of your desired images from AWS ECR.
+
+To prune all Docker data, run the following command:
 
 ```zsh
-sudo docker system prune -a
+docker system prune -a
 ```
 
 ### 4.4. Push new commits to GitHub to see the GitHub Action automate the deployment process
@@ -617,18 +897,26 @@ Make sure to specify the correct port number that is exposed in the [`Dockerfile
 Also, make sure to specify the `<IMAGE_ID>` and *not* the image name of the image that was pulled from the Docker repository.
 
 ```zsh
-sudo docker run -d -it -p 3000:3000 <IMAGE_ID>
+docker run -d -it -p 3000:3000 <IMAGE_ID>
 ```
 
 Make sure to include the `-d` flag to run the container in "detached" mode, so that we can run other commands while the container is running.
 
-#### 4.5.3. Start the Caddy server
+#### 4.5.3. Start or reload the Caddy server
 
 Finally, we can serve the dockerized version of our the Next.js app by starting the Caddy server.
-Run the command below to start the Caddy server.
+Run the command below to start or reload the Caddy server.
+
+Start `caddy`:
 
 ```zsh
-sudo caddy run --config /etc/caddy/Caddyfile
+sudo systemctl start caddy
+```
+
+or reload `caddy`:
+
+```zsh
+sudo systemctl reload caddy
 ```
 
 Then, navigate to your domain to see the hosted site.
@@ -711,7 +999,7 @@ Prerequisites for the `screen` example below:
 2. Run the Docker container:
 
     ```sh
-    sudo docker run -it -p 3000:3000 <IMAGE_ID>
+    docker run -it -p 3000:3000 <IMAGE_ID>
     ```
 
     You can leave this container running since we can detach from this screen without interrupting the container.
@@ -732,10 +1020,18 @@ Prerequisites for the `screen` example below:
     screen -ls
     ```
 
-6. Start the Caddy server:
+6. Start or reload the Caddy server:
+
+    Start `caddy`:
 
     ```sh
-    sudo caddy run --config /etc/caddy/Caddyfile
+    sudo systemctl start caddy
+    ```
+
+    or reload `caddy`:
+
+    ```sh
+    sudo systemctl reload caddy
     ```
 
     You can leave the Caddy server running since we can detach from this screen without interrupting the Caddy server.
@@ -813,10 +1109,18 @@ Prerequisites for the `screen` example below:
             screen -r caddy
             ```
 
-            Then, start the Caddy server:
+            Then, start or reload the Caddy server:
+
+            Start `caddy`:
 
             ```sh
-            sudo caddy run --config /etc/caddy/Caddyfile
+            sudo systemctl start caddy
+            ```
+
+            or reload `caddy`:
+
+            ```sh
+            sudo systemctl reload caddy
             ```
 
             Then, detach from the `caddy` screen session, leaving the Caddy server running, by pressing `CTL + A` and then `D`.
@@ -830,7 +1134,7 @@ Prerequisites for the `screen` example below:
             Then, start the Next.js Docker container:
 
             ```sh
-            sudo docker run -it -p 3000:3000 <IMAGE_ID>
+            docker run -it -p 3000:3000 <IMAGE_ID>
             ```
 
             Then, detach from the `nextjs` screen session, to work in a separate screen to start other processes or run other commands, or proceed to step 3.
@@ -1338,13 +1642,13 @@ To do that, you will want to access you access the Docker container's shell by r
   1. Start the Docker container in detached mode (assumes your app is running on port 3000):
 
       ```zsh
-      sudo docker run -d -it -p 3000:3000 <IMAGE_ID>
+      docker run -d -it -p 3000:3000 <IMAGE_ID>
       ```
 
   2. Get the newly running container's ID:
 
       ```zsh
-      sudo docker ps
+      docker ps
       ```
 
       Copy the ID value to use in the next step.
@@ -1352,14 +1656,14 @@ To do that, you will want to access you access the Docker container's shell by r
   3. Step inside of the container's shell:
 
       ```zsh
-      sudo docker exec -it <CONTAINER_ID> /bin/sh
+      docker exec -it <CONTAINER_ID> /bin/sh
       ```
 
       Then make your changes within the container.
       Make sure to restart any services or apps within the container.
 
       ```zsh
-      sudo docker container stop <CONTAINER_ID>
+      docker container stop <CONTAINER_ID>
       ```
 
       Then restart the container normally without the detached-mode, `-d`, flag.
@@ -1369,3 +1673,425 @@ To do that, you will want to access you access the Docker container's shell by r
 When working inside of an AWS EC2 instance and running your containers within it, instead of waiting for time-consuming CI/CD builds to complete, you may just want to debug your code within the container itself by stepping inside of it and making the necessary changes.
 
 Stepping inside of a Docker container's shell and making quick changes to debug your container may help to speed up your workflow.
+
+### 9.2 Prune all data from Docker
+
+Make sure to routinely prune all data from Docker running on the AWS EC2 instance.
+Before doing so, ALWAYS make sure that you are still able to pull new copies of your desired images from AWS ECR.
+
+To prune all Docker data, run the following command:
+
+```zsh
+docker system prune -a
+```
+
+### 9.3 Connect multiple Docker containers over the same network
+
+1. Create a Custom Docker Network Create a custom Docker network so that the containers can communicate by their container names.
+
+    ```zsh
+    docker network create personality-lab-network
+    ```
+
+2. Start Next.js container
+
+    ```zsh
+    docker run -d --network personality-lab-network --name nextjs -p 3000:3000 <IMAGE_ID>
+    ```
+
+3. Start WebSocket container
+
+    ```zsh
+    docker run -d --network personality-lab-network --name u-websocket -p 3001:3001 <IMAGE_ID>
+    ```
+
+4. Verify Connectivity
+    Ensure both containers are running and connected to the same network:
+
+    ```zsh
+    docker network inspect personality-lab-network
+    ```
+
+    You should see both the `websocket` and `nextjs` containers listed under the same network.
+
+5. Test the WebSocket Connection
+
+    Navigate to your Next.js application (`http://localhost:3000`) and check if the WebSocket connection is established successfully with the `wss://websocket:3001` endpoint.
+
+#### Debugging Tips
+
+1. Check WebSocket Server Logs.
+
+    Make sure the WebSocket server is listening on all interfaces (`0.0.0.0`), not just `localhost`.
+
+    This ensures it can accept connections from outside its container.
+
+    ```zsh
+    docker logs u-websocket
+    ```
+
+2. Check Environment Variables.
+
+    Verify that the WebSocket URL is correctly set in your Next.js app.
+
+3. Test Network Connectivity.
+    Enter the `nextjs` container and try to `curl` the WebSocket server to ensure connectivity:
+
+    ```zsh
+    docker exec -it nextjs /bin/sh
+    curl websocket:3001
+    ```
+
+    This should show a response if the connection is successful.
+
+## 10. Configure IAM role for GitHub Actions scripts
+
+The GitHub Actions scripts for both the [`personality-lab-app`](https://github.com/platocrat/personality-lab-app) and [`u-websocket`](https://github.com/platocrat/u-websocket) repositories make use of automated deployments on a commit, either via a pull request or to any branch.
+
+Each GitHub Actions script:
+
+1. Builds the Docker image for that repository.
+2. Pushes the Docker image to the ECR.
+3. Pulls the Docker image from the ECR onto the EC2 instance.
+4. Uses the following environment variables that need to be individually added to the each repository's list of GitHub Secrets:
+    - `SSH_KEY`: the full contents of the `.pem` file. This `.pem` file must be the same private key that was generated when you created the EC2 instance.
+    - `EC2_USERNAME`: The name of the IAM role of the EC2 instance (e.g. `ec2-user`).
+    - `EC2_HOSTNAME`: The hostname of the EC2 instance. It is usually the Elastic IP address (e.g. `54.493.101.393`)
+    - `AWS_REGION`: The region where the ECR repository is located in (e.g., `us-east-1`).
+    - `ECR_REPOSITORY_NAME`: The name of the ECR repository.
+    - `AWS_ACCOUNT_ID`: The full Account ID for the AWS account (e.g. `0001-0002-0003`).
+    - `AWS_ACCESS_KEY_ID`: Part of the AWS authentication credentials. It is created under the IAM role. See [10.1. Getting an AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY](#101-getting-an-aws_access_key_id-and-aws_secret_access_key).
+    - `AWS_SECRET_ACCESS_KEY`: Part of the AWS authentication credentials. It is created under the IAM role. See [10.1. Getting an AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY](#101-getting-an-aws_access_key_id-and-aws_secret_access_key).
+
+### 10.1 Getting an `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
+
+#### 10.1.1 Creating a new GitHub Actions user
+
+First, you need an IAM user that is used specifically for GitHub Actions stuff. If you already have a GitHub Actions user, move to the next step, [10.2.2 Creating new access keys](#1022-creating-new-access-keys)
+
+If you don't have one yet, create a new IAM user using the steps outline below:
+
+1. Go to the IAM service in the AWS console.
+2. Under the "Access management" dropdown menu on the left, click on "Users".
+3. Click the orange "Create user" button to start the process of creating a new IAM user.
+4. Enter a name for the new IAM user, e.g. `ec2-user-github-actions`.
+5. Leave "access to the AWS Management Console" unchecked.
+6. Click Next.
+7. On the "Set permissions" step, select "Attach policies directly".
+    6.1. Add the `AmazonEC2ContainerRegistryPowerUser` managed policy.
+8. Click Next.
+9. On the `Review and create` step, click the orange "Create user" button to create the new IAM user.
+
+#### 10.1.2 Creating new access keys
+
+Next, you will create an access key that will be used for your GitHub repository's GitHub Actions script.
+
+1. Go to the IAM service in the AWS console.
+2. Under the "Access management" dropdown menu on the left, click on "Users".
+3. Click on the IAM user that you are using specifically for GitHub Actions.
+4. Click on the "Security credentials" tab.
+5. Scroll down to the "Access keys" section and click the white "Create access key" button.
+6. On "Access key best practices & alternatives" step, the select the "Application running outside AWS" option and click the Next.
+7. Enter a useful description tag value for this secret key. For example, using the name of the repository, e.g. `personality-lab-app` is a great choice.
+8. Click the orange "Create access key" button.
+
+After completing the last step, make sure to copy each of the Secret value and the Access ID values.
+You will use copy and paste each of these values in the Secrets page for your repository's GitHub Actions Secrets, using the Secret value as the `AWS_SECRET_ACCESS_KEY` and the Access ID value as the `AWS_ACCESS_KEY_ID`.
+
+Steps for how to add Secrets to a GitHub repository can be found on GitHub's official documentation for [Creating secrets for a repository](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository).
+
+## 11. Deploying Next.js app to AWS EC2 instance and viewing it with NGINX
+
+### 11.1. Setup with `nginx`
+
+[Tutorial video](https://www.youtube.com/watch?v=IwWQG6lEdQQ)
+
+#### 11.1.1 SSH in to EC2 instance
+
+<!-- 
+
+EC2_USERNAME = ec2-user 
+EC2_HOSTNAME = 54.198.211.160
+
+-->
+
+```zsh
+ssh -i key-pair-name.pem EC2_USERNAME@EC2_HOSTNAME
+```
+
+#### 11.1.2. Install mainline `nginx` package
+
+Follow the instructions to install mainline NGINX packages for Amazon Linux 2023 [here](https://nginx.org/en/linux_packages.html#Amazon-Linux).
+
+The commands to run are copied below for convenience but may be out-of-date, so always refer to the official documentation on the link shared above.
+
+----------------
+
+1. Install the prerequisites:
+
+    ```zsh
+    sudo yum install yum-utils
+    ```
+
+2. To set up the yum repository for Amazon Linux 2023, create the file named `/etc/yum.repos.d/nginx.repo` with the following contents:
+
+    ```zsh
+    [nginx-stable]
+    name=nginx stable repo
+    baseurl=<http://nginx.org/packages/amzn/2023/$basearch/>
+    gpgcheck=1
+    enabled=1
+    gpgkey=<https://nginx.org/keys/nginx_signing.key>
+    module_hotfixes=true
+    priority=9
+
+    [nginx-mainline]
+    name=nginx mainline repo
+    baseurl=<http://nginx.org/packages/mainline/amzn/2023/$basearch/>
+    gpgcheck=1
+    enabled=0
+    gpgkey=<https://nginx.org/keys/nginx_signing.key>
+    module_hotfixes=true
+    priority=9
+    ```
+
+3. By default, the repository for stable nginx packages is used. If you would like to use mainline nginx packages, run the following command:
+
+    ```zsh
+    sudo yum-config-manager --enable nginx-mainline
+    ```
+
+4. To install nginx, run the following command:
+
+    ```zsh
+    sudo yum install nginx
+    ```
+
+    In stdout, you should see the `Repository` used is now `nginx-mainline`.
+
+5. When prompted to accept the GPG key, verify that the fingerprint matches `573B FD6B 3D8F BC64 1079 A6AB ABF5 BD82 7BD9 BF62`, and if so, accept it.
+
+----------------
+
+#### 11.1.3. Start/Restart `nginx` service
+
+```zsh
+sudo service nginx restart
+```
+
+### 11.2. On EC2 instance, configure NGINX
+
+#### 11.2.1. Create NGINX configuration file
+
+<!-- 
+
+NGINX configuration file = /etc/nginx/conf.d/personality-lab-app.conf
+
+-->
+
+```zsh
+sudo vim "/etc/nginx/conf.d/<APP_NAME>.conf"
+```
+
+#### 11.2.2. Fill out the configuration file like so
+
+<!-- 
+
+EC2_HOSTNAME = 54.198.211.160
+
+-->
+
+```apacheconf
+server {
+    listen 80;
+    server_name EC2_HOSTNAME; 
+  
+    location / {
+        proxy_pass http://127.0.0.1:3000/;
+    }
+}
+```
+
+#### 11.2.3. Restart `nginx` service
+
+```zsh
+sudo service nginx restart
+```
+
+### 11.3. Get free NGINX SSL certificate with Certbot
+
+Follow [this article](https://www.f5.com/company/blog/nginx/using-free-ssltls-certificates-from-lets-encrypt-with-nginx) as a tutorial.
+
+1. Make sure to replace anywhere you see `apt-get` with `yum`.
+2. Replace where you see `example.com` with your custom domain.
+3. Use your valid email address.
+
+### 11.4. Set up http3 and QUIC for NGINX server
+
+#### 11.4.1. Example NGINX configuration file for http3
+
+As per the [F5's guide on getting an NGINX SSL/TLS certificate with Certbot](https://www.f5.com/company/blog/nginx/using-free-ssltls-certificates-from-lets-encrypt-with-nginx), before generating an SSL certificate with Certbot, below is an example of what your NGINX configuration file should look like.
+Notice that to enable access to Next.js app from `server_name`, we add the `location` block to specify that we want to use localhost as a proxy.
+
+```apacheconf
+server {    
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    root /var/www/html;
+    server_name example.com www.example.com;
+
+    location / {
+        proxy_pass http://localhost:3000;
+    }
+}
+```
+
+Below is an example of a configuration file for NGINX **after** generating an SSL certificate using Certbot.
+
+```apacheconf
+server {
+    root /var/www/html;
+    server_name example.com www.example.com;
+
+    listen [::]:443 ssl; # managed by Certbot
+    listen 443 ssl; # managed by Certbot
+
+    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+    
+    location / {
+        proxy_pass http://localhost:3000;
+    }
+}
+
+server {
+    if ($host = www.example.com) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+    if ($host = example.com) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name example.com www.example.com;
+    return 404; # managed by Certbot
+}
+```
+
+Here are changes to enable QUIC and HTTP/3 for the NGINX server:
+
+```zsh
+server {
+    root /var/www/html;
+    server_name example.com www.example.com;
+
+    listen [::]:443 quic reuseport default_server; # QUIC and HTTP/3 only
+    listen 443 quic reuseport default_server; # QUIC and HTTP/3 only
+
+    listen [::]:443 ssl; # managed by Certbot
+    listen 443 ssl; # managed by Certbot
+
+    gzip on;             # QUIC and HTTP/3 only 
+    http2 on;            # HTTP/2 only  
+    http3 on;            # QUIC and HTTP/3 only
+    http3_hq on;         # QUIC and HTTP/3 only
+    quic_retry on;       # QUIC and HTTP/3 only
+    ssl_early_data on;   # QUIC and HTTP/3 only
+
+    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+    location / {
+        proxy_pass http://localhost:3000;
+
+        add_header Alt-svc 'h3=":$server_port"; ma=3600'; # QUIC and HTTP/3 only
+        add_header x-quic 'h3'; # QUIC and HTTP/3 only
+        add_header Cache-Control 'no-cache,no-store'; # QUIC and HTTP/3 only
+        add_header X-protocol $server_protocol always; # QUIC and HTTP/3 only
+        proxy_set_header Early-Data $ssl_early_data; # QUIC and HTTP/3 only
+    }
+}
+
+server {
+    if ($host = www.example.com) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    if ($host = example.com) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name example.com www.example.com;
+    return 404; # managed by Certbot
+}
+```
+
+#### 11.4.2 Add security group rule for QUIC and http3
+
+To ensure that our NGINX server can receive UDP packets, we need to add another security group rule to our EC2 instance's Security Group.
+
+1. Under the EC2 service, go to the `Security Groups` settings.
+2. Click on the security group that your EC2 instance is using.
+3. Click the `Add Rule` button at the bottom to add a new rule.
+4. For `Type`, select `Custom UDP`
+5. For `Port Range`, enter `443`, which is the port that our NGINX server will be listening on for HTTP/3 requests.
+6. For `Source`, enter `0.0.0.0/0` to allow for requests from the range of all IP addresses.
+7. Click `Save` to save the changes.
+
+### 11.5. Install `cronie` to enable `crontab`
+
+If `crontab` is not found on your Amazon Linux 2023 EC2 instance, it means that the `cronie` package, which provides the `crontab` command, is not installed by default. You can install it with the following steps:
+
+1. **Install `cronie`**: Use the package manager to install `cronie`:
+
+   ```bash
+   sudo yum install cronie -y
+   ```
+
+2. **Start and Enable the `crond` Service**: After installing `cronie`, start the `crond` service and enable it to start on boot:
+
+   ```bash
+   sudo systemctl start crond
+   sudo systemctl enable crond
+   ```
+
+3. **Open the Crontab Editor**: Now you can use the `crontab` command as expected:
+
+   ```bash
+   crontab -e
+   ```
+
+4. **Verify Crontab Installation**: To verify the installation and that the crontab service is running, use:
+
+   ```bash
+   systemctl status crond
+   ```
+
+   This should show that the `crond` service is active and running.
+
+### 11.6 Automatically Renew Let’s Encrypt Certificates
+
+Let’s Encrypt certificates expire after 90 days. We encourage you to renew your certificates automatically. Here we add a [cron](https://en.wikipedia.org/wiki/Cron) job to an existing crontab file to do this.
+
+1. Open the crontab file.
+
+    ```zsh
+    crontab -e
+    ```
+
+2. Add the `certbot` command to run daily. In this example, we run the command every day at noon. The command checks to see if the certificate on the server will expire within the next 30 days, and renews it if so. The `--quiet` directive tells `certbot` not to generate output.
+
+    ```zsh
+    0 12 ** * /usr/bin/certbot renew --quiet
+    ```
+
+3. Save and close the file. All installed certificates will be automatically renewed and reloaded.

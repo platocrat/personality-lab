@@ -1,8 +1,9 @@
 // Externals
 import { ReactNode, FC, useState } from 'react'
 // Locals
-import { BessiSkillScoresType } from '@/utils'
+import { BessiSkillScoresType, Facet, SkillDomain } from '@/utils'
 import { BessiSkillScoresContext } from '@/contexts/BessiSkillScoresContext'
+
 
 
 type BessiSkillScoresLayoutProps = {
@@ -11,8 +12,9 @@ type BessiSkillScoresLayoutProps = {
 
 
 
-
-const BessiSkillScoresLayout: FC<BessiSkillScoresLayoutProps> = ({ children }) => {
+const BessiSkillScoresLayout: FC<BessiSkillScoresLayoutProps> = ({ 
+  children,
+}) => {
   const [
     bessiSkillScores,
     setBessiSkillScores

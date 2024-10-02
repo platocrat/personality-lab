@@ -201,7 +201,7 @@ export const GET = withApiAuthRequired(async function getAccessToken(
     } catch (error: any) {
       // Something went wrong
       return NextResponse.json(
-        { error: error },
+        { error },
         {
           status: 500,
           headers: {
@@ -214,7 +214,7 @@ export const GET = withApiAuthRequired(async function getAccessToken(
     const error = 'Method Not Allowed'
 
     return NextResponse.json(
-      { error: error },
+      { error },
       {
         status: 405,
         headers: {

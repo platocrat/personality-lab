@@ -5,42 +5,41 @@ import {
   FC,
   useRef,
   useState,
-  useEffect,
+  // useEffect,
   useContext,
   useLayoutEffect,
   } from 'react'
-import Image from 'next/image'
+// import Image from 'next/image'
 import html2canvas from 'html2canvas'
 // import { useUser } from '@auth0/nextjs-auth0/client'
 // Locals
 // Sections
-import TitleDropdown from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization/title-dropdown'
+// import TitleDropdown from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization/title-dropdown'
 import UserVisualization from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization/user-visualization'
 // Components
-import {
-  RIDGELINE_DEMO_DOMAIN_DATA,
-  RIDGELINE_DEMO_FACET_DATA,
-} from '@/components/DataViz/DemoRidgeline/dummy-data'
-import MultipleNormalDistributions, {
-  MultipleNormalDistributionDataType
-} from '@/components/DataViz/Distributions/Normal/Multiple'
-import Title from '@/components/DataViz/Title'
-import TreeMap from '@/components/DataViz/TreeMap'
+// import {
+//   RIDGELINE_DEMO_DOMAIN_DATA,
+//   RIDGELINE_DEMO_FACET_DATA,
+// } from '@/components/DataViz/DemoRidgeline/dummy-data'
+// import MultipleNormalDistributions, {
+//   MultipleNormalDistributionDataType
+// } from '@/components/DataViz/Distributions/Normal/Multiple'
+// import Title from '@/components/DataViz/Title'
+// import TreeMap from '@/components/DataViz/TreeMap'
 import StellarPlot from '@/components/DataViz/StellarPlot'
 import ShareResults from '@/components/DataViz/ShareResults'
-import Histogram from '@/components/DataViz/Histograms/Single'
-import RadialBarChart from '@/components/DataViz/BarChart/Radial'
-import DemoRidgelinePlot from '@/components/DataViz/DemoRidgeline'
-import BarChartPerDomain from '@/components/DataViz/BarChart/PerDomain'
-import MultipleHistograms from '@/components/DataViz/Histograms/Multiple'
+// import Histogram from '@/components/DataViz/Histograms/Single'
+// import RadialBarChart from '@/components/DataViz/BarChart/Radial'
+// import DemoRidgelinePlot from '@/components/DataViz/DemoRidgeline'
+// import BarChartPerDomain from '@/components/DataViz/BarChart/PerDomain'
+// import MultipleHistograms from '@/components/DataViz/Histograms/Multiple'
 import BessiRateUserResults from '@/components/Forms/BESSI/RateUserResults'
-import PersonalityVisualization from '@/components/DataViz/PersonalityVisualization'
+// import PersonalityVisualization from '@/components/DataViz/PersonalityVisualization'
 import ResultsVisualizationModal from '@/components/Modals/BESSI/ResultsVisualization'
-import SingleNormalDistributionChart from '@/components/DataViz/Distributions/Normal/Single'
+// import SingleNormalDistributionChart from '@/components/DataViz/Distributions/Normal/Single'
 // Dummy data
 import {
-  DUMMY_BESSI_USER_SCORES,
-  generateDummyBessiUserScores,
+  generateDummyBessiUserScores
 } from '@/components/DataViz/BarChart/PerDomain/dummy-data'
 // Hooks
 import useClickOutside from '@/hooks/useClickOutside'
@@ -61,15 +60,15 @@ import {
   StellarPlotDataType,
   calculateBessiScores,
   SkillDomainFactorType,
-  getRandomValueInRange,
+  // getRandomValueInRange,
   BarChartInputDataType,
   BarChartTargetDataType,
   STUDY_SIMPLE__DYNAMODB,
-  getDummyPopulationBessiScores,
+  // getDummyPopulationBessiScores,
 } from '@/utils'
 // CSS
-import { definitelyCenteredStyle } from '@/theme/styles'
-import styles from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization/BessiResultsVIsualization.module.css'
+// import { definitelyCenteredStyle } from '@/theme/styles'
+// import styles from '@/sections/assessments/bessi/assessment/results/bessi-results-visualization/BessiResultsVisualization.module.css'
 
 
 
@@ -90,6 +89,12 @@ export type BessiUserDataVizType = {
 export type UserDataForVizType = StellarPlotDataType[] 
   | BarChartTargetDataType[] 
   | BessiUserDataVizType
+
+
+
+
+
+const BESSI_VERSION = 192
 
 
 
@@ -118,51 +123,51 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   const [ isOpen, setIsOpen ] = useState(false)
   const [ isRating, setIsRating ] = useState(false)
   const [ isCopied, setIsCopied ] = useState(false)
-  const [ showComparison, setShowComparison ] = useState(false)
+  // const [ showComparison, setShowComparison ] = useState(false)
   const [ isModalVisible, setIsModalVisible ] = useState(false)
   // Strings
   const [ screenshotUrl, setScreenshotUrl ] = useState('')
-  // Numbers
-  const [ 
-    selectedRadialBarChart, 
-    setSelectedRadialBarChart 
-  ] = useState(0)
-  const [ currentVisualization, setCurrentVisualization ] = useState(0)
+  // // Numbers
+  // const [ 
+  //   selectedRadialBarChart, 
+  //   setSelectedRadialBarChart 
+  // ] = useState(0)
+  // const [ currentVisualization, setCurrentVisualization ] = useState(0)
 
 
-  // Updated visualizations arrays
-  const selfVisualizations = [
-    { name: 'Stellar Plot', imgName: 'stellar-plot' },
-    { name: 'Bar Graph', imgName: 'bar-graph' },
-    { name: 'Radial Bar Graph', imgName: 'radial-bar-graph' },
-    { name: 'Tree Map', imgName: 'tree-map' },
-    { name: 'Personality Visualization', imgName: 'personality-visualization' },
-    { name: 'Normal Distribution', imgName: 'normal-distribution' }
-  ]
+  // // Updated visualizations arrays
+  // const selfVisualizations = [
+  //   { name: 'Stellar Plot', imgName: 'stellar-plot' },
+  //   { name: 'Bar Graph', imgName: 'bar-graph' },
+  //   { name: 'Radial Bar Graph', imgName: 'radial-bar-graph' },
+  //   { name: 'Tree Map', imgName: 'tree-map' },
+  //   { name: 'Personality Visualization', imgName: 'personality-visualization' },
+  //   { name: 'Normal Distribution', imgName: 'normal-distribution' }
+  // ]
 
-  const comparisonVisualizations = [
-    { name: 'Histogram', imgName: 'histogram' },
-    { name: 'Ridgeline Plot', imgName: 'ridgeline-plot' },
-    { name: 'Multiple Normal Distributions', imgName: 'multiple-normal-distributions' },
-  ]
+  // const comparisonVisualizations = [
+  //   { name: 'Histogram', imgName: 'histogram' },
+  //   { name: 'Ridgeline Plot', imgName: 'ridgeline-plot' },
+  //   { name: 'Multiple Normal Distributions', imgName: 'multiple-normal-distributions' },
+  // ]
 
-  // Determine the visualizations to render based on the toggle state
-  const visualizations = showComparison 
-    ? comparisonVisualizations 
-    : selfVisualizations
+  // // Determine the visualizations to render based on the toggle state
+  // const visualizations = showComparison 
+  //   ? comparisonVisualizations 
+  //   : selfVisualizations
   
   // ------------------------- Regular functions -------------------------------
-  // ~~~~~~~~ Event handlers ~~~~~~~~
-  function handleOnChangeRadialBarChart(e: any) {
-    const { value } = e.target
-    setSelectedRadialBarChart(value)
-  }
+  // // ~~~~~~~~ Event handlers ~~~~~~~~
+  // function handleOnChangeRadialBarChart(e: any) {
+  //   const { value } = e.target
+  //   setSelectedRadialBarChart(value)
+  // }
 
-  // Handle toggle between self and comparison visualization views
-  const handleToggleVisualizationType = () => {
-    setCurrentVisualization(0)
-    setShowComparison(prevState => !prevState)
-  }
+  // // Handle toggle between self and comparison visualization views
+  // const handleToggleVisualizationType = () => {
+  //   setCurrentVisualization(0)
+  //   setShowComparison(prevState => !prevState)
+  // }
 
   const handleTakeScreenshot = () => {
     if (screenshot1Ref.current) {
@@ -208,269 +213,361 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
 
 
 
-  const getUserData = (i: number): UserDataForVizType => {
-    if (showComparison) {
-      switch (i) {
-        case 0:
-        case 1:
-          return facetScores
-            ? {
-              facetScores: facetScores as FacetFactorType,
-              domainScores: domainScores as SkillDomainFactorType,
-            }
-            : bessiSkillScores?.domainScores
-              ? {
-                facetScores: bessiSkillScores?.facetScores,
-                domainScores: bessiSkillScores?.domainScores,
-              }
-              : calculateBessiScores(DUMMY_BESSI_USER_SCORES as UserScoresType[])
-        case 2:
-          return facetScores 
-            ? {
-              facetScores: facetScores as FacetFactorType,
-              domainScores: domainScores as SkillDomainFactorType,
-            }
-            : bessiSkillScores?.domainScores
-              ? {
-                facetScores: bessiSkillScores?.facetScores,
-                domainScores: bessiSkillScores?.domainScores,
-              }
-              : calculateBessiScores(DUMMY_BESSI_USER_SCORES as UserScoresType[])
-        default:
-          return calculateBessiScores(DUMMY_BESSI_USER_SCORES as UserScoresType[])
-      }
-    } else {
-      switch (i) {
-        case 0:
-          return Object.entries(
-            domainScores 
-              ? domainScores as SkillDomainFactorType
-              : bessiSkillScores?.domainScores as SkillDomainFactorType
-            ?? calculateBessiScores(
-              DUMMY_BESSI_USER_SCORES as UserScoresType[]
-            ).domainScores
-          ).map(([key, value]) => ({
-            axis: key,
-            value: value / 100
-          }))
-        case 1:
-        case 2:
-          const inputData: BarChartInputDataType = {
-            facetScores: facetScores 
-              ? facetScores
-              : bessiSkillScores?.facetScores as FacetFactorType,
-            domainScores: domainScores
-              ? domainScores
-              : bessiSkillScores?.domainScores as SkillDomainFactorType,
-          }
+  // const getUserData = (i: number): UserDataForVizType => {
+  //   if (showComparison) {
+  //     switch (i) {
+  //       case 0:
+  //       case 1:
+  //       case 2:
+  //         // return facetScores
+  //         //   ? {
+  //         //     facetScores: facetScores as FacetFactorType,
+  //         //     domainScores: domainScores as SkillDomainFactorType,
+  //         //   }
+  //         //   : bessiSkillScores?.domainScores
+  //         //     ? {
+  //         //       facetScores: bessiSkillScores?.facetScores,
+  //         //       domainScores: bessiSkillScores?.domainScores,
+  //         //     }
+  //         //     : calculateBessiScores[192](generateDummyBessiUserScores())
 
-          return transformData(
-            domainScores
-              ? inputData
-              : bessiSkillScores?.domainScores
-                ? inputData
-                : calculateBessiScores(DUMMY_BESSI_USER_SCORES as UserScoresType[])
-          )
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-          return domainScores
-            ? {
-              facetScores: facetScores as FacetFactorType,
-              domainScores: domainScores as SkillDomainFactorType,
-            }
-            : bessiSkillScores?.domainScores
-              ? {
-                facetScores: bessiSkillScores?.facetScores,
-                domainScores: bessiSkillScores?.domainScores,
-              }
-              : calculateBessiScores(DUMMY_BESSI_USER_SCORES as UserScoresType[])
-        default:
-          return calculateBessiScores(DUMMY_BESSI_USER_SCORES as UserScoresType[])
-      }
+  //         if (facetScores) {
+  //           return {
+  //             facetScores: facetScores as FacetFactorType,
+  //             domainScores: domainScores as SkillDomainFactorType,
+  //           }
+  //         } else {
+  //           if (bessiSkillScores?.domainScores) {
+  //             return {
+  //               facetScores: bessiSkillScores?.facetScores,
+  //               domainScores: bessiSkillScores?.domainScores,
+  //             }
+  //           } else {
+  //             return calculateBessiScores[192](generateDummyBessiUserScores())
+  //           }
+  //         }
+  //       default:
+  //         return calculateBessiScores[192](generateDummyBessiUserScores())
+  //     }
+  //   } else {
+  //     switch (i) {
+  //       case 0:
+  //         // Step 1: Prepare inputData (you've already done this)
+  //         const stellarInputData: BarChartInputDataType = {
+  //           facetScores: facetScores
+  //             ? facetScores
+  //             : (bessiSkillScores?.facetScores as FacetFactorType),
+  //           domainScores: domainScores
+  //             ? domainScores
+  //             : (bessiSkillScores?.domainScores as SkillDomainFactorType),
+  //         }
+
+  //         // Step 2: Transform inputData to get barChartDataArray
+  //         const stellarBarChartData: BarChartTargetDataType[] = transformData(
+  //           domainScores
+  //             ? stellarInputData
+  //             : bessiSkillScores?.domainScores
+  //               ? stellarInputData
+  //               : calculateBessiScores[192](generateDummyBessiUserScores())
+  //         )
+
+  //         // Step 3: Map over barChartDataArray to create stellarPlotData
+  //         const stellarPlotData = stellarBarChartData.map(
+  //           (d): { axis: string, value: number, barChartData: BarChartTargetDataType } => ({
+  //             axis: d.name, // Domain name
+  //             value: d.domainScore / 100, // Normalized domain score
+  //             barChartData: d, // Detailed data for `BarChartPerDomain`
+  //           })
+  //         )
+
+  //         return stellarPlotData as StellarPlotDataType[]
+  //       case 1:
+  //       case 2:
+  //         const inputData: BarChartInputDataType = {
+  //           facetScores: facetScores
+  //             ? facetScores
+  //             : bessiSkillScores?.facetScores as FacetFactorType,
+  //           domainScores: domainScores
+  //             ? domainScores
+  //             : bessiSkillScores?.domainScores as SkillDomainFactorType,
+  //         }
+
+  //         return transformData(
+  //           domainScores
+  //             ? inputData
+  //             : bessiSkillScores?.domainScores
+  //               ? inputData
+  //               : calculateBessiScores[192](generateDummyBessiUserScores())
+  //         )
+  //       case 3:
+  //       case 4:
+  //       case 5:
+  //       case 6:
+  //         // return facetScores
+  //         //   ? {
+  //         //     facetScores: facetScores as FacetFactorType,
+  //         //     domainScores: domainScores as SkillDomainFactorType,
+  //         //   }
+  //         //   : bessiSkillScores?.domainScores
+  //         //     ? {
+  //         //       facetScores: bessiSkillScores?.facetScores,
+  //         //       domainScores: bessiSkillScores?.domainScores,
+  //         //     }
+  //         //     : calculateBessiScores[192](generateDummyBessiUserScores())
+
+  //         if (facetScores) {
+  //           return {
+  //             facetScores: facetScores as FacetFactorType,
+  //             domainScores: domainScores as SkillDomainFactorType,
+  //           }
+  //         } else {
+  //           if (bessiSkillScores?.domainScores) {
+  //             return {
+  //               facetScores: bessiSkillScores?.facetScores,
+  //               domainScores: bessiSkillScores?.domainScores,
+  //             }
+  //           } else {
+  //             return calculateBessiScores[192](generateDummyBessiUserScores())
+  //           }
+  //         }
+
+  //       default:
+  //         return calculateBessiScores[192](generateDummyBessiUserScores())
+  //     }
+  //   }
+  // }
+
+
+
+
+
+  const getUserData = (): UserDataForVizType => {
+    // Step 1: Prepare inputData (you've already done this)
+    const stellarInputData: BarChartInputDataType = {
+      facetScores: facetScores
+        ? facetScores
+        : (bessiSkillScores?.facetScores as FacetFactorType),
+      domainScores: domainScores
+        ? domainScores
+        : (bessiSkillScores?.domainScores as SkillDomainFactorType),
     }
+
+    // Step 2: Transform inputData to get barChartDataArray
+    const stellarBarChartData: BarChartTargetDataType[] = transformData(
+      domainScores
+        ? stellarInputData
+        : bessiSkillScores?.domainScores
+          ? stellarInputData
+          : calculateBessiScores(
+              generateDummyBessiUserScores(), 
+              BESSI_VERSION
+            ) as { 
+              facetScores: FacetFactorType, 
+              domainScores: SkillDomainFactorType 
+            }
+    )
+
+    // Step 3: Map over barChartDataArray to create stellarPlotData
+    const stellarPlotData = stellarBarChartData.map(
+      (d): { axis: string, value: number, barChartData: BarChartTargetDataType } => ({
+        axis: d.name, // Domain name
+        value: d.domainScore / 100, // Normalized domain score
+        barChartData: d, // Detailed data for `BarChartPerDomain`
+      })
+    )
+
+    return stellarPlotData as StellarPlotDataType[]
   }
 
 
-  const renderVisualization = (
-    isExample: boolean,
-    i: number
-  ) => {
-    if (showComparison) {
-      switch (i) {
-        case 0:
-          const { study, isNonStudy } = getCurrentStudy()
-
-          const studyId: string | undefined = isNonStudy ? undefined : study?.id
-
-          const histogramUserData = getUserData(i) as {
-            facetScores: FacetFactorType,
-            domainScores: SkillDomainFactorType,
-          }
 
 
-          return (
-            <>
-              <MultipleHistograms
-                studyId={ studyId }
-                isExample={ isExample }
-                userData={ histogramUserData }
-                email={ email }
-                // auth0={{
-                //   user,
-                //   error,
-                //   isLoading,
-                // }}
-              />
-            </>
-          )
-        case 1:
-          return (
-            <>
-              <DemoRidgelinePlot
-                data={ RIDGELINE_DEMO_DOMAIN_DATA(100) }
-                height={ 400 }
-                width={ 800 }
-              />
-              <DemoRidgelinePlot
-                data={ RIDGELINE_DEMO_FACET_DATA(100) }
-                height={ 400 }
-                width={ 800 }
-              />
-            </>
-          )
-        case 2:
-          const multipleNormalPopFacetScores = getDummyPopulationBessiScores(100, 'facet')
-          const multipleNormalPopDomainScores = getDummyPopulationBessiScores(100, 'domain')
+  // const renderVisualization = (
+  //   isExample: boolean,
+  //   i: number
+  // ) => {
+  //   if (showComparison) {
+  //     switch (i) {
+  //       case 0:
+  //         const { study, isNonStudy } = getCurrentStudy()
 
-          const multipleNormalIsSample = false
+  //         const studyId: string | undefined = isNonStudy ? undefined : study?.id
 
-          const multipleNormalUserData = getUserData(i) as {
-            facetScores: FacetFactorType,
-            domainScores: SkillDomainFactorType,
-            averages: SkillDomainFactorType,
-          }
+  //         const histogramUserData = getUserData(i) as {
+  //           facetScores: FacetFactorType,
+  //           domainScores: SkillDomainFactorType,
+  //         }
 
-          const multipleNormalDistributionData: MultipleNormalDistributionDataType = {
-            facetScores: multipleNormalUserData.facetScores,
-            domainScores: multipleNormalUserData.domainScores,
-            populationFacetScores: multipleNormalPopFacetScores,
-            populationDomainScores: multipleNormalPopDomainScores,
-          }
 
-          return (
-            <MultipleNormalDistributions
-              isExample={ isExample }
-              isSample={ multipleNormalIsSample }
-              data={ multipleNormalDistributionData }
-            />
-          )
-        default:
-          return null
-      }
-    } else {
-      switch (i) {
-        case 0:
-          const stellarPlotData = getUserData(i) as { axis: string, value: number }[]
-          return <StellarPlot isExample={ isExample } data={ stellarPlotData } />
-        case 1:
-          const barChartTitle = 'BESSI Bar Chart'
-          const allData: BarChartTargetDataType[] = getUserData(i) as BarChartTargetDataType[]
+  //         return (
+  //           <>
+  //             <MultipleHistograms
+  //               studyId={ studyId }
+  //               isExample={ isExample }
+  //               userData={ histogramUserData }
+  //               email={ email }
+  //               // auth0={{
+  //               //   user,
+  //               //   error,
+  //               //   isLoading,
+  //               // }}
+  //             />
+  //           </>
+  //         )
+  //       case 1:
+  //         return (
+  //           <>
+  //             <DemoRidgelinePlot
+  //               data={ RIDGELINE_DEMO_DOMAIN_DATA(100) }
+  //               height={ 400 }
+  //               width={ 800 }
+  //             />
+  //             <DemoRidgelinePlot
+  //               data={ RIDGELINE_DEMO_FACET_DATA(100) }
+  //               height={ 400 }
+  //               width={ 800 }
+  //             />
+  //           </>
+  //         )
+  //       case 2:
+  //         const multipleNormalPopFacetScores = getDummyPopulationBessiScores(100, 'facet')
+  //         const multipleNormalPopDomainScores = getDummyPopulationBessiScores(100, 'domain')
 
-          return (
-            <>
-              <Title isExample={ isExample } title={ barChartTitle } />
+  //         const multipleNormalIsSample = false
 
-              { allData.map((data: BarChartTargetDataType, i: number) => (
-                <>
-                  <BarChartPerDomain isExample={ isExample } data={ data } />
-                </>
-              )) }
-            </>
-          )
-        case 2:
-          const radialBarChartTitle = `BESSI Radial Bar Chart`
-          const _allData = getUserData(i) as BarChartTargetDataType[]
+  //         const multipleNormalUserData = getUserData(i) as {
+  //           facetScores: FacetFactorType,
+  //           domainScores: SkillDomainFactorType,
+  //           averages: SkillDomainFactorType,
+  //         }
 
-          return (
-            <>
-              <div
-                style={ {
-                  ...definitelyCenteredStyle,
-                  flexDirection: 'column',
-                } }
-              >
-                <Title isExample={ isExample } title={ radialBarChartTitle } />
-                <select
-                  value={ selectedRadialBarChart }
-                  style={ {
-                    padding: '4px 8px 4px 4px',
-                    margin: '4px 0px 4px 0px',
-                  } }
-                  onChange={
-                    (e: any) => handleOnChangeRadialBarChart(e)
-                  }
-                >
-                  { _allData.map((data: BarChartTargetDataType, i: number) => (
-                    <>
-                      <option key={ i } value={ i }>
-                        { data.name }
-                      </option>
-                    </>
-                  )) }
-                </select>
+  //         const multipleNormalDistributionData: MultipleNormalDistributionDataType = {
+  //           facetScores: multipleNormalUserData.facetScores,
+  //           domainScores: multipleNormalUserData.domainScores,
+  //           populationFacetScores: multipleNormalPopFacetScores,
+  //           populationDomainScores: multipleNormalPopDomainScores,
+  //         }
 
-                <RadialBarChart
-                  data={ _allData[selectedRadialBarChart] }
-                  selectedRadialBarChart={ selectedRadialBarChart }
-                />
-              </div>
-            </>
-          )
-        case 3:
-          return <TreeMap isExample={ isExample } data={ getUserData(i) } />
-        case 4:
-          return (
-            <PersonalityVisualization
-              isExample={ isExample }
-              data={ getUserData(i) }
-            />
-          )
-        case 5:
-          const mean = 50
-          const stddev = getRandomValueInRange(1, 5)
-          const score = getRandomValueInRange(50 - stddev, 50 + stddev)
+  //         return (
+  //           <MultipleNormalDistributions
+  //             isExample={ isExample }
+  //             isSample={ multipleNormalIsSample }
+  //             data={ multipleNormalDistributionData }
+  //           />
+  //         )
+  //       default:
+  //         return null
+  //     }
+  //   } else {
+  //     switch (i) {
+  //       case 0:
+  //         const stellarPlotData = getUserData(i) as StellarPlotDataType[]
+  //         return <StellarPlot isExample={ isExample } data={ stellarPlotData } />
+  //       case 1:
+  //         const barChartTitle = 'BESSI Bar Chart'
+  //         const allData: BarChartTargetDataType[] = getUserData(i) as BarChartTargetDataType[]
 
-          console.log(`[${new Date().toLocaleString()}] stddev: `, stddev)
+  //         return (
+  //           <>
+  //             <Title isExample={ isExample } title={ barChartTitle } />
 
-          return (
-            <SingleNormalDistributionChart
-              mean={ mean }
-              stddev={ stddev }
-              score={ score }
-            />
-          )
-        default:
-          return null
-      }
-    }
+  //             { allData.map((data: BarChartTargetDataType, i: number) => (
+  //               <>
+  //                 <BarChartPerDomain isExample={ isExample } data={ data } />
+  //               </>
+  //             )) }
+  //           </>
+  //         )
+  //       case 2:
+  //         const radialBarChartTitle = `BESSI Radial Bar Chart`
+  //         const _allData = getUserData(i) as BarChartTargetDataType[]
+
+  //         return (
+  //           <>
+  //             <div
+  //               style={ {
+  //                 ...definitelyCenteredStyle,
+  //                 flexDirection: 'column',
+  //               } }
+  //             >
+  //               <Title isExample={ isExample } title={ radialBarChartTitle } />
+  //               <select
+  //                 value={ selectedRadialBarChart }
+  //                 style={ {
+  //                   padding: '4px 8px 4px 4px',
+  //                   margin: '4px 0px 4px 0px',
+  //                 } }
+  //                 onChange={
+  //                   (e: any) => handleOnChangeRadialBarChart(e)
+  //                 }
+  //               >
+  //                 { _allData.map((data: BarChartTargetDataType, i: number) => (
+  //                   <>
+  //                     <option key={ i } value={ i }>
+  //                       { data.name }
+  //                     </option>
+  //                   </>
+  //                 )) }
+  //               </select>
+
+  //               <RadialBarChart
+  //                 data={ _allData[selectedRadialBarChart] }
+  //                 selectedRadialBarChart={ selectedRadialBarChart }
+  //               />
+  //             </div>
+  //           </>
+  //         )
+  //       case 3:
+  //         return <TreeMap isExample={ isExample } data={ getUserData(i) } />
+  //       case 4:
+  //         return (
+  //           <PersonalityVisualization
+  //             isExample={ isExample }
+  //             data={ getUserData(i) }
+  //           />
+  //         )
+  //       case 5:
+  //         const mean = 50
+  //         const stddev = getRandomValueInRange(1, 5)
+  //         const score = getRandomValueInRange(50 - stddev, 50 + stddev)
+
+  //         console.log(`[${new Date().toLocaleString()}] stddev: `, stddev)
+
+  //         return (
+  //           <SingleNormalDistributionChart
+  //             mean={ mean }
+  //             stddev={ stddev }
+  //             score={ score }
+  //           />
+  //         )
+  //       default:
+  //         return null
+  //     }
+  //   }
+  // }
+
+
+
+  const renderVisualization = (isExample: boolean) => {
+    const stellarPlotData = getUserData() as StellarPlotDataType[]
+    return <StellarPlot isExample={ isExample } data={ stellarPlotData } />
   }
+
 
 
   // ------------------------------ Async functions ----------------------------
-  async function handleRateVisualization(
-    e: any, 
-    positiveOrNegative: 'positive' | 'negative',
-  ) {
-    setIsRating(true)
+  // async function handleRateVisualization(
+  //   e: any, 
+  //   positiveOrNegative: 'positive' | 'negative',
+  // ) {
+  //   setIsRating(true)
 
-    const rating = positiveOrNegative === 'positive' ? 1 : 0
-    const vizName = visualizations[currentVisualization].name
+  //   const rating = positiveOrNegative === 'positive' ? 1 : 0
+  //   const vizName = visualizations[currentVisualization].name
 
-    // Submit the user's rating of the visualization to DynamoDB
-    const userVizRatingId = await storeRatingInDynamoDB(rating, vizName)
-  }
+  //   // Submit the user's rating of the visualization to DynamoDB
+  //   const userVizRatingId = await storeRatingInDynamoDB(rating, vizName)
+  // }
 
 
   // ---------------------------------- Hooks ----------------------------------
@@ -544,9 +641,9 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
   // ---------------------------------- Hooks ----------------------------------
   useClickOutside(modalRef, () => setIsModalVisible(false))
 
-  useEffect(() => {
-    setIsRating(false)
-  }, [ currentVisualization ])
+  // useEffect(() => {
+  //   setIsRating(false)
+  // }, [ currentVisualization ])
 
   useLayoutEffect(() => {
     // if (!isLoading && user && user.email) {
@@ -571,15 +668,15 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
     <>
       <div style={{ marginTop: '24px' }}>
         {/* Data Viz Options - Row */}
-        <div 
+        {/* <div 
           style={{
             ...definitelyCenteredStyle,
             position: 'relative',
             marginTop: '-12px',
           }}
-        >
+        > */}
           {/* Toggle Switch */ }
-          <div className={ styles.switchOuterContainer }>
+          {/* <div className={ styles.switchOuterContainer }>
             <div className={ styles.switchInnerContainer }>
               <span style={{ fontSize: '13px', marginRight: '4px' }}>
                 <div style={ { display: 'flex' } }>
@@ -603,17 +700,20 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
                 <span className={ styles.slider } />
               </label>
             </div>
-          </div>
-        </div>
+          </div> */}
+        {/* </div> */}
 
-        <TitleDropdown
+        {/* <TitleDropdown
           visualizations={ visualizations }
           currentVisualization={ currentVisualization }
           setCurrentVisualization={ setCurrentVisualization }
-        />
+        /> */}
 
         { isExample
-          ? renderVisualization(isExample, currentVisualization)
+          ? renderVisualization(
+            isExample, 
+            // currentVisualization,
+          )
           : (
             <>
               <ShareResults
@@ -623,7 +723,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
                 } }
                 onClick={ {
                   handleTakeScreenshot,
-                  handleRateVisualization,
+                  // handleRateVisualization,
                 } }
               />
 
@@ -632,7 +732,7 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
                 isExample={ isExample as boolean }
                 bessiSkillScores={ bessiSkillScores }
                 renderVisualization={ renderVisualization }
-                currentVisualization={ currentVisualization }
+                // currentVisualization={ currentVisualization }
                 rateUserResults={ rateUserResults as boolean }
               />
             </>
@@ -645,10 +745,10 @@ const BessiResultsVisualization: FC<BessiResultsVisualizationType> = ({
             modalRef, 
             screenshot2Ref 
           }}
-          viz={{
-            visualizations, 
-            currentVisualization 
-          }}
+          // viz={{
+          //   visualizations, 
+          //   currentVisualization 
+          // }}
           state={{
             isCopied,
             setIsCopied, 

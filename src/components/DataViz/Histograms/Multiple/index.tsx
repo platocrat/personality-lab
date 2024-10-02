@@ -250,7 +250,7 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
   // --------------------------- Async functions -------------------------------
   async function getStudyResults() {
     try {
-      const apiEndpoint = `/api/v1/study?email=${ email }&id=${ studyId }`
+      const apiEndpoint = `/api/v1/assessment/results?studyId=${ studyId }`
       const response = await fetch(apiEndpoint, {
         method: 'GET',
       })
@@ -260,9 +260,8 @@ const MultipleHistograms: FC<MultipleHistogramsProps> = ({
       if (response.status === 500) throw new Error(json.error)
       if (response.status === 405) throw new Error(json.error)
 
-      const study = (json.study as STUDY__DYNAMODB[])[0]
-      const resultsWithMetadata = study.results as RESULTS__DYNAMODB[]
-      const assessmentId_ = resultsWithMetadata[0].study?.assessmentId
+      const resultsWithMetadata = json.resultsPerStudyId as RESULTS__DYNAMODB[]
+      const assessmentId_ = resultsWithMetadata[0].assessmentId
       const studyResults_ = resultsWithMetadata.map((
         _: RESULTS__DYNAMODB) => _.results as any | BessiUserResults__DynamoDB
       )

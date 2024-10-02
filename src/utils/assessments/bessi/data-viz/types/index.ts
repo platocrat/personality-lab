@@ -1,10 +1,6 @@
 export type FacetDataType = { name: string, score: number }
 
 
-export type StellarPlotDataType = {
-  axis: string
-  value: number
-}
 
 
 export type BarChartInputDataType = {
@@ -21,4 +17,11 @@ export type BarChartTargetDataType = {
     name: string         // The label for the individual bar within the group
     score: number        // The height or value of the bar
   }[]
+}
+
+
+export type StellarPlotDataType = {
+  axis: string
+  value: number
+  barChartData: BarChartTargetDataType
 }

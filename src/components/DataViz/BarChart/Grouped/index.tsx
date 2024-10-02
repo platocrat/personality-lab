@@ -2,20 +2,12 @@
 import * as d3 from 'd3'
 import { FC, useEffect, useRef } from 'react'
 // Locals
-import Title from '../../Title'
 import {
-  Facet,
   transformData,
-  FacetFactorType,
   findFacetByScore,
-  SKILLS_DOMAIN_MAPPING,
   BarChartInputDataType,
-  SkillDomainFactorType,
-  DOMAIN_TO_FACET_MAPPING,
-  getSkillDomainAndWeight,
-  BASELINE_NUMBER_OF_FACETS,
-  generateHighContrastColors,
 } from '@/utils'
+import Title from '../../Title'
 // CSS
 import { definitelyCenteredStyle } from '@/theme/styles'
 

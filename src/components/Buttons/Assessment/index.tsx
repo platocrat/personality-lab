@@ -40,6 +40,7 @@ const AssessmentButton: FC<AssessmentButtonProps> = ({
           height: '30',
           showSpinner: true,
           containerStyle: {
+            top: '0px',
             float: 'right',
             right: '28px',
           },
