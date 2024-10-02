@@ -79,6 +79,10 @@
   - [11.5. Install `cronie` to enable `crontab`](#115-install-cronie-to-enable-crontab)
   - [11.6 Automatically Renew Let’s Encrypt Certificates](#116-automatically-renew-lets-encrypt-certificates)
 
+- [12. Set up Amazon Elastic Container Registry (ECR)](#12-set-up-amazon-elastic-container-registry-ecr)
+  - [12.1. Create a Private Repository](#121-create-a-private-repository)
+  - [12.2 Add Private Repository Permissions](#122-add-private-repository-permissions)
+
 ## 0. General Information
 
 ### 0.1 Project Goals
@@ -2114,6 +2118,33 @@ Let’s Encrypt certificates expire after 90 days. We encourage you to renew you
     ```
 
 3. Save and close the file. All installed certificates will be automatically renewed and reloaded.
+
+## 12. Set up Amazon Elastic Container Registry (ECR)
+
+### 12.1. Create a Private Repository
+
+Create an ECR repostiory for each application and/or service of the system.
+
+1. Click the orange "Create repository" button.
+2. Enter a `namespace/repo-name`. For example, `jackw/next-app`.
+3. Under "Encryption settings", select "AWS KMS".
+4. Click the orange "Create" button.
+
+Make sure to save the `namespace/repo-name` as a GitHub Actions Secret for `ECR_REPOSITORY` for your specific GitHub repository.
+
+For example, for the ECR with the name `jackw/next-app`, save this as a GitHub Actions Secret under the `next-app` GitHub repository, with `ECR_REPOSITORY` as the Secret's name, and `jackw/next-app` as the Secret's value.
+
+### 12.2. Add Private Repository Permissions
+
+1. Under the "Private registry" menu on the left panel, select "Features & Settings", then select "Permissions".
+2. Click the orange "Generate statement" button.
+3. For "Policy type", select the "Pull through cache - scoping" option.
+4. For "Statement id", select enter a useful description for the permissions. For example, `ec2-user-pull-only`
+5. For "IAM entities", select the IAM role that is tied to your EC2 instance. For example, `ec2-user`.
+6. Click the orange "Save" button.
+7. On the "Registry permissions" page, click the "Edit" button for the newly created permissions.
+8. Under the `Resource` field, enter in the full ARN of each of the private repositories that you created in [12.1 Create a Private Repository](#121-create-a-private-repository).
+9. Click the orange "Save" button.
 
 ---;
 
