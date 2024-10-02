@@ -16,10 +16,12 @@ import { GameSessionContextType } from '@/contexts/types'
 // Utils
 import BessiAssessmentSection from '@/sections/assessments/bessi/assessment'
 import {
-  GamePhases,
   Player,
+  GamePhases,
   PlayerInGameState,
-  SocialRatingGamePlayers
+  SocialRatingGamePlayers,
+  haveAllPlayersCompleted,
+  UpdatePlayer__WebSocket,
 } from '@/utils'
 
 
@@ -29,15 +31,6 @@ type InGameProps = {
 }
 
 
-type PhaseChecks = {
-  phase: GamePhases
-  check: 'hasCompletedConsentForm' |
-  'hasCompletedSelfReport' |
-  'hasCompletedObserverReport'
-}
-
-
-
 
 // Page-global constants
 const RECONNECT_INTERVAL = 3_000 // Try to reconnect every 3 seconds
@@ -45,22 +38,19 @@ const MAX_RECONNECT_ATTEMPTS = 5 // Set a maximum number of attempts
 /**
  * @dev Mapping of AWS WebSocket API URLs.
  * Note: 
- * - The `'mock-routes'` AWS WebSocket URL uses Mock Integration Types for all
- * routes except for the custom route(s):
- * 1. `$connect` - Mock route
- * 2. `$disconnect` - Mock route
- * 3. `$default` - Mock route
- * 4. `updatePlayer` - HTTP route
- * - The `'http-only'` AWS WebSocket URL uses HTTP Integration Types only for
- * each route:
+ * - The `'http-only'` AWS WebSocket URL uses HTTP Integration Types for each 
+ *   route:
  * 1. `$connect` - HTTP route
  * 2. `$disconnect` - HTTP route
  * 3. `$default` - HTTP route
  * 4. `updatePlayer` - HTTP route
  */
 const WEB_SOCKET_URLS = {
-  'mock-routes': 'wss://p43nv4mq12.execute-api.us-east-1.amazonaws.com/production/',
-  'http-only': 'wss://vpfscho95i.execute-api.us-east-1.amazonaws.com/production/'
+  'local': 'ws://localhost:3001/',
+  'local-with-ssl': 'wss://localhost:3001/',
+  'local-ec2': 'wss://canpersonalitychange.com:3001/',
+  'http-only': 'wss://wewbqdsubc.execute-api.us-east-1.amazonaws.com/production/',
+  'lambda-functions': 'wss://vpfscho95i.execute-api.us-east-1.amazonaws.com/production/'
 }
 
 
@@ -79,8 +69,6 @@ const InGame: FC<InGameProps> = ({
     isUpdatingGameState,
     // State setters
     setIsUpdatingGameState,
-    // State change function handlers
-    haveAllPlayersCompleted,
   } = useContext<GameSessionContextType>(GameSessionContext)
   // States
   const [ socket, setSocket ] = useState<WebSocket | null>(null)
@@ -91,17 +79,38 @@ const InGame: FC<InGameProps> = ({
   // --------------------------- Regular functions -----------------------------
   // Function to initialize WebSocket
   function initializeWebSocket() {
-    const ws = new WebSocket(WEB_SOCKET_URLS['http-only'])
+    // const awsLambdaWsBaseUrl = WEB_SOCKET_URLS['lambda-functions']
+    // const queryParams = `?sessionId=${ sessionId }`
+    
+    // const awsLambdaWsUrl = `${awsLambdaWsBaseUrl}${queryParams}`
+    // const localWsUrl = WEB_SOCKET_URLS.local
+    const localWithSslWsUrl = WEB_SOCKET_URLS['local-with-ssl']
+    // const localAwsEC2WsUrl = WEB_SOCKET_URLS['local-ec2']
+    // const httpOnlyWsUrl = WEB_SOCKET_URLS['http-only']
+    // const httpOnly2WsUrl = WEB_SOCKET_URLS['http-only-2']
+    
+    const ws = new WebSocket(localWithSslWsUrl)
 
-    ws.onopen = () => {
-      console.log('Connected to AWS WebSocket!')
+    console.log(`ws.url: `, ws.url)
+
+    const isWsUrlAws = ws.url === WEB_SOCKET_URLS['http-only'] ||
+      ws.url === WEB_SOCKET_URLS['lambda-functions']
+
+    ws.onopen = (event) => {
+      const onConnectMessage = `Connected to ${ 
+        isWsUrlAws 
+          ? 'AWS WebSocket'
+          : 'local WebSocket!'
+      }`
+      
+      console.log(onConnectMessage)
       setSocket(ws)
       setReconnectAttempts(0) // Reset the reconnection attempts once connected
     }
 
     ws.onmessage = (event) => {
       console.log(`WebSocket event: `, event)
-      const data = JSON.parse(event.data)
+      const data = JSON.parse(event.data.toString())
       console.log(`WebSocket data: `, data)
 
       if (data.updatedPlayers) {
@@ -113,29 +122,35 @@ const InGame: FC<InGameProps> = ({
       }
     }
 
-    if (ws.OPEN && !ws.CLOSED && !ws.CLOSING && !ws.CONNECTING) {
-      ws.onclose = () => {
-        console.log('AWS WebSocket connection closed!')
+    ws.onclose = () => {
+      const onCloseMessage = `${ 
+        isWsUrlAws 
+          ? 'AWS' 
+          : 'Local' 
+      } WebSocket connection closed!`
+      
+      console.log(onCloseMessage)
 
-        // Only attempt to reconnect if we haven't reached the max attempts
-        if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
-          attemptReconnection()
-        }
+      // Only attempt to reconnect if we haven't reached the max attempts
+      if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+        attemptReconnection()
       }
     }
 
     ws.onerror = (error) => {
-      console.error('AWS WebSocket error: ', error)
+      const onErrorMessage = `${ isWsUrlAws ? 'AWS' : 'Local' } WebSocket error: `
+      console.error(onErrorMessage, error)
       ws.close()
     }
   }
+
 
   // Function to handle reconnection attempts
   function attemptReconnection() {
     if (!isReconnecting) {
       setIsReconnecting(true)
 
-      // Reattempt connection every RECONNECT_INTERVAL milliseconds
+      // Re-attempt connection every RECONNECT_INTERVAL milliseconds
       const reconnectionInterval = setInterval(() => {
         setReconnectAttempts((prev) => {
           if (prev >= MAX_RECONNECT_ATTEMPTS) {
@@ -155,19 +170,14 @@ const InGame: FC<InGameProps> = ({
   }
 
 
-  function updatePlayer(
-    playerData: { 
-      players: SocialRatingGamePlayers, 
-      sessionId: string, 
-      isGameInSession: boolean 
-    }
-  ) {
+  // Sends a message with the `updatePlayer` action through the AWS WebSocket
+  function updatePlayer(requestData: UpdatePlayer__WebSocket) {
     if (socket) {
       const data = {
         action: 'updatePlayer',
-        players: playerData.players,
-        sessionId: playerData.sessionId,
-        isGameInSession: playerData.isGameInSession,
+        players: requestData.players,
+        sessionId: requestData.sessionId,
+        isGameInSession: requestData.isGameInSession,
       }
       const dataAsString = JSON.stringify(data)
       // Send data to WebSocket
@@ -242,13 +252,13 @@ const InGame: FC<InGameProps> = ({
    */
   const onCompletion = async (): Promise<void> => {
     if (players) {
-      setIsUpdatingGameState(true)
-
       // Check if stored nickname and stored player is in local storage
       const storedNickname = localStorage.getItem('nickname')
       const storedPlayer = localStorage.getItem('player')
 
       if (storedNickname && storedPlayer) {
+        setIsUpdatingGameState(true)
+
         const updatedPlayer = createUpdatedPlayer(storedPlayer, phase)
 
         // Add updated player to pre-existing mapping of players
@@ -285,59 +295,6 @@ const InGame: FC<InGameProps> = ({
 
 
   // ~~~~~~ API calls ~~~~~~
-  async function updateGamePhase(_phase: GamePhases): Promise<GamePhases> {
-    setIsUpdatingGameState(true)
-
-    try {
-      const apiEndpoint = `/api/v1/social-rating/game/game-phase`
-      const response = await fetch(apiEndpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          sessionId,
-          phase: _phase,
-        }),
-      })
-
-      const json = await response.json()
-
-      if (response.status === 500) {
-        setIsUpdatingGameState(false)
-        throw new Error(json.error)
-      }
-
-      if (response.status === 405) {
-        setIsUpdatingGameState(false)
-        throw new Error(json.error)
-      }
-
-      if (response.status === 200) {
-        const phase_ = json.phase as GamePhases
-        setIsUpdatingGameState(false)
-        return phase_
-      } else {
-        setIsUpdatingGameState(false)
-
-        const error = `Error posting new players to social rating game with session ID '${
-          sessionId
-        }' to DynamoDB: `
-
-        throw new Error(`${error}: ${json.error}`)
-      }
-    } catch (error: any) {
-      console.error(error)
-      setIsUpdatingGameState(false)
-
-      /**
-       * @todo Handle error UI here
-       */
-      throw new Error(`Error updating player: `, error.message)
-    }
-  }
-
-
   /**
    * @dev Get survey results to calculate profile correlations
    * @returns 
@@ -349,35 +306,16 @@ const InGame: FC<InGameProps> = ({
   
   // --------------------------- `useLayoutEffect`s ----------------------------
   useLayoutEffect(() => {
+    // const storedPlayer = localStorage.getItem('player')
+    // console.log(`storedPlayer: `, storedPlayer)
+    // localStorage.clear()
+
     initializeWebSocket()
 
     return () => {
       if (socket) socket.close()
     }
   }, [ ])
-
-
-  useLayoutEffect(() => {
-    if (players) {
-      const phaseChecks: PhaseChecks[] = [
-        { check: 'hasCompletedConsentForm', phase: GamePhases.SelfReport },
-        { check: 'hasCompletedSelfReport', phase: GamePhases.ObserverReport },
-        { check: 'hasCompletedObserverReport', phase: GamePhases.Results }
-      ]
-
-      const nextPhase: GamePhases | undefined = phaseChecks.find(
-        ({ check }): boolean => haveAllPlayersCompleted(players, check)
-      )?.phase
-
-      if (nextPhase) {
-        updateGamePhase(nextPhase).then(
-          (_phase: GamePhases): void => setPhase(_phase)
-        )
-      }
-    }
-  }, [ players ])
-
-
 
 
 

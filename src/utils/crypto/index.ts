@@ -152,29 +152,37 @@ export class SSCrypto {
   }
 
 
-  public async generateNewSecretKeys(): Promise<{
+  public async generateSecretKeys(): Promise<{
     COOKIE_ENCRYPTION_SECRET_KEY: string
     RESULTS_ENCRYPTION_SECRET_KEY: string
     SHARE_RESULTS_ENCRYPTION_SECRET_KEY: string
+    GAME_SESSION_SECURE_TOKEN_SECRET_KEY: string
   }> {
-    let newSecretKeys = { 
+    let secretKeys = { 
       COOKIE_ENCRYPTION_SECRET_KEY: '',
       RESULTS_ENCRYPTION_SECRET_KEY: '',
       SHARE_RESULTS_ENCRYPTION_SECRET_KEY: '',
+      GAME_SESSION_SECURE_TOKEN_SECRET_KEY: '',
     }
 
-    const objectKeys = [
+    const objectKeys: string[] = [
       `COOKIE_ENCRYPTION_SECRET_KEY`,
       `RESULTS_ENCRYPTION_SECRET_KEY`,
-      `SHARE_RESULTS_ENCRYPTION_SECRET_KEY`
+      `SHARE_RESULTS_ENCRYPTION_SECRET_KEY`,
+      `GAME_SESSION_SECURE_TOKEN_SECRET_KEY`,
     ]
 
     objectKeys.forEach((objKey: string): void => {
       const secretKey = randomBytes(SSCrypto.ENCRYPTION_KEY_LENGTH)
-      newSecretKeys[objKey] = secretKey.toString('hex')
+      secretKeys[objKey] = secretKey.toString('hex')
     })
 
-    return newSecretKeys
+    return secretKeys
+  }
+  
+  
+  public async generateSecretKey(): Promise<string> {
+    return randomBytes(SSCrypto.ENCRYPTION_KEY_LENGTH).toString('hex')
   }
 }
 

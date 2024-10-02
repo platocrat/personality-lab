@@ -71,3 +71,15 @@ export function kernelEpanechnikov(k): (v) => number {
     return Math.abs((v /= k)) <= 1 ? (0.75 * (1 - v * v)) / k : 0
   }
 }
+
+
+
+export function generateRandomInteger(n: number): number {
+  return Math.floor(Math.random() * n)
+}
+
+
+
+export function getRandomValueInRange(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min
+}

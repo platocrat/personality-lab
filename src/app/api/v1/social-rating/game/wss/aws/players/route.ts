@@ -1,4 +1,4 @@
-/* /api/v1/social-rating/game/wss/players/route.ts */
+/* /api/v1/social-rating/game/wss/aws/players/route.ts */
 // Externals
 import {
   QueryCommand,
@@ -6,13 +6,15 @@ import {
   QueryCommandInput,
   UpdateCommandInput,
 } from '@aws-sdk/lib-dynamodb'
-import { NextRequest, NextResponse } from 'next/server'
 import { ReturnValue } from '@aws-sdk/client-dynamodb'
+import { NextRequest, NextResponse } from 'next/server'
 // Locals
 import {
-  Player,
+  GamePhases,
   ddbDocClient,
+  PHASE_CHECKS,
   DYNAMODB_TABLE_NAMES,
+  haveAllPlayersCompleted,
   SocialRatingGamePlayers,
   SOCIAL_RATING_GAME__DYNAMODB,
 } from '@/utils'
@@ -24,6 +26,8 @@ export async function POST(
   req: NextRequest,
   res: NextResponse
 ) {
+  console.log(`req: `, req)
+
   if (req.method === 'POST') {
     const {
       action,
@@ -33,6 +37,8 @@ export async function POST(
     } = await req.json()
 
     if (action === 'updatePlayer') {
+      console.log(`action: `, action)
+
       const TableName = DYNAMODB_TABLE_NAMES.socialRatingGames
       const KeyConditionExpression = 'sessionId = :sessionIdValue'
       const ExpressionAttributeValues = { ':sessionIdValue': sessionId }
@@ -86,7 +92,7 @@ export async function POST(
             ? { ...storedPlayers, ...players }
             : { ...players }
 
-          console.log(`_updatedPlayers: `, _updatedPlayers)
+          // console.log(`_updatedPlayers: `, _updatedPlayers)
 
           const Key = {
             sessionId,
@@ -119,18 +125,100 @@ export async function POST(
 
             const updatedPlayers_ = response.Attributes?.players as SocialRatingGamePlayers
 
-            return NextResponse.json(
-              {
-                message,
-                updatedPlayers: updatedPlayers_,
-              },
-              {
-                status: 200,
-                headers: {
-                  'Content-Type': 'application/json',
-                },
+            // console.log(`updatedPlayers_: `, updatedPlayers_)
+
+            // Get the next game phase from `_updatedPlayers`
+            const nextPhase: GamePhases | undefined = PHASE_CHECKS.find(
+              ({ check }): boolean => haveAllPlayersCompleted(
+                updatedPlayers_, 
+                check
+              )
+            )?.phase
+
+            console.log(`nextPhase: `, nextPhase)
+
+            // If phase changes, update the game's phase in DynamoDB
+            if (nextPhase) {
+              const phase = nextPhase
+
+              const Key = {
+                sessionId,
+                createdAtTimestamp: storedCreatedAtTimestamp
               }
-            )
+              const UpdateExpression =
+                'set phase = :phase, updatedAtTimestamp = :updatedAtTimestamp'
+              const ExpressionAttributeValues = {
+                ':phase': phase,
+                ':updatedAtTimestamp': Date.now(),
+              }
+              const ReturnValues: ReturnValue = 'UPDATED_NEW'
+
+              input = {
+                TableName,
+                Key,
+                UpdateExpression,
+                ExpressionAttributeValues,
+                ReturnValues,
+              }
+
+              command = new UpdateCommand(input)
+
+              const message = `'phase' has been updated in the '${
+                TableName
+              }' table for social rating game with session ID '${
+                sessionId
+              }`
+
+              try {
+                const response = await ddbDocClient.send(command)
+
+                const phase_ = response.Attributes?.phase as GamePhases
+
+                return NextResponse.json(
+                  {
+                    message,
+                    updatedPlayers: updatedPlayers_,
+                    newPhase: phase_,
+                  },
+                  {
+                    status: 200,
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                  }
+                )
+              } catch (error: any) {
+                const errorMessage = `Failed to update 'phase' of social rating game with session ID '${
+                  sessionId
+                }' in the '${TableName}' table: `
+
+                console.error(errorMessage, error)
+
+                // Something went wrong
+                return NextResponse.json(
+                  { error: `${errorMessage}: ${error}` },
+                  {
+                    status: 500,
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                  }
+                )
+              }
+            } else {
+              return NextResponse.json(
+                {
+                  message,
+                  updatedPlayers: updatedPlayers_,
+                },
+                {
+                  status: 200,
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                }
+              )
+            }
           } catch (error: any) {
             const errorMessage = `Failed to update 'players' of social rating game with session ID '${
               sessionId

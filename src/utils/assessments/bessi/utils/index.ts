@@ -3,16 +3,14 @@ import {
   generateDummyBessiUserScores,
 } from '@/components/DataViz/BarChart/PerDomain/dummy-data'
 // Constants
-import { getRandomValueInRange } from '@/utils/misc'
-// Enums
-import { Facet, SkillDomain } from '../enums'
-// Types
-import {
+import { 
+  Facet,
+  SkillDomain,
   UserScoresType,
-  FacetFactorType,
+  FacetFactorType, 
+  getRandomValueInRange, 
   SkillDomainFactorType,
-} from '../types'
-
+} from '@/utils'
 
 
 

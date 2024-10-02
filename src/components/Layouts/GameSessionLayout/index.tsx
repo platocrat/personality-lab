@@ -8,6 +8,7 @@ import { GameSessionContext } from '@/contexts/GameSessionContext'
 import { 
   Player,
   GamePhases,
+  haveAllPlayersCompleted,
   SocialRatingGamePlayers,
 } from '@/utils'
 
@@ -47,17 +48,6 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
   const [ isHost, setIsHost ] = useState<boolean>(false)
   const [ isGameSession, setIsGameSession ] = useState<boolean>(false)
   const [ isGameInSession, setIsGameInSession ] = useState<boolean>(false)
-
-
-  // --------------------------- Regular functions -----------------------------
-  function haveAllPlayersCompleted(
-    players: SocialRatingGamePlayers,
-    check: 'hasCompletedConsentForm' | 'hasCompletedSelfReport' | 'hasCompletedObserverReport',
-  ): boolean {
-    return Object.values(players).every(
-      (player: Player): boolean => player.inGameState[check]
-    )
-  }
 
 
   // -------------------------- `useLayoutEffect`s -----------------------------
@@ -110,7 +100,6 @@ const GameSessionLayout: FC<GameSessionLayoutProps> = ({
         setIsGameInSession,
         setGameSessionUrlSlug,
         setIsUpdatingGameState,
-        haveAllPlayersCompleted,
       } }
     >
       { children }

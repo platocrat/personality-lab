@@ -1,22 +1,27 @@
 // Externals
+import crypto from 'crypto'
 import { Dispatch, SetStateAction } from 'react'
 // Locals
 import { 
+  Player,
+  CharacterType,
   UserScoresType, 
   FacetFactorType,
   BESSI_ACTIVITIES,
+  findNthOccurrence,
+  BessiSkillScoresType,
   calculateBessiScores,
   SkillDomainFactorType, 
+  GeneratedCharacterType,
+  SocialRatingGamePlayers,
   generateBessiActivityBank,
-  BessiSkillScoresType,
-} from '@/utils/assessments'
-import { findNthOccurrence } from '@/utils/misc'
-import { CharacterType, GeneratedCharacterType } from '../types'
+} from '@/utils'
 
 
 
 const REPORT_TYPE = 'self-report'
 const BESSI_VERSION = 96
+
 
 
 
@@ -272,4 +277,44 @@ export async function generateCharacterProfile(
 
 export async function handleEnterGameSession(_url: string): Promise<void> {
   window.open(_url, '_blank', 'noopener,noreferrer')
+}
+
+
+
+
+// Generate a secure token for the session using sessionPin
+export function generateSecureToken(
+  sessionPin: string,
+  sessionId: string,
+  secretKey: string // Use a secure secret key for HMAC
+): string {
+  return crypto.createHmac('sha256', secretKey)
+    .update(`${sessionPin}-${sessionId}`)
+    .digest('hex')
+}
+
+
+
+
+// Function to validate the token
+export function validateToken(
+  sessionPin: string,
+  sessionId: string,
+  token: string,
+  secretKey: string // Use a secure secret key for HMAC
+): boolean {
+  const expectedToken = generateSecureToken(sessionPin, sessionId, secretKey)
+  return token === expectedToken
+}
+
+
+
+
+export function haveAllPlayersCompleted(
+  players: SocialRatingGamePlayers,
+  check: 'hasCompletedConsentForm' | 'hasCompletedSelfReport' | 'hasCompletedObserverReport',
+): boolean {
+  return Object.values(players).every(
+    (player: Player): boolean => player.inGameState[check]
+  )
 }

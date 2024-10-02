@@ -1,12 +1,15 @@
-name: Prepare Docker Image for EC2
+name: Build and Push Docker Image to ECR, Pull on EC2
 
 env:
   SSH_KEY: ${{ secrets.SSH_KEY }}
   EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
   EC2_HOSTNAME: ${{ secrets.EC2_HOSTNAME }}
-  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-  DOCKER_HUB_REPOSITORY: ${{ secrets.DOCKER_HUB_REPOSITORY }}
-  DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+  # AWS environment variables
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  ECR_REPOSITORY_NAME: ${{ secrets.ECR_REPOSITORY_NAME }}
   # Auth0 environment variables
   AUTH0_SECRET: ${{ secrets.AUTH0_SECRET }}
   AUTH0_BASE_URL: ${{ secrets.AUTH0_BASE_URL }}
@@ -15,9 +18,6 @@ env:
   AUTH0_ISSUER_BASE_URL: ${{ secrets.AUTH0_ISSUER_BASE_URL }}
 
 on:
-  # push:
-  #   branches:
-  #     - '**'
   pull_request:
     branches:
       - '**'
@@ -68,30 +68,41 @@ jobs:
       - name: 3. Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # Phase 4: Login to Docker Hub
-      - name: 4. Login to Docker Hub
-        uses: docker/login-action@v3
+      # Phase 4: Configure AWS credentials for ECR authentication
+      - name: 4. Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
-      # Phase 5: Build and Push Docker Image to Docker Hub Repository
-      - name: 5. Build and push Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: ${{ secrets.DOCKER_HUB_REPOSITORY }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache
+      # Phase 5: Log in to Amazon ECR
+      - name: 5. Log in to Amazon ECR
+        run: |
+          aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
 
-      # Phase 6: Pull Docker image on EC2 instance and start NextJS app
-      - name: 6. Create SSH key
+      # Phase 6: Build Docker image
+      - name: 6. Build Docker image
+        run: |
+          docker build -t ${{ env.ECR_REPOSITORY_NAME }}:latest .
+
+      # Phase 7: Tag Docker image for ECR
+      - name: 7. Tag Docker image
+        run: |
+          docker tag ${{ env.ECR_REPOSITORY_NAME }}:latest ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY_NAME }}:latest
+
+      # Phase 8: Push Docker image to ECR
+      - name: 8. Push Docker image to ECR
+        run: |
+          docker push ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY_NAME }}:latest
+
+      # Phase 9: Create SSH key
+      - name: 9. Create SSH key
         run: echo "$SSH_KEY" > ssh_key && chmod 600 ssh_key
       
-      # Phase 7. SSH into EC2 instance, prune Docker system data, and pull Docker image
-      - name: 7. SSH into EC2 instance, prune Docker system data, and pull Docker image
+      # Phase 10: SSH into EC2 instance and pull Docker image from ECR
+      - name: 10. SSH into EC2 instance and pull Docker image
         run: ssh -o StrictHostKeyChecking=no -i ssh_key $EC2_USERNAME@$EC2_HOSTNAME '
-          sudo docker system prune -a -f &&
-          sudo docker pull platocrat/personality-lab-app
+          aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com &&
+          docker pull ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY_NAME }}:latest
           '
