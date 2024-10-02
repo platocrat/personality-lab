@@ -2115,7 +2115,7 @@ Let’s Encrypt certificates expire after 90 days. We encourage you to renew you
 
 3. Save and close the file. All installed certificates will be automatically renewed and reloaded.
 
----
+---;
 
 ## Contributors
 
