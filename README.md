@@ -421,7 +421,7 @@ Once you have the pre-requisites, you can create a new IAM role by following the
 
 ### 3.3. Add permissions
 
-For the `personality-lab` Next.js project, we use 4 AWS services:
+For the `next-app` Next.js project, we use 4 AWS services:
 
 1. DynamoDB
 2. EC2
@@ -957,7 +957,7 @@ RSA is not as secure as ED25519, so select ED25519 as the encryption method.
 ### 5.3. Follow the instructions on the `Connect` page to SSH into the new EC2 instance
 
 1. Open an SSH client.
-2. Locate your private key file. The key used to launch this instance is personality-lab-app.pem
+2. Locate your private key file that was created when you launched this instance. For example, `next-app.pem`
 3. Run this command, if necessary, to ensure your key is not publicly viewable.
 
     ```zsh
@@ -973,13 +973,13 @@ RSA is not as secure as ED25519, so select ED25519 as the encryption method.
 Example:
 
 ```zsh
-ssh -i "key-pair-name.pem" EC2_USERNAME@EC2_HOSTNAME.compute-1.amazonaws.com
+ssh -i "key-pair-name.pem" EC2_USERNAME@EC2_HOSTNAME
 ```
 
 where `EC2_HOSTNAME` the formatted like so:
 
 ```zsh
-ec2-54-198-211-160
+ec2-51-139-011-930.compute-1.amazonaws.com
 ```
 
 ## 6. What to do if you want to use a new Elastic IP address?
@@ -1769,7 +1769,7 @@ docker system prune -a
 
 ## 10. Configure IAM role for GitHub Actions scripts
 
-The GitHub Actions scripts for both the [`personality-lab-app`](https://github.com/platocrat/personality-lab-app) and [`u-websocket`](https://github.com/platocrat/u-websocket) repositories make use of automated deployments on a commit, either via a pull request or to any branch.
+The GitHub Actions scripts for both the [`next-app`](https://github.com/platocrat/next-app) and [`u-websocket`](https://github.com/platocrat/u-websocket) repositories make use of automated deployments on a commit, either via a pull request or to any branch.
 
 Each GitHub Actions script:
 
@@ -1815,7 +1815,7 @@ Next, you will create an access key that will be used for your GitHub repository
 4. Click on the "Security credentials" tab.
 5. Scroll down to the "Access keys" section and click the white "Create access key" button.
 6. On "Access key best practices & alternatives" step, the select the "Application running outside AWS" option and click the Next.
-7. Enter a useful description tag value for this secret key. For example, using the name of the repository, e.g. `personality-lab-app` is a great choice.
+7. Enter a useful description tag value for this secret key. For example, using the name of the repository, e.g. `next-app` is a great choice.
 8. Click the orange "Create access key" button.
 
 After completing the last step, make sure to copy each of the Secret value and the Access ID values.
@@ -1908,7 +1908,7 @@ sudo service nginx restart
 
 <!-- 
 
-NGINX configuration file = /etc/nginx/conf.d/personality-lab-app.conf
+NGINX configuration file = /etc/nginx/conf.d/next-app.conf
 
 -->
 
