@@ -1,7 +1,0 @@
-.downloadable-image {
-  width: 100%;         /* Image will take up the full width of the modal */
-  height: max-content;        /* Maintains aspect ratio */
-  max-width: 100%;     /* Ensures image doesn't exceed modal width */
-  max-height: 100%;    /* Ensures image doesn't exceed modal height */
-  object-fit: contain; /* Ensures the image fits within the modal without being cropped */
-}
