@@ -737,7 +737,7 @@ This way, Caddy terminates all TLS for you.
 To upgrade `caddy`, simply stop all running Caddy servers run the following command:
 
 ```zsh
-caddy upgrade
+sudo caddy upgrade
 ```
 
 This will replace the current Caddy binary with the latest version from Caddy's download page with the same modules installed, including all third-party plugins that are registered on the Caddy website.
@@ -866,25 +866,13 @@ To run `docker` commands without `sudo`, do the following:
 
 Now you should be able to run `docker pull <ECR_IMAGE_URL` within the EC2 instance without the `no basic auth credentials` error.
 
-#### 4.3.3. Login to Docker
-
-After you have installed Docker, login with your username.
-
-<!-- Username where platocrat kept his Docker image is `platocrat` -->
-
-```zsh
-docker login -u <USERNAME>
-```
-
-When prompted for a password, enter your personal access token that you get from Docker Hub
-
-#### 4.3.4. Start the Docker daemon
+#### 4.3.3. Start the Docker daemon
 
 ```zsh
 sudo systemctl restart docker
 ```
 
-#### 4.3.5. Prune all data from Docker
+#### 4.3.4. Prune all data from Docker
 
 Make sure to routinely prune all data from Docker running on the AWS EC2 instance.
 Before doing so, ALWAYS make sure that you are still able to pull new copies of your desired images from AWS ECR.
