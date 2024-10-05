@@ -79,6 +79,10 @@
   - [11.5. Install `cronie` to enable `crontab`](#115-install-cronie-to-enable-crontab)
   - [11.6 Automatically Renew Let’s Encrypt Certificates](#116-automatically-renew-lets-encrypt-certificates)
 
+- [12. Set up Amazon Elastic Container Registry (ECR)](#12-set-up-amazon-elastic-container-registry-ecr)
+  - [12.1. Create a Private Repository](#121-create-a-private-repository)
+  - [12.2 Add Private Repository Permissions](#122-add-private-repository-permissions)
+
 ## 0. General Information
 
 ### 0.1 Project Goals
@@ -417,13 +421,12 @@ Once you have the pre-requisites, you can create a new IAM role by following the
 
 ### 3.3. Add permissions
 
-For the `personality-lab` Next.js project, we use 4 AWS services:
+For the `next-app` Next.js project, we use 4 AWS services:
 
 1. DynamoDB
 2. EC2
 3. Systems Manager (for Parameter Store)
 4. Elastic Container Registry (ECR)
-5. API Gateway, specifically the AWS WebSocket API
 
 For simplicity and to save time configuring granular custom permissions policies, we selected broad-general permissions for each of these services:
 
@@ -432,17 +435,8 @@ For simplicity and to save time configuring granular custom permissions policies
 3. `AmazonSSMFullAccess`
 4. `AmazonEC2ContainerRegistryFullAccess`
     - This managed policy is used to provide the necessary permissions to authenticate with Amazon ECR, which is used to pull images from ECR when SSH'ing into the EC2 instance.
-5. `AmazonAPIGatewayAdministrator`
-    - This managed policy, and the `AmazonAPIGatewayInvokeFullAccess` policy listed below, is used to ensure that we can use the AWS WebSocket API service through our web application without any unexpected permissions issues.
-6. `AmazonAPIGatewayInvokeFullAccess`
-7. `AmazonAPIGatewayPushToCloudWatchLogs`
-    - This managed policy is used to enable "Custom access logging" for an API's Stage, which requires creating an AWS CloudWatch log group, which uses the "Log format" shown below (a "Log format" is always on a single line, as shown below):
 
-        ```json
-        { "requestId":"$context.requestId", "ip":"$context.identity.sourceIp", "dataProcessed": "$context.dataProcessed", "caller":"$context.identity.caller", "user":"$context.identity.user", "requestTime":"$context.requestTime", "httpMethod":"$context.httpMethod", "resourcePath":"$context.resourcePath", "status":"$context.status", "protocol":"$context.protocol", "responseLength":"$context.responseLength", "validationErrorString":"$context.error.validationErrorString", "integrationErrorMessage":"$context.integrationErrorMessage", "errorMessage":"$context.errorMessage", "errorResponseType":"$context.error.responseType", "errorMessageString":"$context.error.messageString" }
-      ```
-
-Add each of the 7 permissions policies listed above.
+Add each of the four permissions policies listed above.
 Then, click the orange `Next` button on the bottom right.
 
 ### 3.4. Name, review, and create the IAM role
@@ -556,10 +550,10 @@ The instructions below are mostly taken from there:
 
 9. Next, [choose a systemd unit file](https://caddyserver.com/docs/running#unit-files) based on your use case.
 
-    > NOTE: This involves copying the file contents from [`caddy.service`](https://github.com/caddyserver/dist/blob/master/init/caddy.service) and then pasting it into the `/etc/systemd/system/caddy.service` file. To ensure that you can write to the file, sure to use `vim`, like so:
+    > NOTE: This involves copying the file contents from [`caddy.service`](https://github.com/caddyserver/dist/blob/master/init/caddy.service) and then pasting it into the `/etc/systemd/system/caddy.service` file. To ensure that you can write to the file, sure to use `sudo vim`, like so:
     >
     > ```zsh
-    > vim /etc/systemd/system/caddy.service
+    > sudo vim /etc/systemd/system/caddy.service
     > ```
     >
     > Then, paste in the file contents from `dist/int/caddy.service` and save the file.
@@ -720,14 +714,6 @@ Assuming you are working under a _single domain_ in a single Caddyfile, you can 
 
   ```apacheconf
   https://example.com  {
-      encode gzip
-      # App
-      header {
-          Strict-Transport-Security "max-age=31536000;"
-          Access-Control-Allow-Origin "*"
-      }
-      reverse_proxy localhost:3000
-
       # WebSocket
       @ws `header({'Connection': '*Upgrade*', 'Upgrade': 'websocket'})`
       reverse_proxy @ws localhost:3001
@@ -741,7 +727,7 @@ This way, Caddy terminates all TLS for you.
 To upgrade `caddy`, simply stop all running Caddy servers run the following command:
 
 ```zsh
-caddy upgrade
+sudo caddy upgrade
 ```
 
 This will replace the current Caddy binary with the latest version from Caddy's download page with the same modules installed, including all third-party plugins that are registered on the Caddy website.
@@ -870,25 +856,13 @@ To run `docker` commands without `sudo`, do the following:
 
 Now you should be able to run `docker pull <ECR_IMAGE_URL` within the EC2 instance without the `no basic auth credentials` error.
 
-#### 4.3.3. Login to Docker
-
-After you have installed Docker, login with your username.
-
-<!-- Username where platocrat kept his Docker image is `platocrat` -->
-
-```zsh
-docker login -u <USERNAME>
-```
-
-When prompted for a password, enter your personal access token that you get from Docker Hub
-
-#### 4.3.4. Start the Docker daemon
+#### 4.3.3. Start the Docker daemon
 
 ```zsh
 sudo systemctl restart docker
 ```
 
-#### 4.3.5. Prune all data from Docker
+#### 4.3.4. Prune all data from Docker
 
 Make sure to routinely prune all data from Docker running on the AWS EC2 instance.
 Before doing so, ALWAYS make sure that you are still able to pull new copies of your desired images from AWS ECR.
@@ -913,7 +887,7 @@ sudo systemctl restart docker
 
 Make sure to specify the correct port number that is exposed in the [`Dockerfile`](./Dockerfile).
 
-Also, make sure to specify the `<IMAGE_ID>` and *not* the image name of the image that was pulled from the Docker repository.
+Also, make sure to specify the `<IMAGE_ID>` and _not_ the image name of the image that was pulled from the Docker repository.
 
 ```zsh
 docker run -d -it -p 3000:3000 <IMAGE_ID>
@@ -953,29 +927,31 @@ RSA is not as secure as ED25519, so select ED25519 as the encryption method.
 ### 5.3. Follow the instructions on the `Connect` page to SSH into the new EC2 instance
 
 1. Open an SSH client.
-2. Locate your private key file. The key used to launch this instance is personality-lab-app.pem
+2. Locate your private key file that was created when you launched this instance. For example, `next-app.pem`
 3. Run this command, if necessary, to ensure your key is not publicly viewable.
 
     ```zsh
     chmod 400 "key-pair-name.pem"
     ```
 
-4. Connect to your instance using its Public DNS
+4. Connect to your instance using its Public Elastic IP.
 
     ```zsh
-    EC2_HOSTNAME.compute-1.amazonaws.com
+    ELASTIC_IP.compute-1.amazonaws.com
     ```
+
+    where `ELASTIC_IP.compute-1.amazonaws.com` is equal to `EC2_HOSTNAME`.
 
 Example:
 
 ```zsh
-ssh -i "key-pair-name.pem" EC2_USERNAME@EC2_HOSTNAME.compute-1.amazonaws.com
+ssh -i "key-pair-name.pem" EC2_USERNAME@EC2_HOSTNAME
 ```
 
 where `EC2_HOSTNAME` the formatted like so:
 
 ```zsh
-ec2-54-198-211-160
+ec2-51-139-011-930.compute-1.amazonaws.com
 ```
 
 ## 6. What to do if you want to use a new Elastic IP address?
@@ -1765,7 +1741,7 @@ docker system prune -a
 
 ## 10. Configure IAM role for GitHub Actions scripts
 
-The GitHub Actions scripts for both the [`personality-lab-app`](https://github.com/platocrat/personality-lab-app) and [`u-websocket`](https://github.com/platocrat/u-websocket) repositories make use of automated deployments on a commit, either via a pull request or to any branch.
+The GitHub Actions scripts for both the [`next-app`](https://github.com/platocrat/next-app) and [`u-websocket`](https://github.com/platocrat/u-websocket) repositories make use of automated deployments on a commit, either via a pull request or to any branch.
 
 Each GitHub Actions script:
 
@@ -1811,7 +1787,7 @@ Next, you will create an access key that will be used for your GitHub repository
 4. Click on the "Security credentials" tab.
 5. Scroll down to the "Access keys" section and click the white "Create access key" button.
 6. On "Access key best practices & alternatives" step, the select the "Application running outside AWS" option and click the Next.
-7. Enter a useful description tag value for this secret key. For example, using the name of the repository, e.g. `personality-lab-app` is a great choice.
+7. Enter a useful description tag value for this secret key. For example, using the name of the repository, e.g. `next-app` is a great choice.
 8. Click the orange "Create access key" button.
 
 After completing the last step, make sure to copy each of the Secret value and the Access ID values.
@@ -1904,7 +1880,7 @@ sudo service nginx restart
 
 <!-- 
 
-NGINX configuration file = /etc/nginx/conf.d/personality-lab-app.conf
+NGINX configuration file = /etc/nginx/conf.d/next-app.conf
 
 -->
 
@@ -2115,7 +2091,34 @@ Let’s Encrypt certificates expire after 90 days. We encourage you to renew you
 
 3. Save and close the file. All installed certificates will be automatically renewed and reloaded.
 
----;
+## 12. Set up Amazon Elastic Container Registry (ECR)
+
+### 12.1. Create a Private Repository
+
+Create an ECR repostiory for each application and/or service of the system.
+
+1. Click the orange "Create repository" button.
+2. Enter a `namespace/repo-name`. For example, `jackw/next-app`.
+3. Under "Encryption settings", select "AWS KMS".
+4. Click the orange "Create" button.
+
+Make sure to save the `namespace/repo-name` as a GitHub Actions Secret for `ECR_REPOSITORY` for your specific GitHub repository.
+
+For example, for the ECR with the name `jackw/next-app`, save this as a GitHub Actions Secret under the `next-app` GitHub repository, with `ECR_REPOSITORY` as the Secret's name, and `jackw/next-app` as the Secret's value.
+
+### 12.2. Add Private Repository Permissions
+
+1. Under the "Private registry" menu on the left panel, select "Features & Settings", then select "Permissions".
+2. Click the orange "Generate statement" button.
+3. For "Policy type", select the "Pull through cache - scoping" option.
+4. For "Statement id", select enter a useful description for the permissions. For example, `ec2-user-pull-only`
+5. For "IAM entities", select the IAM role that is tied to your EC2 instance. For example, `ec2-user`.
+6. Click the orange "Save" button.
+7. On the "Registry permissions" page, click the "Edit" button for the newly created permissions.
+8. Under the `Resource` field, enter in the full ARN of each of the private repositories that you created in [12.1 Create a Private Repository](#121-create-a-private-repository).
+9. Click the orange "Save" button.
+
+--------------------
 
 ## Contributors
 
