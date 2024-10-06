@@ -87,6 +87,12 @@ Personality assessment platform for [Dr. Brent Roberts](https://psychology.illin
   - [12.1. Create a Private Repository](#121-create-a-private-repository)
   - [12.2 Add Private Repository Permissions](#122-add-private-repository-permissions)
 - [13. Deleting all GitHub Action workflow results at once](#13-deleting-all-github-action-workflow-results-at-once)
+- [14. Accessing a `localhost` server on another device](#14-accessing-a-localhost-server-on-another-device)
+  - [14.1 When on the same private network](#141-when-on-the-same-private-network)
+  - [14.2 When on the same public network](#142-when-on-the-same-public-network)
+    - [14.2.1 What `ngrok` provides](#1421-what-ngrok-provides)
+    - [14.2.2 Using `ngrok`](#1422-using-ngrok)
+    - [14.2.3 Additional Tips for using `ngrok`](#1423-additional-tips-for-using-ngrok)
 
 ## 0. General Information
 
@@ -2153,12 +2159,76 @@ This will delete all the old workflows that aren't on the `main` branch. You can
 
 ## 14. Accessing a `localhost` server on another device
 
+### 14.1 When on the same private network
+
+> NOTE: This assumes you are NOT on public WiFi.
+
 Reference [this YouTube video](https://www.youtube.com/watch?v=y_Po6Gj8Gkg).
 
-### 14.1 Notes
+#### 14.1.1 Notes
 
 - The main purpose of accessing a `localhost` server from another device is to maintain a local development environment.
 - Maintaining a local development environment this way ensures that the billing minutes to GitHub Actions workflows (which gives you a maximum of 2 million) are dramatically reduced.
+
+### 14.2 When on the same public network
+
+> NOTE: This assumes you are on public WiFi.
+
+When you have multiple devices on the same public WiFi network, rely on using [`ngrok`](https://ngrok.com), which is a badass secure ingress cross-platform application that allows for exposing local web servers to the internet through a reverse and SSL/TLS (when using HTTPS) secure TCP tunnel.
+
+#### 14.2.1 What `ngrok` provides
+
+By using ngrok, you can:
+
+- Maintain a local development environment without deploying your app to a remote server.
+- Test real-time features across multiple devices, even over networks that restrict direct device communication like public Wi-Fi.
+- Ensure secure connections through ngrok's tunneling, which encrypts traffic between clients and your local server.
+
+#### 14.2.2 Using `ngrok`
+
+For running the `next-app` on `ngrok` with HTTPS, you need to do several things:
+
+  1. Change the port number in the `dev` Node script in your `package.json`.
+
+      Change the port from the default `3000` to `8080`, but keep the `--experimental-http` flag to ensure that the Next.js server is running with HTTPS.
+
+      ```json
+      // ...
+      "scripts": {
+          "dev": "next dev -p 8080 --experimental-https --turbo",
+          // ...
+        },
+        // ...
+      ```
+
+  2. Start the `ngrok` server.
+
+      In a new terminal window, start the `ngrok` server by running the following command:
+
+      ```zsh
+      ngrok http https://localhost:8080
+      ```
+
+  3. Go to the website served through <https://ngrok.com>
+  
+      On your devices, a maximum of 2 on `ngrok`'s free plan, navigate to the "Forwarding" URL.
+      The Forwarding URL is found in the terminal logs under the "Web Interface" row.
+
+      The Forwarding URL usually looks something like:
+
+      ```zsh
+      https://e894-98-227-236-100.ngrok-free.app
+      ```
+
+#### 14.2.3 Additional Tips for using `ngrok`
+
+1. **Shut down ngrok when done:**
+    - Close the ngrok terminal window after testing to stop the tunnel.
+2. **Monitor Traffic:**
+    - ngrok provides a web interface at `http://127.0.0.1:4040` where you can inspect requests and debug issues.
+3. **Upgrade if Necessary:**
+    - The free ngrok plan has limitations (e.g., only 2 connections/devices per URL, tunnels expire after a certain time).
+    - Consider upgrading if you need persistent tunnels or additional features.
 
 --------------------
 
