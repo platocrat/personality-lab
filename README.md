@@ -2168,7 +2168,7 @@ Reference [this YouTube video](https://www.youtube.com/watch?v=y_Po6Gj8Gkg).
 #### 14.1.1 Notes
 
 - The main purpose of accessing a `localhost` server from another device is to maintain a local development environment.
-- Maintaining a local development environment this way ensures that the billing minutes to GitHub Actions workflows (which gives you a maximum of 2 million) are dramatically reduced.
+- Maintaining a local development environment this way ensures that the billing minutes to GitHub Actions workflows (which gives you a maximum of 2,000 per month) are dramatically reduced.
 
 ### 14.2 When on the same public network
 
