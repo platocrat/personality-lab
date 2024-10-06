@@ -2127,11 +2127,11 @@ For example, for the ECR with the name `jackw/next-app`, save this as a GitHub A
 
 See the [StackOveflow post](https://stackoverflow.com/questions/57927115/delete-a-workflow-from-github-actions) for a complete explanation.
 
-### Pre-requisites
+### 13.1 Pre-requisites
 
 You will find the latest `gh` version [here](https://github.com/cli/cli/releases).
 
-### To delete all workflow results at once
+### 13.2 To delete all workflow results at once
 
 Run the following command.
 
@@ -2145,11 +2145,20 @@ Replace `GH_USERNAME` and `REPO_NAME` with the desired github username and repo 
 
 This will delete all the old workflows that aren't on the `main` branch. You can further tweak this to do what you need.
 
-### Notes
+### 13.3 Notes
 
 - You may have to `gh auth login` if this is your first time using it
 - You may further change the command to `gh api --silent` if you prefer not to see the verbose output.
 - For the final `xargs` part of the command chain - the original used `-J` instead of `-I`, which is not supported by GNU `xargs`. `-J` results in a single command, and `-I` will execute the command for each records, so it's a bit slower.
+
+## 14. Accessing a `localhost` server on another device
+
+Reference [this YouTube video](https://www.youtube.com/watch?v=y_Po6Gj8Gkg).
+
+### 14.1 Notes
+
+- The main purpose of accessing a `localhost` server from another device is to maintain a local development environment.
+- Maintaining a local development environment this way ensures that the billing minutes to GitHub Actions workflows (which gives you a maximum of 2 million) are dramatically reduced.
 
 --------------------
 
