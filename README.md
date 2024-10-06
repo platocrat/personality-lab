@@ -40,14 +40,13 @@ Personality assessment platform for [Dr. Brent Roberts](https://psychology.illin
   - [4.3. On EC2 instance, install Docker, login, and start the Docker daemon](#43-on-ec2-instance-install-docker-login-and-start-the-docker-daemon)
     - [4.3.1. Install `docker`](#431-install-docker)
     - [4.3.2. Run `docker` commands without `sudo`](#432-run-docker-commands-without-sudo)
-    - [4.3.3. Login to Docker](#433-login-to-docker)
-    - [4.3.4. Start the Docker daemon](#434-start-the-docker-daemon)
-    - [4.3.5. Prune all data from Docker](#435-prune-all-data-from-docker)
+    - [4.3.3. Start the Docker daemon](#433-start-the-docker-daemon)
+    - [4.3.4. Prune all data from Docker](#434-prune-all-data-from-docker)
   - [4.4. Push new commits to GitHub to see the GitHub Action automate the deployment process](#44-push-new-commits-to-github-to-see-the-github-action-automate-the-deployment-process)
   - [4.5. Manually start the Next.js app by running the image](#45-manually-start-the-nextjs-app-by-running-the-image)
     - [4.5.1. Make sure the Docker daemon is running](#451-make-sure-the-docker-daemon-is-running)
     - [4.5.2. Run the image of the Next.js app in detached mode](#452-run-the-image-of-the-nextjs-app-in-detached-mode)
-    - [4.5.3. Start the Caddy server](#453-start-the-caddy-server)
+    - [4.5.3. Start or reload the Caddy server](#453-start-or-reload-the-caddy-server)
 - [5. What to do if the SSH key ever gets lost, deleted, or corrupted](#5-what-to-do-if-the-ssh-key-ever-gets-lost-deleted-or-corrupted)
   - [5.1. Stop and delete the EC2 instance and launch a new one](#51-stop-and-delete-the-ec2-instance-and-launch-a-new-one)
   - [5.2. In the menu to launch a new EC2 instance, create a new SSH key pair](#52-in-the-menu-to-launch-a-new-ec2-instance-create-a-new-ssh-key-pair)
@@ -84,10 +83,10 @@ Personality assessment platform for [Dr. Brent Roberts](https://psychology.illin
     - [11.4.2. Add security group rule for QUIC and http3](#1142-add-security-group-rule-for-quic-and-http3)
   - [11.5. Install `cronie` to enable `crontab`](#115-install-cronie-to-enable-crontab)
   - [11.6 Automatically Renew Let’s Encrypt Certificates](#116-automatically-renew-lets-encrypt-certificates)
-
 - [12. Set up Amazon Elastic Container Registry (ECR)](#12-set-up-amazon-elastic-container-registry-ecr)
   - [12.1. Create a Private Repository](#121-create-a-private-repository)
   - [12.2 Add Private Repository Permissions](#122-add-private-repository-permissions)
+- [13. Deleting all GitHub Action workflow results at once](#13-deleting-all-github-action-workflow-results-at-once)
 
 ## 0. General Information
 
@@ -2123,6 +2122,34 @@ For example, for the ECR with the name `jackw/next-app`, save this as a GitHub A
 7. On the "Registry permissions" page, click the "Edit" button for the newly created permissions.
 8. Under the `Resource` field, enter in the full ARN of each of the private repositories that you created in [12.1 Create a Private Repository](#121-create-a-private-repository).
 9. Click the orange "Save" button.
+
+## 13. Deleting all GitHub Action workflow results at once
+
+See the [StackOveflow post](https://stackoverflow.com/questions/57927115/delete-a-workflow-from-github-actions) for a complete explanation.
+
+### Pre-requisites
+
+You will find the latest `gh` version [here](https://github.com/cli/cli/releases).
+
+### To delete all workflow results at once
+
+Run the following command.
+
+```zsh
+user=GH_USERNAME repo=REPO_NAME; gh api repos/$user/$repo/actions/runs \
+--paginate -q '.workflow_runs[] | select(.head_branch != "master") | "\(.id)"' | \
+xargs -n1 -I % gh api repos/$user/$repo/actions/runs/% -X DELETE
+```
+
+Replace `GH_USERNAME` and `REPO_NAME` with the desired github username and repo name correspondingly.
+
+This will delete all the old workflows that aren't on the `main` branch. You can further tweak this to do what you need.
+
+### Notes
+
+- You may have to `gh auth login` if this is your first time using it
+- You may further change the command to `gh api --silent` if you prefer not to see the verbose output.
+- For the final `xargs` part of the command chain - the original used `-J` instead of `-I`, which is not supported by GNU `xargs`. `-J` results in a single command, and `-I` will execute the command for each records, so it's a bit slower.
 
 --------------------
 
