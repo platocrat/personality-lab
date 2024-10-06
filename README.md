@@ -2186,30 +2186,17 @@ By using ngrok, you can:
 
 #### 14.2.2 Using `ngrok`
 
-For running the `next-app` on `ngrok` with HTTPS, you need to do several things:
+For running the `next-app` on `ngrok` with HTTPS, you need to do two things:
 
-  1. Change the port number in the `dev` Node script in your `package.json`.
-
-      Change the port from the default `3000` to `8080`, but keep the `--experimental-http` flag to ensure that the Next.js server is running with HTTPS.
-
-      ```json
-      // ...
-      "scripts": {
-          "dev": "next dev -p 8080 --experimental-https --turbo",
-          // ...
-        },
-        // ...
-      ```
-
-  2. Start the `ngrok` server.
+  1. Start the `ngrok` server.
 
       In a new terminal window, start the `ngrok` server by running the following command:
 
       ```zsh
-      ngrok http https://localhost:8080
+      ngrok http https://localhost:3000
       ```
 
-  3. Go to the website served through <https://ngrok.com>
+  2. Go to the website served through <https://ngrok.com>
   
       On your devices, a maximum of 2 on `ngrok`'s free plan, navigate to the "Forwarding" URL.
       The Forwarding URL is found in the terminal logs under the "Web Interface" row.
@@ -2219,6 +2206,10 @@ For running the `next-app` on `ngrok` with HTTPS, you need to do several things:
       ```zsh
       https://e894-98-227-236-100.ngrok-free.app
       ```
+
+  3. (Optional) Use the free static domain.
+  
+      Using the free static domain will save time from having to copy and paste different Forwarding URLs into your various devices.
 
 #### 14.2.3 Additional Tips for using `ngrok`
 
