@@ -2159,24 +2159,15 @@ This will delete all the old workflows that aren't on the `main` branch. You can
 
 ## 14. Accessing a `localhost` server on another device
 
-### 14.1 When on the same private network
-
-> NOTE: This assumes you are NOT on public WiFi.
-
-Reference [this YouTube video](https://www.youtube.com/watch?v=y_Po6Gj8Gkg).
-
-#### 14.1.1 Notes
-
-- The main purpose of accessing a `localhost` server from another device is to maintain a local development environment.
-- Maintaining a local development environment this way ensures that the billing minutes to GitHub Actions workflows (which gives you a maximum of 2,000 per month) are dramatically reduced.
-
-### 14.2 When on the same public network
+### 14.1 When on the same public network
 
 > NOTE: This assumes you are on public WiFi.
 
 When you have multiple devices on the same public WiFi network, rely on using [`ngrok`](https://ngrok.com), which is a badass secure ingress cross-platform application that allows for exposing local web servers to the internet through a reverse and SSL/TLS (when using HTTPS) secure TCP tunnel.
 
-#### 14.2.1 What `ngrok` provides
+Before you begin to integrate `ngrok` software package, create a _free_ account with `ngrok` at <https://ngrok.com>
+
+#### 14.1.1 What `ngrok` provides
 
 By using ngrok, you can:
 
@@ -2184,7 +2175,7 @@ By using ngrok, you can:
 - Test real-time features across multiple devices, even over networks that restrict direct device communication like public Wi-Fi.
 - Ensure secure connections through ngrok's tunneling, which encrypts traffic between clients and your local server.
 
-#### 14.2.2 Using `ngrok`
+#### 14.1.2 Using `ngrok`
 
 For running the `next-app` on `ngrok` with HTTPS, you need to do two things:
 
@@ -2211,7 +2202,7 @@ For running the `next-app` on `ngrok` with HTTPS, you need to do two things:
   
       Using the free static domain will save time from having to copy and paste different Forwarding URLs into your various devices.
 
-#### 14.2.3 Additional Tips for using `ngrok`
+#### 14.1.3 Additional Tips for using `ngrok`
 
 1. **Shut down ngrok when done:**
     - Close the ngrok terminal window after testing to stop the tunnel.
