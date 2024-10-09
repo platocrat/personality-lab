@@ -88,11 +88,12 @@ Personality assessment platform for [Dr. Brent Roberts](https://psychology.illin
   - [12.2 Add Private Repository Permissions](#122-add-private-repository-permissions)
 - [13. Deleting all GitHub Action workflow results at once](#13-deleting-all-github-action-workflow-results-at-once)
 - [14. Accessing a `localhost` server on another device](#14-accessing-a-localhost-server-on-another-device)
-  - [14.1 When on the same private network](#141-when-on-the-same-private-network)
-  - [14.2 When on the same public network](#142-when-on-the-same-public-network)
-    - [14.2.1 What `ngrok` provides](#1421-what-ngrok-provides)
-    - [14.2.2 Using `ngrok`](#1422-using-ngrok)
-    - [14.2.3 Additional Tips for using `ngrok`](#1423-additional-tips-for-using-ngrok)
+  - [14.1 `ngrok`](#141-ngrok)
+    - [14.1.1 What `ngrok` provides](#1411-what-ngrok-provides)
+    - [14.1.2 Using `ngrok`](#1412-using-ngrok)
+    - [14.1.3 Additional Tips for using `ngrok`](#1413-additional-tips-for-using-ngrok)
+  - [14.2. Visual Studio Code port Forwarding](#142-visual-studio-code-port-forwarding)
+    - [14.2.1. Using VSCode's port forwarding](#1421-using-vscodes-port-forwarding)
 
 ## 0. General Information
 
@@ -2159,9 +2160,9 @@ This will delete all the old workflows that aren't on the `main` branch. You can
 
 ## 14. Accessing a `localhost` server on another device
 
-### 14.1 When on the same public network
+> For example, a public network likw public WiFi.
 
-> NOTE: This assumes you are on public WiFi.
+### 14.1 `ngrok`
 
 When you have multiple devices on the same public WiFi network, rely on using [`ngrok`](https://ngrok.com), which is a badass secure ingress cross-platform application that allows for exposing local web servers to the internet through a reverse and SSL/TLS (when using HTTPS) secure TCP tunnel.
 
@@ -2211,6 +2212,43 @@ For running the `next-app` on `ngrok` with HTTPS, you need to do two things:
 3. **Upgrade if Necessary:**
     - The free ngrok plan has limitations (e.g., only 2 connections/devices per URL, tunnels expire after a certain time).
     - Consider upgrading if you need persistent tunnels or additional features.
+
+### 14.2. Visual Studio Code port Forwarding
+
+Visual Studio Code has a native Port Forwarding feature that lets you forward a port to access your locally running services over the internet.
+
+This allows you to continue to expose any port over either HTTP or HTTPS, and either publicly or privately.
+
+#### 14.2.1. Using VSCode's port forwarding
+
+VCode's port forwarding feature can be found by pressing `CMD` + `J` on a Mac. This command opens up the `TERMINAL`, which also includes the `PORTS` along the row of tabs.
+
+For example, to expose `next-app` to the internet for other devices to connect to your `localhost` server, do the following:
+
+1. Press `CMD`+ `J` and then click on the "PORT" tab.
+2. In the `package.json` for `next-app`, make sure that the Node script named, `dev`, includes the `--experimental-https` flag.
+3. Start the Next.js server by going to the "TERMINAL" tab, and then running:
+  
+    ```zsh
+    npx turbo dev
+    ```
+
+4. Go back to the "PORTS" tab and click on the "Forward a Port" button.
+5. Enter port `3000` for the port number, which is the default port the Next.js server runs on.
+6. Press ENTER
+7. (Optional) Right-click on the row for the newly forwarded port, go to "Change Port Protocol", and select "HTTPS", to match the protocol that the `next-app` server uses when running the `dev` script.
+8. (Optional) Right-click on the same row again and change "Port Visibility" from "Private" to "Public". This allows the API request to `/api/v1/auth/log-in` to be made without issues, since cookies are only set if the URL's protocol is HTTPS, denoted by the `httpOnly` flag when setting the user-auth cookie:
+
+    ```typescript
+      cookies().set(COOKIE_NAME, token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        path: '/',
+      })
+    ```
+
+9. Go to the "Forwarded Address" on any device and use your application like normal.
 
 --------------------
 
