@@ -92,8 +92,11 @@ Personality assessment platform for [Dr. Brent Roberts](https://psychology.illin
     - [14.1.1 What `ngrok` provides](#1411-what-ngrok-provides)
     - [14.1.2 Using `ngrok`](#1412-using-ngrok)
     - [14.1.3 Additional Tips for using `ngrok`](#1413-additional-tips-for-using-ngrok)
-  - [14.2. Visual Studio Code port Forwarding](#142-visual-studio-code-port-forwarding)
+  - [14.2. Native port forwarding with Visual Studio Code](#142-native-port-forwarding-with-visual-studio-code)
     - [14.2.1. Using VSCode's port forwarding](#1421-using-vscodes-port-forwarding)
+  - [15. Valkey cache on Aiven](#15-valkey-cache-on-aiven)
+    - [15.1. Creating a Valkey cache](#151-creating-a-valkey-cache)
+    - [15.2. Using the Valkey cache](#152-using-the-valkey-cache)
 
 ## 0. General Information
 
@@ -2213,7 +2216,7 @@ For running the `next-app` on `ngrok` with HTTPS, you need to do two things:
     - The free ngrok plan has limitations (e.g., only 2 connections/devices per URL, tunnels expire after a certain time).
     - Consider upgrading if you need persistent tunnels or additional features.
 
-### 14.2. Visual Studio Code port Forwarding
+### 14.2. Native port forwarding with Visual Studio Code
 
 Visual Studio Code has a native Port Forwarding feature that lets you forward a port to access your locally running services over the internet.
 
@@ -2249,6 +2252,40 @@ For example, to expose `next-app` to the internet for other devices to connect t
     ```
 
 9. Go to the "Forwarded Address" on any device and use your application like normal.
+
+## 15. Valkey cache on Aiven
+
+[Aiven](https://aiven.io) is a cloud platform that offers a basket of useful cloud services. With several offerings from Google Cloud, AWS, Microsoft Azure, Oracle Cloud, Digital Ocean, and UpCloud, it streamlines integration of some of the services that these mainstream cloud platforms offer.
+
+One of these integrations is a [Valkey](https://valkey.io) cache, which is an open source (BSD) high-performance key/value datastore that supports a variety of workloads such as caching, message queues, and can act as a primary database. V
+alkey can run as either a standalone daemon or in a cluster, with options for replication and high availability.
+
+`personality-lab` runs a standalone Valkey cache on Aiven.
+
+For documentation on using Valkey on Aiven, view [Aiven's official documentation](https://aiven.io/docs/products/valkey)
+
+### 15.1. Creating a Valkey cache
+
+To create a Valkey cache, follow these steps:
+
+1. Create a free account with Aiven.
+2. On Aiven, create a new project.
+3. On Aiven, begin the process to create a new Valkey service.
+4. Select the "Free plan".
+5. Select "AWS" as the cloud provider.
+6. Select `aws-us-east-1` as the service region.
+7. For service plan, select "Free-1" from the free tier.
+8. Give the service a useful name, like `my-app-valkey`
+9. Click "Create free service"
+
+### 15.2. Using the Valkey cache
+
+Integrate the Valkey cache with Node.js by following Aiven's quickstart instructions.
+
+Simply copy the SSL URL and use it with the [`ioredis`](https://github.com/redis/ioredis).
+
+Using the Valkey cache can be used just as simply as using a Redis OSS cache.
+However, a Valkey cache does offer a greater number of performance enhancing features.
 
 --------------------
 
