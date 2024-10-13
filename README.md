@@ -492,13 +492,13 @@ This saves you time and a headache from manually always having to add the AWS cr
 
 <!-- 
 
-EC2_USERNAME = ec2-user 
-EC2_HOSTNAME = 54.198.211.160
+AWS_EC2_USERNAME = ec2-user 
+AWS_EC2_HOSTNAME = 54.198.211.160
 
 -->
 
 ```zsh
-ssh -i key-pair-name.pem EC2_USERNAME@EC2_HOSTNAME
+ssh -i key-pair-name.pem AWS_EC2_USERNAME@AWS_EC2_HOSTNAME
 ```
 
 #### 4.1.2. Install `caddy` from source
@@ -955,15 +955,15 @@ RSA is not as secure as ED25519, so select ED25519 as the encryption method.
     ELASTIC_IP.compute-1.amazonaws.com
     ```
 
-    where `ELASTIC_IP.compute-1.amazonaws.com` is equal to `EC2_HOSTNAME`.
+    where `ELASTIC_IP.compute-1.amazonaws.com` is equal to `AWS_EC2_HOSTNAME`.
 
 Example:
 
 ```zsh
-ssh -i "key-pair-name.pem" EC2_USERNAME@EC2_HOSTNAME
+ssh -i "key-pair-name.pem" AWS_EC2_USERNAME@AWS_EC2_HOSTNAME
 ```
 
-where `EC2_HOSTNAME` the formatted like so:
+where `AWS_EC2_HOSTNAME` the formatted like so:
 
 ```zsh
 ec2-51-139-011-930.compute-1.amazonaws.com
@@ -1765,10 +1765,10 @@ Each GitHub Actions script:
 3. Pulls the Docker image from the ECR onto the EC2 instance.
 4. Uses the following environment variables that need to be individually added to the each repository's list of GitHub Secrets:
     - `SSH_KEY`: the full contents of the `.pem` file. This `.pem` file must be the same private key that was generated when you created the EC2 instance.
-    - `EC2_USERNAME`: The name of the IAM role of the EC2 instance (e.g. `ec2-user`).
-    - `EC2_HOSTNAME`: The hostname of the EC2 instance. It is usually the Elastic IP address (e.g. `54.493.101.393`)
+    - `AWS_EC2_USERNAME`: The name of the IAM role of the EC2 instance (e.g. `ec2-user`).
+    - `AWS_EC2_HOSTNAME`: The hostname of the EC2 instance. It is usually the Elastic IP address (e.g. `54.493.101.393`)
     - `AWS_REGION`: The region where the ECR repository is located in (e.g., `us-east-1`).
-    - `ECR_REPOSITORY_NAME`: The name of the ECR repository.
+    - `AWS_ECR_REPOSITORY_NAME`: The name of the ECR repository.
     - `AWS_ACCOUNT_ID`: The full Account ID for the AWS account (e.g. `0001-0002-0003`).
     - `AWS_ACCESS_KEY_ID`: Part of the AWS authentication credentials. It is created under the IAM role. See [10.1. Getting an AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY](#101-getting-an-aws_access_key_id-and-aws_secret_access_key).
     - `AWS_SECRET_ACCESS_KEY`: Part of the AWS authentication credentials. It is created under the IAM role. See [10.1. Getting an AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY](#101-getting-an-aws_access_key_id-and-aws_secret_access_key).
@@ -1820,13 +1820,13 @@ Steps for how to add Secrets to a GitHub repository can be found on GitHub's off
 
 <!-- 
 
-EC2_USERNAME = ec2-user 
-EC2_HOSTNAME = 54.198.211.160
+AWS_EC2_USERNAME = ec2-user 
+AWS_EC2_HOSTNAME = 54.198.211.160
 
 -->
 
 ```zsh
-ssh -i key-pair-name.pem EC2_USERNAME@EC2_HOSTNAME
+ssh -i key-pair-name.pem AWS_EC2_USERNAME@AWS_EC2_HOSTNAME
 ```
 
 #### 11.1.2. Install mainline `nginx` package
@@ -1907,14 +1907,14 @@ sudo vim "/etc/nginx/conf.d/<APP_NAME>.conf"
 
 <!-- 
 
-EC2_HOSTNAME = 54.198.211.160
+AWS_EC2_HOSTNAME = 54.198.211.160
 
 -->
 
 ```apacheconf
 server {
     listen 80;
-    server_name EC2_HOSTNAME; 
+    server_name AWS_EC2_HOSTNAME; 
   
     location / {
         proxy_pass http://127.0.0.1:3000/;
