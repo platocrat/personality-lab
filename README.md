@@ -2117,9 +2117,9 @@ Create an ECR repostiory for each application and/or service of the system.
 3. Under "Encryption settings", select "AWS KMS".
 4. Click the orange "Create" button.
 
-Make sure to save the `namespace/repo-name` as a GitHub Actions Secret for `AWS_ECR_REPOSITORY` for your specific GitHub repository.
+Make sure to save the `namespace/repo-name` as a GitHub Actions Secret for `AWS_ECR_REPOSITORY_NAME` for your specific GitHub repository.
 
-For example, for the ECR with the name `jackw/next-app`, save this as a GitHub Actions Secret under the `next-app` GitHub repository, with `AWS_ECR_REPOSITORY` as the Secret's name, and `jackw/next-app` as the Secret's value.
+For example, for the ECR with the name `jackw/next-app`, save this as a GitHub Actions Secret under the `next-app` GitHub repository, with `AWS_ECR_REPOSITORY_NAME` as the Secret's name, and `jackw/next-app` as the Secret's value.
 
 ### 12.2. Add Private Repository Permissions
 
