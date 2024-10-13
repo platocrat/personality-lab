@@ -2133,6 +2133,17 @@ For example, for the ECR with the name `jackw/next-app`, save this as a GitHub A
 8. Under the `Resource` field, enter in the full ARN of each of the private repositories that you created in [12.1 Create a Private Repository](#121-create-a-private-repository).
 9. Click the orange "Save" button.
 
+### 12.3. Resolving `access denied` error from `docker pull`
+
+Here's a possible error you may receive when calling `docker pull` from a GitHub Actions script:
+
+```text
+Error response from daemon: pull access denied for _**.dkr.ecr.**_.amazonaws.com/***, repository does not exist or may require 'docker login': denied: Your authorization token has expired. Reauthenticate and try again.
+```
+
+To resolve this error, simply SSH into the EC2 instance and run the `aws ecr get-login-password` command.
+This will re-authenticate you as a user to be able to use the `docker pull` command against repositories on AWS ECR.
+
 ## 13. Deleting all GitHub Action workflow results at once
 
 See the [StackOveflow post](https://stackoverflow.com/questions/57927115/delete-a-workflow-from-github-actions) for a complete explanation.
