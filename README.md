@@ -86,6 +86,7 @@ Personality assessment platform for [Dr. Brent Roberts](https://psychology.illin
 - [12. Set up Amazon Elastic Container Registry (ECR)](#12-set-up-amazon-elastic-container-registry-ecr)
   - [12.1. Create a Private Repository](#121-create-a-private-repository)
   - [12.2 Add Private Repository Permissions](#122-add-private-repository-permissions)
+  - [12.3. Resolving `access denied` error from `docker pull`](#123-resolving-access-denied-error-from-docker-pull)
 - [13. Deleting all GitHub Action workflow results at once](#13-deleting-all-github-action-workflow-results-at-once)
 - [14. Accessing a `localhost` server on another device](#14-accessing-a-localhost-server-on-another-device)
   - [14.1 `ngrok`](#141-ngrok)
@@ -94,6 +95,9 @@ Personality assessment platform for [Dr. Brent Roberts](https://psychology.illin
     - [14.1.3 Additional Tips for using `ngrok`](#1413-additional-tips-for-using-ngrok)
   - [14.2. Native port forwarding with Visual Studio Code](#142-native-port-forwarding-with-visual-studio-code)
     - [14.2.1. Using VSCode's port forwarding](#1421-using-vscodes-port-forwarding)
+  - [14.3. Tailscale](#143-tailscale)
+    - [14.3.1 Set up a tailnet](#1431-set-up-a-tailnet)
+    - [14.3.2. Connecting to the target host's application](#1432-connecting-to-the-target-hosts-application)
   - [15. Valkey cache on Aiven](#15-valkey-cache-on-aiven)
     - [15.1. Creating a Valkey cache](#151-creating-a-valkey-cache)
     - [15.2. Using the Valkey cache](#152-using-the-valkey-cache)
@@ -2263,6 +2267,98 @@ For example, to expose `next-app` to the internet for other devices to connect t
     ```
 
 9. Go to the "Forwarded Address" on any device and use your application like normal.
+
+### 14.3. Tailscale
+
+With [Tailscale](https://tailscale.com), you can expose ports for access by other devices that are on the same tailnet.
+
+#### 14.3.1. Set up a tailnet
+
+1. First, create an account with Tailscale and create a new tailnet.
+2. Once you've created a new tailnet, on the main admin dashboard, go to the "Settings" tab.
+3. Under "[Device Approval](https://tailscale.com/kb/1099/device-approval)", toggle on "Manually approve new devices". This will ensure that new devices must be approved by admins of your tailnet before they can access it.
+4. Under the "Machines" tab, add devices to the new tailnet.
+    These devices could include your phone, Raspberry Pi, Arduino, or other laptops and desktops.
+5. (Optional) If necessary, invite users to your new tailnet.
+6. In [DNS settings](https://login.tailscale.com/admin/dns), enable "[MagicDNS](https://tailscale.com/kb/1081/magic-dns)" and "[HTTPS Certificates](https://tailscale.com/kb/1153/enabling-https/)".
+7. (Optional) Under the "Settings" tab, enable "[Services Collection](https://tailscale.com/kb/1100/services)" to collect and display information about devices running on your tailnet in the admin panel.
+
+#### 14.3.2. Connecting to the target host's application
+
+1. Turn off any Firewalls.
+
+    On MacOS, make sure that Mac's native Firewall, or any other firewall, is turned _off_.
+
+    Similarly, on a non-Mac device, make sure that firewalls are turned _off_.
+2. Test connectivity to your host device on the tailnet by testing an HTTP connection.
+    1. Set up a simple Python HTTP server
+        1. Open Terminal on the target device.
+        2. Navigate to a directory you want to serve. For example, to serve your Mac's Desktop:
+
+            ```zsh
+            cd ~/Desktop
+            ```
+
+        3. Start the HTTP server:
+
+            ```zsh
+            python3 -m http.server 8000
+            ```
+
+        4. The server will start, listening on port `8000`.
+
+    2. From Another Device on Your Tailnet:
+
+        1. Using a Web Browser:
+            1. Open a web browser.
+            2. Enter the following URL:
+
+                ```arduino
+                http://target_device_ip_address:8000/
+                ```
+
+            3. Replace `target_device_ip_address` with the target device's tailnet IP address.
+
+    3. Verify the Connection:
+
+        1. Web Browser:
+
+            1. You should see a directory listing of the served folder.
+            2. If you have an `index.html` file in the directory, it will display that page.
+
+        2. Command Line:
+            1. The content of the directory or `index.html` file will be displayed in the terminal.
+
+    4. Stop the HTTP Server:
+
+        1. Return to the Terminal window on the device where the server is running.
+        2. Press `Ctrl + C` to stop the server.
+
+3. Connect to the target application running locally on the target machine.
+
+    1. Start the app
+
+        For example, for a Node.js server.
+
+        ```zsh
+        npm run dev
+        ```
+
+        Or
+
+        ```zsh
+        npx run dev
+        ```
+
+    2. Verify the Connection
+
+        Just like step 2.3.1, open aand web browser and navigate to the target device's IP address and append the port number to it:
+
+        ```arduino
+        http://target_device_ip_address:3000/
+        ```
+
+4. Make sure to close the connection once you are finished.
 
 ## 15. Valkey cache on Aiven
 
