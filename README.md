@@ -2389,7 +2389,7 @@ To create a Valkey cache, follow these steps:
 
 Integrate the Valkey cache with Node.js by following Aiven's quickstart instructions.
 
-Simply copy the SSL URL and use it with the [`ioredis`](https://github.com/redis/ioredis).
+Simply copy the SSL URL and use it with the [`node-redis`](https://github.com/redis/node-redis) Node package.
 
 Using the Valkey cache can be used just as simply as using a Redis OSS cache.
 However, a Valkey cache does offer a greater number of performance enhancing features.
