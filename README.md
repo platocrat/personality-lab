@@ -101,6 +101,7 @@ Personality assessment platform for [Dr. Brent Roberts](https://psychology.illin
   - [15. Valkey cache on Aiven](#15-valkey-cache-on-aiven)
     - [15.1. Creating a Valkey cache](#151-creating-a-valkey-cache)
     - [15.2. Using the Valkey cache](#152-using-the-valkey-cache)
+  - [16.0 Updating the kernel of an EC2 Amazon Linux 2023 server](#160-updating-the-kernel-of-an-ec2-amazon-linux-2023server)
 
 ## 0. General Information
 
@@ -2393,6 +2394,22 @@ Simply copy the SSL URL and use it with the [`node-redis`](https://github.com/re
 
 Using the Valkey cache can be used just as simply as using a Redis OSS cache.
 However, a Valkey cache does offer a greater number of performance enhancing features.
+
+## 16.0 Updating the kernel of an EC2 Amazon Linux 2023 server
+
+Sometimes the kernel of the EC2 instance needs to be updated. If running Amazon Linux 2023, sometimes you will receive an update notice that requires the `dnf` command to be run to install the kernel update without a system reboot.
+
+Other times, you will see a security notice as shown in the image below:
+
+![Update information summary of security notice on EC2 Amazon Linux 2023 instance](./images/update-kernel-with-reboot.png)
+
+If you see a security notice as shown in the image above, then, to install the security update, you must perform a system reboot by running the following command:
+
+```bash
+sudo reboot
+```
+
+Once the EC2 instance reboots, you may SSH back in to the server and use it as you normally would, assuming there aren't any other issues or security updates.
 
 --------------------
 
