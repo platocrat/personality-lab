@@ -2392,8 +2392,8 @@ Integrate the Valkey cache with Node.js by following Aiven's quickstart instruct
 
 Simply copy the SSL URL and use it with the [`node-redis`](https://github.com/redis/node-redis) Node package.
 
-Using the Valkey cache can be used just as simply as using a Redis OSS cache.
-However, a Valkey cache does offer a greater number of performance enhancing features.
+The Valkey cache can be used just as simply as using a Redis OSS cache.
+However, a Valkey cache does offer a greater number of performance enhancing features, which can be reviewed on [Valkey's blog post on the first release candidate of Valkey 8.0.](https://valkey.io/blog/valkey-8-0-0-rc1/)
 
 ## 16.0 Updating the kernel of an EC2 Amazon Linux 2023 server
 
