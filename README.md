@@ -2151,7 +2151,7 @@ This will re-authenticate you as a user to be able to use the `docker pull` comm
 
 ## 13. Deleting all GitHub Action workflow results at once
 
-See the [StackOveflow post](https://stackoverflow.com/questions/57927115/delete-a-workflow-from-github-actions) for a complete explanation.
+See the [StackOverflow post](https://stackoverflow.com/questions/57927115/delete-a-workflow-from-github-actions) for a complete explanation.
 
 ### 13.1 Pre-requisites
 
