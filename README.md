@@ -37,6 +37,7 @@ Personality assessment platform for [Dr. Brent Roberts](https://psychology.illin
     - [4.2.2 Adding the WebSocket server to the Caddyfile](#422-adding-the-websocket-server-to-the-caddyfile)
     - [4.2.3 Upgrade `caddy`](#423-upgrade-caddy)
     - [4.2.4 Locate Caddy's TLS certificate and private key](#424-locate-caddys-tls-certificate-and-private-key)
+    - [4.2.5 View Caddy status info after running `systemctl` with `sudo`](#425-view-caddy-status-info-after-running-systemctl-with-sudo)
   - [4.3. On EC2 instance, install Docker, login, and start the Docker daemon](#43-on-ec2-instance-install-docker-login-and-start-the-docker-daemon)
     - [4.3.1. Install `docker`](#431-install-docker)
     - [4.3.2. Run `docker` commands without `sudo`](#432-run-docker-commands-without-sudo)
@@ -810,6 +811,24 @@ This command may require elevated privileges if your user does not have permissi
     ```zsh
     "issuer":"acme-v02.api.letsencrypt.org-directory"
     ```
+
+#### 4.2.5 View Caddy status info after running `systemctl` with `sudo`
+
+To view the status of the current running Caddy service, run `systemctl` with `sudo`:
+
+```zsh
+sudo systemctl status caddy
+```
+
+The Caddy service will display a color code, with either a green circle that is next to the `caddy.service - Caddy` text, or an empty circle, that is at the top of the output that is returned from running the command. Those outputs are shared below as screenshots:
+
+1. Active status:
+
+    ![View Caddy active status info after running systemctl with sudo](./images/caddy-active-status-info-after-running-systemctl-with-sudo.png)
+
+2. Inactive status:
+
+    ![View Caddy inactive status info after running systemctl with sudo](./images/caddy-inactive-status-info-after-running-systemctl-with-sudo.png)
 
 ### 4.3. On EC2 instance, install Docker, login, and start the Docker daemon
 
