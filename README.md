@@ -99,10 +99,10 @@ Personality assessment platform for [Dr. Brent Roberts](https://psychology.illin
   - [14.3. Tailscale](#143-tailscale)
     - [14.3.1 Set up a tailnet](#1431-set-up-a-tailnet)
     - [14.3.2. Connecting to the target host's application](#1432-connecting-to-the-target-hosts-application)
-  - [15. Valkey cache on Aiven](#15-valkey-cache-on-aiven)
-    - [15.1. Creating a Valkey cache](#151-creating-a-valkey-cache)
-    - [15.2. Using the Valkey cache](#152-using-the-valkey-cache)
-  - [16.0 Updating the kernel of an EC2 Amazon Linux 2023 server](#160-updating-the-kernel-of-an-ec2-amazon-linux-2023server)
+- [15. Valkey cache on Aiven](#15-valkey-cache-on-aiven)
+  - [15.1. Creating a Valkey cache](#151-creating-a-valkey-cache)
+  - [15.2. Using the Valkey cache](#152-using-the-valkey-cache)
+- [16.0 Updating the kernel of an EC2 Amazon Linux 2023 server](#160-updating-the-kernel-of-an-ec2-amazon-linux-2023server)
 
 ## 0. General Information
 
